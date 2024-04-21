@@ -8,7 +8,7 @@
 #import <Foundation/Foundation.h>
 
 //! Project version number for OpenUXKit.
-FOUNDATION_EXPORT double OpenUXKitVersionNumber;
+FOUNDATION_EXPORT CGFloat OpenUXKitVersionNumber;
 
 //! Project version string for OpenUXKit.
 FOUNDATION_EXPORT const unsigned char OpenUXKitVersionString[];

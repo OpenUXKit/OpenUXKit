@@ -11,7 +11,7 @@
 @interface UXTransitionController ()
 {
     NSInteger _operation;    // 8 = 0x8
-    double _percentComplete;    // 16 = 0x10
+    CGFloat _percentComplete;    // 16 = 0x10
 }
 @end
 

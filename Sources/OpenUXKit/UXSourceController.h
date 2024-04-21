@@ -20,11 +20,11 @@
 @property(nonatomic) __weak NSWindow *observedWindow; // @synthesize observedWindow=_observedWindow;
 @property(readonly, nonatomic) NSPopUpButton *popUpButton; // @synthesize popUpButton=_popUpButton;
 @property(readonly, nonatomic) NSSegmentedControl *segmentedControl; // @synthesize segmentedControl=_segmentedControl;
-@property(retain, nonatomic) UXViewController *selectedViewController; // @synthesize selectedViewController=_selectedViewController;
+@property(strong, nonatomic) UXViewController *selectedViewController; // @synthesize selectedViewController=_selectedViewController;
 @property(copy, nonatomic) NSArray *rootViewControllers; // @synthesize rootViewControllers=_rootViewControllers;
 @property(copy, nonatomic) NSString *sourceListAutosaveName; // @synthesize sourceListAutosaveName=_sourceListAutosaveName;
-@property(nonatomic) double minimumWidthForInlineSourceList; // @synthesize minimumWidthForInlineSourceList=_minimumWidthForInlineSourceList;
-@property(retain, nonatomic) UXViewController<UXSourceList> *sourceListViewController; // @synthesize sourceListViewController=_sourceListViewController;
+@property(nonatomic) CGFloat minimumWidthForInlineSourceList; // @synthesize minimumWidthForInlineSourceList=_minimumWidthForInlineSourceList;
+@property(strong, nonatomic) UXViewController<UXSourceList> *sourceListViewController; // @synthesize sourceListViewController=_sourceListViewController;
 @property(nonatomic) NSInteger style; // @synthesize style=_style;
 @property(nonatomic) NSInteger preferredStyle; // @synthesize preferredStyle=_preferredStyle;
 - (id)fallbackNavigationDestination;
@@ -36,7 +36,7 @@
 - (void)navigationController:(id)arg1 willShowViewController:(id)arg2;
 - (BOOL)sourceSplitView:(id)arg1 canSpringLoadRevealSubview:(id)arg2;
 - (void)sourceSplitView:(id)arg1 didChangeAutoCollapsedValue:(BOOL)arg2;
-- (void)sourceSplitView:(id)arg1 didResizeMasterWidth:(double)arg2;
+- (void)sourceSplitView:(id)arg1 didResizeMasterWidth:(CGFloat)arg2;
 - (id)_contextForTransitionOperation:(NSInteger)arg1 fromViewController:(id)arg2 toViewController:(id)arg3 transition:(NSUInteger)arg4;
 - (void)_beginTransitionWithContext:(id)arg1 operation:(NSInteger)arg2;
 - (void)_prepareViewController:(id)arg1 forAnimationInContext:(id)arg2 completion:(id)arg3;
@@ -88,9 +88,9 @@
 - (void)_setSelectedViewController:(id)arg1 animated:(BOOL)arg2 sender:(id)arg3;
 - (void)_didChangeSelectedViewControllerFromSender:(id)arg1;
 - (id)_popTransitoryViewControllersInNavigationController:(id)arg1 animated:(BOOL)arg2;
-- (void)_setLeadingContentInset:(double)arg1;
-- (double)_preferredSourceListWidth;
-- (void)_saveSourceListWidth:(double)arg1;
+- (void)_setLeadingContentInset:(CGFloat)arg1;
+- (CGFloat)_preferredSourceListWidth;
+- (void)_saveSourceListWidth:(CGFloat)arg1;
 - (void)_updateSelectionControls;
 - (void)_configureManagedNavigationController:(id)arg1;
 - (void)unregisterTransitionControllerForTransitionToViewControllerClass:(Class)arg1;

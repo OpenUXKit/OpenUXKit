@@ -28,13 +28,13 @@
 - (void)_setupAccessoryBar;
 - (void)_setupNavigationBarToolbarItem;
 - (void)_setAccessoryBarHidden:(BOOL)arg1;
-@property(readonly, nonatomic) double _accessoryBarHeight;
+@property(readonly, nonatomic) CGFloat _accessoryBarHeight;
 - (id)toolbar:(id)arg1 itemForItemIdentifier:(id)arg2 willBeInsertedIntoToolbar:(BOOL)arg3;
 - (id)toolbarDefaultItemIdentifiers:(id)arg1;
 - (id)toolbarAllowedItemIdentifiers:(id)arg1;
 - (void)setWindow:(id)arg1;
 - (id)rootNavigationController;
-@property(retain, nonatomic) UXViewController *rootViewController;
+@property(strong, nonatomic) UXViewController *rootViewController;
 @property(readonly, nonatomic) NSTitlebarAccessoryViewController *titlebarAccessoryViewController;
 - (void)observeValueForKeyPath:(id)arg1 ofObject:(id)arg2 change:(id)arg3 context:(void *)arg4;
 - (void)_tearDownViewControllerHierarchyForViewController:(id)arg1;

@@ -16,10 +16,10 @@
 }
 
 
-@property(retain, nonatomic) UXView *backgroundView; // @synthesize backgroundView=_backgroundView;
-@property(retain, nonatomic) UXView *contentView; // @synthesize contentView=_contentView;
-@property(retain, nonatomic) UXLabel *detailTextLabel; // @synthesize detailTextLabel=_detailTextLabel;
-@property(retain, nonatomic) UXLabel *textLabel; // @synthesize textLabel=_textLabel;
+@property(strong, nonatomic) UXView *backgroundView; // @synthesize backgroundView=_backgroundView;
+@property(strong, nonatomic) UXView *contentView; // @synthesize contentView=_contentView;
+@property(strong, nonatomic) UXLabel *detailTextLabel; // @synthesize detailTextLabel=_detailTextLabel;
+@property(strong, nonatomic) UXLabel *textLabel; // @synthesize textLabel=_textLabel;
 - (void)prepareForReuse;
 - (void)updateConstraints;
 - (id)initWithReuseIdentifier:(id)arg1;

@@ -13,7 +13,7 @@
     NSEvent *_mouseDownEvent;	// 8 = 0x8
 }
 
-@property(retain, nonatomic) NSEvent *mouseDownEvent; // @synthesize mouseDownEvent=_mouseDownEvent;
+@property(strong, nonatomic) NSEvent *mouseDownEvent; // @synthesize mouseDownEvent=_mouseDownEvent;
 - (void)dealloc;
 - (void)uxCancel;
 - (void)mouseDown:(id)arg1;

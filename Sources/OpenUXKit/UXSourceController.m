@@ -32,7 +32,7 @@
     NSInteger _preferredStyle;    // 160 = 0xa0
     NSInteger _style;    // 168 = 0xa8
     UXViewController<UXSourceList> *_sourceListViewController;    // 176 = 0xb0
-    double _minimumWidthForInlineSourceList;    // 184 = 0xb8
+    CGFloat _minimumWidthForInlineSourceList;    // 184 = 0xb8
     NSString *_sourceListAutosaveName;    // 192 = 0xc0
     NSArray *_rootViewControllers;    // 200 = 0xc8
     UXViewController *_selectedViewController;    // 208 = 0xd0

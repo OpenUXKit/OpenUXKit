@@ -15,7 +15,7 @@
 @property(readonly, nonatomic) BOOL ux_inFullScreen;
 - (void)tintColorDidChange;
 @property(nonatomic) NSInteger tintAdjustmentMode;
-@property(retain, nonatomic) NSColor *tintColor;
+@property(strong, nonatomic) NSColor *tintColor;
 - (void)ux_forceEnableStandardWindowButton:(NSWindowButton)windowButton;
 @end
 

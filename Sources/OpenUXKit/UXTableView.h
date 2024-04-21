@@ -33,7 +33,7 @@
     BOOL __floatingHeadersDisabled;	// 152 = 0x98
     id <UXTableViewDataSource> _tableViewDataSource;	// 160 = 0xa0
     id <UXTableViewDelegate> _tableViewDelegate;	// 168 = 0xa8
-    double _rowHeight;	// 176 = 0xb0
+    CGFloat _rowHeight;	// 176 = 0xb0
     NSInteger _separatorStyle;	// 184 = 0xb8
     NSColor *_separatorColor;	// 192 = 0xc0
     NSEdgeInsets _separatorInset;	// 200 = 0xc8
@@ -46,10 +46,10 @@
 @property(nonatomic) NSEdgeInsets separatorInset; // @synthesize separatorInset=_separatorInset;
 @property(copy, nonatomic) NSColor *separatorColor; // @synthesize separatorColor=_separatorColor;
 @property(nonatomic) NSInteger separatorStyle; // @synthesize separatorStyle=_separatorStyle;
-@property(nonatomic) double rowHeight; // @synthesize rowHeight=_rowHeight;
+@property(nonatomic) CGFloat rowHeight; // @synthesize rowHeight=_rowHeight;
 @property(nonatomic) __weak id <UXTableViewDelegate> tableViewDelegate; // @synthesize tableViewDelegate=_tableViewDelegate;
 @property(nonatomic) __weak id <UXTableViewDataSource> tableViewDataSource; // @synthesize tableViewDataSource=_tableViewDataSource;
-@property(nonatomic) double alpha;
+@property(nonatomic) CGFloat alpha;
 - (void)_checkForAccessoryViewsInScrollerAreas;
 - (void)collectionView:(id)arg1 layout:(id)arg2 supplementaryViewDidEndFloatingAtIndexPath:(id)arg3 kind:(id)arg4;
 - (void)collectionView:(id)arg1 layout:(id)arg2 supplementaryViewDidBeginFloatingAtIndexPath:(id)arg3 kind:(id)arg4;

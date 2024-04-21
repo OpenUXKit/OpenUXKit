@@ -10,19 +10,17 @@
 
 @interface _UXNavigationRequest : NSObject
 
-
 + (_UXNavigationRequest *)setRequestWithViewControllers:(NSArray<UXViewController *> *)viewControllers animated:(BOOL)animated;
 + (_UXNavigationRequest *)popRequestWithViewController:(UXViewController *)viewController animated:(BOOL)animated;
 + (_UXNavigationRequest *)pushRequestWithViewController:(UXViewController *)viewController animated:(BOOL)animated;
 + (_UXNavigationRequest *)_requestWithOperation:(NSInteger)operation viewControllers:(NSArray<UXViewController *> *)viewControllers animated:(BOOL)animated;
 
-@property(readonly, nonatomic) BOOL animated; // @synthesize animated=_animated;
-@property(readonly, nonatomic) NSArray<UXViewController *> *viewControllers; // @synthesize viewControllers=_viewControllers;
-@property(readonly, nonatomic) NSInteger operation; // @synthesize operation=_operation;
+@property (nonatomic, readonly) BOOL animated; // @synthesize animated=_animated;
+@property (nonatomic, readonly) NSArray<UXViewController *> *viewControllers; // @synthesize viewControllers=_viewControllers;
+@property (nonatomic, readonly) NSInteger operation; // @synthesize operation=_operation;
 - (BOOL)isEqualToNavigationRequest:(id)arg1;
 - (void)tearDownContainmentIfNeeded;
 - (void)setupContainmentIfNeededInParentViewController:(id)parentViewController;
-@property(readonly, nonatomic) UXViewController *viewController;
+@property (nonatomic, readonly) UXViewController *viewController;
 
 @end
-

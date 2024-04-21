@@ -15,13 +15,11 @@
 + (instancetype)_horizontalLayoutSpacer;
 + (instancetype)_verticalLayoutSpacer;
 
-@property(copy, nonatomic) id lengthUpdateBlock; // @synthesize lengthUpdateBlock=_lengthUpdateBlock;
-@property(nonatomic) BOOL horizontal; // @synthesize horizontal=_horizontal;
+@property (nonatomic, copy) id lengthUpdateBlock; // @synthesize lengthUpdateBlock=_lengthUpdateBlock;
+@property (nonatomic) BOOL horizontal; // @synthesize horizontal=_horizontal;
 - (void)_activate;
-- (void)_setUpDimensionConstraintWithLength:(double)arg1;
+- (void)_setUpDimensionConstraintWithLength:(CGFloat)arg1;
 - (void)_setUpCounterDimensionConstraint;
 
 
 @end
-
-

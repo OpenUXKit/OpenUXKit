@@ -23,7 +23,7 @@
     NSUInteger _keyEquivalentModifierMask;    // 72 = 0x48
     NSInteger _buttonState;    // 80 = 0x50
     NSInteger _style;    // 88 = 0x58
-    double _width;    // 96 = 0x60
+    CGFloat _width;    // 96 = 0x60
     NSView *_customView;    // 104 = 0x68
     NSLayoutAnchor *_baselineAnchor;    // 112 = 0x70
     UXViewController *_contentViewController;    // 120 = 0x78

@@ -14,7 +14,7 @@
 - (CGPoint)collectionView:(UXCollectionView *)arg1 targetContentOffsetOnResizeForProposedContentOffset:(CGPoint)arg2;
 - (void)collectionView:(UXCollectionView *)arg1 didPrepareForOverdraw:(CGRect)arg2;
 - (void)collectionView:(UXCollectionView *)arg1 itemWasRightClickedAtIndexPath:(NSIndexPath *)arg2 withEvent:(NSEvent *)arg3;
-- (void)collectionView:(UXCollectionView *)arg1 itemWasDoubleClickedAtIndexPath:(NSIndexPath *)arg2 withEvent:(NSEvent *)arg3;
+- (void)collectionView:(UXCollectionView *)arg1 itemWasCGFloatClickedAtIndexPath:(NSIndexPath *)arg2 withEvent:(NSEvent *)arg3;
 - (void)collectionView:(UXCollectionView *)arg1 mouseDownWithEvent:(NSEvent *)arg2;
 - (void)collectionView:(UXCollectionView *)arg1 didEndDisplayingSupplementaryView:(UXCollectionReusableView *)arg2 forElementOfKind:(NSString *)arg3 atIndexPath:(NSIndexPath *)arg4;
 - (void)collectionView:(UXCollectionView *)arg1 didEndDisplayingCell:(UXCollectionViewCell *)arg2 forItemAtIndexPath:(NSIndexPath *)arg3;

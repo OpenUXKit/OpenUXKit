@@ -16,7 +16,7 @@
     CGRect _frame;	// 32 = 0x20
     CGPoint _center;	// 64 = 0x40
     CGSize _size;	// 80 = 0x50
-    double _alpha;	// 96 = 0x60
+    CGFloat _alpha;	// 96 = 0x60
     NSInteger _zIndex;	// 104 = 0x68
     BOOL _isFloating;	// 112 = 0x70
     CGRect _floatingFrame;	// 120 = 0x78
@@ -30,19 +30,19 @@
         unsigned int isClone:1;
     } _layoutFlags;	// 176 = 0xb0
     BOOL _isPushing;	// 180 = 0xb4
-    double _verticalOffsetFromFloatingPosition;	// 184 = 0xb8
+    CGFloat _verticalOffsetFromFloatingPosition;	// 184 = 0xb8
 }
 
 + (id)layoutAttributesForDecorationViewOfKind:(id)arg1 withIndexPath:(id)arg2;
 + (id)layoutAttributesForSupplementaryViewOfKind:(id)arg1 withIndexPath:(id)arg2;
 + (id)layoutAttributesForCellWithIndexPath:(id)arg1;
-@property(nonatomic) double verticalOffsetFromFloatingPosition; // @synthesize verticalOffsetFromFloatingPosition=_verticalOffsetFromFloatingPosition;
-@property(retain, nonatomic) NSIndexPath *indexPath; // @synthesize indexPath=_indexPath;
+@property(nonatomic) CGFloat verticalOffsetFromFloatingPosition; // @synthesize verticalOffsetFromFloatingPosition=_verticalOffsetFromFloatingPosition;
+@property(strong, nonatomic) NSIndexPath *indexPath; // @synthesize indexPath=_indexPath;
 @property(nonatomic) BOOL isPushing; // @synthesize isPushing=_isPushing;
 @property(nonatomic) CGRect floatingFrame; // @synthesize floatingFrame=_floatingFrame;
 @property(nonatomic) BOOL isFloating; // @synthesize isFloating=_isFloating;
 @property(nonatomic) NSInteger zIndex; // @synthesize zIndex=_zIndex;
-@property(nonatomic) double alpha; // @synthesize alpha=_alpha;
+@property(nonatomic) CGFloat alpha; // @synthesize alpha=_alpha;
 @property(nonatomic) CGSize size; // @synthesize size=_size;
 @property(nonatomic) CGPoint center; // @synthesize center=_center;
 @property(readonly, nonatomic) NSString *representedElementKind; // @synthesize representedElementKind=_representedElementKind;

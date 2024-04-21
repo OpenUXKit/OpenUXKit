@@ -32,7 +32,7 @@
 - (BOOL)isAccessibilitySelectorAllowed:(SEL)arg1;
 - (BOOL)isAccessibilitySelected;
 - (id)_axSimulateClick:(NSUInteger)arg1 withNumberOfClicks:(NSUInteger)arg2;
-- (void)_axPerformDoubleClick;
+- (void)_axPerformCGFloatClick;
 - (BOOL)accessibilityPerformPress;
 
 @end

@@ -22,10 +22,10 @@
 
 
 @property(nonatomic) NSInteger numberOfLines; // @synthesize numberOfLines=_numberOfLines;
-@property(retain, nonatomic) NSColor *highlightedTextColor; // @synthesize highlightedTextColor=_highlightedTextColor;
+@property(strong, nonatomic) NSColor *highlightedTextColor; // @synthesize highlightedTextColor=_highlightedTextColor;
 @property(nonatomic) CGSize shadowOffset; // @synthesize shadowOffset=_shadowOffset;
-@property(retain, nonatomic) NSColor *shadowColor; // @synthesize shadowColor=_shadowColor;
-@property(retain, nonatomic) NSColor *textColor; // @synthesize textColor=_textColor;
+@property(strong, nonatomic) NSColor *shadowColor; // @synthesize shadowColor=_shadowColor;
+@property(strong, nonatomic) NSColor *textColor; // @synthesize textColor=_textColor;
 - (id)accessibilityRoleDescription;
 - (void)setAccessibilityRoleDescription:(id)arg1;
 - (id)accessibilityRole;
@@ -36,19 +36,19 @@
 - (id)textFieldCell;
 @property(nonatomic) BOOL selectable;
 @property(nonatomic) BOOL centerVertically;
-@property(nonatomic) double preferredMaxLayoutWidth;
+@property(nonatomic) CGFloat preferredMaxLayoutWidth;
 @property(nonatomic) NSInteger textAlignment;
 @property(nonatomic) NSUInteger lineBreakMode;
 @property(nonatomic, getter=isHighlighted) BOOL highlighted;
 @property(copy, nonatomic) NSAttributedString *attributedText;
 @property(copy, nonatomic) NSString *text;
-@property(retain, nonatomic) NSFont *font;
+@property(strong, nonatomic) NSFont *font;
 - (CGSize)intrinsicContentSize;
 - (CGSize)sizeThatFits:(CGSize)arg1;
 - (void)sizeToFit;
 - (void)setContentCompressionResistancePriority:(float)arg1 forOrientation:(NSInteger)arg2;
-- (double)lastBaselineOffsetFromBottom;
-- (double)firstBaselineOffsetFromTop;
+- (CGFloat)lastBaselineOffsetFromBottom;
+- (CGFloat)firstBaselineOffsetFromTop;
 - (NSEdgeInsets)alignmentRectInsets;
 - (id)initWithFrame:(CGRect)arg1;
 

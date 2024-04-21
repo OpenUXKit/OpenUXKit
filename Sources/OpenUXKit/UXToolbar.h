@@ -16,7 +16,7 @@
 @property(nonatomic) __weak id <UXToolbarDelegate> delegate; // @synthesize delegate=_delegate;
 - (NSInteger)barPosition;
 - (void)_beginInteractiveTransitionForItems:(id)arg1;
-- (void)_setItems:(id)arg1 animated:(BOOL)arg2 duration:(double)arg3;
+- (void)_setItems:(id)arg1 animated:(BOOL)arg2 duration:(CGFloat)arg3;
 - (void)setItems:(id)arg1 animated:(BOOL)arg2;
 - (void)otherMouseDragged:(id)arg1;
 - (void)rightMouseDragged:(id)arg1;

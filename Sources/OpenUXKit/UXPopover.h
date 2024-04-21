@@ -14,7 +14,7 @@
 }
 
 
-@property(retain, nonatomic) UXPopoverController *popoverController; // @synthesize popoverController=_popoverController;
+@property(strong, nonatomic) UXPopoverController *popoverController; // @synthesize popoverController=_popoverController;
 
 @end
 

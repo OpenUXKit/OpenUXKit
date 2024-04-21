@@ -22,6 +22,7 @@
 #import "UXView.h"
 #import "UXViewControllerTransitionCoordinator.h"
 #import "UXWindowController.h"
+#import "UXNavigationController+Internal.h"
 
 @implementation UXViewController
 

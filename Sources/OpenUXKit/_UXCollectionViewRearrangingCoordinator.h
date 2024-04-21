@@ -43,9 +43,9 @@
     CGPoint _screenPoint;	// 56 = 0x38
     BOOL _initialIndexPathsAreContiguous;	// 72 = 0x48
     NSGestureRecognizer *_gestureRecognizer;	// 80 = 0x50
-    double _dragStartTime;	// 88 = 0x58
-    double _collectionViewReloadLastCallTime;	// 96 = 0x60
-    double _dragEnteredTime;	// 104 = 0x68
+    CGFloat _dragStartTime;	// 88 = 0x58
+    CGFloat _collectionViewReloadLastCallTime;	// 96 = 0x60
+    CGFloat _dragEnteredTime;	// 104 = 0x68
     BOOL _updatesLayoutOnDrag;	// 112 = 0x70
     BOOL _autoscrolling;	// 113 = 0x71
     NSUInteger _sequenceNumber;	// 120 = 0x78
@@ -59,8 +59,8 @@
     BOOL _shouldExchange;	// 142 = 0x8e
     UXCollectionView *_collectionView;	// 144 = 0x90
     NSInteger _initiationMode;	// 152 = 0x98
-    double _rearrangingInitialDelay;	// 160 = 0xa0
-    double _rearrangingPreviewDelay;	// 168 = 0xa8
+    CGFloat _rearrangingInitialDelay;	// 160 = 0xa0
+    CGFloat _rearrangingPreviewDelay;	// 168 = 0xa8
     UXCollectionViewCell *_dropTargetCell;	// 176 = 0xb0
     NSUInteger _dropOperation;	// 184 = 0xb8
     NSString *_dragSourceIdentifier;	// 192 = 0xc0
@@ -72,14 +72,14 @@
 
 @property(readonly, nonatomic) NSString *dragSourceIdentifier; // @synthesize dragSourceIdentifier=_dragSourceIdentifier;
 @property(nonatomic) NSUInteger dropOperation; // @synthesize dropOperation=_dropOperation;
-@property(retain, nonatomic) UXCollectionViewCell *dropTargetCell; // @synthesize dropTargetCell=_dropTargetCell;
+@property(strong, nonatomic) UXCollectionViewCell *dropTargetCell; // @synthesize dropTargetCell=_dropTargetCell;
 @property(nonatomic) BOOL shouldExchange; // @synthesize shouldExchange=_shouldExchange;
 @property(nonatomic) struct _NSRange exchangedIndexRange; // @synthesize exchangedIndexRange=_exchangedIndexRange;
 @property(nonatomic) struct _NSRange movedIndexRange; // @synthesize movedIndexRange=_movedIndexRange;
 @property(nonatomic) struct _NSRange targetIndexRange; // @synthesize targetIndexRange=_targetIndexRange;
 @property(nonatomic) struct _NSRange initialIndexRange; // @synthesize initialIndexRange=_initialIndexRange;
-@property(nonatomic) double rearrangingPreviewDelay; // @synthesize rearrangingPreviewDelay=_rearrangingPreviewDelay;
-@property(nonatomic) double rearrangingInitialDelay; // @synthesize rearrangingInitialDelay=_rearrangingInitialDelay;
+@property(nonatomic) CGFloat rearrangingPreviewDelay; // @synthesize rearrangingPreviewDelay=_rearrangingPreviewDelay;
+@property(nonatomic) CGFloat rearrangingInitialDelay; // @synthesize rearrangingInitialDelay=_rearrangingInitialDelay;
 @property(nonatomic) BOOL allowAutoscroll; // @synthesize allowAutoscroll=_allowAutoscroll;
 @property(nonatomic) BOOL usePileForSingleItem; // @synthesize usePileForSingleItem=_usePileForSingleItem;
 @property(nonatomic) BOOL continuouslyUpdateInsideCells; // @synthesize continuouslyUpdateInsideCells=_continuouslyUpdateInsideCells;

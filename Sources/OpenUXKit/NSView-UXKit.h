@@ -11,16 +11,16 @@
 @class NSColor, NSString;
 
 @interface NSView (UXKit) <UXKitAppearance>
-- (double)ux_backingScaleFactor;
+- (CGFloat)ux_backingScaleFactor;
 - (id)enclosingViewOfClass:(Class)arg1;
 - (void)tintColorDidChange;
 @property(nonatomic) NSInteger tintAdjustmentMode;
-@property(retain, nonatomic) NSColor *tintColor;
+@property(strong, nonatomic) NSColor *tintColor;
 - (void)setContentCompressionResistancePriority:(float)arg1 forAxis:(NSInteger)arg2;
 - (float)contentCompressionResistancePriorityForAxis:(NSInteger)arg1;
 - (void)setContentHuggingPriority:(float)arg1 forAxis:(NSInteger)arg2;
 - (float)contentHuggingPriorityForAxis:(NSInteger)arg1;
-@property(nonatomic) double alpha;
+@property(nonatomic) CGFloat alpha;
 - (BOOL)pointInside:(CGPoint)arg1 withEvent:(id)arg2;
 - (void)layoutIfNeeded;
 - (void)layoutSubviews;

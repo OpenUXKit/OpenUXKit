@@ -16,18 +16,18 @@
     BOOL _leftToRight;	// 18 = 0x12
     CGRect _visibleBounds;	// 24 = 0x18
     CGSize _layoutSize;	// 56 = 0x38
-    double _dimension;	// 72 = 0x48
+    CGFloat _dimension;	// 72 = 0x48
     BOOL _isValid;	// 80 = 0x50
     NSDictionary *_rowAlignmentOptions;	// 88 = 0x58
     BOOL _usesFloatingHeaderFooter;	// 96 = 0x60
     CGSize _contentSize;	// 104 = 0x68
 }
 
-@property(retain, nonatomic) NSDictionary *rowAlignmentOptions; // @synthesize rowAlignmentOptions=_rowAlignmentOptions;
+@property(strong, nonatomic) NSDictionary *rowAlignmentOptions; // @synthesize rowAlignmentOptions=_rowAlignmentOptions;
 @property(nonatomic) CGSize contentSize; // @synthesize contentSize=_contentSize;
 @property(nonatomic) BOOL leftToRight; // @synthesize leftToRight=_leftToRight;
 @property(nonatomic) BOOL horizontal; // @synthesize horizontal=_horizontal;
-@property(nonatomic) double dimension; // @synthesize dimension=_dimension;
+@property(nonatomic) CGFloat dimension; // @synthesize dimension=_dimension;
 @property(nonatomic) BOOL usesFloatingHeaderFooter; // @synthesize usesFloatingHeaderFooter=_usesFloatingHeaderFooter;
 @property(readonly, nonatomic) NSMutableArray *sections; // @synthesize sections=_sections;
 - (id)copy;

@@ -17,8 +17,8 @@
 }
 
 @property(readonly, nonatomic) NSInteger updateAction; // @synthesize updateAction=_updateAction;
-@property(readonly, retain, nonatomic) NSIndexPath *indexPathAfterUpdate; // @synthesize indexPathAfterUpdate=_finalIndexPath;
-@property(readonly, retain, nonatomic) NSIndexPath *indexPathBeforeUpdate; // @synthesize indexPathBeforeUpdate=_initialIndexPath;
+@property(readonly, strong, nonatomic) NSIndexPath *indexPathAfterUpdate; // @synthesize indexPathAfterUpdate=_finalIndexPath;
+@property(readonly, strong, nonatomic) NSIndexPath *indexPathBeforeUpdate; // @synthesize indexPathBeforeUpdate=_initialIndexPath;
 - (NSInteger)inverseCompareIndexPaths:(id)arg1;
 - (NSInteger)compareIndexPaths:(id)arg1;
 - (BOOL)_isSectionOperation;

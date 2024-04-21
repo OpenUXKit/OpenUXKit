@@ -12,6 +12,6 @@
 @property(readonly) NSLayoutDimension *heightAnchor;
 @property(readonly) NSLayoutYAxisAnchor *bottomAnchor;
 @property(readonly) NSLayoutYAxisAnchor *topAnchor;
-@property(nonatomic) double length;
+@property(nonatomic) CGFloat length;
 @end
 

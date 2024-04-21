@@ -13,7 +13,7 @@
 }
 
 + (void)setIndex:(NSUInteger)arg1 atPosition:(NSUInteger)arg2 forIndexPath:(id *)arg3;
-- (id)retain;
+- (id)strong;
 - (id)description;
 - (id)copyWithZone:(struct _NSZone *)arg1;
 - (NSInteger)compare:(id)arg1;

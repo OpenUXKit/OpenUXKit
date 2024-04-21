@@ -20,10 +20,10 @@
 }
 
 
-@property(retain, nonatomic, setter=_setInteractiveChangeHandlers:) NSMutableArray *_interactiveChangeHandlers; // @synthesize _interactiveChangeHandlers=__interactiveChangeHandlers;
-@property(retain, nonatomic, setter=_setAlongsideCompletions:) NSMutableArray *_alongsideCompletions; // @synthesize _alongsideCompletions=__alongsideCompletions;
-@property(retain, nonatomic, setter=_setAlongsideAnimationViews:) NSMutableArray *_alongsideAnimationViews; // @synthesize _alongsideAnimationViews=__alongsideAnimationViews;
-@property(retain, nonatomic, setter=_setAlongsideAnimations:) NSMutableArray *_alongsideAnimations; // @synthesize _alongsideAnimations=__alongsideAnimations;
+@property(strong, nonatomic, setter=_setInteractiveChangeHandlers:) NSMutableArray *_interactiveChangeHandlers; // @synthesize _interactiveChangeHandlers=__interactiveChangeHandlers;
+@property(strong, nonatomic, setter=_setAlongsideCompletions:) NSMutableArray *_alongsideCompletions; // @synthesize _alongsideCompletions=__alongsideCompletions;
+@property(strong, nonatomic, setter=_setAlongsideAnimationViews:) NSMutableArray *_alongsideAnimationViews; // @synthesize _alongsideAnimationViews=__alongsideAnimationViews;
+@property(strong, nonatomic, setter=_setAlongsideAnimations:) NSMutableArray *_alongsideAnimations; // @synthesize _alongsideAnimations=__alongsideAnimations;
 @property(nonatomic, setter=_setMainContext:) _UXViewControllerTransitionContext *_mainContext; // @synthesize _mainContext=__mainContext;
 - (void)notifyWhenInteractionEndsUsingBlock:(id)arg1;
 - (BOOL)animateAlongsideTransition:(id)arg1 completion:(id)arg2;
@@ -34,10 +34,10 @@
 - (id)_interactiveChangeHandlers:(BOOL)arg1;
 - (id)containerView;
 - (id)viewControllerForKey:(id)arg1;
-- (double)transitionDuration;
+- (CGFloat)transitionDuration;
 - (NSInteger)completionCurve;
-- (double)completionVelocity;
-- (double)percentComplete;
+- (CGFloat)completionVelocity;
+- (CGFloat)percentComplete;
 - (BOOL)isCompleting;
 - (BOOL)isCancelled;
 - (BOOL)isInteractive;

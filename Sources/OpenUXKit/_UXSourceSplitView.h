@@ -25,9 +25,9 @@
     BOOL _autoCollapsed;	// 143 = 0x8f
     _UXContainerView *_masterView;	// 144 = 0x90
     _UXContainerView *_detailView;	// 152 = 0x98
-    double _minimumMasterWidth;	// 160 = 0xa0
-    double _maximumMasterWidth;	// 168 = 0xa8
-    double _minimumWidthForInlineSourceList;	// 176 = 0xb0
+    CGFloat _minimumMasterWidth;	// 160 = 0xa0
+    CGFloat _maximumMasterWidth;	// 168 = 0xa8
+    CGFloat _minimumWidthForInlineSourceList;	// 176 = 0xb0
     id <_UXSourceSplitViewDelegate> _delegate;	// 184 = 0xb8
     NSBox *_separator;	// 192 = 0xc0
     _UXSourceSplitViewSpringLoadingView *_leadingSpringLoadingView;	// 200 = 0xc8
@@ -37,8 +37,8 @@
 }
 
 
-@property(retain, nonatomic) NSGestureRecognizer *resizeRecognizer; // @synthesize resizeRecognizer=_resizeRecognizer;
-@property(retain, nonatomic) NSWindow *transientOverlayWindow; // @synthesize transientOverlayWindow=_transientOverlayWindow;
+@property(strong, nonatomic) NSGestureRecognizer *resizeRecognizer; // @synthesize resizeRecognizer=_resizeRecognizer;
+@property(strong, nonatomic) NSWindow *transientOverlayWindow; // @synthesize transientOverlayWindow=_transientOverlayWindow;
 @property(readonly, nonatomic) BOOL autoCollapsed; // @synthesize autoCollapsed=_autoCollapsed;
 @property(readonly, nonatomic) _UXSourceSplitViewShadowView *leadingOverlayShadowView; // @synthesize leadingOverlayShadowView=_leadingOverlayShadowView;
 @property(readonly, nonatomic) _UXSourceSplitViewSpringLoadingView *leadingSpringLoadingView; // @synthesize leadingSpringLoadingView=_leadingSpringLoadingView;
@@ -47,9 +47,9 @@
 @property(nonatomic) BOOL wantsCollapsed; // @synthesize wantsCollapsed=_wantsCollapsed;
 @property(nonatomic) BOOL springLoaded; // @synthesize springLoaded=_springLoaded;
 @property(nonatomic) BOOL revealsOnEdgeHoverInFullscreen; // @synthesize revealsOnEdgeHoverInFullscreen=_revealsOnEdgeHoverInFullscreen;
-@property(nonatomic) double minimumWidthForInlineSourceList; // @synthesize minimumWidthForInlineSourceList=_minimumWidthForInlineSourceList;
-@property(nonatomic) double maximumMasterWidth; // @synthesize maximumMasterWidth=_maximumMasterWidth;
-@property(nonatomic) double minimumMasterWidth; // @synthesize minimumMasterWidth=_minimumMasterWidth;
+@property(nonatomic) CGFloat minimumWidthForInlineSourceList; // @synthesize minimumWidthForInlineSourceList=_minimumWidthForInlineSourceList;
+@property(nonatomic) CGFloat maximumMasterWidth; // @synthesize maximumMasterWidth=_maximumMasterWidth;
+@property(nonatomic) CGFloat minimumMasterWidth; // @synthesize minimumMasterWidth=_minimumMasterWidth;
 @property(readonly, nonatomic) BOOL collapsed; // @synthesize collapsed=_collapsed;
 @property(readonly, nonatomic) BOOL transientlyUncollapsed; // @synthesize transientlyUncollapsed=_transientlyUncollapsed;
 @property(readonly, nonatomic) _UXContainerView *detailView; // @synthesize detailView=_detailView;
@@ -72,7 +72,7 @@
 - (BOOL)_shouldBeCollapsed;
 - (void)_endSeparatorLiveResize;
 - (void)_startSeparatorLiveResize;
-- (void)_resizeToWidth:(double)arg1;
+- (void)_resizeToWidth:(CGFloat)arg1;
 @property(readonly, nonatomic) NSCursor *separatorCursor;
 @property(readonly, nonatomic) UXView *subviewToReveal;
 - (void)setTransientlyUncollapsed:(BOOL)arg1 animated:(BOOL)arg2;
@@ -80,9 +80,9 @@
 - (void)_setupTransientOverlayWindow;
 - (void)_moveMasterAndSeparatorToView:(id)arg1;
 - (void)didChangeCollapsed;
-@property(readonly, nonatomic) double leadingContentInset;
-- (double)leadingContentInsetForWantsCollapsed:(BOOL)arg1;
-@property(nonatomic) double masterWidth;
+@property(readonly, nonatomic) CGFloat leadingContentInset;
+- (CGFloat)leadingContentInsetForWantsCollapsed:(BOOL)arg1;
+@property(nonatomic) CGFloat masterWidth;
 - (void)updateConstraintsForSeparatorAndMain;
 - (id)initWithFrame:(CGRect)arg1;
 

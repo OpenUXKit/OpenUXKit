@@ -22,7 +22,7 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 - (void)dismissPopover;
 - (void)presentPopoverFromBarButtonItem:(id)arg1 permittedArrowDirections:(NSUInteger)arg2 animated:(BOOL)arg3;
 - (void)presentPopoverFromRect:(CGRect)arg1 inView:(id)arg2 preferredEdge:(NSUInteger)arg3;
-@property(retain, nonatomic) UXViewController *contentViewController;
+@property(strong, nonatomic) UXViewController *contentViewController;
 @property(nonatomic) CGSize popoverContentSize;
 - (void)setPopoverContentSize:(CGSize)arg1 animated:(BOOL)arg2;
 @property(readonly, nonatomic, getter=isPopoverVisible) BOOL popoverVisible;

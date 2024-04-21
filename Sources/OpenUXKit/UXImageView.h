@@ -14,10 +14,10 @@
 
 
 @property(nonatomic, getter=isHighlighted) BOOL highlighted; // @synthesize highlighted=_highlighted;
-@property(retain, nonatomic) NSImage *highlightedImage; // @synthesize highlightedImage=_highlightedImage;
-@property(retain, nonatomic) NSImage *image; // @synthesize image=_image;
+@property(strong, nonatomic) NSImage *highlightedImage; // @synthesize highlightedImage=_highlightedImage;
+@property(strong, nonatomic) NSImage *image; // @synthesize image=_image;
 @property(nonatomic) BOOL allowsVibrancy; // @synthesize allowsVibrancy=_allowsVibrancy;
-@property(retain, nonatomic) NSString *accessibilityLabel; // @synthesize accessibilityLabel;
+@property(strong, nonatomic) NSString *accessibilityLabel; // @synthesize accessibilityLabel;
 - (void)viewDidChangeEffectiveAppearance;
 - (void)sizeToFit;
 - (void)_updateForCurrentImage;

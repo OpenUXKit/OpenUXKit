@@ -26,34 +26,34 @@
     NSColor *_highlightColor;	// 232 = 0xe8
     NSInteger _selectionStyle;	// 240 = 0xf0
     NSInteger _indentationLevel;	// 248 = 0xf8
-    double _indentationWidth;	// 256 = 0x100
+    CGFloat _indentationWidth;	// 256 = 0x100
     NSMutableArray *__addedConstraints;	// 264 = 0x108
     UXLabel *_textLabel;	// 272 = 0x110
     UXLabel *_detailTextLabel;	// 280 = 0x118
     NSInteger __separatorStyle;	// 288 = 0x120
-    double __separatorHeight;	// 296 = 0x128
+    CGFloat __separatorHeight;	// 296 = 0x128
     NSColor *__separatorColor;	// 304 = 0x130
     NSEdgeInsets _separatorInset;	// 312 = 0x138
 }
 
 
-@property(retain, nonatomic, setter=_setSeparatorColor:) NSColor *_separatorColor; // @synthesize _separatorColor=__separatorColor;
-@property(nonatomic, setter=_setSeparatorHeight:) double _separatorHeight; // @synthesize _separatorHeight=__separatorHeight;
+@property(strong, nonatomic, setter=_setSeparatorColor:) NSColor *_separatorColor; // @synthesize _separatorColor=__separatorColor;
+@property(nonatomic, setter=_setSeparatorHeight:) CGFloat _separatorHeight; // @synthesize _separatorHeight=__separatorHeight;
 @property(nonatomic, setter=_setSeparatorStyle:) NSInteger _separatorStyle; // @synthesize _separatorStyle=__separatorStyle;
 @property(nonatomic, setter=_setHighlightingForContext:) BOOL _highlightingForContext; // @synthesize _highlightingForContext=__highlightingForContext;
-@property(retain, nonatomic) UXLabel *detailTextLabel; // @synthesize detailTextLabel=_detailTextLabel;
-@property(retain, nonatomic) UXLabel *textLabel; // @synthesize textLabel=_textLabel;
-@property(retain, nonatomic) NSMutableArray *_addedConstraints; // @synthesize _addedConstraints=__addedConstraints;
+@property(strong, nonatomic) UXLabel *detailTextLabel; // @synthesize detailTextLabel=_detailTextLabel;
+@property(strong, nonatomic) UXLabel *textLabel; // @synthesize textLabel=_textLabel;
+@property(strong, nonatomic) NSMutableArray *_addedConstraints; // @synthesize _addedConstraints=__addedConstraints;
 @property(readonly, nonatomic) UXView *internalHighlightedBackgroundView; // @synthesize internalHighlightedBackgroundView=_internalHighlightedBackgroundView;
 @property(nonatomic) NSEdgeInsets separatorInset; // @synthesize separatorInset=_separatorInset;
-@property(nonatomic) double indentationWidth; // @synthesize indentationWidth=_indentationWidth;
+@property(nonatomic) CGFloat indentationWidth; // @synthesize indentationWidth=_indentationWidth;
 @property(nonatomic) NSInteger indentationLevel; // @synthesize indentationLevel=_indentationLevel;
 @property(nonatomic) NSInteger selectionStyle; // @synthesize selectionStyle=_selectionStyle;
-@property(retain, nonatomic) NSColor *highlightColor; // @synthesize highlightColor=_highlightColor;
-@property(retain, nonatomic) UXView *accessoryView; // @synthesize accessoryView=_accessoryView;
+@property(strong, nonatomic) NSColor *highlightColor; // @synthesize highlightColor=_highlightColor;
+@property(strong, nonatomic) UXView *accessoryView; // @synthesize accessoryView=_accessoryView;
 @property(nonatomic) NSInteger accessoryType; // @synthesize accessoryType=_accessoryType;
-@property(retain, nonatomic) UXView *selectedBackgroundView; // @synthesize selectedBackgroundView=_selectedBackgroundView;
-@property(retain, nonatomic) UXView *backgroundView; // @synthesize backgroundView=_backgroundView;
+@property(strong, nonatomic) UXView *selectedBackgroundView; // @synthesize selectedBackgroundView=_selectedBackgroundView;
+@property(strong, nonatomic) UXView *backgroundView; // @synthesize backgroundView=_backgroundView;
 @property(nonatomic) NSInteger style; // @synthesize style=_style;
 - (id)accessibilityLabel;
 - (NSInteger)_detailTextAlignment;

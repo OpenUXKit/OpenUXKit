@@ -14,7 +14,7 @@
 }
 
 
-@property(retain, nonatomic) NSColor *color; // @synthesize color=_color;
+@property(strong, nonatomic) NSColor *color; // @synthesize color=_color;
 - (void)drawRect:(CGRect)arg1;
 - (void)viewDidChangeBackingProperties;
 - (void)viewDidMoveToSuperview;

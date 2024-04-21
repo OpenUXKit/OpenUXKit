@@ -13,6 +13,6 @@
 
 @optional
 - (NSInteger)completionCurve;
-- (double)completionSpeed;
+- (CGFloat)completionSpeed;
 @end
 

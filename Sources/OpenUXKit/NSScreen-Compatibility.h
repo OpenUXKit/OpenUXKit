@@ -7,6 +7,6 @@
 #import <AppKit/NSScreen.h>
 
 @interface NSScreen (Compatibility)
-@property(readonly, nonatomic) double scale;
+@property(readonly, nonatomic) CGFloat scale;
 @end
 

@@ -20,10 +20,10 @@
 
 + (BOOL)supportsSecureCoding;
 
-@property(retain, nonatomic) NSSet *requiredDestinationAuxiliaryKeys; // @synthesize requiredDestinationAuxiliaryKeys=_requiredDestinationAuxiliaryKeys;
-@property(retain, nonatomic) UXDestinationAuxiliaryStore *destinationAuxiliaryStore; // @synthesize destinationAuxiliaryStore=_destinationAuxiliaryStore;
-@property(retain, nonatomic) NSString *destinationTitle; // @synthesize destinationTitle=_destinationTitle;
-@property(retain, nonatomic) NSString *destinationIdentifier; // @synthesize destinationIdentifier=_destinationIdentifier;
+@property(strong, nonatomic) NSSet *requiredDestinationAuxiliaryKeys; // @synthesize requiredDestinationAuxiliaryKeys=_requiredDestinationAuxiliaryKeys;
+@property(strong, nonatomic) UXDestinationAuxiliaryStore *destinationAuxiliaryStore; // @synthesize destinationAuxiliaryStore=_destinationAuxiliaryStore;
+@property(strong, nonatomic) NSString *destinationTitle; // @synthesize destinationTitle=_destinationTitle;
+@property(strong, nonatomic) NSString *destinationIdentifier; // @synthesize destinationIdentifier=_destinationIdentifier;
 - (void)encodeWithCoder:(id)arg1;
 - (id)initWithCoder:(id)arg1;
 

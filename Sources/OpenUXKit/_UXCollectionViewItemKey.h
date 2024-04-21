@@ -23,8 +23,8 @@
 + (id)collectionItemKeyForCellWithIndexPath:(id)arg1;
 @property(readonly, nonatomic) BOOL isClone; // @synthesize isClone=_isClone;
 @property(readonly, nonatomic) NSUInteger type; // @synthesize type=_type;
-@property(readonly, retain, nonatomic) NSString *identifier; // @synthesize identifier=_identifier;
-@property(readonly, retain, nonatomic) NSIndexPath *indexPath; // @synthesize indexPath=_indexPath;
+@property(readonly, strong, nonatomic) NSString *identifier; // @synthesize identifier=_identifier;
+@property(readonly, strong, nonatomic) NSIndexPath *indexPath; // @synthesize indexPath=_indexPath;
 - (NSUInteger)hash;
 - (void)setType:(NSUInteger)arg1;
 - (void)setIdentifier:(id)arg1;

@@ -17,7 +17,7 @@
 
 @property(readonly, copy, nonatomic) id completionHandler; // @synthesize completionHandler=_completionHandler;
 @property(nonatomic) NSInteger animationCount; // @synthesize animationCount=_animationCount;
-@property(retain, nonatomic) NSArray *viewAnimations; // @synthesize viewAnimations=_viewAnimations;
+@property(strong, nonatomic) NSArray *viewAnimations; // @synthesize viewAnimations=_viewAnimations;
 - (void)dealloc;
 - (id)initWithCompletionHandler:(id)arg1;
 

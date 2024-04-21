@@ -65,7 +65,7 @@
     BOOL _scrollingFromExternalControl;	// 539 = 0x21b
     CGPoint _lastScrollingDistance;	// 544 = 0x220
     float _scrollingVelocity;	// 560 = 0x230
-    double _lastScrollingTime;	// 568 = 0x238
+    CGFloat _lastScrollingTime;	// 568 = 0x238
     CGRect _lastPreparedOverdrawContentRect;	// 576 = 0x240
     CGPoint _normalizedSavedScrollViewPosition;	// 608 = 0x260
     BOOL _isPaintingSelectionRunning;	// 624 = 0x270
@@ -78,7 +78,7 @@
     UXCollectionViewIndexPathsSet *_keyboardRangeSelectionPreviouslySelectedItems;	// 672 = 0x2a0
     NSIndexPath *_keyboardRangeSelectionFirstSelectedItem;	// 680 = 0x2a8
     NSIndexPath *_keyboardRangeSelectionLastSelectedItem;	// 688 = 0x2b0
-    NSMutableDictionary *_doubleClickContext;	// 696 = 0x2b8
+    NSMutableDictionary *_CGFloatClickContext;	// 696 = 0x2b8
     _UXCollectionViewRearrangingCoordinator *_rearrangingCoordinator;	// 704 = 0x2c0
     NSInteger _suspendClipViewBoundsDidChange;	// 712 = 0x2c8
     struct {
@@ -96,7 +96,7 @@
         unsigned int delegateSelectionDidAddAndRemove:1;
         unsigned int delegateSectionsForSelectAllAction:1;
         unsigned int delegateMouseDownWithEvent:1;
-        unsigned int delegateItemWasDoubleClickedAtIndexPathWithEvent:1;
+        unsigned int delegateItemWasCGFloatClickedAtIndexPathWithEvent:1;
         unsigned int delegateItemWasRightClickedAtIndexPathWithEvent:1;
         unsigned int delegateWillDisplayCell:1;
         unsigned int delegateDidEndDisplayingCellForItemAtIndexPath:1;
@@ -142,7 +142,7 @@
 + (Class)documentClass;
 
 @property(copy, nonatomic) id scrollingRequest; // @synthesize scrollingRequest=_scrollingRequest;
-@property(retain, nonatomic) NSIndexPath *lastRightClickedIndexPath; // @synthesize lastRightClickedIndexPath=_lastRightClickedIndexPath;
+@property(strong, nonatomic) NSIndexPath *lastRightClickedIndexPath; // @synthesize lastRightClickedIndexPath=_lastRightClickedIndexPath;
 @property(readonly, nonatomic, getter=isDecelerating) BOOL decelerating; // @synthesize decelerating=_decelerating;
 @property(nonatomic) NSUInteger purgingCellsThreshold; // @synthesize purgingCellsThreshold=_purgingCellsThreshold;
 @property(nonatomic) NSUInteger extraNumberOfCellsToPreloadWhenScrollingStopped; // @synthesize extraNumberOfCellsToPreloadWhenScrollingStopped=_extraNumberOfCellsToPreloadWhenScrollingStopped;
@@ -152,7 +152,7 @@
 @property(nonatomic) BOOL allowsContinuousSelection; // @synthesize allowsContinuousSelection=_allowsContinuousSelection;
 @property(nonatomic) __weak NSObject<UXCollectionViewDelegate> *delegate; // @synthesize delegate=_delegate;
 @property(nonatomic) __weak NSObject<UXCollectionViewDataSource> *dataSource; // @synthesize dataSource=_dataSource;
-@property(retain, nonatomic) UXCollectionViewLayout *collectionViewLayout; // @synthesize collectionViewLayout=_layout;
+@property(strong, nonatomic) UXCollectionViewLayout *collectionViewLayout; // @synthesize collectionViewLayout=_layout;
 - (BOOL)isLassoSelectionInProgress;
 - (BOOL)lassoInvertsSelection;
 - (void)setLassoInvertsSelection:(BOOL)arg1;
@@ -176,7 +176,7 @@
 - (id)menuForEvent:(id)arg1;
 - (id)_indexPathForSupplementaryElementOfKind:(id)arg1 hitByEvent:(id)arg2;
 - (id)_indexPathOfSelectableItemHitByEvent:(id)arg1;
-- (void)_respondToDoubleClick;
+- (void)_respondToCGFloatClick;
 - (void)_performItemSelectionForMouseEvent:(id)arg1 onCell:(id)arg2 atIndexPath:(id)arg3;
 - (id)_selectableIndexPathForItemContainingHitView:(id)arg1;
 - (BOOL)_hasAnyItems;
@@ -307,7 +307,7 @@
 - (void)_updateFirstResponderView;
 - (BOOL)_selectionBorderShouldUsePrimaryColor;
 - (BOOL)_highlightColorDependsOnWindowState;
-- (id)_doubleSidedAnimationsForView:(id)arg1 withStartingLayoutAttributes:(id)arg2 startingLayout:(id)arg3 endingLayoutAttributes:(id)arg4 endingLayout:(id)arg5 withAnimationSetup:(id)arg6 animationCompletion:(id)arg7 enableCustomAnimations:(BOOL)arg8 customAnimationsType:(NSUInteger)arg9;
+- (id)_CGFloatSidedAnimationsForView:(id)arg1 withStartingLayoutAttributes:(id)arg2 startingLayout:(id)arg3 endingLayoutAttributes:(id)arg4 endingLayout:(id)arg5 withAnimationSetup:(id)arg6 animationCompletion:(id)arg7 enableCustomAnimations:(BOOL)arg8 customAnimationsType:(NSUInteger)arg9;
 - (void)_updateCellsInRect:(CGRect)arg1 createIfNecessary:(BOOL)arg2;
 - (void)_updateVisibleCellsNow:(BOOL)arg1;
 - (id)_createPreparedSupplementaryViewForElementOfKind:(id)arg1 atIndexPath:(id)arg2 withLayoutAttributes:(id)arg3 applyAttributes:(BOOL)arg4;
@@ -392,7 +392,7 @@
 - (NSInteger)allowedDropPositionsForItemsAtIndexPaths:(id)arg1 movedToIndexPath:(id)arg2;
 - (void)rearrangingCoordinatorReloadLayout_;
 @property(readonly, nonatomic) BOOL isRearranging_;
-@property(nonatomic) double rearrangingPreviewDelay_;
+@property(nonatomic) CGFloat rearrangingPreviewDelay_;
 @property(nonatomic) BOOL rearrangingContinuouslyUpdateInsideCells_;
 @property(nonatomic) NSInteger rearrangingInitiationMode_;
 @property(nonatomic) BOOL rearrangingExternalDropEnabled_;

@@ -10,7 +10,7 @@
 
 @protocol UXKitAppearance <NSObject>
 @property(nonatomic) NSInteger tintAdjustmentMode;
-@property(retain, nonatomic) NSColor *tintColor;
+@property(strong, nonatomic) NSColor *tintColor;
 - (void)tintColorDidChange;
 @end
 

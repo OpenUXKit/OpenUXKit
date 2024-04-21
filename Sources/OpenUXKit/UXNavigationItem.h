@@ -11,25 +11,25 @@
 @interface UXNavigationItem : NSObject <NSUserInterfaceItemIdentification>
 
 
-@property(retain, nonatomic) NSView *condensedTitleView; // @synthesize condensedTitleView=_condensedTitleView;
+@property(strong, nonatomic) NSView *condensedTitleView; // @synthesize condensedTitleView=_condensedTitleView;
 @property(nonatomic) BOOL leftItemsSupplementBackButton; // @synthesize leftItemsSupplementBackButton=_leftItemsSupplementBackButton;
 @property(nonatomic) BOOL hidesGlobalTrailingView; // @synthesize hidesGlobalTrailingView=_hidesGlobalTrailingView;
 @property(nonatomic) BOOL hidesAlternateTitleView; // @synthesize hidesAlternateTitleView=_hidesAlternateTitleView;
 @property(nonatomic) BOOL hidesBackButton; // @synthesize hidesBackButton=_hidesBackButton;
 @property(copy, nonatomic) NSString *prompt; // @synthesize prompt=_prompt;
-@property(retain, nonatomic) NSView *titleView; // @synthesize titleView=_titleView;
-@property(retain, nonatomic) UXBarButtonItem *backBarButtonItem; // @synthesize backBarButtonItem=_backBarButtonItem;
-@property(retain, nonatomic) NSString *title; // @synthesize title=_title;
-@property(retain, nonatomic) UXBarButtonItem *rightBarButtonItem;
-@property(retain, nonatomic) NSArray *rightBarButtonItems;
-@property(retain, nonatomic) NSArray *leftBarButtonItems;
-@property(retain, nonatomic) UXBarButtonItem *leftBarButtonItem;
+@property(strong, nonatomic) NSView *titleView; // @synthesize titleView=_titleView;
+@property(strong, nonatomic) UXBarButtonItem *backBarButtonItem; // @synthesize backBarButtonItem=_backBarButtonItem;
+@property(strong, nonatomic) NSString *title; // @synthesize title=_title;
+@property(strong, nonatomic) UXBarButtonItem *rightBarButtonItem;
+@property(strong, nonatomic) NSArray *rightBarButtonItems;
+@property(strong, nonatomic) NSArray *leftBarButtonItems;
+@property(strong, nonatomic) UXBarButtonItem *leftBarButtonItem;
 @property (nonatomic) NSEdgeInsets layoutMargins;  
 - (void)_updateInternalTitleView;
 @property(readonly, nonatomic) NSTextField *internalTitleView;
-@property(retain, nonatomic) NSArray *trailingBarButtonItems;
+@property(strong, nonatomic) NSArray *trailingBarButtonItems;
 - (void)setTrailingBarButtonItems:(id)arg1 animated:(BOOL)arg2;
-@property(retain, nonatomic) NSArray *leadingBarButtonItems;
+@property(strong, nonatomic) NSArray *leadingBarButtonItems;
 - (void)setLeadingBarButtonItems:(id)arg1 animated:(BOOL)arg2;
 - (void)setRightBarButtonItems:(id)arg1 animated:(BOOL)arg2;
 - (void)setRightBarButtonItem:(id)arg1 animated:(BOOL)arg2;

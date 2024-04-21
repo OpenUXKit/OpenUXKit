@@ -10,7 +10,7 @@
 
 @interface UXBackButton : NSSegmentedControl
 
-@property(retain, nonatomic) NSImage *image; // @synthesize image=_image;
+@property(strong, nonatomic) NSImage *image; // @synthesize image=_image;
 @property(copy, nonatomic) NSString *title; // @synthesize title=_title;
 @property(nonatomic) BOOL hidesTitle; // @synthesize hidesTitle=_hidesTitle;
 - (id)description;

@@ -15,7 +15,7 @@
 - (void)completeTransition:(BOOL)arg1;
 - (void)cancelInteractiveTransition;
 - (void)finishInteractiveTransition;
-- (void)updateInteractiveTransition:(double)arg1;
+- (void)updateInteractiveTransition:(CGFloat)arg1;
 - (NSInteger)presentationStyle;
 - (BOOL)transitionWasCancelled;
 - (BOOL)isInteractive;

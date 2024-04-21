@@ -17,8 +17,8 @@
 
 + (Class)collectionViewClass;
 
-@property(retain, nonatomic) UXCollectionView *collectionView; // @synthesize collectionView=_collectionView;
-- (double)scrollView:(id)arg1 pageAlignedOriginOnAxis:(NSInteger)arg2 forProposedDestination:(double)arg3 currentOrigin:(double)arg4 initialOrigin:(double)arg5 velocity:(double)arg6;
+@property(strong, nonatomic) UXCollectionView *collectionView; // @synthesize collectionView=_collectionView;
+- (CGFloat)scrollView:(id)arg1 pageAlignedOriginOnAxis:(NSInteger)arg2 forProposedDestination:(CGFloat)arg3 currentOrigin:(CGFloat)arg4 initialOrigin:(CGFloat)arg5 velocity:(CGFloat)arg6;
 - (id)collectionView:(id)arg1 cellForItemAtIndexPath:(id)arg2;
 - (NSInteger)collectionView:(id)arg1 numberOfItemsInSection:(NSInteger)arg2;
 - (NSInteger)numberOfSectionsInCollectionView:(id)arg1;

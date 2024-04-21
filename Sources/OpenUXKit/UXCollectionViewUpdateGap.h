@@ -23,8 +23,8 @@
 @property(nonatomic) CGRect beginningRect; // @synthesize beginningRect=_beginningRect;
 @property(readonly, nonatomic) NSArray *insertItems; // @synthesize insertItems=_insertItems;
 @property(readonly, nonatomic) NSArray *deleteItems; // @synthesize deleteItems=_deleteItems;
-@property(retain, nonatomic) UXCollectionViewUpdateItem *lastUpdateItem; // @synthesize lastUpdateItem=_lastUpdateItem;
-@property(retain, nonatomic) UXCollectionViewUpdateItem *firstUpdateItem; // @synthesize firstUpdateItem=_firstUpdateItem;
+@property(strong, nonatomic) UXCollectionViewUpdateItem *lastUpdateItem; // @synthesize lastUpdateItem=_lastUpdateItem;
+@property(strong, nonatomic) UXCollectionViewUpdateItem *firstUpdateItem; // @synthesize firstUpdateItem=_firstUpdateItem;
 @property(readonly, nonatomic) BOOL isSectionBasedGap;
 @property(readonly, nonatomic) NSArray *updateItems;
 @property(readonly, nonatomic) BOOL hasInserts;

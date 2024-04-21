@@ -19,8 +19,8 @@
         unsigned int layoutDataIsValid:1;
         unsigned int delegateInfoIsValid:1;
     } _gridLayoutFlags;	// 8 = 0x8
-    double _interitemSpacing;	// 16 = 0x10
-    double _lineSpacing;	// 24 = 0x18
+    CGFloat _interitemSpacing;	// 16 = 0x10
+    CGFloat _lineSpacing;	// 24 = 0x18
     CGSize _itemSize;	// 32 = 0x20
     CGSize _headerReferenceSize;	// 48 = 0x30
     CGSize _footerReferenceSize;	// 64 = 0x40
@@ -43,8 +43,8 @@
 @property(nonatomic) CGSize footerReferenceSize; // @synthesize footerReferenceSize=_footerReferenceSize;
 @property(nonatomic) CGSize headerReferenceSize; // @synthesize headerReferenceSize=_headerReferenceSize;
 @property(nonatomic) CGSize itemSize; // @synthesize itemSize=_itemSize;
-@property(nonatomic) double minimumInteritemSpacing; // @synthesize minimumInteritemSpacing=_interitemSpacing;
-@property(nonatomic) double minimumLineSpacing; // @synthesize minimumLineSpacing=_lineSpacing;
+@property(nonatomic) CGFloat minimumInteritemSpacing; // @synthesize minimumInteritemSpacing=_interitemSpacing;
+@property(nonatomic) CGFloat minimumLineSpacing; // @synthesize minimumLineSpacing=_lineSpacing;
 @property(nonatomic) NSInteger scrollDirection;
 - (id)layoutAttributesForElementsInRect:(CGRect)arg1;
 - (id)indexPathsForItemsInRect:(CGRect)arg1;
@@ -92,7 +92,7 @@
 - (void)_updateItemsLayout;
 - (void)_getSizingInfos;
 - (void)_updateDelegateFlags;
-@property(retain, nonatomic, setter=_setRowAlignmentsOptions:) NSDictionary *_rowAlignmentOptions;
+@property(strong, nonatomic, setter=_setRowAlignmentsOptions:) NSDictionary *_rowAlignmentOptions;
 
 @end
 

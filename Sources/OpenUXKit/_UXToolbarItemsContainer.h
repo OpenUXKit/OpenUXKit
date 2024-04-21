@@ -14,16 +14,16 @@
     BOOL _singleItemMode;	// 120 = 0x78
     BOOL _isTransitioning;	// 121 = 0x79
     NSArray *_items;	// 128 = 0x80
-    double _interitemSpacing;	// 136 = 0x88
-    double _baselineOffsetFromBottom;	// 144 = 0x90
+    CGFloat _interitemSpacing;	// 136 = 0x88
+    CGFloat _baselineOffsetFromBottom;	// 144 = 0x90
 }
 
 + (id)toolbarItemsContainerForToolbar:(id)arg1 items:(id)arg2;
 
-@property(nonatomic) double baselineOffsetFromBottom; // @synthesize baselineOffsetFromBottom=_baselineOffsetFromBottom;
-@property(nonatomic) double interitemSpacing; // @synthesize interitemSpacing=_interitemSpacing;
+@property(nonatomic) CGFloat baselineOffsetFromBottom; // @synthesize baselineOffsetFromBottom=_baselineOffsetFromBottom;
+@property(nonatomic) CGFloat interitemSpacing; // @synthesize interitemSpacing=_interitemSpacing;
 @property(readonly, nonatomic) NSArray *items; // @synthesize items=_items;
-- (double)lastBaselineOffsetFromBottom;
+- (CGFloat)lastBaselineOffsetFromBottom;
 - (void)updateConstraints;
 @property(readonly, nonatomic) BOOL hidesGlobalTrailingView;
 - (void)prepareForTransition;

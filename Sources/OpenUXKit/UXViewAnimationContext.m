@@ -10,8 +10,8 @@
 #include <stdlib.h>
 
 typedef struct {
-    double x;
-    double y;
+    CGFloat x;
+    CGFloat y;
 } Vector2D;
 
 // Function to clamp each component of the velocity vector between min and max values
@@ -49,18 +49,18 @@ Vector2D combineVectors(Vector2D a, Vector2D b, Vector2D c) {
 }
 
 //void parametersOfSpringAnimation(
-//        double *amplitude,
-//        double *frequency,
+//        CGFloat *amplitude,
+//        CGFloat *frequency,
 //        Vector2D initialVelocity,
 //        Vector2D dampingRatio,
-//        double mass,
+//        CGFloat mass,
 //        Vector2D stiffness,
-//        double threshold) {
+//        CGFloat threshold) {
 //
 //    Vector2D velocityRange = clamp(initialVelocity, minVelocity, maxVelocity);
 //    Vector2D adjustedVelocity = adjustVelocity(velocityRange);
-//    double finalVelocity;
-//    double finalAmplitude;
+//    CGFloat finalVelocity;
+//    CGFloat finalAmplitude;
 //    
 //    if (adjustedVelocity.x >= 1.0) {
 //        Vector2D squaredVelocity = {velocityRange.x * velocityRange.x, velocityRange.y};
@@ -70,8 +70,8 @@ Vector2D combineVectors(Vector2D a, Vector2D b, Vector2D c) {
 //        finalAmplitude = calculateFinalAmplitude(block2);
 //    } else {
 //        Vector2D multipliedVelocity = multiplyVectors(adjustedVelocity, velocityRange);
-//        double reducedVelocity = 1.0 - multipliedVelocity.y;
-//        double sqrtReducedVelocity = sqrt(reducedVelocity);
+//        CGFloat reducedVelocity = 1.0 - multipliedVelocity.y;
+//        CGFloat sqrtReducedVelocity = sqrt(reducedVelocity);
 //        Vector2D combined = combineVectors(stiffness, velocityRange, multipliedVelocity);
 //        BlockType1 block1 = createBlock1Reduced(sqrtReducedVelocity, combined);
 //        BlockType2 block2 = createBlock2Reduced(block1);

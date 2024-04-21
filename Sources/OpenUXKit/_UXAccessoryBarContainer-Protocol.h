@@ -7,7 +7,7 @@
 #import <AppKit/AppKit.h>
 
 @protocol _UXAccessoryBarContainer <NSObject>
-@property(readonly, nonatomic) double _accessoryBarHeight;
+@property(readonly, nonatomic) CGFloat _accessoryBarHeight;
 - (void)_setAccessoryBarHidden:(BOOL)hidden;
 @end
 

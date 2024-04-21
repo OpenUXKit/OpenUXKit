@@ -18,7 +18,7 @@
 
 + (Class)sectionAccessibilityClass;
 
-@property(retain, nonatomic) NSMutableArray *_sectionCache; // @synthesize _sectionCache=__sectionCache;
+@property(strong, nonatomic) NSMutableArray *_sectionCache; // @synthesize _sectionCache=__sectionCache;
 @property(nonatomic) NSUInteger _sectionCacheOffset; // @synthesize _sectionCacheOffset=__sectionCacheOffset;
 @property(nonatomic) __weak UXCollectionViewLayout *layout; // @synthesize layout=_layout;
 - (id)_dequeueSectionWithIndex:(NSUInteger)arg1;

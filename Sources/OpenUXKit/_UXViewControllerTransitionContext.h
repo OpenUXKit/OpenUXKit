@@ -14,23 +14,23 @@
 @interface _UXViewControllerTransitionContext : NSObject <UXViewControllerContextTransitioning>
 
 
-@property(copy, nonatomic) id completionHandler; // @synthesize completionHandler=_completionHandler;
-@property(copy, nonatomic) id willCompleteHandler; // @synthesize willCompleteHandler=_willCompleteHandler;
-@property(nonatomic) __weak UXView *containerView; // @synthesize containerView=_containerView;
-@property(nonatomic) __weak id <UXViewControllerInteractiveTransitioning> interactor; // @synthesize interactor=_interactor;
-@property(nonatomic) __weak id <UXViewControllerAnimatedTransitioning> animator; // @synthesize animator=_animator;
-@property(nonatomic) double percentOffset; // @synthesize percentOffset=_percentOffset;
-@property(nonatomic, getter=isPresentation) BOOL presentation; // @synthesize presentation=_presentation;
-@property(nonatomic) NSInteger presentationStyle; // @synthesize presentationStyle=_presentationStyle;
-@property(copy, nonatomic) id interactiveUpdateHandler; // @synthesize interactiveUpdateHandler=_interactiveUpdateHandler;
-@property(nonatomic) NSInteger state; // @synthesize state=_state;
-@property(nonatomic) double duration; // @synthesize duration=_duration;
-@property(retain, nonatomic, setter=_setAuxContext:) _UXViewControllerTransitionCoordinator *_auxContext; // @synthesize _auxContext=__auxContext;
-@property(nonatomic) NSInteger completionCurve; // @synthesize completionCurve=_completionCurve;
-@property(nonatomic) double completionVelocity; // @synthesize completionVelocity=_completionVelocity;
-@property(nonatomic, getter=isAnimated) BOOL animated; // @synthesize animated=_animated;
-@property(nonatomic, getter=isCurrentlyInteractive) BOOL currentlyInteractive; // @synthesize currentlyInteractive=_currentlyInteractive;
-@property(nonatomic) BOOL initiallyInteractive; // @synthesize initiallyInteractive=_initiallyInteractive;
+@property (nonatomic, copy) id completionHandler; // @synthesize completionHandler=_completionHandler;
+@property (nonatomic, copy) id willCompleteHandler; // @synthesize willCompleteHandler=_willCompleteHandler;
+@property (nonatomic) __weak UXView *containerView; // @synthesize containerView=_containerView;
+@property (nonatomic) __weak id <UXViewControllerInteractiveTransitioning> interactor; // @synthesize interactor=_interactor;
+@property (nonatomic) __weak id <UXViewControllerAnimatedTransitioning> animator; // @synthesize animator=_animator;
+@property (nonatomic) CGFloat percentOffset; // @synthesize percentOffset=_percentOffset;
+@property (nonatomic, getter = isPresentation) BOOL presentation; // @synthesize presentation=_presentation;
+@property (nonatomic) NSInteger presentationStyle; // @synthesize presentationStyle=_presentationStyle;
+@property (nonatomic, copy) id interactiveUpdateHandler; // @synthesize interactiveUpdateHandler=_interactiveUpdateHandler;
+@property (nonatomic) NSInteger state; // @synthesize state=_state;
+@property (nonatomic) CGFloat duration; // @synthesize duration=_duration;
+@property (nonatomic, strong, setter = _setAuxContext:) _UXViewControllerTransitionCoordinator *_auxContext; // @synthesize _auxContext=__auxContext;
+@property (nonatomic) NSInteger completionCurve; // @synthesize completionCurve=_completionCurve;
+@property (nonatomic) CGFloat completionVelocity; // @synthesize completionVelocity=_completionVelocity;
+@property (nonatomic, getter = isAnimated) BOOL animated; // @synthesize animated=_animated;
+@property (nonatomic, getter = isCurrentlyInteractive) BOOL currentlyInteractive; // @synthesize currentlyInteractive=_currentlyInteractive;
+@property (nonatomic) BOOL initiallyInteractive; // @synthesize initiallyInteractive=_initiallyInteractive;
 - (void)_enableInteractionForDisabledViews;
 - (void)_disableInteractionForViews:(id)arg1;
 - (void)__runAlongsideAnimations;
@@ -38,7 +38,7 @@
 - (void)_runAlongsideCompletions;
 - (void)_setTransitionIsCompleting:(BOOL)arg1;
 - (BOOL)_transitionIsCompleting;
-@property(nonatomic) BOOL transitionIsInFlight;
+@property (nonatomic) BOOL transitionIsInFlight;
 - (BOOL)transitionWasCancelled;
 - (CGRect)finalFrameForViewController:(id)arg1;
 - (CGRect)initialFrameForViewController:(id)arg1;
@@ -46,20 +46,11 @@
 - (void)completeTransition:(BOOL)arg1;
 - (void)cancelInteractiveTransition;
 - (void)finishInteractiveTransition;
-- (void)updateInteractiveTransition:(double)arg1;
-- (void)_updateInteractiveTransitionWithoutTrackingPercentComplete:(double)arg1;
-- (void)_setPreviousPercentComplete:(double)arg1;
-- (double)_previousPercentComplete;
+- (void)updateInteractiveTransition:(CGFloat)arg1;
+- (void)_updateInteractiveTransitionWithoutTrackingPercentComplete:(CGFloat)arg1;
+- (void)_setPreviousPercentComplete:(CGFloat)arg1;
+- (CGFloat)_previousPercentComplete;
 - (id)_transitionCoordinator;
 - (BOOL)isInteractive;
-- (id)init;
-
-// Remaining properties
-@property(copy, nonatomic) id arbitraryTransitionCompletionHandler;
-@property(readonly, copy) NSString *debugDescription;
-@property(readonly, copy) NSString *description;
-@property(readonly) NSUInteger hash;
-@property(readonly) Class superclass;
 
 @end
-

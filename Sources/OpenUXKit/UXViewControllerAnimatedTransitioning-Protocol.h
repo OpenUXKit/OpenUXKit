@@ -10,7 +10,7 @@
 
 @protocol UXViewControllerAnimatedTransitioning <NSObject>
 - (void)animateTransition:(id <UXViewControllerContextTransitioning>)arg1;
-- (double)transitionDuration:(id <UXViewControllerContextTransitioning>)arg1;
+- (CGFloat)transitionDuration:(id <UXViewControllerContextTransitioning>)arg1;
 
 @optional
 - (void)animationEnded:(BOOL)arg1;

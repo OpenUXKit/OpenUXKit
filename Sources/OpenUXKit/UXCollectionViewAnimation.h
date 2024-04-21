@@ -12,8 +12,8 @@
 {
     UXCollectionReusableView *_view;	// 8 = 0x8
     UXCollectionViewLayoutAttributes *_finalLayoutAttributes;	// 16 = 0x10
-    double _startFraction;	// 24 = 0x18
-    double _endFraction;	// 32 = 0x20
+    CGFloat _startFraction;	// 24 = 0x18
+    CGFloat _endFraction;	// 32 = 0x20
     NSUInteger _viewType;	// 40 = 0x28
     NSMutableArray *_completionHandlers;	// 48 = 0x30
     NSMutableArray *_startupHandlers;	// 56 = 0x38
@@ -26,8 +26,8 @@
     } _collectionViewAnimationFlags;	// 72 = 0x48
 }
 
-@property(readonly, nonatomic) double endFraction; // @synthesize endFraction=_endFraction;
-@property(readonly, nonatomic) double startFraction; // @synthesize startFraction=_startFraction;
+@property(readonly, nonatomic) CGFloat endFraction; // @synthesize endFraction=_endFraction;
+@property(readonly, nonatomic) CGFloat startFraction; // @synthesize startFraction=_startFraction;
 @property(readonly, nonatomic) UXCollectionViewLayoutAttributes *finalLayoutAttributes; // @synthesize finalLayoutAttributes=_finalLayoutAttributes;
 @property(readonly, nonatomic) NSUInteger viewType; // @synthesize viewType=_viewType;
 @property(readonly, nonatomic) UXCollectionReusableView *view; // @synthesize view=_view;
@@ -40,7 +40,7 @@
 @property(readonly, nonatomic) BOOL animateFromCurrentPosition;
 - (id)description;
 - (void)dealloc;
-- (id)initWithView:(id)arg1 viewType:(NSUInteger)arg2 finalLayoutAttributes:(id)arg3 startFraction:(double)arg4 endFraction:(double)arg5 animateFromCurrentPosition:(BOOL)arg6 deleteAfterAnimation:(BOOL)arg7 customAnimations:(id)arg8;
+- (id)initWithView:(id)arg1 viewType:(NSUInteger)arg2 finalLayoutAttributes:(id)arg3 startFraction:(CGFloat)arg4 endFraction:(CGFloat)arg5 animateFromCurrentPosition:(BOOL)arg6 deleteAfterAnimation:(BOOL)arg7 customAnimations:(id)arg8;
 
 @end
 

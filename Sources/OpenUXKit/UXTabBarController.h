@@ -11,17 +11,17 @@
 @interface UXTabBarController: UXViewController
 
 
-@property(retain, nonatomic) UXViewController *transientViewController; // @synthesize transientViewController=_transientViewController;
-@property(retain, nonatomic) UXTabBarItemSegment *selectedItemSegment; // @synthesize selectedItemSegment=_selectedItemSegment;
+@property(strong, nonatomic) UXViewController *transientViewController; // @synthesize transientViewController=_transientViewController;
+@property(strong, nonatomic) UXTabBarItemSegment *selectedItemSegment; // @synthesize selectedItemSegment=_selectedItemSegment;
 @property(nonatomic) BOOL viewControllerTransitionInProgress; // @synthesize viewControllerTransitionInProgress=_viewControllerTransitionInProgress;
 @property(nonatomic) BOOL segmentTransitionInProgress; // @synthesize segmentTransitionInProgress=_segmentTransitionInProgress;
 @property(readonly, nonatomic) NSMapTable *transitionControllerClassByToViewControllerClass; // @synthesize transitionControllerClassByToViewControllerClass=_transitionControllerClassByToViewControllerClass;
-@property(retain, nonatomic) NSArray *shortcutMenuItems; // @synthesize shortcutMenuItems=_shortcutMenuItems;
-@property(retain, nonatomic) UXViewController *observedViewController; // @synthesize observedViewController=_observedViewController;
-@property(retain, nonatomic) UXNavigationItem *observedNavigationItem; // @synthesize observedNavigationItem=_observedNavigationItem;
-@property(retain, nonatomic) NSSet *observedItemSegments; // @synthesize observedItemSegments=_observedItemSegments;
-@property(retain, nonatomic) NSArray *representedSegments; // @synthesize representedSegments=_representedSegments;
-@property(retain, nonatomic) NSMapTable *representedSegmentsToViewControllers; // @synthesize representedSegmentsToViewControllers=_representedSegmentsToViewControllers;
+@property(strong, nonatomic) NSArray *shortcutMenuItems; // @synthesize shortcutMenuItems=_shortcutMenuItems;
+@property(strong, nonatomic) UXViewController *observedViewController; // @synthesize observedViewController=_observedViewController;
+@property(strong, nonatomic) UXNavigationItem *observedNavigationItem; // @synthesize observedNavigationItem=_observedNavigationItem;
+@property(strong, nonatomic) NSSet *observedItemSegments; // @synthesize observedItemSegments=_observedItemSegments;
+@property(strong, nonatomic) NSArray *representedSegments; // @synthesize representedSegments=_representedSegments;
+@property(strong, nonatomic) NSMapTable *representedSegmentsToViewControllers; // @synthesize representedSegmentsToViewControllers=_representedSegmentsToViewControllers;
 @property(readonly, nonatomic) NSLayoutConstraint *popUpButtonWidthConstraint; // @synthesize popUpButtonWidthConstraint=_popUpButtonWidthConstraint;
 @property(readonly, nonatomic) NSPopUpButton *popUpButton; // @synthesize popUpButton=_popUpButton;
 @property(readonly, nonatomic) NSSegmentedControl *segmentedControl; // @synthesize segmentedControl=_segmentedControl;

@@ -17,13 +17,13 @@
     BOOL _isInteractiveTransitioning;    // 144 = 0x90
     BOOL _trailingViewNeedsRemoval;    // 145 = 0x91
     NSColor *_barTintColor;    // 152 = 0x98
-    double _interitemSpacing;    // 160 = 0xa0
-    double _height;    // 168 = 0xa8
-    double _baselineOffsetFromBottom;    // 176 = 0xb0
-    double _percent;    // 184 = 0xb8
+    CGFloat _interitemSpacing;    // 160 = 0xa0
+    CGFloat _height;    // 168 = 0xa8
+    CGFloat _baselineOffsetFromBottom;    // 176 = 0xb0
+    CGFloat _percent;    // 184 = 0xb8
     UXView<_UXBarItemsContainer> *_nextItemContainer;    // 192 = 0xc0
     NSView *_globalTrailingView;    // 200 = 0xc8
-    double _globalTrailingViewWidthMultiplier;    // 208 = 0xd0
+    CGFloat _globalTrailingViewWidthMultiplier;    // 208 = 0xd0
     UXView<_UXBarItemsContainer> *_barItemsContainer;    // 216 = 0xd8
     NSEdgeInsets _decorationInsets;    // 224 = 0xe0
 }

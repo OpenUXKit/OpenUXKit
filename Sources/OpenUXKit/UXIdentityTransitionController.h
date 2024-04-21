@@ -8,7 +8,7 @@
 @interface UXIdentityTransitionController: UXTransitionController
 
 - (void)animateTransition:(id)arg1;
-- (double)transitionDuration:(id)arg1;
+- (CGFloat)transitionDuration:(id)arg1;
 
 @end
 

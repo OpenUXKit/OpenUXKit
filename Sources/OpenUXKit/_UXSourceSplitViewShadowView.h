@@ -8,12 +8,12 @@
 
 @interface _UXSourceSplitViewShadowView : NSView
 {
-    double _shadowRevealAmount;	// 112 = 0x70
+    CGFloat _shadowRevealAmount;	// 112 = 0x70
     NSUInteger _shadowEdge;	// 120 = 0x78
 }
 
 @property(nonatomic) NSUInteger shadowEdge; // @synthesize shadowEdge=_shadowEdge;
-@property(nonatomic) double shadowRevealAmount; // @synthesize shadowRevealAmount=_shadowRevealAmount;
+@property(nonatomic) CGFloat shadowRevealAmount; // @synthesize shadowRevealAmount=_shadowRevealAmount;
 - (id)makeShadowImage;
 - (CGSize)intrinsicContentSize;
 - (void)setFrameOrigin:(CGPoint)arg1;

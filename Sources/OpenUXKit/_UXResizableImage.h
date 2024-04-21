@@ -17,7 +17,7 @@
     NSImage *_bottomLeftCorner;	// 56 = 0x38
     NSImage *_bottomEdgeFill;	// 64 = 0x40
     NSImage *_bottomRightCorner;	// 72 = 0x48
-    double _scale;	// 80 = 0x50
+    CGFloat _scale;	// 80 = 0x50
     BOOL _alwaysStretches;	// 88 = 0x58
 }
 
@@ -28,8 +28,8 @@
 - (CGRect)_contentStretchInPixels;
 - (CGSize)_sizeInPixels;
 - (CGRect)_contentInsetsInPixels:(NSEdgeInsets)arg1 emptySizeFallback:(id)arg2;
-- (void)drawInRect:(CGRect)arg1 fromRect:(CGRect)arg2 operation:(NSUInteger)arg3 fraction:(double)arg4 respectFlipped:(BOOL)arg5 hints:(id)arg6;
-- (void)drawInRect:(CGRect)arg1 fromRect:(CGRect)arg2 operation:(NSUInteger)arg3 fraction:(double)arg4;
+- (void)drawInRect:(CGRect)arg1 fromRect:(CGRect)arg2 operation:(NSUInteger)arg3 fraction:(CGFloat)arg4 respectFlipped:(BOOL)arg5 hints:(id)arg6;
+- (void)drawInRect:(CGRect)arg1 fromRect:(CGRect)arg2 operation:(NSUInteger)arg3 fraction:(CGFloat)arg4;
 - (void)_setupNinePartFromImage:(id)arg1;
 - (id)initWithImage:(id)arg1 capInsets:(NSEdgeInsets)arg2;
 

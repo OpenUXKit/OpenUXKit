@@ -38,9 +38,9 @@
 + (Class)invalidationContextClass;
 + (Class)layoutAttributesClass;
 
-@property(retain, nonatomic) NSString *accessibilityRoleDescription; // @synthesize accessibilityRoleDescription=_accessibilityRoleDescription;
-@property(retain, nonatomic) NSString *accessibilityLabel; // @synthesize accessibilityLabel=_accessibilityLabel;
-@property(retain, nonatomic) NSString *accessibilityIdentifier; // @synthesize accessibilityIdentifier=_accessibilityIdentifier;
+@property(strong, nonatomic) NSString *accessibilityRoleDescription; // @synthesize accessibilityRoleDescription=_accessibilityRoleDescription;
+@property(strong, nonatomic) NSString *accessibilityLabel; // @synthesize accessibilityLabel=_accessibilityLabel;
+@property(strong, nonatomic) NSString *accessibilityIdentifier; // @synthesize accessibilityIdentifier=_accessibilityIdentifier;
 @property(readonly, nonatomic) UXCollectionViewLayoutAccessibility *layoutAccessibility; // @synthesize layoutAccessibility=_layoutAccessibility;
 @property(readonly, nonatomic) __weak UXCollectionView *collectionView; // @synthesize collectionView=_collectionView;
 @property(readonly, nonatomic) NSArray *accessibilityChildren; // @synthesize accessibilityChildren=_accessibilityChildren;
@@ -78,7 +78,7 @@
 - (CGPoint)targetContentOffsetForProposedContentOffset:(CGPoint)arg1 withScrollingVelocity:(CGPoint)arg2;
 - (id)invalidationContextForBoundsChange:(CGRect)arg1;
 - (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)arg1;
-- (BOOL)shouldInvalidateLayoutForScaleFactorChangeFrom:(double)arg1 to:(double)arg2;
+- (BOOL)shouldInvalidateLayoutForScaleFactorChangeFrom:(CGFloat)arg1 to:(CGFloat)arg2;
 - (void)invalidateLayoutWithContext:(id)arg1;
 - (void)invalidateLayout;
 - (void)prepareLayout;
