@@ -345,6 +345,7 @@
 		E97369B62BD505F200E88591 /* UXZoomingCrossfadeTransitionController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UXZoomingCrossfadeTransitionController.m; sourceTree = "<group>"; };
 		E9736A5D2BD5062C00E88591 /* _UXViewControllerTransitionContext.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _UXViewControllerTransitionContext.m; sourceTree = "<group>"; };
 		E9736A5F2BD5312400E88591 /* UXNavigationController+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UXNavigationController+Internal.h"; sourceTree = "<group>"; };
+		E9736A692BD5571900E88591 /* UXNavigationControllerOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UXNavigationControllerOperation.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -495,6 +496,7 @@
 				E97369842BD505F200E88591 /* UXNavigationBar.h */,
 				E97369852BD505F200E88591 /* UXNavigationBar.m */,
 				E97369862BD505F200E88591 /* UXNavigationController.h */,
+				E9736A692BD5571900E88591 /* UXNavigationControllerOperation.h */,
 				E9736A5F2BD5312400E88591 /* UXNavigationController+Internal.h */,
 				E97369872BD505F200E88591 /* UXNavigationController.m */,
 				E97369882BD505F200E88591 /* UXNavigationControllerDelegate-Protocol.h */,

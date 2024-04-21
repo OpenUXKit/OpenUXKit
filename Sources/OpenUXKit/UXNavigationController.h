@@ -9,14 +9,9 @@
 #import "UXToolbar.h"
 #import "UXToolbarDelegate-Protocol.h"
 #import "UXViewController.h"
+#import "UXNavigationControllerOperation.h"
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
-
-typedef NS_ENUM(NSInteger, UXNavigationControllerOperation) {
-    UXNavigationControllerOperationNone,
-    UXNavigationControllerOperationPush,
-    UXNavigationControllerOperationPop,
-};
 
 @class UXNavigationBar, UXToolbar, UXView, UXViewController, UXBarButtonItem;
 @protocol UXNavigationControllerDelegate, UXViewControllerAnimatedTransitioning;

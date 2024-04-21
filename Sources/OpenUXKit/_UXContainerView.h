@@ -7,6 +7,8 @@
 #import "UXView.h"
 
 @interface _UXContainerView : UXView
-
+@property (nonatomic) BOOL wantsMaterialBackground;
+@property (nonatomic, strong) NSView *contentView;
+- (void)wrapContentView;
 @end
 

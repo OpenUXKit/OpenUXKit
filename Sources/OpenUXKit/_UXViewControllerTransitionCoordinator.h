@@ -6,27 +6,26 @@
 
 #import <objc/NSObject.h>
 
-#import "UXViewControllerTransitionCoordinator-Protocol.h"
+#import "UXViewControllerTransitionCoordinator.h"
 
 @class NSMutableArray, NSString, _UXViewControllerTransitionContext;
 
-@interface _UXViewControllerTransitionCoordinator : NSObject <UXViewControllerTransitionCoordinator>
-{
-    _UXViewControllerTransitionContext *__mainContext;	// 8 = 0x8
-    NSMutableArray *__alongsideAnimations;	// 16 = 0x10
-    NSMutableArray *__alongsideAnimationViews;	// 24 = 0x18
-    NSMutableArray *__alongsideCompletions;	// 32 = 0x20
-    NSMutableArray *__interactiveChangeHandlers;	// 40 = 0x28
+@interface _UXViewControllerTransitionCoordinator : NSObject <UXViewControllerTransitionCoordinator> {
+    _UXViewControllerTransitionContext *__mainContext;  // 8 = 0x8
+    NSMutableArray *__alongsideAnimations;      // 16 = 0x10
+    NSMutableArray *__alongsideAnimationViews;  // 24 = 0x18
+    NSMutableArray *__alongsideCompletions;     // 32 = 0x20
+    NSMutableArray *__interactiveChangeHandlers;        // 40 = 0x28
 }
 
 
-@property(strong, nonatomic, setter=_setInteractiveChangeHandlers:) NSMutableArray *_interactiveChangeHandlers; // @synthesize _interactiveChangeHandlers=__interactiveChangeHandlers;
-@property(strong, nonatomic, setter=_setAlongsideCompletions:) NSMutableArray *_alongsideCompletions; // @synthesize _alongsideCompletions=__alongsideCompletions;
-@property(strong, nonatomic, setter=_setAlongsideAnimationViews:) NSMutableArray *_alongsideAnimationViews; // @synthesize _alongsideAnimationViews=__alongsideAnimationViews;
-@property(strong, nonatomic, setter=_setAlongsideAnimations:) NSMutableArray *_alongsideAnimations; // @synthesize _alongsideAnimations=__alongsideAnimations;
-@property(nonatomic, setter=_setMainContext:) _UXViewControllerTransitionContext *_mainContext; // @synthesize _mainContext=__mainContext;
-- (void)notifyWhenInteractionEndsUsingBlock:(id)arg1;
-- (BOOL)animateAlongsideTransition:(id)arg1 completion:(id)arg2;
+@property (nonatomic, strong, setter = _setInteractiveChangeHandlers:) NSMutableArray *_interactiveChangeHandlers; // @synthesize _interactiveChangeHandlers=__interactiveChangeHandlers;
+@property (nonatomic, strong, setter = _setAlongsideCompletions:) NSMutableArray *_alongsideCompletions; // @synthesize _alongsideCompletions=__alongsideCompletions;
+@property (nonatomic, strong, setter = _setAlongsideAnimationViews:) NSMutableArray *_alongsideAnimationViews; // @synthesize _alongsideAnimationViews=__alongsideAnimationViews;
+@property (nonatomic, strong, setter = _setAlongsideAnimations:) NSMutableArray *_alongsideAnimations; // @synthesize _alongsideAnimations=__alongsideAnimations;
+@property (nonatomic, setter = _setMainContext:) _UXViewControllerTransitionContext *_mainContext; // @synthesize _mainContext=__mainContext;
+- (void)notifyWhenInteractionEndsUsingBlock:(id)block;
+- (BOOL)animateAlongsideTransition:(id)transition completion:(id)completion;
 - (BOOL)animateAlongsideTransitionInView:(id)arg1 animation:(id)arg2 completion:(id)arg3;
 - (void)_applyBlocks:(id)arg1 releaseBlocks:(id)arg2;
 - (id)_alongsideCompletions:(BOOL)arg1;
@@ -44,13 +43,6 @@
 - (BOOL)initiallyInteractive;
 - (NSInteger)presentationStyle;
 - (BOOL)isAnimated;
-- (id)initWithMainContext:(id)arg1;
-
-// Remaining properties
-@property(readonly, copy) NSString *debugDescription;
-@property(readonly, copy) NSString *description;
-@property(readonly) NSUInteger hash;
-@property(readonly) Class superclass;
+- (instancetype)initWithMainContext:(id)mainContext;
 
 @end
-

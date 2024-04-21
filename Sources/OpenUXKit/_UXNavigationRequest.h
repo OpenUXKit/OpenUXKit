@@ -4,23 +4,24 @@
 //  Copyright (C) 1997-2019 Steve Nygard. Updated in 2022 by Kevin Bradley.
 //
 
-#import <objc/NSObject.h>
+#import "AppKit/AppKit.h"
+#import "UXNavigationControllerOperation.h"
 
-@class NSArray, NSMutableArray, UXViewController;
+@class UXViewController;
 
 @interface _UXNavigationRequest : NSObject
+
+@property (nonatomic, readonly) NSArray<UXViewController *> *viewControllers;
+@property (nonatomic, readonly) UXViewController *viewController;
+@property (nonatomic, readonly) UXNavigationControllerOperation operation;
+@property (nonatomic, readonly) BOOL animated;
 
 + (_UXNavigationRequest *)setRequestWithViewControllers:(NSArray<UXViewController *> *)viewControllers animated:(BOOL)animated;
 + (_UXNavigationRequest *)popRequestWithViewController:(UXViewController *)viewController animated:(BOOL)animated;
 + (_UXNavigationRequest *)pushRequestWithViewController:(UXViewController *)viewController animated:(BOOL)animated;
-+ (_UXNavigationRequest *)_requestWithOperation:(NSInteger)operation viewControllers:(NSArray<UXViewController *> *)viewControllers animated:(BOOL)animated;
-
-@property (nonatomic, readonly) BOOL animated; // @synthesize animated=_animated;
-@property (nonatomic, readonly) NSArray<UXViewController *> *viewControllers; // @synthesize viewControllers=_viewControllers;
-@property (nonatomic, readonly) NSInteger operation; // @synthesize operation=_operation;
-- (BOOL)isEqualToNavigationRequest:(id)arg1;
++ (_UXNavigationRequest *)_requestWithOperation:(UXNavigationControllerOperation)operation viewControllers:(NSArray<UXViewController *> *)viewControllers animated:(BOOL)animated;
+- (BOOL)isEqualToNavigationRequest:(_UXNavigationRequest *)request;
 - (void)tearDownContainmentIfNeeded;
-- (void)setupContainmentIfNeededInParentViewController:(id)parentViewController;
-@property (nonatomic, readonly) UXViewController *viewController;
+- (void)setupContainmentIfNeededInParentViewController:(UXViewController *)parentViewController;
 
 @end
