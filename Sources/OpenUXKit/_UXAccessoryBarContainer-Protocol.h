@@ -8,6 +8,6 @@
 
 @protocol _UXAccessoryBarContainer <NSObject>
 @property(readonly, nonatomic) double _accessoryBarHeight;
-- (void)_setAccessoryBarHidden:(BOOL)arg1;
+- (void)_setAccessoryBarHidden:(BOOL)hidden;
 @end
 

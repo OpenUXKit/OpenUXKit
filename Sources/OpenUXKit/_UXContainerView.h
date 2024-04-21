@@ -8,8 +8,5 @@
 
 @interface _UXContainerView : UXView
 
-- (void)addSubview:(id)arg1 positioned:(NSInteger)arg2 relativeTo:(id)arg3;
-- (void)addSubview:(id)arg1;
-
 @end
 

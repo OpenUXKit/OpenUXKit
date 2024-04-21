@@ -95,9 +95,9 @@ void commonInit(UXView *view) {
 - (id<CAAction>)actionForLayer:(CALayer *)layer forKey:(NSString *)event {
    CASpringAnimation *animation = [CATransaction valueForKey:@"__uxview_spring_animation"];
     if (animation) {
-        animation = [[self class] defaultSpringAnimationForKey:event mass:animation.mass stiffness:animation.stiffness damping:animation.damping velocity:animation.velocity];
+        return [[self class] defaultSpringAnimationForKey:event mass:animation.mass stiffness:animation.stiffness damping:animation.damping velocity:animation.velocity];
     } else {
-        [super actionForLayer:layer forKey:event];
+        return [super actionForLayer:layer forKey:event];
     }
 }
 
@@ -428,6 +428,12 @@ void commonInit(UXView *view) {
 
 + (void)_animateUsingDefaultTimingWithOptions:(UXViewAnimationOptions)options animations:(void (^)(void))animations completion:(void (^)(BOOL))completion {
     [self animateWithDuration:0.33 delay:0.0 usingSpringWithDamping:500.0 initialSpringVelocity:0.0 options:options animations:animations completion:completion];
+}
+
+
+- (void)setBlurMaterial:(NSVisualEffectMaterial)blurMaterial {
+    _blurMaterial = blurMaterial;
+    __visualEffectsView.material = blurMaterial;
 }
 
 @end

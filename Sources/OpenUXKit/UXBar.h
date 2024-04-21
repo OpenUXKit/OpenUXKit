@@ -5,30 +5,13 @@
 //
 
 #import <AppKit/AppKit.h>
-#import "UXBarPositioning-Protocol.h"
+#import "UXView.h"
+#import "UXBarCommon.h"
 
 @class NSColor, NSMutableSet, NSString, NSView, UXView, _UXSinglePixelLine;
 @protocol _UXBarItemsContainer;
 
-@interface UXBar <NSAccessibilityGroup, UXBarPositioning>
-{
-    _UXSinglePixelLine *_decorationLine;	// 112 = 0x70
-    NSMutableSet *_previousBarItemContainers;	// 120 = 0x78
-    NSInteger _containerTransitionAnimationCount;	// 128 = 0x80
-    NSView *_placeholderTrailingView;	// 136 = 0x88
-    BOOL _isInteractiveTransitioning;	// 144 = 0x90
-    BOOL _trailingViewNeedsRemoval;	// 145 = 0x91
-    NSColor *_barTintColor;	// 152 = 0x98
-    double _interitemSpacing;	// 160 = 0xa0
-    double _height;	// 168 = 0xa8
-    double _baselineOffsetFromBottom;	// 176 = 0xb0
-    double _percent;	// 184 = 0xb8
-    UXView<_UXBarItemsContainer> *_nextItemContainer;	// 192 = 0xc0
-    NSView *_globalTrailingView;	// 200 = 0xc8
-    double _globalTrailingViewWidthMultiplier;	// 208 = 0xd0
-    UXView<_UXBarItemsContainer> *_barItemsContainer;	// 216 = 0xd8
-    NSEdgeInsets _decorationInsets;	// 224 = 0xe0
-}
+@interface UXBar: UXView <NSAccessibilityGroup, UXBarPositioning>
 
 
 @property(nonatomic) NSEdgeInsets decorationInsets; // @synthesize decorationInsets=_decorationInsets;
@@ -40,6 +23,7 @@
 @property(nonatomic) BOOL trailingViewNeedsRemoval; // @synthesize trailingViewNeedsRemoval=_trailingViewNeedsRemoval;
 @property(nonatomic) BOOL isInteractiveTransitioning; // @synthesize isInteractiveTransitioning=_isInteractiveTransitioning;
 @property(nonatomic) double baselineOffsetFromBottom; // @synthesize baselineOffsetFromBottom=_baselineOffsetFromBottom;
+@property (nonatomic) NSEdgeInsets layoutMargins; 
 @property(nonatomic) double height; // @synthesize height=_height;
 @property(nonatomic) double interitemSpacing; // @synthesize interitemSpacing=_interitemSpacing;
 @property(retain, nonatomic) NSColor *barTintColor; // @synthesize barTintColor=_barTintColor;
@@ -59,12 +43,5 @@
 @property(nonatomic) BOOL bordered;
 - (void)viewWillMoveToSuperview:(id)arg1;
 - (id)initWithFrame:(CGRect)arg1;
-
-// Remaining properties
-@property(readonly, copy) NSString *debugDescription;
-@property(readonly, copy) NSString *description;
-@property(readonly) NSUInteger hash;
-@property(readonly) Class superclass;
-
 @end
 

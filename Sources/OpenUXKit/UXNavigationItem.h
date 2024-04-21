@@ -4,25 +4,11 @@
 //  Copyright (C) 1997-2019 Steve Nygard. Updated in 2022 by Kevin Bradley.
 //
 
-#import <objc/NSObject.h>
+#import <AppKit/AppKit.h>
 
 @class NSArray, NSString, NSTextField, NSView, UXBarButtonItem;
 
 @interface UXNavigationItem : NSObject <NSUserInterfaceItemIdentification>
-{
-    NSArray *_leftBarButtonItems;	// 8 = 0x8
-    NSArray *_rightBarButtonItems;	// 16 = 0x10
-    NSTextField *_internalTitleView;	// 24 = 0x18
-    BOOL _hidesBackButton;	// 32 = 0x20
-    BOOL _hidesAlternateTitleView;	// 33 = 0x21
-    BOOL _hidesGlobalTrailingView;	// 34 = 0x22
-    BOOL _leftItemsSupplementBackButton;	// 35 = 0x23
-    NSString *_title;	// 40 = 0x28
-    UXBarButtonItem *_backBarButtonItem;	// 48 = 0x30
-    NSView *_titleView;	// 56 = 0x38
-    NSString *_prompt;	// 64 = 0x40
-    NSView *_condensedTitleView;	// 72 = 0x48
-}
 
 
 @property(retain, nonatomic) NSView *condensedTitleView; // @synthesize condensedTitleView=_condensedTitleView;
@@ -38,6 +24,7 @@
 @property(retain, nonatomic) NSArray *rightBarButtonItems;
 @property(retain, nonatomic) NSArray *leftBarButtonItems;
 @property(retain, nonatomic) UXBarButtonItem *leftBarButtonItem;
+@property (nonatomic) NSEdgeInsets layoutMargins;  
 - (void)_updateInternalTitleView;
 @property(readonly, nonatomic) NSTextField *internalTitleView;
 @property(retain, nonatomic) NSArray *trailingBarButtonItems;

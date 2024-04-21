@@ -10,11 +10,7 @@
 @class NSString, NSTitlebarAccessoryViewController, NSToolbarItem, UXToolbar, UXViewController;
 
 @interface UXWindowController : NSWindowController <NSToolbarDelegate, _UXAccessoryBarContainer, NSWindowDelegate>
-{
-    NSTitlebarAccessoryViewController *_titlebarAccessoryViewController;	// 16 = 0x10
-    UXToolbar *_currentAccessoryToolbar;	// 24 = 0x18
-    NSToolbarItem *_navigationBarToolbarItem;	// 32 = 0x20
-}
+
 
 + (id)defaultWindow;
 
@@ -27,7 +23,7 @@
 - (CGRect)window:(id)arg1 willPositionSheet:(id)arg2 usingRect:(CGRect)arg3;
 - (void)_updateFirstResponder;
 - (void)_updateAccessoryBar;
-- (void)_updateToolbarItem;
+- (void)_updateToolbarItems;
 - (void)_popoverWillShow:(id)arg1;
 - (void)_setupAccessoryBar;
 - (void)_setupNavigationBarToolbarItem;

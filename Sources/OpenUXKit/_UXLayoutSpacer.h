@@ -11,12 +11,6 @@
 @class NSLayoutConstraint, NSLayoutDimension, NSLayoutYAxisAnchor, NSString;
 
 @interface _UXLayoutSpacer : NSLayoutGuide <UXLayoutSupport>
-{
-    NSLayoutConstraint *_counterDimensionConstraint;	// 8 = 0x8
-    NSLayoutConstraint *_dimensionConstraint;	// 16 = 0x10
-    BOOL _horizontal;	// 24 = 0x18
-    id _lengthUpdateBlock;	// 32 = 0x20
-}
 
 + (instancetype)_horizontalLayoutSpacer;
 + (instancetype)_verticalLayoutSpacer;
@@ -29,4 +23,5 @@
 
 
 @end
+
 

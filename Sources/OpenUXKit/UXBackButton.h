@@ -9,11 +9,6 @@
 @class NSImage, NSString;
 
 @interface UXBackButton : NSSegmentedControl
-{
-    BOOL _hidesTitle;	// 108 = 0x6c
-    NSString *_title;	// 112 = 0x70
-    NSImage *_image;	// 120 = 0x78
-}
 
 @property(retain, nonatomic) NSImage *image; // @synthesize image=_image;
 @property(copy, nonatomic) NSString *title; // @synthesize title=_title;

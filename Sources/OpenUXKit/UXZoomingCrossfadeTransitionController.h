@@ -4,9 +4,9 @@
 //  Copyright (C) 1997-2019 Steve Nygard. Updated in 2022 by Kevin Bradley.
 //
 
-@interface UXZoomingCrossfadeTransitionController
-{
-}
+#import "UXTransitionController.h"
+
+@interface UXZoomingCrossfadeTransitionController: UXTransitionController
 
 - (void)animateTransition:(id)arg1;
 

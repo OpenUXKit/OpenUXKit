@@ -55,8 +55,8 @@ typedef NS_OPTIONS(NSUInteger, UXRectEdge) {
 - (void)setEditing:(BOOL)editing animated:(BOOL)animated;
 - (void)dismissViewControllerAnimated:(BOOL)animated completion:(id)completion;
 - (void)presentViewController:(id)viewController animated:(BOOL)animated completion:(id)completion;
-- (void)didMoveToParentViewController:(UXViewController *)parent;
-- (void)willMoveToParentViewController:(UXViewController *)parent;
+- (void)didMoveToParentViewController:(nullable UXViewController *)parent;
+- (void)willMoveToParentViewController:(nullable UXViewController *)parent;
 - (void)removeChildViewControllerAtIndex:(NSInteger)index;
 - (void)windowDidRecalculateKeyViewLoop;
 - (void)windowWillRecalculateKeyViewLoop;
@@ -88,10 +88,6 @@ typedef NS_OPTIONS(NSUInteger, UXRectEdge) {
 - (void)setToolbarItems:(NSArray *)toolbarItems animated:(BOOL)animated;
 @end
 
-@interface UXViewController (UXNavigationControllerContextualToolbarItems_Private)
-- (void)performToolbarsChanges:(void (^)(void))changesBlock;
-- (void)setShouldAnimateToolbarsChanges;
-@end
 
 @interface UXViewController (UXConstraintBasedLayoutCoreMethods)
 - (void)updateViewConstraints;
@@ -132,9 +128,7 @@ typedef NS_OPTIONS(NSUInteger, UXRectEdge) {
 - (void)prepareForTransitionToSelectedTabBarItemSegmentWithCompletion:(void (^)(void))completion;
 @end
 
-@interface UXViewController (UXTabBarController_Private)
-- (nullable UXTabBarItemSegment *)preferredTabBarItemSegmentForNavigationDestination:(id<UXNavigationDestination>)navigationDestination;
-@end
+
 
 @interface UXViewController (UXPopoverController)
 @property (nonatomic, readonly, nullable) UXPopoverController *popoverController;

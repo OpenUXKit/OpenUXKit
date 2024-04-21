@@ -9,11 +9,6 @@
 @class NSArray, NSSet, UXTabBarItemSegment;
 
 @interface UXTabBarItem: UXBarItem
-{
-    NSSet *_possibleTitles;	// 8 = 0x8
-    NSArray *_representedSegments;	// 16 = 0x10
-}
-
 
 @property(copy, nonatomic) NSArray<UXTabBarItemSegment *> *representedSegments; // @synthesize representedSegments=_representedSegments;
 @property(copy, nonatomic) NSSet *possibleTitles; // @synthesize possibleTitles=_possibleTitles;

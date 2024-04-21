@@ -13,11 +13,7 @@
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 @interface UXPopoverController: UXViewController <NSPopoverDelegate>
-{
-    UXPopover *_popover;    // 16 = 0x10
-    id <UXPopoverControllerDelegate> _delegate;    // 24 = 0x18
-    NSArray *_passthroughViews;    // 32 = 0x20
-}
+
 
 
 @property(copy, nonatomic) NSArray *passthroughViews; // @synthesize passthroughViews=_passthroughViews;

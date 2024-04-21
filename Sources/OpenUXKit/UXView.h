@@ -69,7 +69,7 @@ typedef NS_ENUM(NSInteger, UXViewContentMode) {
 @property (readonly, nonatomic) UXUserInterfaceLayoutDirection effectiveUserInterfaceLayoutDirection;
 @property (nonatomic) UXViewContentMode contentMode;
 @property (nonatomic) BOOL blurEnabled;
-
+@property (nonatomic) NSVisualEffectMaterial blurMaterial;
 + (void)performWithoutAnimation:(void (NS_NOESCAPE ^)(void))actionsWithoutAnimation;
 
 + (void)animateWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay usingSpringWithDamping:(CGFloat)dampingRatio initialSpringVelocity:(CGFloat)velocity options:(UXViewAnimationOptions)options animations:(void (^)(void))animations completion:(void (^__nullable)(BOOL finished))completion NS_SWIFT_DISABLE_ASYNC;
@@ -78,8 +78,6 @@ typedef NS_ENUM(NSInteger, UXViewContentMode) {
 + (void)animateWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay options:(UXViewAnimationOptions)options animations:(void (^)(void))animations completion:(void (^__nullable)(BOOL finished))completion NS_SWIFT_DISABLE_ASYNC;
 
 + (Class)layerClass;
-
-
 - (void)updateConstraintsForSubtreeIfNeeded;
 - (CGSize)sizeThatFits:(CGSize)size;
 - (void)setBackgroundColor:(NSColor *)backgroundColor;

@@ -3,19 +3,11 @@
 //
 //  Copyright (C) 1997-2019 Steve Nygard. Updated in 2022 by Kevin Bradley.
 //
+#import "_UXViewControllerTransitionContext.h"
 
 @class UXView, UXViewController;
 
-@interface _UXViewControllerOneToOneTransitionContext
-{
-    id arbitraryTransitionCompletionHandler;	// 136 = 0x88
-    UXViewController *_fromViewController;	// 144 = 0x90
-    UXViewController *_toViewController;	// 152 = 0x98
-    CGRect _fromStartFrame;	// 160 = 0xa0
-    CGRect _fromEndFrame;	// 192 = 0xc0
-    CGRect _toEndFrame;	// 224 = 0xe0
-    CGRect _toStartFrame;	// 256 = 0x100
-}
+@interface _UXViewControllerOneToOneTransitionContext: _UXViewControllerTransitionContext
 
 
 @property(nonatomic) CGRect toStartFrame; // @synthesize toStartFrame=_toStartFrame;

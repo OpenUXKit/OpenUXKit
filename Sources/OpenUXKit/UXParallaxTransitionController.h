@@ -3,13 +3,11 @@
 //
 //  Copyright (C) 1997-2019 Steve Nygard. Updated in 2022 by Kevin Bradley.
 //
-
+#import "UXTransitionController.h"
 @class UXView;
 
-@interface UXParallaxTransitionController
-{
-    UXView *_dimmingView;	// 24 = 0x18
-}
+@interface UXParallaxTransitionController: UXTransitionController
+
 
 + (void)_addShadowToView:(id)arg1 withAlpha:(double)arg2;
 

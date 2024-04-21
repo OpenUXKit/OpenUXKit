@@ -4,18 +4,13 @@
 //  Copyright (C) 1997-2019 Steve Nygard. Updated in 2022 by Kevin Bradley.
 //
 
-#import <objc/NSObject.h>
+#import <AppKit/AppKit.h>
 
 @interface _UXWindowState : NSObject
-{
-    NSUInteger _styleMask;	// 8 = 0x8
-    NSUInteger _collectionBehavior;	// 16 = 0x10
-}
-
-+ (id)windowStateWithStyleMask:(NSUInteger)arg1 collectionBehavior:(NSUInteger)arg2;
-@property(readonly) NSUInteger collectionBehavior; // @synthesize collectionBehavior=_collectionBehavior;
-@property(readonly) NSUInteger styleMask; // @synthesize styleMask=_styleMask;
-- (void)applyToWindow:(id)arg1;
++ (instancetype)windowStateWithStyleMask:(NSWindowStyleMask)styleMask collectionBehavior:(NSWindowCollectionBehavior)collectionBehavior;
+@property(readonly) NSWindowCollectionBehavior collectionBehavior; // @synthesize collectionBehavior=_collectionBehavior;
+@property(readonly) NSWindowStyleMask styleMask; // @synthesize styleMask=_styleMask;
+- (void)applyToWindow:(NSWindow *)window;
 
 @end
 

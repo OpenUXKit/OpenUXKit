@@ -3,10 +3,9 @@
 //
 //  Copyright (C) 1997-2019 Steve Nygard. Updated in 2022 by Kevin Bradley.
 //
+#import "UXTransitionController.h"
 
-@interface UXIdentityTransitionController
-{
-}
+@interface UXIdentityTransitionController: UXTransitionController
 
 - (void)animateTransition:(id)arg1;
 - (double)transitionDuration:(id)arg1;

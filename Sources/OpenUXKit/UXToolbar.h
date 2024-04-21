@@ -4,14 +4,12 @@
 //  Copyright (C) 1997-2019 Steve Nygard. Updated in 2022 by Kevin Bradley.
 //
 
+#import "UXBar.h"
+
 @class NSArray;
 @protocol UXToolbarDelegate;
 
-@interface UXToolbar
-{
-    id <UXToolbarDelegate> _delegate;	// 112 = 0x70
-    NSArray *_items;	// 120 = 0x78
-}
+@interface UXToolbar: UXBar
 
 
 @property(copy, nonatomic) NSArray *items; // @synthesize items=_items;

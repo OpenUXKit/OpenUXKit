@@ -19,11 +19,9 @@
 @property(readonly, nonatomic) BOOL animated; // @synthesize animated=_animated;
 @property(readonly, nonatomic) NSArray<UXViewController *> *viewControllers; // @synthesize viewControllers=_viewControllers;
 @property(readonly, nonatomic) NSInteger operation; // @synthesize operation=_operation;
-- (BOOL)isEqual:(id)arg1;
 - (BOOL)isEqualToNavigationRequest:(id)arg1;
-- (id)description;
 - (void)tearDownContainmentIfNeeded;
-- (void)setupContainmentIfNeededInParentViewController:(id)arg1;
+- (void)setupContainmentIfNeededInParentViewController:(id)parentViewController;
 @property(readonly, nonatomic) UXViewController *viewController;
 
 @end
