@@ -10,18 +10,20 @@
 
 @class NSColor, NSString;
 
+NS_HEADER_AUDIT_BEGIN(nullability, sendability)
+
 @interface NSView (UXKit) <UXKitAppearance>
+@property (nonatomic) NSInteger tintAdjustmentMode;
+@property (nonatomic, strong, nullable) NSColor *tintColor;
+@property (nonatomic) CGFloat alpha;
 - (CGFloat)ux_backingScaleFactor;
-- (id)enclosingViewOfClass:(Class)arg1;
+- (nullable id)enclosingViewOfClass:(Class)cls;
 - (void)tintColorDidChange;
-@property(nonatomic) NSInteger tintAdjustmentMode;
-@property(strong, nonatomic) NSColor *tintColor;
 - (void)setContentCompressionResistancePriority:(float)arg1 forAxis:(NSInteger)arg2;
 - (float)contentCompressionResistancePriorityForAxis:(NSInteger)arg1;
 - (void)setContentHuggingPriority:(float)arg1 forAxis:(NSInteger)arg2;
 - (float)contentHuggingPriorityForAxis:(NSInteger)arg1;
-@property(nonatomic) CGFloat alpha;
-- (BOOL)pointInside:(CGPoint)arg1 withEvent:(id)arg2;
+- (BOOL)pointInside:(CGPoint)point withEvent:(NSEvent *)event;
 - (void)layoutIfNeeded;
 - (void)layoutSubviews;
 - (void)setNeedsUpdateConstraints;
@@ -31,11 +33,8 @@
 - (void)didMoveToWindow;
 
 // Remaining properties
-@property(copy) NSColor *backgroundColor; // @dynamic backgroundColor;
-@property(readonly, copy) NSString *debugDescription;
-@property(readonly, copy) NSString *description;
-@property(readonly) NSUInteger hash;
-@property(readonly, nonatomic, getter=isHidden) BOOL hidden;
-@property(readonly) Class superclass;
+@property (copy, nullable) NSColor *backgroundColor;
+
 @end
 
+NS_HEADER_AUDIT_END(nullability, sendability)

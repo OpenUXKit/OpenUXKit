@@ -7,6 +7,5 @@
 #import <AppKit/AppKit.h>
 
 @protocol _UXBarItemsContainer <NSObject>
-@property(readonly, nonatomic) BOOL hidesGlobalTrailingView;
+@property (nonatomic, readonly) BOOL hidesGlobalTrailingView;
 @end
-

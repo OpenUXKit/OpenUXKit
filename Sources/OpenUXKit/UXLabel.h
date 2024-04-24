@@ -5,10 +5,11 @@
 //
 
 #import <AppKit/AppKit.h>
+#import "UXView.h"
 
 @class NSArray, NSAttributedString, NSColor, NSFont, NSString, NSTextField;
 
-@interface UXLabel <NSAccessibilityStaticText>
+@interface UXLabel: UXView <NSAccessibilityStaticText>
 {
     NSTextField *_concreteTextField;	// 112 = 0x70
     NSArray *_verticalDefaultConstraints;	// 120 = 0x78

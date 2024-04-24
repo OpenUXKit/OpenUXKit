@@ -378,6 +378,7 @@
 		E97369B72BD505F200E88591 /* OpenUXKit */ = {
 			isa = PBXGroup;
 			children = (
+				E97369542BD505F200E88591 /* OpenUXKit.h */,
 				E97369122BD505F200E88591 /* _UXAccessoryBarContainer-Protocol.h */,
 				E97369132BD505F200E88591 /* _UXBarItemsContainer-Protocol.h */,
 				E97369142BD505F200E88591 /* _UXButton.h */,
@@ -445,7 +446,6 @@
 				E97369512BD505F200E88591 /* NSView-UXKit.m */,
 				E97369522BD505F200E88591 /* NSViewController-UXViewController.h */,
 				E97369532BD505F200E88591 /* NSWindow-UXKit.h */,
-				E97369542BD505F200E88591 /* OpenUXKit.h */,
 				E97369552BD505F200E88591 /* UIMutableIndexPath.h */,
 				E97369562BD505F200E88591 /* UITextInputTraits-Protocol.h */,
 				E97369572BD505F200E88591 /* UXBackButton.h */,

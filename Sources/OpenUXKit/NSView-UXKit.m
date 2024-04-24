@@ -7,6 +7,7 @@
 
 #import "NSView-UXKit.h"
 #import <objc/runtime.h>
+
 @implementation NSView (UXKit)
 
 - (NSColor *)tintColor {
@@ -36,5 +37,50 @@
 }
 
 - (void)tintColorDidChange {}
+
+- (void)setTintAdjustmentMode:(NSInteger)tintAdjustmentMode {
+    
+}
+
+- (NSInteger)tintAdjustmentMode {
+    return 1;
+}
+
+- (void)setAlpha:(CGFloat)alpha {
+    self.alphaValue = alpha;
+}
+
+- (CGFloat)alpha {
+    return self.alphaValue;
+}
+
+- (CGFloat)ux_backingScaleFactor {
+    CGFloat backingScaleFactor = self.window.backingScaleFactor;
+    if (backingScaleFactor == 0.0) {
+        backingScaleFactor = NSApp.mainWindow.backingScaleFactor;
+    }
+    
+    if (backingScaleFactor == 0.0) {
+        backingScaleFactor = NSScreen.mainScreen.backingScaleFactor;
+    }
+    
+    if (backingScaleFactor == 0.0) {
+        backingScaleFactor = 1.0;
+    }
+    return backingScaleFactor;
+}
+
+- (id)enclosingViewOfClass:(Class)cls {
+    NSView *superview = self.superview;
+    if (superview) {
+        do {
+            if ([superview isKindOfClass:cls]) {
+                break;
+            }
+            superview = superview.superview;
+        } while (superview);
+    }
+    return superview;
+}
 
 @end

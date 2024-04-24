@@ -8,17 +8,16 @@
 
 @class NSColor;
 
-@interface _UXSinglePixelLine : NSView
-{
-    NSColor *_color;	// 112 = 0x70
+@interface _UXSinglePixelLine : NSView {
+    NSColor *_color;    // 112 = 0x70
 }
 
 
-@property(strong, nonatomic) NSColor *color; // @synthesize color=_color;
+@property (nonatomic, strong) NSColor *color; // @synthesize color=_color;
+
 - (void)drawRect:(CGRect)arg1;
 - (void)viewDidChangeBackingProperties;
 - (void)viewDidMoveToSuperview;
 - (void)updateHeight;
 
 @end
-

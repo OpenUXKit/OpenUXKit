@@ -2,13 +2,18 @@
 
 @class NSImage, NSString;
 
+NS_HEADER_AUDIT_BEGIN(nullability, sendability)
+
 @interface UXBarItem : NSObject
 
 @property (nonatomic) NSInteger tag; // @synthesize tag=_tag;
-@property (strong, nonatomic) NSImage *image; // @synthesize image=_image;
-@property (copy, nonatomic) NSString *accessibilityLabel; // @synthesize accessibilityLabel=_accessibilityLabel;
-@property (strong, nonatomic) NSString *title; // @synthesize title=_title;
-@property (nonatomic, getter=isEnabled) BOOL enabled; // @synthesize enabled=_enabled;
-
+@property (nonatomic, strong, nullable) NSImage *image; // @synthesize image=_image;
+@property (nonatomic, copy, nullable) NSString *accessibilityLabel; // @synthesize accessibilityLabel=_accessibilityLabel;
+@property (nonatomic, strong, nullable) NSString *title; // @synthesize title=_title;
+@property (nonatomic, getter = isEnabled) BOOL enabled; // @synthesize enabled=_enabled;
+@property (nonatomic, copy) NSString *accessibilityIdentifier;
 @end
 
+
+
+NS_HEADER_AUDIT_END(nullability, sendability)

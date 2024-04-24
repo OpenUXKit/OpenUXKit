@@ -4,9 +4,18 @@
 //  Copyright (C) 1997-2019 Steve Nygard. Updated in 2022 by Kevin Bradley.
 //
 
-#import <AppKit/NSButton.h>
+#import <AppKit/AppKit.h>
 
-@class NSMutableDictionary;
+typedef NS_OPTIONS(NSUInteger, UXControlState) {
+    UXControlStateNormal       = 0,
+    UXControlStateHighlighted  = 1 << 0,                  // used when UIControl isHighlighted is set
+    UXControlStateDisabled     = 1 << 1,
+    UXControlStateSelected     = 1 << 2,                  // flag usable by app (see below)
+    UXControlStateFocused      = 1 << 3,                  // Applicable only when the screen supports focus
+    UXControlStateApplication  = 0x00FF0000,              // additional flags available for application use
+    UXControlStateReserved     = 0xFF000000               // flags reserved for internal framework use
+};
+
 
 @interface _UXButton : NSButton
 {
@@ -14,19 +23,11 @@
     NSMutableDictionary *_titleAttributesByState;	// 120 = 0x78
 }
 
-+ (Class)cellClass;
-
-- (BOOL)accessibilityPerformPress;
-- (id)accessibilityLabel;
-- (id)_textColorForState:(NSUInteger)arg1;
-- (id)_attributedStringForState:(NSUInteger)arg1;
-- (void)setTitle:(id)arg1;
-- (void)mouseUp:(id)arg1;
-- (void)viewWillMoveToSuperview:(id)arg1;
+- (NSColor *)_textColorForState:(UXControlState)state;
+- (NSAttributedString *)_attributedStringForState:(UXControlState)state;
 - (void)tintColorDidChange;
-- (void)setTitleAttributes:(id)arg1 forState:(NSUInteger)arg2;
-- (void)setTitle:(id)arg1 forState:(NSUInteger)arg2;
-- (id)initWithFrame:(CGRect)arg1;
+- (void)setTitleAttributes:(NSDictionary<NSAttributedStringKey, id> *)titleAttributes forState:(UXControlState)state;
+- (void)setTitle:(NSString *)title forState:(UXControlState)state;
 
 @end
 

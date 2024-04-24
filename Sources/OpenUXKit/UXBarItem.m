@@ -22,6 +22,13 @@
 
 @implementation UXBarItem
 
+- (instancetype)init {
+    if (self = [super init]) {
+        self.enabled = YES;
+    }
+    return self;
+}
+
 
 
 @end

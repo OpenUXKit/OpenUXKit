@@ -5,43 +5,43 @@
 //
 
 #import <AppKit/AppKit.h>
-#import "UXView.h"
 #import "UXBarCommon.h"
+#import "UXView.h"
 
 @class NSColor, NSMutableSet, NSString, NSView, UXView, _UXSinglePixelLine;
 @protocol _UXBarItemsContainer;
 
-@interface UXBar: UXView <NSAccessibilityGroup, UXBarPositioning>
+typedef void (^UXCompletionHandler)(void);
 
+NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
-@property(nonatomic) NSEdgeInsets decorationInsets; // @synthesize decorationInsets=_decorationInsets;
-@property(strong, nonatomic) UXView<_UXBarItemsContainer> *barItemsContainer; // @synthesize barItemsContainer=_barItemsContainer;
-@property(nonatomic) CGFloat globalTrailingViewWidthMultiplier; // @synthesize globalTrailingViewWidthMultiplier=_globalTrailingViewWidthMultiplier;
-@property(strong, nonatomic) NSView *globalTrailingView; // @synthesize globalTrailingView=_globalTrailingView;
-@property(strong, nonatomic) UXView<_UXBarItemsContainer> *nextItemContainer; // @synthesize nextItemContainer=_nextItemContainer;
-@property(nonatomic) CGFloat percent; // @synthesize percent=_percent;
-@property(nonatomic) BOOL trailingViewNeedsRemoval; // @synthesize trailingViewNeedsRemoval=_trailingViewNeedsRemoval;
-@property(nonatomic) BOOL isInteractiveTransitioning; // @synthesize isInteractiveTransitioning=_isInteractiveTransitioning;
-@property(nonatomic) CGFloat baselineOffsetFromBottom; // @synthesize baselineOffsetFromBottom=_baselineOffsetFromBottom;
-@property (nonatomic) NSEdgeInsets layoutMargins; 
-@property(nonatomic) CGFloat height; // @synthesize height=_height;
-@property(nonatomic) CGFloat interitemSpacing; // @synthesize interitemSpacing=_interitemSpacing;
-@property(strong, nonatomic) NSColor *barTintColor; // @synthesize barTintColor=_barTintColor;
+@interface UXBar : UXView <NSAccessibilityGroup, UXBarPositioning>
+
+@property (nonatomic) NSEdgeInsets decorationInsets; // @synthesize decorationInsets=_decorationInsets;
+@property (nonatomic, strong) UXView<_UXBarItemsContainer> *barItemsContainer; // @synthesize barItemsContainer=_barItemsContainer;
+@property (nonatomic) CGFloat globalTrailingViewWidthMultiplier; // @synthesize globalTrailingViewWidthMultiplier=_globalTrailingViewWidthMultiplier;
+@property (nonatomic, strong) NSView *globalTrailingView; // @synthesize globalTrailingView=_globalTrailingView;
+@property (nonatomic, strong) UXView<_UXBarItemsContainer> *nextItemContainer; // @synthesize nextItemContainer=_nextItemContainer;
+@property (nonatomic) CGFloat percent; // @synthesize percent=_percent;
+@property (nonatomic) BOOL trailingViewNeedsRemoval; // @synthesize trailingViewNeedsRemoval=_trailingViewNeedsRemoval;
+@property (nonatomic) BOOL isInteractiveTransitioning; // @synthesize isInteractiveTransitioning=_isInteractiveTransitioning;
+@property (nonatomic) CGFloat baselineOffsetFromBottom; // @synthesize baselineOffsetFromBottom=_baselineOffsetFromBottom;
+@property (nonatomic) NSEdgeInsets layoutMargins;
+@property (nonatomic) CGFloat height; // @synthesize height=_height;
+@property (nonatomic) CGFloat interitemSpacing; // @synthesize interitemSpacing=_interitemSpacing;
+@property (nonatomic, strong) NSColor *barTintColor; // @synthesize barTintColor=_barTintColor;
+@property (nonatomic, readonly) NSInteger barPosition;
+@property (nonatomic) BOOL bordered;
 - (void)_updateDecorationLine;
-@property(readonly, nonatomic) NSInteger barPosition;
-- (CGSize)intrinsicContentSize;
-- (void)_completeInteractiveTransition:(BOOL)arg1 duration:(CGFloat)arg2;
-- (void)_finishInteractiveTransition:(BOOL)arg1 duration:(CGFloat)arg2 completion:(id)arg3;
-- (void)_updateInteractiveTransition:(CGFloat)arg1;
-- (void)_beginInteractiveTransitionToItemContainer:(id)arg1;
-- (void)_animateTransitionFromContainer:(id)arg1 toContainer:(id)arg2 transition:(NSUInteger)arg3 duration:(CGFloat)arg4 fromValue:(CGFloat)arg5 toValue:(CGFloat)arg6 completion:(id)arg7;
+- (void)_completeInteractiveTransition:(BOOL)completeInteractiveTransition duration:(NSTimeInterval)duration;
+- (void)_finishInteractiveTransition:(BOOL)finishInteractiveTransition duration:(NSTimeInterval)duration completion:(UXCompletionHandler)completion;
+- (void)_updateInteractiveTransition:(CGFloat)transition;
+- (void)_beginInteractiveTransitionToItemContainer:(UXView<_UXBarItemsContainer> *)itemContainer;
+- (void)_animateTransitionFromContainer:(UXView<_UXBarItemsContainer> *)fromContainer toContainer:(UXView<_UXBarItemsContainer> *)toContainer transition:(NSUInteger)transition duration:(NSTimeInterval)duration fromValue:(CGFloat)fromValue toValue:(CGFloat)toValue completion:(UXCompletionHandler)completion;
 - (void)_didCompleteContainerTransitionAnimation;
-- (void)_transitionToContainer:(id)arg1 transition:(NSUInteger)arg2 duration:(CGFloat)arg3;
-- (void)_updateTrailingViewWithItemContainer:(id)arg1;
-- (id)borderColor;
-- (void)setBorderColor:(id)arg1;
-@property(nonatomic) BOOL bordered;
-- (void)viewWillMoveToSuperview:(id)arg1;
-- (id)initWithFrame:(CGRect)arg1;
+- (void)_transitionToContainer:(UXView<_UXBarItemsContainer> *)container transition:(NSUInteger)transition duration:(NSTimeInterval)duration;
+- (void)_updateTrailingViewWithItemContainer:(UXView<_UXBarItemsContainer> *)itemContainer;
+
 @end
 
+NS_HEADER_AUDIT_END(nullability, sendability)

@@ -61,12 +61,12 @@ typedef NS_ENUM(NSInteger, UXViewContentMode) {
 @property (readonly) NSVisualEffectView *_visualEffectsView;
 @property (nonatomic, weak, nullable) UXViewController *viewControllerProxy;
 @property (nonatomic) BOOL needsContentBackgroundVisualEffect;
-@property (strong, nonatomic) NSColor *borderColor;
+@property (nonatomic, strong) NSColor *borderColor;
 @property (nonatomic) BOOL userInteractionEnabled;
 @property (nonatomic, getter = isExclusiveTouch) BOOL exclusiveTouch;
 @property (nonatomic) CGAffineTransform transform;
-@property (readonly, nonatomic) CGPoint center;
-@property (readonly, nonatomic) UXUserInterfaceLayoutDirection effectiveUserInterfaceLayoutDirection;
+@property (nonatomic, readonly) CGPoint center;
+@property (nonatomic, readonly) UXUserInterfaceLayoutDirection effectiveUserInterfaceLayoutDirection;
 @property (nonatomic) UXViewContentMode contentMode;
 @property (nonatomic) BOOL blurEnabled;
 @property (nonatomic) NSVisualEffectMaterial blurMaterial;
