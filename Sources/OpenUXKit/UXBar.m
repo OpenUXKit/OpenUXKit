@@ -243,7 +243,7 @@ CABasicAnimation * _animationForViewFromValueToValueKeyPath(UXView *view, NSNumb
     }
 }
 
-- (NSInteger)barPosition {
+- (UXBarPosition)barPosition {
     return UXBarPositionAny;
 }
 

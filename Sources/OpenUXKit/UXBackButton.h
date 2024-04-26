@@ -4,17 +4,14 @@
 //  Copyright (C) 1997-2019 Steve Nygard. Updated in 2022 by Kevin Bradley.
 //
 
-#import <AppKit/NSSegmentedControl.h>
+#import <AppKit/AppKit.h>
 
-@class NSImage, NSString;
+NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 @interface UXBackButton : NSSegmentedControl
-
-@property(strong, nonatomic) NSImage *image; // @synthesize image=_image;
-@property(copy, nonatomic) NSString *title; // @synthesize title=_title;
-@property(nonatomic) BOOL hidesTitle; // @synthesize hidesTitle=_hidesTitle;
-- (id)description;
-- (id)init;
-
+@property (nonatomic, strong, nullable) NSImage *image; // @synthesize image=_image;
+@property (nonatomic, copy, nullable) NSString *title; // @synthesize title=_title;
+@property (nonatomic) BOOL hidesTitle; // @synthesize hidesTitle=_hidesTitle;
 @end
 
+NS_HEADER_AUDIT_END(nullability, sendability)

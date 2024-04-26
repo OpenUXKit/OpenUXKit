@@ -12,6 +12,7 @@
 #import "UXLabel.h"
 #import "NSView-UXKit.h"
 #import "UXViewController.h"
+#import "UXKitDefines.h"
 
 @interface UXBarButtonItem ()
 {
@@ -137,7 +138,6 @@
     _contentViewController = nil;
 }
 
-#define cast(cls, var) ((cls)var)
 
 - (NSView *)_view {
     NSView *customView = self.customView;

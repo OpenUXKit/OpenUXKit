@@ -30,7 +30,7 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 @property (nonatomic) CGFloat height; // @synthesize height=_height;
 @property (nonatomic) CGFloat interitemSpacing; // @synthesize interitemSpacing=_interitemSpacing;
 @property (nonatomic, strong) NSColor *barTintColor; // @synthesize barTintColor=_barTintColor;
-@property (nonatomic, readonly) NSInteger barPosition;
+@property (nonatomic, readonly) UXBarPosition barPosition;
 @property (nonatomic) BOOL bordered;
 - (void)_updateDecorationLine;
 - (void)_completeInteractiveTransition:(BOOL)completeInteractiveTransition duration:(NSTimeInterval)duration;

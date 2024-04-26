@@ -174,6 +174,7 @@
 		E9736A5C2BD505F300E88591 /* UXZoomingCrossfadeTransitionController.m in Sources */ = {isa = PBXBuildFile; fileRef = E97369B62BD505F200E88591 /* UXZoomingCrossfadeTransitionController.m */; };
 		E9736A5E2BD5062C00E88591 /* _UXViewControllerTransitionContext.m in Sources */ = {isa = PBXBuildFile; fileRef = E9736A5D2BD5062C00E88591 /* _UXViewControllerTransitionContext.m */; };
 		E9736A602BD5312400E88591 /* UXNavigationController+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = E9736A5F2BD5312400E88591 /* UXNavigationController+Internal.h */; };
+		E97FA0F42BDBECD000111592 /* _UXNavigationItemContainerView.m in Sources */ = {isa = PBXBuildFile; fileRef = E97FA0F32BDBECD000111592 /* _UXNavigationItemContainerView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -346,6 +347,7 @@
 		E9736A5D2BD5062C00E88591 /* _UXViewControllerTransitionContext.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _UXViewControllerTransitionContext.m; sourceTree = "<group>"; };
 		E9736A5F2BD5312400E88591 /* UXNavigationController+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UXNavigationController+Internal.h"; sourceTree = "<group>"; };
 		E9736A692BD5571900E88591 /* UXNavigationControllerOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UXNavigationControllerOperation.h; sourceTree = "<group>"; };
+		E97FA0F32BDBECD000111592 /* _UXNavigationItemContainerView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _UXNavigationItemContainerView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -402,6 +404,7 @@
 				E97369262BD505F200E88591 /* _UXLayoutSpacer.m */,
 				E97369272BD505F200E88591 /* _UXNavigationDestination.h */,
 				E97369282BD505F200E88591 /* _UXNavigationItemContainerView.h */,
+				E97FA0F32BDBECD000111592 /* _UXNavigationItemContainerView.m */,
 				E97369292BD505F200E88591 /* _UXNavigationRequest.h */,
 				E973692A2BD505F200E88591 /* _UXNavigationRequest.m */,
 				E973692B2BD505F200E88591 /* _UXResizableImage.h */,
@@ -766,6 +769,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E97FA0F42BDBECD000111592 /* _UXNavigationItemContainerView.m in Sources */,
 				E9736A2D2BD505F300E88591 /* UXNavigationController.m in Sources */,
 				E9736A3B2BD505F300E88591 /* UXSourceController.m in Sources */,
 				E9736A362BD505F300E88591 /* UXPopoverController.m in Sources */,

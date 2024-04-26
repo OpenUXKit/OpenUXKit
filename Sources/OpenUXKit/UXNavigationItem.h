@@ -36,6 +36,6 @@
 - (void)setLeftBarButtonItems:(id)arg1 animated:(BOOL)arg2;
 - (void)setLeftBarButtonItem:(id)arg1 animated:(BOOL)arg2;
 - (id)initWithTitle:(id)arg1;
-
++ (id)keyPathsToObserve;
 @end
 
