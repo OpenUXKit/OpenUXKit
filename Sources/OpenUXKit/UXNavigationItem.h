@@ -6,36 +6,41 @@
 
 #import <AppKit/AppKit.h>
 
-@class NSArray, NSString, NSTextField, NSView, UXBarButtonItem;
+@class UXBarButtonItem;
+
+NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 @interface UXNavigationItem : NSObject <NSUserInterfaceItemIdentification>
-
-
-@property(strong, nonatomic) NSView *condensedTitleView; // @synthesize condensedTitleView=_condensedTitleView;
-@property(nonatomic) BOOL leftItemsSupplementBackButton; // @synthesize leftItemsSupplementBackButton=_leftItemsSupplementBackButton;
-@property(nonatomic) BOOL hidesGlobalTrailingView; // @synthesize hidesGlobalTrailingView=_hidesGlobalTrailingView;
-@property(nonatomic) BOOL hidesAlternateTitleView; // @synthesize hidesAlternateTitleView=_hidesAlternateTitleView;
-@property(nonatomic) BOOL hidesBackButton; // @synthesize hidesBackButton=_hidesBackButton;
-@property(copy, nonatomic) NSString *prompt; // @synthesize prompt=_prompt;
-@property(strong, nonatomic) NSView *titleView; // @synthesize titleView=_titleView;
-@property(strong, nonatomic) UXBarButtonItem *backBarButtonItem; // @synthesize backBarButtonItem=_backBarButtonItem;
-@property(strong, nonatomic) NSString *title; // @synthesize title=_title;
-@property(strong, nonatomic) UXBarButtonItem *rightBarButtonItem;
-@property(strong, nonatomic) NSArray *rightBarButtonItems;
-@property(strong, nonatomic) NSArray *leftBarButtonItems;
-@property(strong, nonatomic) UXBarButtonItem *leftBarButtonItem;
-@property (nonatomic) NSEdgeInsets layoutMargins;  
+@property (copy, nullable) NSUserInterfaceItemIdentifier identifier;
+@property (nonatomic, strong) NSView *condensedTitleView;
+@property (nonatomic) BOOL leftItemsSupplementBackButton;
+@property (nonatomic) BOOL hidesGlobalTrailingView;
+@property (nonatomic) BOOL hidesAlternateTitleView;
+@property (nonatomic) BOOL hidesBackButton;
+@property (nonatomic, copy) NSString *prompt;
+@property (nonatomic, strong) NSView *titleView;
+@property (nonatomic, strong) UXBarButtonItem *backBarButtonItem;
+@property (nonatomic, strong) NSString *title;
+@property (nonatomic, strong) UXBarButtonItem *rightBarButtonItem;
+@property (nonatomic, strong) NSArray *rightBarButtonItems;
+@property (nonatomic, strong) NSArray *leftBarButtonItems;
+@property (nonatomic, strong) UXBarButtonItem *leftBarButtonItem;
+@property (nonatomic, strong) UXBarButtonItem *switchLibraryButtonItem;
+@property (nonatomic) NSEdgeInsets layoutMargins;
+@property (nonatomic, strong) NSArray *trailingBarButtonItems;
+@property (nonatomic, readonly) NSTextField *internalTitleView;
+@property (nonatomic, strong) NSArray *leadingBarButtonItems;
++ (NSArray<NSString *> *)keyPathsToObserve;
+- (instancetype)initWithTitle:(NSString *)title;
 - (void)_updateInternalTitleView;
-@property(readonly, nonatomic) NSTextField *internalTitleView;
-@property(strong, nonatomic) NSArray *trailingBarButtonItems;
-- (void)setTrailingBarButtonItems:(id)arg1 animated:(BOOL)arg2;
-@property(strong, nonatomic) NSArray *leadingBarButtonItems;
-- (void)setLeadingBarButtonItems:(id)arg1 animated:(BOOL)arg2;
-- (void)setRightBarButtonItems:(id)arg1 animated:(BOOL)arg2;
-- (void)setRightBarButtonItem:(id)arg1 animated:(BOOL)arg2;
-- (void)setLeftBarButtonItems:(id)arg1 animated:(BOOL)arg2;
-- (void)setLeftBarButtonItem:(id)arg1 animated:(BOOL)arg2;
-- (id)initWithTitle:(id)arg1;
-+ (id)keyPathsToObserve;
+- (void)setLeadingBarButtonItems:(NSArray<UXBarButtonItem *> *)items animated:(BOOL)animated;
+- (void)setTrailingBarButtonItems:(NSArray<UXBarButtonItem *> *)items animated:(BOOL)animated;
+- (void)setLeftBarButtonItem:(UXBarButtonItem *)item animated:(BOOL)animated;
+- (void)setLeftBarButtonItems:(NSArray<UXBarButtonItem *> *)items animated:(BOOL)animated;
+- (void)setRightBarButtonItem:(UXBarButtonItem *)item animated:(BOOL)animated;
+- (void)setRightBarButtonItems:(NSArray<UXBarButtonItem *> *)items animated:(BOOL)animated;
+
 @end
 
+
+NS_HEADER_AUDIT_END(nullability, sendability)
