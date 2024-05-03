@@ -57,7 +57,6 @@
 
 - (void)setHidesTitle:(BOOL)hidesTitle {
     if (hidesTitle) {
-        #warning label need impl
         [self setLabel:@"" forSegment:0]; 
         [self setWidth:19.0 forSegment:0];
         if (_hidesTitle != hidesTitle) {

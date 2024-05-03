@@ -1,15 +1,7 @@
-//
-//  _UXViewControllerOneToOneTransitionContext.m
-//  
-//
-//  Created by JH on 2024/4/21.
-//
-
-#import <Foundation/Foundation.h>
 #import "_UXViewControllerOneToOneTransitionContext.h"
+#import "UXViewController.h"
 
-@interface _UXViewControllerOneToOneTransitionContext ()
-{
+@interface _UXViewControllerOneToOneTransitionContext () {
     id arbitraryTransitionCompletionHandler;    // 136 = 0x88
     UXViewController *_fromViewController;    // 144 = 0x90
     UXViewController *_toViewController;    // 152 = 0x98
@@ -23,5 +15,42 @@
 
 @implementation _UXViewControllerOneToOneTransitionContext
 
+- (UXViewController *)viewControllerForKey:(NSString *)key {
+    if ([key isEqualToString:UXTransitionContextToViewControllerKey]) {
+        return self.toViewController;
+    } else if ([key isEqualToString:UXTransitionContextFromViewControllerKey]) {
+        return self.fromViewController;
+    }
+
+    return nil;
+}
+
+- (CGRect)initialFrameForViewController:(UXViewController *)viewController {
+    if (_toViewController == viewController) {
+        return self.toStartFrame;
+    } else if (_fromViewController == viewController) {
+        return self.fromStartFrame;
+    }
+
+    return CGRectZero;
+}
+
+- (CGRect)finalFrameForViewController:(UXViewController *)viewController {
+    if (_toViewController == viewController) {
+        return self.toEndFrame;
+    } else if (_fromViewController == viewController) {
+        return self.fromEndFrame;
+    }
+
+    return CGRectZero;
+}
+
+- (UXView *)fromView {
+    return _fromViewController.uxView;
+}
+
+- (UXView *)toView {
+    return _toViewController.uxView;
+}
 
 @end

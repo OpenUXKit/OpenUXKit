@@ -161,12 +161,12 @@ NSImage * _UXImageBackChevron(void) {
 }
 
 - (void)_prepareForNavigationItemTransition {
-    [cast(_UXNavigationItemContainerView *, self.barItemsContainer) prepareForTransition];
+    [self.barItemsContainer prepareForTransition];
 }
 
 - (void)_pushNavigationItem:(UXNavigationItem *)item animated:(BOOL)animated duration:(NSTimeInterval)duration {
     if (animated) {
-        [cast(_UXNavigationItemContainerView *, self.barItemsContainer) prepareForTransition];
+        [self.barItemsContainer prepareForTransition];
     }
     [self _pushItem:item];
     _UXNavigationItemContainerView *topItemContainer = [_UXNavigationItemContainerView layoutContainerForItem:item navigationBar:self];
@@ -271,7 +271,7 @@ NSImage * _UXImageBackChevron(void) {
     if (self.internalItems.count <= 1) {
         NSAssert(false, @"Invalid parameter not satisfying: %@", @"self.internalItems.count > 1");
     }
-    [cast(_UXNavigationItemContainerView *, self.barItemsContainer) prepareForTransition];
+    [self.barItemsContainer prepareForTransition];
     self.currentOperation = UXNavigationControllerOperationPop;
     self.transitioningItem = self._popNavigationItem;
     _UXNavigationItemContainerView *topItemContainer = [_UXNavigationItemContainerView layoutContainerForItem:self.topItem navigationBar:self];
@@ -283,7 +283,7 @@ NSImage * _UXImageBackChevron(void) {
     if (!item) {
         NSAssert(false, @"Invalid parameter not satisfying: %@", @"Item");
     }
-    [cast(_UXNavigationItemContainerView *, self.barItemsContainer) prepareForTransition];
+    [self.barItemsContainer prepareForTransition];
     [self _pushItem:item];
     self.currentOperation = UXNavigationControllerOperationPush;
     self.transitioningItem = item;
@@ -293,13 +293,13 @@ NSImage * _UXImageBackChevron(void) {
 }
 
 - (void)_snapshot {
-    [cast(_UXNavigationItemContainerView *, self.barItemsContainer) prepareForTransition];
+    [self.barItemsContainer prepareForTransition];
 }
 
 - (UXNavigationItem *)_popNavigationItemAnimated:(BOOL)animated duration:(NSTimeInterval)duration {
     NSUInteger transition = 0;
     if (animated) {
-        [cast(_UXNavigationItemContainerView *, self.barItemsContainer) prepareForTransition];
+        [self.barItemsContainer prepareForTransition];
         transition = 6;
     }
     UXNavigationItem *result = [self _popNavigationItem];

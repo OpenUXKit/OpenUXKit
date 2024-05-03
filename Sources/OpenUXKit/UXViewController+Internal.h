@@ -8,6 +8,8 @@
 #import "UXViewController.h"
 #import "_UXLayoutSpacer.h"
 
+NS_HEADER_AUDIT_BEGIN(nullability, sendability)
+
 @interface UXViewController () {
     UXNavigationItem *_navigationItem;
     UXTabBarItem *_tabBarItem;
@@ -26,7 +28,7 @@
     BOOL _transitioningOutOfFullScreen;
     BOOL _isEditing;
     BOOL _automaticallyAdjustsScrollViewInsets;
-    NSInteger _modalPresentationStyle;
+    UXModalPresentationStyle _modalPresentationStyle;
     UXRectEdge _edgesForExtendedLayout;
     UXView *_presentedViewControllerContainerView;
     CGFloat _preferredToolbarHeight;
@@ -60,3 +62,6 @@
 @interface UXViewController (UXTabBarController_Private)
 - (nullable UXTabBarItemSegment *)preferredTabBarItemSegmentForNavigationDestination:(id<UXNavigationDestination>)navigationDestination;
 @end
+
+
+NS_HEADER_AUDIT_END(nullability, sendability)

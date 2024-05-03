@@ -1,10 +1,3 @@
-//
-//  UXBar.m
-//  OpenUXKit
-//
-//  Created by JH on 2024/4/21.
-//
-
 #import <Foundation/Foundation.h>
 #import <QuartzCore/QuartzCore.h>
 #import "_UXBarItemsContainer-Protocol.h"
@@ -255,8 +248,6 @@ CABasicAnimation * _animationForViewFromValueToValueKeyPath(UXView *view, NSNumb
 }
 
 - (void)_finishInteractiveTransition:(BOOL)finishInteractiveTransition duration:(NSTimeInterval)duration completion:(UXCompletionHandler)completion {
-    CGFloat percent = self.percent;
-
     [self _animateTransitionFromContainer:self.barItemsContainer
                               toContainer:self.nextItemContainer
                                transition:6

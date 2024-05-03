@@ -1,30 +1,36 @@
 #import <AppKit/AppKit.h>
-#import "UXViewControllerContextTransitioning-Protocol.h"
+#import "UXViewControllerTransitioning.h"
+#import "UXBase.h"
+#import "UXKitDefines.h"
 
-@class NSArray, NSString, UXView, _UXViewControllerTransitionCoordinator, _UXViewControllerTransitionContext;
+
+@class UXView, _UXViewControllerTransitionCoordinator, _UXViewControllerTransitionContext, _UXViewControllerOneToOneTransitionContext;
 @protocol UXViewControllerAnimatedTransitioning, UXViewControllerInteractiveTransitioning;
+
+NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 typedef void (^_UXViewControllerTransitionContextCompletionHandler)(_UXViewControllerTransitionContext *context, BOOL isCompletion);
 typedef void (^_UXViewControllerTransitionContextInteractiveUpdateHandler)(BOOL, BOOL, _UXViewControllerTransitionContext *, CGFloat);
+
 @interface _UXViewControllerTransitionContext : NSObject <UXViewControllerContextTransitioning>
 
-@property (nonatomic, copy) _UXViewControllerTransitionContextCompletionHandler completionHandler; // @synthesize completionHandler=_completionHandler;
-@property (nonatomic, copy) _UXViewControllerTransitionContextCompletionHandler willCompleteHandler; // @synthesize willCompleteHandler=_willCompleteHandler;
-@property (nonatomic) __weak UXView *containerView; // @synthesize containerView=_containerView;
-@property (nonatomic) __weak id <UXViewControllerInteractiveTransitioning> interactor; // @synthesize interactor=_interactor;
-@property (nonatomic) __weak id <UXViewControllerAnimatedTransitioning> animator; // @synthesize animator=_animator;
-@property (nonatomic) CGFloat percentOffset; // @synthesize percentOffset=_percentOffset;
-@property (nonatomic, getter = isPresentation) BOOL presentation; // @synthesize presentation=_presentation;
-@property (nonatomic) NSInteger presentationStyle; // @synthesize presentationStyle=_presentationStyle;
-@property (nonatomic, copy) _UXViewControllerTransitionContextInteractiveUpdateHandler interactiveUpdateHandler; // @synthesize interactiveUpdateHandler=_interactiveUpdateHandler;
-@property (nonatomic) NSInteger state; // @synthesize state=_state;
-@property (nonatomic) CGFloat duration; // @synthesize duration=_duration;
-@property (nonatomic, strong, setter = _setAuxContext:) _UXViewControllerTransitionCoordinator *_auxContext; // @synthesize _auxContext=__auxContext;
-@property (nonatomic) NSInteger completionCurve; // @synthesize completionCurve=_completionCurve;
-@property (nonatomic) CGFloat completionVelocity; // @synthesize completionVelocity=_completionVelocity;
-@property (nonatomic, getter = isAnimated) BOOL animated; // @synthesize animated=_animated;
-@property (nonatomic, getter = isCurrentlyInteractive) BOOL currentlyInteractive; // @synthesize currentlyInteractive=_currentlyInteractive;
-@property (nonatomic) BOOL initiallyInteractive; // @synthesize initiallyInteractive=_initiallyInteractive;
+@property (nonatomic, copy) _UXViewControllerTransitionContextCompletionHandler completionHandler;
+@property (nonatomic, copy) _UXViewControllerTransitionContextCompletionHandler willCompleteHandler;
+@property (nonatomic, weak, nullable) UXView *containerView;
+@property (nonatomic, weak, nullable) id <UXViewControllerInteractiveTransitioning> interactor;
+@property (nonatomic, weak, nullable) id <UXViewControllerAnimatedTransitioning> animator;
+@property (nonatomic) CGFloat percentOffset;
+@property (nonatomic, getter = isPresentation) BOOL presentation;
+@property (nonatomic) NSInteger presentationStyle;
+@property (nonatomic, copy) _UXViewControllerTransitionContextInteractiveUpdateHandler interactiveUpdateHandler;
+@property (nonatomic) NSInteger state;
+@property (nonatomic) CGFloat duration;
+@property (nonatomic, strong, setter = _setAuxContext:) _UXViewControllerTransitionCoordinator *_auxContext;
+@property (nonatomic) NSInteger completionCurve;
+@property (nonatomic) CGFloat completionVelocity;
+@property (nonatomic, getter = isAnimated) BOOL animated;
+@property (nonatomic, getter = isCurrentlyInteractive) BOOL currentlyInteractive;
+@property (nonatomic) BOOL initiallyInteractive;
 @property (nonatomic) BOOL transitionIsInFlight;
 
 - (void)_enableInteractionForDisabledViews;
@@ -37,7 +43,7 @@ typedef void (^_UXViewControllerTransitionContextInteractiveUpdateHandler)(BOOL,
 - (BOOL)transitionWasCancelled;
 - (CGRect)finalFrameForViewController:(id)viewController;
 - (CGRect)initialFrameForViewController:(id)viewController;
-- (id)viewControllerForKey:(id)key;
+- (nullable UXViewController *)viewControllerForKey:(NSString *)key;
 - (void)completeTransition:(BOOL)completeTransition;
 - (void)cancelInteractiveTransition;
 - (void)finishInteractiveTransition;
@@ -49,3 +55,5 @@ typedef void (^_UXViewControllerTransitionContextInteractiveUpdateHandler)(BOOL,
 - (BOOL)isInteractive;
 
 @end
+
+NS_HEADER_AUDIT_END(nullability, sendability)

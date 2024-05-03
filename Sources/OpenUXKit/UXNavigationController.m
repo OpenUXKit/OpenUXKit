@@ -1,8 +1,8 @@
-#import "UXNavigationController+Internal.h"
 #import "_UXAccessoryBarContainer-Protocol.h"
 #import "_UXContainerView.h"
 #import "_UXNavigationRequest.h"
 #import "_UXViewControllerOneToOneTransitionContext.h"
+#import "_UXViewControllerTransitionCoordinator.h"
 #import "_UXWindow.h"
 #import "_UXWindowState.h"
 #import "NSResponder-UXKit.h"
@@ -12,6 +12,7 @@
 #import "UXBarButtonItem.h"
 #import "UXIdentityTransitionController.h"
 #import "UXNavigationBar.h"
+#import "UXNavigationController+Internal.h"
 #import "UXNavigationControllerDelegate-Protocol.h"
 #import "UXNavigationItem.h"
 #import "UXParallaxTransitionController.h"
@@ -19,8 +20,9 @@
 #import "UXSubtoolbar.h"
 #import "UXTransitionController.h"
 #import "UXView.h"
+#import "UXViewController+Internal.h"
 #import "UXViewControllerTransitionCoordinator.h"
-#import "UXVIewController+Private.h"
+#import "UXViewControllerTransitioning.h"
 #import "UXWindowController.h"
 #import "UXZoomingCrossfadeTransitionController.h"
 
@@ -46,8 +48,8 @@ void *UXAccessoryViewControllerObservationContext = &UXAccessoryViewControllerOb
         __toolbarPosition = UXBarPositionTop;
         __subtoolbarPosition = UXBarPositionTop;
         _subtoolbarHidden = YES;
-        __defaultPushTransition = 0x64;
-        __defaultPopTransition = 0x65;
+        __defaultPushTransition = 100;
+        __defaultPopTransition = 101;
         _interactivePopGestureRecognizer = [NSGestureRecognizer new];
         _backButtonMenuEnabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"UXBackButtonMenuEnabled"];
     }
@@ -201,7 +203,6 @@ void *UXAccessoryViewControllerObservationContext = &UXAccessoryViewControllerOb
     [_toolbarExtendedBackgroundView setBackgroundColor:NSColor.controlBackgroundColor];
     [self.view addSubview:_toolbarExtendedBackgroundView];
 }
-
 
 NSString * UXLocalizedString(NSString *key) {
     NSBundle *currentBundle = [NSBundle bundleForClass:[UXNavigationController class]];
@@ -368,7 +369,6 @@ NSString * UXLocalizedString(NSString *key) {
 
     return offset;
 }
-
 
 - (void)invalidateIntrinsicLayoutInsets {
     [self _loadViewIfNotLoaded];
@@ -1450,7 +1450,7 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
     }
 
     if (context.initiallyInteractive) {
-        context.interactiveUpdateHandler = ^(BOOL a2, BOOL a3, _UXViewControllerOneToOneTransitionContext *context, CGFloat a5) {
+        context.interactiveUpdateHandler = ^(BOOL a2, BOOL a3, _UXViewControllerTransitionContext *context, CGFloat a5) {
             if (a2 && a3) {
                 setupContext();
                 return;
@@ -2092,23 +2092,23 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
                         }
 
                         *stop = YES;
-                    LABEL_17:
+ LABEL_17:
                         {
                             BOOL v18 = YES;
-                            
+
                             if (v11) {
                                 v18 = isComplete == NO;
                             }
-                            
+
                             if (!v18) {
                                 CGFloat percentComplete = [self.defaultTransitionController percentComplete];
-                                
+
                                 if (percentComplete > 0.3) {
                                     [self.currentTransitionContext finishInteractiveTransition];
                                 } else {
                                     [self.currentTransitionContext cancelInteractiveTransition];
                                 }
-                                
+
                                 self->_isInteractive = NO;
                             }
                         }
@@ -2282,11 +2282,13 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
 
 - (UXViewController *)popViewControllerAnimated:(BOOL)animated {
     NSUInteger targetViewControllersCount = _targetViewControllers.count;
+
     if (targetViewControllersCount < 2) {
         return nil;
     } else {
         UXViewController *toViewController = _targetViewControllers[targetViewControllersCount - 2];
         UXViewController *fromViewController = self.currentTopViewController;
+
         if (_delegateFlags.shouldPopFromViewControllerToViewController && self.delegate && fromViewController && toViewController  && ![self.delegate navigationController:self shouldPopFromViewController:fromViewController toViewController:toViewController]) {
             return nil;
         } else {

@@ -9,9 +9,9 @@
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 @interface UXBackButton : NSSegmentedControl
-@property (nonatomic, strong, nullable) NSImage *image; // @synthesize image=_image;
-@property (nonatomic, copy, nullable) NSString *title; // @synthesize title=_title;
-@property (nonatomic) BOOL hidesTitle; // @synthesize hidesTitle=_hidesTitle;
+@property (nonatomic, strong, nullable) NSImage *image;
+@property (nonatomic, copy, nullable) NSString *title;
+@property (nonatomic) BOOL hidesTitle;
 @end
 
 NS_HEADER_AUDIT_END(nullability, sendability)

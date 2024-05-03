@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E937315E2BE26A34006BB9E3 /* UXPopover.m in Sources */ = {isa = PBXBuildFile; fileRef = E937315D2BE26A34006BB9E3 /* UXPopover.m */; };
 		E97369B82BD505F300E88591 /* _UXAccessoryBarContainer-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369122BD505F200E88591 /* _UXAccessoryBarContainer-Protocol.h */; };
 		E97369B92BD505F300E88591 /* _UXBarItemsContainer-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369132BD505F200E88591 /* _UXBarItemsContainer-Protocol.h */; };
 		E97369BA2BD505F300E88591 /* _UXButton.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369142BD505F200E88591 /* _UXButton.h */; };
@@ -154,7 +155,6 @@
 		E9736A482BD505F300E88591 /* UXTableViewHeaderFooterView.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369A22BD505F200E88591 /* UXTableViewHeaderFooterView.h */; };
 		E9736A492BD505F300E88591 /* UXToolbar.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369A32BD505F200E88591 /* UXToolbar.h */; };
 		E9736A4A2BD505F300E88591 /* UXToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = E97369A42BD505F200E88591 /* UXToolbar.m */; };
-		E9736A4B2BD505F300E88591 /* UXToolbarDelegate-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369A52BD505F200E88591 /* UXToolbarDelegate-Protocol.h */; };
 		E9736A4C2BD505F300E88591 /* UXTransitionController.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369A62BD505F200E88591 /* UXTransitionController.h */; };
 		E9736A4D2BD505F300E88591 /* UXTransitionController.m in Sources */ = {isa = PBXBuildFile; fileRef = E97369A72BD505F200E88591 /* UXTransitionController.m */; };
 		E9736A4E2BD505F300E88591 /* UXView.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369A82BD505F200E88591 /* UXView.h */; };
@@ -163,10 +163,8 @@
 		E9736A512BD505F300E88591 /* UXViewAnimationContext.m in Sources */ = {isa = PBXBuildFile; fileRef = E97369AB2BD505F200E88591 /* UXViewAnimationContext.m */; };
 		E9736A522BD505F300E88591 /* UXViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369AC2BD505F200E88591 /* UXViewController.h */; };
 		E9736A532BD505F300E88591 /* UXViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E97369AD2BD505F200E88591 /* UXViewController.m */; };
-		E9736A542BD505F300E88591 /* UXVIewController+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369AE2BD505F200E88591 /* UXVIewController+Private.h */; };
-		E9736A552BD505F300E88591 /* UXViewControllerAnimatedTransitioning-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369AF2BD505F200E88591 /* UXViewControllerAnimatedTransitioning-Protocol.h */; };
-		E9736A562BD505F300E88591 /* UXViewControllerContextTransitioning-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369B02BD505F200E88591 /* UXViewControllerContextTransitioning-Protocol.h */; };
-		E9736A572BD505F300E88591 /* UXViewControllerInteractiveTransitioning-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369B12BD505F200E88591 /* UXViewControllerInteractiveTransitioning-Protocol.h */; };
+		E9736A542BD505F300E88591 /* UXViewController+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369AE2BD505F200E88591 /* UXViewController+Internal.h */; };
+		E9736A562BD505F300E88591 /* UXViewControllerTransitioning.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369B02BD505F200E88591 /* UXViewControllerTransitioning.h */; };
 		E9736A582BD505F300E88591 /* UXViewControllerTransitionCoordinator.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369B22BD505F200E88591 /* UXViewControllerTransitionCoordinator.h */; };
 		E9736A592BD505F300E88591 /* UXWindowController.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369B32BD505F200E88591 /* UXWindowController.h */; };
 		E9736A5A2BD505F300E88591 /* UXWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = E97369B42BD505F200E88591 /* UXWindowController.m */; };
@@ -175,9 +173,18 @@
 		E9736A5E2BD5062C00E88591 /* _UXViewControllerTransitionContext.m in Sources */ = {isa = PBXBuildFile; fileRef = E9736A5D2BD5062C00E88591 /* _UXViewControllerTransitionContext.m */; };
 		E9736A602BD5312400E88591 /* UXNavigationController+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = E9736A5F2BD5312400E88591 /* UXNavigationController+Internal.h */; };
 		E97FA0F42BDBECD000111592 /* _UXNavigationItemContainerView.m in Sources */ = {isa = PBXBuildFile; fileRef = E97FA0F32BDBECD000111592 /* _UXNavigationItemContainerView.m */; };
+		E97FA0F82BE1332900111592 /* UXViewControllerTransitioning.m in Sources */ = {isa = PBXBuildFile; fileRef = E97FA0F72BE1332900111592 /* UXViewControllerTransitioning.m */; };
+		E9907A8E2BE2AC8200A1215E /* UXLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = E9907A8D2BE2AC8200A1215E /* UXLabel.m */; };
+		E9907A902BE2B5C600A1215E /* _UXToolbarItemsContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = E9907A8F2BE2B5C600A1215E /* _UXToolbarItemsContainer.m */; };
+		E9907AAC2BE513EB00A1215E /* _UXSinglePixelLine.m in Sources */ = {isa = PBXBuildFile; fileRef = E9907AAB2BE513EB00A1215E /* _UXSinglePixelLine.m */; };
+		E9907AAE2BE5164500A1215E /* _UXResizableImage.m in Sources */ = {isa = PBXBuildFile; fileRef = E9907AAD2BE5164500A1215E /* _UXResizableImage.m */; };
+		E9907AB02BE52D5700A1215E /* _UXButton.m in Sources */ = {isa = PBXBuildFile; fileRef = E9907AAF2BE52D5700A1215E /* _UXButton.m */; };
+		E9907AB22BE546CE00A1215E /* _UXButtonCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E9907AB12BE546CE00A1215E /* _UXButtonCell.m */; };
+		E9907AB42BE54B3500A1215E /* _UXViewControllerTransitionCoordinator.m in Sources */ = {isa = PBXBuildFile; fileRef = E9907AB32BE54B3500A1215E /* _UXViewControllerTransitionCoordinator.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E937315D2BE26A34006BB9E3 /* UXPopover.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UXPopover.m; sourceTree = "<group>"; };
 		E97365A22BD4FFF500E88591 /* OpenUXKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OpenUXKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E97369122BD505F200E88591 /* _UXAccessoryBarContainer-Protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "_UXAccessoryBarContainer-Protocol.h"; sourceTree = "<group>"; };
 		E97369132BD505F200E88591 /* _UXBarItemsContainer-Protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "_UXBarItemsContainer-Protocol.h"; sourceTree = "<group>"; };
@@ -326,7 +333,6 @@
 		E97369A22BD505F200E88591 /* UXTableViewHeaderFooterView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UXTableViewHeaderFooterView.h; sourceTree = "<group>"; };
 		E97369A32BD505F200E88591 /* UXToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UXToolbar.h; sourceTree = "<group>"; };
 		E97369A42BD505F200E88591 /* UXToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UXToolbar.m; sourceTree = "<group>"; };
-		E97369A52BD505F200E88591 /* UXToolbarDelegate-Protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UXToolbarDelegate-Protocol.h"; sourceTree = "<group>"; };
 		E97369A62BD505F200E88591 /* UXTransitionController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UXTransitionController.h; sourceTree = "<group>"; };
 		E97369A72BD505F200E88591 /* UXTransitionController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UXTransitionController.m; sourceTree = "<group>"; };
 		E97369A82BD505F200E88591 /* UXView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UXView.h; sourceTree = "<group>"; };
@@ -335,10 +341,8 @@
 		E97369AB2BD505F200E88591 /* UXViewAnimationContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UXViewAnimationContext.m; sourceTree = "<group>"; };
 		E97369AC2BD505F200E88591 /* UXViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UXViewController.h; sourceTree = "<group>"; };
 		E97369AD2BD505F200E88591 /* UXViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UXViewController.m; sourceTree = "<group>"; };
-		E97369AE2BD505F200E88591 /* UXVIewController+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UXVIewController+Private.h"; sourceTree = "<group>"; };
-		E97369AF2BD505F200E88591 /* UXViewControllerAnimatedTransitioning-Protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UXViewControllerAnimatedTransitioning-Protocol.h"; sourceTree = "<group>"; };
-		E97369B02BD505F200E88591 /* UXViewControllerContextTransitioning-Protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UXViewControllerContextTransitioning-Protocol.h"; sourceTree = "<group>"; };
-		E97369B12BD505F200E88591 /* UXViewControllerInteractiveTransitioning-Protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UXViewControllerInteractiveTransitioning-Protocol.h"; sourceTree = "<group>"; };
+		E97369AE2BD505F200E88591 /* UXViewController+Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UXViewController+Internal.h"; sourceTree = "<group>"; };
+		E97369B02BD505F200E88591 /* UXViewControllerTransitioning.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UXViewControllerTransitioning.h; sourceTree = "<group>"; };
 		E97369B22BD505F200E88591 /* UXViewControllerTransitionCoordinator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UXViewControllerTransitionCoordinator.h; sourceTree = "<group>"; };
 		E97369B32BD505F200E88591 /* UXWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UXWindowController.h; sourceTree = "<group>"; };
 		E97369B42BD505F200E88591 /* UXWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UXWindowController.m; sourceTree = "<group>"; };
@@ -348,6 +352,15 @@
 		E9736A5F2BD5312400E88591 /* UXNavigationController+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UXNavigationController+Internal.h"; sourceTree = "<group>"; };
 		E9736A692BD5571900E88591 /* UXNavigationControllerOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UXNavigationControllerOperation.h; sourceTree = "<group>"; };
 		E97FA0F32BDBECD000111592 /* _UXNavigationItemContainerView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _UXNavigationItemContainerView.m; sourceTree = "<group>"; };
+		E97FA0F52BDE82B400111592 /* UXBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UXBase.h; sourceTree = "<group>"; };
+		E97FA0F72BE1332900111592 /* UXViewControllerTransitioning.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UXViewControllerTransitioning.m; sourceTree = "<group>"; };
+		E9907A8D2BE2AC8200A1215E /* UXLabel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UXLabel.m; sourceTree = "<group>"; };
+		E9907A8F2BE2B5C600A1215E /* _UXToolbarItemsContainer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _UXToolbarItemsContainer.m; sourceTree = "<group>"; };
+		E9907AAB2BE513EB00A1215E /* _UXSinglePixelLine.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _UXSinglePixelLine.m; sourceTree = "<group>"; };
+		E9907AAD2BE5164500A1215E /* _UXResizableImage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _UXResizableImage.m; sourceTree = "<group>"; };
+		E9907AAF2BE52D5700A1215E /* _UXButton.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _UXButton.m; sourceTree = "<group>"; };
+		E9907AB12BE546CE00A1215E /* _UXButtonCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _UXButtonCell.m; sourceTree = "<group>"; };
+		E9907AB32BE54B3500A1215E /* _UXViewControllerTransitionCoordinator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _UXViewControllerTransitionCoordinator.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -381,10 +394,14 @@
 			isa = PBXGroup;
 			children = (
 				E97369542BD505F200E88591 /* OpenUXKit.h */,
+				E97FA0F52BDE82B400111592 /* UXBase.h */,
+				E97369812BD505F200E88591 /* UXKitDefines.h */,
 				E97369122BD505F200E88591 /* _UXAccessoryBarContainer-Protocol.h */,
 				E97369132BD505F200E88591 /* _UXBarItemsContainer-Protocol.h */,
 				E97369142BD505F200E88591 /* _UXButton.h */,
+				E9907AAF2BE52D5700A1215E /* _UXButton.m */,
 				E97369152BD505F200E88591 /* _UXButtonCell.h */,
+				E9907AB12BE546CE00A1215E /* _UXButtonCell.m */,
 				E97369162BD505F200E88591 /* _UXCollectionDocumentView.h */,
 				E97369172BD505F200E88591 /* _UXCollectionSnapshotView.h */,
 				E97369182BD505F200E88591 /* _UXCollectionView.h */,
@@ -408,11 +425,13 @@
 				E97369292BD505F200E88591 /* _UXNavigationRequest.h */,
 				E973692A2BD505F200E88591 /* _UXNavigationRequest.m */,
 				E973692B2BD505F200E88591 /* _UXResizableImage.h */,
+				E9907AAD2BE5164500A1215E /* _UXResizableImage.m */,
 				E973692C2BD505F200E88591 /* _UXSettings.h */,
 				E973692D2BD505F200E88591 /* _UXSettingsGroup.h */,
 				E973692E2BD505F200E88591 /* _UXSettingsGroupObserver-Protocol.h */,
 				E973692F2BD505F200E88591 /* _UXSettingsKeyPathObserver-Protocol.h */,
 				E97369302BD505F200E88591 /* _UXSinglePixelLine.h */,
+				E9907AAB2BE513EB00A1215E /* _UXSinglePixelLine.m */,
 				E97369312BD505F200E88591 /* _UXSourceSplitView.h */,
 				E97369322BD505F200E88591 /* _UXSourceSplitViewCursorProvider-Protocol.h */,
 				E97369332BD505F200E88591 /* _UXSourceSplitViewDelegate-Protocol.h */,
@@ -422,11 +441,13 @@
 				E97369372BD505F200E88591 /* _UXSourceSplitViewSpringLoadingView.h */,
 				E97369382BD505F200E88591 /* _UXTableHeaderView.h */,
 				E97369392BD505F200E88591 /* _UXToolbarItemsContainer.h */,
+				E9907A8F2BE2B5C600A1215E /* _UXToolbarItemsContainer.m */,
 				E973693A2BD505F200E88591 /* _UXViewControllerOneToOneTransitionContext.h */,
 				E973693B2BD505F200E88591 /* _UXViewControllerOneToOneTransitionContext.m */,
 				E973693C2BD505F200E88591 /* _UXViewControllerTransitionContext.h */,
 				E9736A5D2BD5062C00E88591 /* _UXViewControllerTransitionContext.m */,
 				E973693D2BD505F200E88591 /* _UXViewControllerTransitionCoordinator.h */,
+				E9907AB32BE54B3500A1215E /* _UXViewControllerTransitionCoordinator.m */,
 				E973693E2BD505F200E88591 /* _UXWindow.h */,
 				E973693F2BD505F200E88591 /* _UXWindowState.h */,
 				E97369402BD505F200E88591 /* _UXWindowState.m */,
@@ -493,8 +514,8 @@
 				E973697E2BD505F200E88591 /* UXImageView.h */,
 				E973697F2BD505F200E88591 /* UXImageView.m */,
 				E97369802BD505F200E88591 /* UXKitAppearance-Protocol.h */,
-				E97369812BD505F200E88591 /* UXKitDefines.h */,
 				E97369822BD505F200E88591 /* UXLabel.h */,
+				E9907A8D2BE2AC8200A1215E /* UXLabel.m */,
 				E97369832BD505F200E88591 /* UXLayoutSupport-Protocol.h */,
 				E97369842BD505F200E88591 /* UXNavigationBar.h */,
 				E97369852BD505F200E88591 /* UXNavigationBar.m */,
@@ -509,6 +530,7 @@
 				E973698C2BD505F200E88591 /* UXParallaxTransitionController.h */,
 				E973698D2BD505F200E88591 /* UXParallaxTransitionController.m */,
 				E973698E2BD505F200E88591 /* UXPopover.h */,
+				E937315D2BE26A34006BB9E3 /* UXPopover.m */,
 				E973698F2BD505F200E88591 /* UXPopoverController.h */,
 				E97369902BD505F200E88591 /* UXPopoverController.m */,
 				E97369912BD505F200E88591 /* UXProxyViewController.h */,
@@ -531,7 +553,6 @@
 				E97369A22BD505F200E88591 /* UXTableViewHeaderFooterView.h */,
 				E97369A32BD505F200E88591 /* UXToolbar.h */,
 				E97369A42BD505F200E88591 /* UXToolbar.m */,
-				E97369A52BD505F200E88591 /* UXToolbarDelegate-Protocol.h */,
 				E97369A62BD505F200E88591 /* UXTransitionController.h */,
 				E97369A72BD505F200E88591 /* UXTransitionController.m */,
 				E97369A82BD505F200E88591 /* UXView.h */,
@@ -540,10 +561,9 @@
 				E97369AB2BD505F200E88591 /* UXViewAnimationContext.m */,
 				E97369AC2BD505F200E88591 /* UXViewController.h */,
 				E97369AD2BD505F200E88591 /* UXViewController.m */,
-				E97369AE2BD505F200E88591 /* UXVIewController+Private.h */,
-				E97369AF2BD505F200E88591 /* UXViewControllerAnimatedTransitioning-Protocol.h */,
-				E97369B02BD505F200E88591 /* UXViewControllerContextTransitioning-Protocol.h */,
-				E97369B12BD505F200E88591 /* UXViewControllerInteractiveTransitioning-Protocol.h */,
+				E97369AE2BD505F200E88591 /* UXViewController+Internal.h */,
+				E97369B02BD505F200E88591 /* UXViewControllerTransitioning.h */,
+				E97FA0F72BE1332900111592 /* UXViewControllerTransitioning.m */,
 				E97369B22BD505F200E88591 /* UXViewControllerTransitionCoordinator.h */,
 				E97369B32BD505F200E88591 /* UXWindowController.h */,
 				E97369B42BD505F200E88591 /* UXWindowController.m */,
@@ -567,7 +587,7 @@
 				E9736A372BD505F300E88591 /* UXProxyViewController.h in Headers */,
 				E9736A1C2BD505F300E88591 /* UXCollectionViewPanGestureRecognizer.h in Headers */,
 				E97369F92BD505F300E88591 /* NSWindow-UXKit.h in Headers */,
-				E9736A562BD505F300E88591 /* UXViewControllerContextTransitioning-Protocol.h in Headers */,
+				E9736A562BD505F300E88591 /* UXViewControllerTransitioning.h in Headers */,
 				E97369D52BD505F300E88591 /* _UXSettingsKeyPathObserver-Protocol.h in Headers */,
 				E97369DD2BD505F300E88591 /* _UXSourceSplitViewSpringLoadingView.h in Headers */,
 				E97369EF2BD505F300E88591 /* NSPasteboard-UXKit.h in Headers */,
@@ -579,7 +599,6 @@
 				E9736A412BD505F300E88591 /* UXTabBarItem.h in Headers */,
 				E9736A082BD505F300E88591 /* UXCollectionReusableView.h in Headers */,
 				E97369BC2BD505F300E88591 /* _UXCollectionDocumentView.h in Headers */,
-				E9736A552BD505F300E88591 /* UXViewControllerAnimatedTransitioning-Protocol.h in Headers */,
 				E97369C62BD505F300E88591 /* _UXContentUnavailableView.h in Headers */,
 				E97369BA2BD505F300E88591 /* _UXButton.h in Headers */,
 				E9736A282BD505F300E88591 /* UXLabel.h in Headers */,
@@ -606,7 +625,7 @@
 				E97369CD2BD505F300E88591 /* _UXNavigationDestination.h in Headers */,
 				E9736A172BD505F300E88591 /* UXCollectionViewLayoutAttributes.h in Headers */,
 				E97369CE2BD505F300E88591 /* _UXNavigationItemContainerView.h in Headers */,
-				E9736A542BD505F300E88591 /* UXVIewController+Private.h in Headers */,
+				E9736A542BD505F300E88591 /* UXViewController+Internal.h in Headers */,
 				E9736A3D2BD505F300E88591 /* UXSubtoolbar.h in Headers */,
 				E97369F42BD505F300E88591 /* NSTextField-Compatibility.h in Headers */,
 				E9736A182BD505F300E88591 /* UXCollectionViewLayoutInvalidationContext.h in Headers */,
@@ -643,7 +662,6 @@
 				E9736A162BD505F300E88591 /* UXCollectionViewLayoutAccessibility.h in Headers */,
 				E9736A2F2BD505F300E88591 /* UXNavigationDestination-Protocol.h in Headers */,
 				E9736A592BD505F300E88591 /* UXWindowController.h in Headers */,
-				E9736A572BD505F300E88591 /* UXViewControllerInteractiveTransitioning-Protocol.h in Headers */,
 				E97369D92BD505F300E88591 /* _UXSourceSplitViewDelegate-Protocol.h in Headers */,
 				E97369C12BD505F300E88591 /* _UXCollectionViewOverdraw-Protocol.h in Headers */,
 				E97369F32BD505F300E88591 /* NSScrollView-UXKit.h in Headers */,
@@ -679,7 +697,6 @@
 				E9736A492BD505F300E88591 /* UXToolbar.h in Headers */,
 				E9736A1F2BD505F300E88591 /* UXCollectionViewUpdateItem.h in Headers */,
 				E97369C72BD505F300E88591 /* _UXFlowLayoutInfo.h in Headers */,
-				E9736A4B2BD505F300E88591 /* UXToolbarDelegate-Protocol.h in Headers */,
 				E9736A0B2BD505F300E88591 /* UXCollectionViewAnimationContext.h in Headers */,
 				E97369C92BD505F300E88591 /* _UXFlowLayoutRow.h in Headers */,
 				E97369C42BD505F300E88591 /* _UXContainerView.h in Headers */,
@@ -770,6 +787,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E97FA0F42BDBECD000111592 /* _UXNavigationItemContainerView.m in Sources */,
+				E937315E2BE26A34006BB9E3 /* UXPopover.m in Sources */,
 				E9736A2D2BD505F300E88591 /* UXNavigationController.m in Sources */,
 				E9736A3B2BD505F300E88591 /* UXSourceController.m in Sources */,
 				E9736A362BD505F300E88591 /* UXPopoverController.m in Sources */,
@@ -782,11 +800,14 @@
 				E97369CC2BD505F300E88591 /* _UXLayoutSpacer.m in Sources */,
 				E9736A402BD505F300E88591 /* UXTabBarController.m in Sources */,
 				E9736A5C2BD505F300E88591 /* UXZoomingCrossfadeTransitionController.m in Sources */,
+				E9907AAE2BE5164500A1215E /* _UXResizableImage.m in Sources */,
 				E9736A4F2BD505F300E88591 /* UXView.m in Sources */,
 				E97369E12BD505F300E88591 /* _UXViewControllerOneToOneTransitionContext.m in Sources */,
 				E9736A002BD505F300E88591 /* UXBar.m in Sources */,
+				E9907AB02BE52D5700A1215E /* _UXButton.m in Sources */,
 				E9736A312BD505F300E88591 /* UXNavigationItem.m in Sources */,
 				E9736A5E2BD5062C00E88591 /* _UXViewControllerTransitionContext.m in Sources */,
+				E9907A8E2BE2AC8200A1215E /* UXLabel.m in Sources */,
 				E9736A022BD505F300E88591 /* UXBarButtonItem.m in Sources */,
 				E9736A392BD505F300E88591 /* UXSlideTransitionController.m in Sources */,
 				E9736A332BD505F300E88591 /* UXParallaxTransitionController.m in Sources */,
@@ -794,12 +815,17 @@
 				E97369D02BD505F300E88591 /* _UXNavigationRequest.m in Sources */,
 				E9736A2B2BD505F300E88591 /* UXNavigationBar.m in Sources */,
 				E9736A252BD505F300E88591 /* UXImageView.m in Sources */,
+				E9907AB42BE54B3500A1215E /* _UXViewControllerTransitionCoordinator.m in Sources */,
 				E9736A512BD505F300E88591 /* UXViewAnimationContext.m in Sources */,
 				E9736A232BD505F300E88591 /* UXIdentityTransitionController.m in Sources */,
+				E97FA0F82BE1332900111592 /* UXViewControllerTransitioning.m in Sources */,
 				E97369C52BD505F300E88591 /* _UXContainerView.m in Sources */,
+				E9907AAC2BE513EB00A1215E /* _UXSinglePixelLine.m in Sources */,
 				E97369FE2BD505F300E88591 /* UXBackButton.m in Sources */,
+				E9907AB22BE546CE00A1215E /* _UXButtonCell.m in Sources */,
 				E9736A4A2BD505F300E88591 /* UXToolbar.m in Sources */,
 				E9736A052BD505F300E88591 /* UXBarItem.m in Sources */,
+				E9907A902BE2B5C600A1215E /* _UXToolbarItemsContainer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

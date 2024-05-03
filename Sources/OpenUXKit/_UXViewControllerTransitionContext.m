@@ -1,16 +1,9 @@
-//
-//  _UXViewControllerTransitionContext.m
-//  OpenUXKit
-//
-//  Created by JH on 2024/4/21.
-//
-
 #import <Foundation/Foundation.h>
 #import "_UXViewControllerTransitionContext.h"
-#import "UXViewControllerInteractiveTransitioning-Protocol.h"
+#import "UXViewControllerTransitioning.h"
 #import "_UXViewControllerTransitionCoordinator.h"
-#import "UXViewControllerAnimatedTransitioning-Protocol.h"
 #import "UXKitDefines.h"
+
 
 @interface _UXViewControllerTransitionContext ()
 {
@@ -162,7 +155,7 @@
     return CGRectZero;
 }
 
-- (id)viewControllerForKey:(id)key {
+- (UXViewController *)viewControllerForKey:(NSString *)key {
     [NSException raise:NSInvalidArgumentException format:@"%@ is an abstract class!", self.class];
     return nil;
 }

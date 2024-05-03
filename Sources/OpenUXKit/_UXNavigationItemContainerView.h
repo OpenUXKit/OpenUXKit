@@ -11,7 +11,7 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 @property (nonatomic, weak, nullable) NSView *titleCenteringConstraintOwnerView;
 @property (nonatomic, weak, nullable) NSView *titleCenteringTrackedView;
 @property (nonatomic, weak, nullable) NSView *titleCenteringConstrainedTitleView;
-@property (nonatomic, strong) NSLayoutConstraint *titleCenteringConstraint;
+@property (nonatomic, strong, nullable) NSLayoutConstraint *titleCenteringConstraint;
 @property (nonatomic, strong) NSMutableArray *addedConstraints;
 @property (nonatomic, strong) NSMutableDictionary *overflowItemsByMinimumWidth;
 @property (nonatomic, strong) NSMutableArray *itemsSortedByPriority;
@@ -27,9 +27,9 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 @property (nonatomic, readonly) UXNavigationItem *item;
 @property (nonatomic, readonly) BOOL hidesGlobalTrailingView;
 + (instancetype)layoutContainerForItem:(UXNavigationItem *)item navigationBar:(UXNavigationBar *)navigationBar;
-- (void)_updateItemsViews:(id)itemsView withNewViews:(id)newViews;
-- (void)setTitleCenteringTrackedView:(id)trackedView updateConstraints:(BOOL)updateConstraints;
-- (id)subviewsIntersectedWithViews:(id)views excludingHidden:(BOOL)excludingHidden;
+- (void)_updateItemsViews:(NSArray<NSView *> *)itemsView withNewViews:(NSArray<NSView *> *)newViews;
+- (void)setTitleCenteringTrackedView:(NSView *)trackedView updateConstraints:(BOOL)updateConstraints;
+- (NSArray<NSView *> *)subviewsIntersectedWithViews:(NSArray<NSView *> *)views excludingHidden:(BOOL)excludingHidden;
 - (void)updateRightItemViewsAnimated:(BOOL)animated;
 - (void)updateLeftItemViewsAnimated:(BOOL)animated;
 - (void)_updateItemViews;

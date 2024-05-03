@@ -7,6 +7,13 @@ typedef NS_ENUM(NSInteger, UXUserInterfaceLayoutDirection) {
     UXUserInterfaceLayoutDirectionRightToLeft,
 };
 
+typedef NS_ENUM(NSInteger, UXViewAnimationCurve) {
+    UXViewAnimationCurveEaseInOut,         // slow at beginning and end
+    UXViewAnimationCurveEaseIn,            // slow at beginning
+    UXViewAnimationCurveEaseOut,           // slow at end
+    UXViewAnimationCurveLinear,
+};
+
 typedef NS_OPTIONS(NSUInteger, UXViewAnimationOptions) {
     UXViewAnimationOptionLayoutSubviews                  = 1 <<  0,
     UXViewAnimationOptionAllowUserInteraction            = 1 <<  1,// turn on user interaction while animating
@@ -58,7 +65,7 @@ typedef NS_ENUM(NSInteger, UXViewContentMode) {
 
 @interface UXView : NSView
 @property (nonatomic) BOOL accessibilityChildrenHidden;
-@property (readonly) NSVisualEffectView *_visualEffectsView;
+@property (nonatomic, readonly) NSVisualEffectView *_visualEffectsView;
 @property (nonatomic, weak, nullable) UXViewController *viewControllerProxy;
 @property (nonatomic) BOOL needsContentBackgroundVisualEffect;
 @property (nonatomic, strong) NSColor *borderColor;
@@ -70,8 +77,8 @@ typedef NS_ENUM(NSInteger, UXViewContentMode) {
 @property (nonatomic) UXViewContentMode contentMode;
 @property (nonatomic) BOOL blurEnabled;
 @property (nonatomic) NSVisualEffectMaterial blurMaterial;
-+ (void)performWithoutAnimation:(void (NS_NOESCAPE ^)(void))actionsWithoutAnimation;
 
++ (void)performWithoutAnimation:(void (NS_NOESCAPE ^)(void))actionsWithoutAnimation;
 + (void)animateWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay usingSpringWithDamping:(CGFloat)dampingRatio initialSpringVelocity:(CGFloat)velocity options:(UXViewAnimationOptions)options animations:(void (^)(void))animations completion:(void (^__nullable)(BOOL finished))completion NS_SWIFT_DISABLE_ASYNC;
 + (void)animateWithDuration:(NSTimeInterval)duration animations:(void (^)(void))animations NS_SWIFT_DISABLE_ASYNC;
 + (void)animateWithDuration:(NSTimeInterval)duration animations:(void (^)(void))animations completion:(void (^__nullable)(BOOL finished))completion NS_SWIFT_DISABLE_ASYNC;

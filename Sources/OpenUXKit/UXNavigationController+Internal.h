@@ -14,7 +14,8 @@ UXKIT_EXTERN void *UXSubtoolbarItemsObservationContext;
 UXKIT_EXTERN void *UXToolbarPositionsObservationContext;
 UXKIT_EXTERN void *UXToolbarAppearanceObservationContext;
 UXKIT_EXTERN void *UXAccessoryViewControllerObservationContext;
-@class NSArray, NSGestureRecognizer, NSLayoutConstraint, NSMutableArray, NSString, NSVisualEffectView, UXNavigationBar, UXToolbar, UXTransitionController, UXView, UXViewController, _UXContainerView, _UXViewControllerOneToOneTransitionContext, _UXWindowState, _UXNavigationRequest, UXBarButtonItem;
+
+@class UXNavigationBar, UXToolbar, UXTransitionController, UXView, UXViewController, _UXContainerView, _UXViewControllerOneToOneTransitionContext, _UXWindowState, _UXNavigationRequest, UXBarButtonItem;
 @protocol UXNavigationControllerDelegate, _UXAccessoryBarContainer, UXViewControllerAnimatedTransitioning;
 
 typedef struct {

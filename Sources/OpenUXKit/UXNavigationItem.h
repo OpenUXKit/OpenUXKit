@@ -19,7 +19,7 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 @property (nonatomic) BOOL hidesBackButton;
 @property (nonatomic, copy) NSString *prompt;
 @property (nonatomic, strong) NSView *titleView;
-@property (nonatomic, strong) UXBarButtonItem *backBarButtonItem;
+@property (nonatomic, strong, nullable) UXBarButtonItem *backBarButtonItem;
 @property (nonatomic, strong) NSString *title;
 @property (nonatomic, strong) UXBarButtonItem *rightBarButtonItem;
 @property (nonatomic, strong) NSArray *rightBarButtonItems;

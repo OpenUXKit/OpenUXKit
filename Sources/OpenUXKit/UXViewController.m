@@ -5,7 +5,7 @@
 //  Created by JH on 2024/4/7.
 //
 
-#import "UXViewController+Private.h"
+#import "UXViewController+Internal.h"
 #import <objc/runtime.h>
 #import <QuartzCore/QuartzCore.h>
 #import "NSResponder-UXKit.h"

@@ -10,6 +10,7 @@
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 typedef NSString * UXTransitionContextViewControllerKey NS_TYPED_ENUM;
+typedef NSString * UXTransitionContextViewKey NS_TYPED_ENUM;
 
 @protocol UXViewControllerTransitionCoordinatorContext <NSObject>
 // The view in which the animated transition is taking place.

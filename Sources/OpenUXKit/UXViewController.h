@@ -12,6 +12,19 @@ typedef NS_OPTIONS(NSUInteger, UXRectEdge) {
     UXRectEdgeAll    = UXRectEdgeTop | UXRectEdgeLeft | UXRectEdgeBottom | UXRectEdgeRight
 };
 
+typedef NS_ENUM(NSInteger, UXModalPresentationStyle) {
+    UXModalPresentationFullScreen = 0,
+    UXModalPresentationPageSheet,
+    UXModalPresentationFormSheet,
+    UXModalPresentationCurrentContext,
+    UXModalPresentationCustom,
+    UXModalPresentationOverFullScreen,
+    UXModalPresentationOverCurrentContext,
+    UXModalPresentationPopover,
+    UXModalPresentationBlurOverFullScreen,
+    UXModalPresentationNone = -1,
+    UXModalPresentationAutomatic = -2,
+};
 
 @class NSArray, NSResponder, NSView, UXNavigationController, UXNavigationItem, UXSourceController, UXTabBarController, UXTabBarItem, UXView, UXWindowController, UXTabBarItemSegment, UXPopoverController;
 @protocol UXLayoutSupport, UXNavigationDestination, UXViewControllerTransitionCoordinator;
@@ -30,7 +43,7 @@ typedef NS_OPTIONS(NSUInteger, UXRectEdge) {
 @property (nonatomic, strong) UXView *presentedViewControllerContainerView;
 @property (nonatomic) BOOL automaticallyAdjustsScrollViewInsets;
 @property (nonatomic) UXRectEdge edgesForExtendedLayout;
-@property (nonatomic) NSInteger modalPresentationStyle;
+@property (nonatomic) UXModalPresentationStyle modalPresentationStyle;
 @property (nonatomic) BOOL isEditing;
 @property (nonatomic) CGRect preferredInitialFrame;
 @property (nonatomic, readonly, nullable) UXViewController *ux_presentingViewController;

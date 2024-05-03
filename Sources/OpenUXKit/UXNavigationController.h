@@ -1,7 +1,6 @@
 #import <AppKit/AppKit.h>
 #import "UXKitDefines.h"
 #import "UXToolbar.h"
-#import "UXToolbarDelegate-Protocol.h"
 #import "UXViewController.h"
 #import "UXNavigationControllerOperation.h"
 

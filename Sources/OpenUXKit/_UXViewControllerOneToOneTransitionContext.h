@@ -1,22 +1,25 @@
+#import <AppKit/AppKit.h>
 #import "_UXViewControllerTransitionContext.h"
+#import "UXKitDefines.h"
 
 @class UXView, UXViewController;
 
+NS_HEADER_AUDIT_BEGIN(nullability, sendability)
+
 @interface _UXViewControllerOneToOneTransitionContext : _UXViewControllerTransitionContext
 
-
-@property (nonatomic) CGRect toStartFrame; // @synthesize toStartFrame=_toStartFrame;
-@property (nonatomic) CGRect toEndFrame; // @synthesize toEndFrame=_toEndFrame;
-@property (nonatomic) CGRect fromEndFrame; // @synthesize fromEndFrame=_fromEndFrame;
-@property (nonatomic) CGRect fromStartFrame; // @synthesize fromStartFrame=_fromStartFrame;
-@property (nonatomic, strong) UXViewController *toViewController; // @synthesize toViewController=_toViewController;
-@property (nonatomic, strong) UXViewController *fromViewController; // @synthesize fromViewController=_fromViewController;
-- (void)setArbitraryTransitionCompletionHandler:(id)arg1;
-- (id)arbitraryTransitionCompletionHandler;
+@property (nonatomic) CGRect toStartFrame;
+@property (nonatomic) CGRect toEndFrame;
+@property (nonatomic) CGRect fromEndFrame;
+@property (nonatomic) CGRect fromStartFrame;
+@property (nonatomic, strong) UXViewController *toViewController;
+@property (nonatomic, strong) UXViewController *fromViewController;
 @property (nonatomic, readonly) UXView *fromView;
 @property (nonatomic, readonly) UXView *toView;
-- (CGRect)finalFrameForViewController:(id)arg1;
-- (CGRect)initialFrameForViewController:(id)arg1;
-- (id)viewControllerForKey:(id)arg1;
+
+- (CGRect)finalFrameForViewController:(UXViewController *)viewController;
+- (CGRect)initialFrameForViewController:(UXViewController *)viewController;
 
 @end
+
+NS_HEADER_AUDIT_END(nullability, sendability)

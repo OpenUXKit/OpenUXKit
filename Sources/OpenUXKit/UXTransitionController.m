@@ -1,13 +1,7 @@
-//
-//  UXTransitionController.m
-//  
-//
-//  Created by JH on 2024/4/21.
-//
-
 #import <Foundation/Foundation.h>
 #import "UXTransitionController.h"
 #import "_UXViewControllerTransitionContext.h"
+
 @interface UXTransitionController ()
 {
     NSInteger _operation;    // 8 = 0x8
@@ -17,9 +11,7 @@
 
 @implementation UXTransitionController
 
-- (void)startInteractiveTransition:(id)transition {
-    
-}
+- (void)startInteractiveTransition:(id)transition {}
 
 - (void)updateInteractiveTransition:(CGFloat)transition inContext:(_UXViewControllerTransitionContext *)context {
     _percentComplete = fmax(fmin(transition, 1.0), 0.0);

@@ -3,12 +3,14 @@
 
 @class NSLayoutConstraint;
 
-@interface UXSubtoolbar: UXToolbar
+NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
-+ (CGFloat)defaultHeight;
+@interface UXSubtoolbar : UXToolbar
 
-@property(readonly, nonatomic) NSLayoutConstraint *heightConstraint; // @synthesize heightConstraint=_heightConstraint;
-- (void)setHeight:(CGFloat)height;
+@property (nonatomic, class, readonly) CGFloat defaultHeight;
+@property (nonatomic, readonly) NSLayoutConstraint *heightConstraint;
 
 @end
 
+
+NS_HEADER_AUDIT_END(nullability, sendability)

@@ -18,10 +18,7 @@ typedef NS_OPTIONS(NSUInteger, UXControlState) {
 
 
 @interface _UXButton : NSButton
-{
-    NSMutableDictionary *_titlesByState;	// 112 = 0x70
-    NSMutableDictionary *_titleAttributesByState;	// 120 = 0x78
-}
+
 
 - (NSColor *)_textColorForState:(UXControlState)state;
 - (NSAttributedString *)_attributedStringForState:(UXControlState)state;
