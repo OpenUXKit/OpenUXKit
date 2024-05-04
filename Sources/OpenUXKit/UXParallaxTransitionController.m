@@ -14,6 +14,7 @@
 #import "UXViewControllerTransitioning.h"
 #import "_UXViewControllerOneToOneTransitionContext.h"
 #import <QuartzCore/QuartzCore.h>
+#import "UXKitDefines.h"
 
 @interface UXParallaxTransitionController ()
 {
@@ -115,32 +116,109 @@
     UXView *fromView = transitionContext.fromView;
     UXView *toView = transitionContext.toView;
     CGRect fromStartFrame = transitionContext.fromStartFrame;
+    CGRect toEndFrame = transitionContext.toEndFrame;
     UXView *containerView = transitionContext.containerView;
-    CGFloat transitionWidth = CGRectGetWidth(containerView.bounds);
+    CGFloat containerViewWidth = CGRectGetWidth(containerView.bounds);
     if (NSApp.userInterfaceLayoutDirection == NSUserInterfaceLayoutDirectionRightToLeft) {
-        transitionWidth = -transitionWidth;
+        containerViewWidth = -containerViewWidth;
     }
-    CGFloat parallaxOffsetFactor = floorf(transitionWidth * -0.33);
-    
+    CGFloat parallaxOffsetFactor = floorf(containerViewWidth * -0.33);
+    auto setFrameOrigin = ^(NSView *view, CGFloat x, CGFloat y){
+        [view.animator setFrameOrigin:CGPointMake(x, y)];
+    };
+    auto setShadowOpacityUsingAnimation = ^(NSView *view, CGFloat shadowOpacity){
+        CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:NSStringFromSelector(@selector(shadowOpacity))];
+        CALayer *layer = view.layer;
+        animation.fromValue = @(layer.shadowOpacity);
+        animation.toValue = @(shadowOpacity);
+        animation.removedOnCompletion = YES;
+        [layer addAnimation:animation forKey:NSStringFromSelector(@selector(shadowOpacity))];
+        layer.shadowOpacity = shadowOpacity;
+        
+    };
+    auto completion = ^(BOOL isCompletion){
+        toView.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+        if (transitionContext.transitionWasCancelled) {
+            fromView.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+        }
+        toView.shadow = nil;
+        fromView.shadow = nil;
+        [self->_dimmingView removeFromSuperview];
+        self->_dimmingView = nil;
+        BOOL isComplete = !transitionContext.transitionWasCancelled;
+        [transitionContext completeTransition:isComplete];
+    };
     if (self.operation == 1) {
         if (!transitionContext.initiallyInteractive) {
             [CATransaction begin];
             [CATransaction setCompletionBlock:^{
                 [UXView animateWithDuration:0.33 delay:0.0 options:0x20000 animations:^{
+                    CGFloat alpha = 0.0;
                     if (transitionContext.transitionWasCancelled) {
-                        
-                        self->_dimmingView.alphaValue = 0.0;
+                        alpha = 0.0;
+                        setFrameOrigin(toView, containerViewWidth, 0.0);
+                        setFrameOrigin(fromView, fromStartFrame.origin.x, fromStartFrame.origin.y);
+                        setShadowOpacityUsingAnimation(toView, 0.6);
                     } else {
-                        self->_dimmingView.alphaValue = 0.08;
+                        setFrameOrigin(toView, 0.0, 0.0);
+                        setFrameOrigin(fromView, parallaxOffsetFactor, 0.0);
+                        setShadowOpacityUsingAnimation(toView, 0.0);
+                        alpha = 0.08;
                     }
-                } completion:^(BOOL finished) {
-                    
-                }];
+                    self->_dimmingView.alphaValue = alpha;
+                } completion:completion];
             }];
+            fromView.autoresizingMask = NSViewNotSizable;
+            toView.autoresizingMask = NSViewNotSizable;
+            toView.frame = CGRectMake(containerViewWidth, 0.0, CGRectGetWidth(toEndFrame), CGRectGetHeight(toEndFrame));
+            [transitionContext.containerView addSubview:toView];
+            [[self class] _addShadowToView:toView withAlpha:0.6];
+            [self _setupDimmingViewInContext:transitionContext withAlpha:0.0];
+            [transitionContext.containerView addSubview:_dimmingView positioned:NSWindowBelow relativeTo:toView];
+            [CATransaction commit];
         }
     } else {
-        
+        if (!transitionContext.initiallyInteractive) {
+            [CATransaction begin];
+            [CATransaction setCompletionBlock:^{
+                [UXView animateWithDuration:0.33 delay:0 options:0x20000 animations:^{
+                    CGFloat alpha = 0.0;
+                    if (transitionContext.transitionWasCancelled) {
+                        alpha = 0.08;
+                        setFrameOrigin(toView, parallaxOffsetFactor, 0.0);
+                        setFrameOrigin(fromView, fromStartFrame.origin.x, fromStartFrame.origin.y);
+                        setShadowOpacityUsingAnimation(toView, 0.6);
+                    } else {
+                        setFrameOrigin(toView, toEndFrame.origin.x, toEndFrame.origin.y);
+                        setFrameOrigin(fromView, containerViewWidth, 0.0);
+                        setShadowOpacityUsingAnimation(toView, 0.0);
+                        
+                        alpha = 0.0;
+                    }
+                    self->_dimmingView.alphaValue = alpha;
+                } completion:completion];
+            }];
+            fromView.autoresizingMask = NSViewNotSizable;
+            toView.autoresizingMask = NSViewNotSizable;
+            toView.frame = CGRectMake(parallaxOffsetFactor, 0.0, CGRectGetWidth(toEndFrame), CGRectGetHeight(toEndFrame));
+            [transitionContext.containerView addSubview:toView positioned:NSWindowBelow relativeTo:fromView];
+            [self _setupDimmingViewInContext:transitionContext withAlpha:0.08];
+            [transitionContext.containerView addSubview:_dimmingView positioned:NSWindowBelow relativeTo:fromView];
+            [[self class] _addShadowToView:toView withAlpha:0.6];
+            [CATransaction commit];
+        }
     }
+}
+
++ (void)_addShadowToView:(UXView *)view withAlpha:(CGFloat)alpha {
+    if (!view.shadow) {
+        view.shadow = [NSShadow new];
+        view.layer.shadowColor = [NSColor blackColor].CGColor;
+        view.layer.shadowOffset = CGSizeMake(0.0, 0.0);
+        view.layer.shadowRadius = 10.0;
+        view.layer.shadowPath = CGPathCreateWithRect(view.bounds, nil);
+    }
+    view.layer.shadowOpacity = alpha;
 }
 
 @end

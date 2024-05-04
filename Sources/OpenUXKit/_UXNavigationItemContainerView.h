@@ -1,12 +1,14 @@
 #import <AppKit/AppKit.h>
 #import "_UXBarItemsContainer-Protocol.h"
 #import "UXView.h"
+#import "UXKitDefines.h"
 
 @class UXImageView, UXNavigationBar, UXNavigationItem;
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
-@interface _UXNavigationItemContainerView : UXView <_UXBarItemsContainer> 
+UXKIT_PRIVATE
+@interface _UXNavigationItemContainerView : UXView <_UXBarItemsContainer>
 
 @property (nonatomic, weak, nullable) NSView *titleCenteringConstraintOwnerView;
 @property (nonatomic, weak, nullable) NSView *titleCenteringTrackedView;

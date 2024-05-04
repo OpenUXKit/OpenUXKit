@@ -173,7 +173,7 @@
                 } else {
                     leftConstant = navigationBarLeftInteritemSpacing;
                 }
-                NSLayoutConstraint *leftConstraint = [NSLayoutConstraint constraintWithItem:self.titleView attribute:(NSLayoutAttributeRight) relatedBy:(NSLayoutRelationGreaterThanOrEqual) toItem:nil attribute:(NSLayoutAttributeNotAnAttribute) multiplier:1.0 constant:leftConstant];
+                NSLayoutConstraint *leftConstraint = [NSLayoutConstraint constraintWithItem:self.titleView attribute:(NSLayoutAttributeLeft) relatedBy:(NSLayoutRelationGreaterThanOrEqual) toItem:lastLeftItemView attribute:(lastLeftItemView != self ? NSLayoutAttributeRight : NSLayoutAttributeLeft) multiplier:1.0 constant:leftConstant];
                 leftConstraint.priority = 480;
                 [self.addedConstraints addObject:leftConstraint];
                 NSLayoutAttribute rightAttribute = NSLayoutAttributeNotAnAttribute;

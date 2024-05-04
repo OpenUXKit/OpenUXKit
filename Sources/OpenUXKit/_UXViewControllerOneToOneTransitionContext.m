@@ -15,6 +15,8 @@
 
 @implementation _UXViewControllerOneToOneTransitionContext
 
+@synthesize arbitraryTransitionCompletionHandler = arbitraryTransitionCompletionHandler;
+
 - (UXViewController *)viewControllerForKey:(NSString *)key {
     if ([key isEqualToString:UXTransitionContextToViewControllerKey]) {
         return self.toViewController;

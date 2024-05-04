@@ -38,9 +38,7 @@
 
 - (void)tintColorDidChange {}
 
-- (void)setTintAdjustmentMode:(NSInteger)tintAdjustmentMode {
-    
-}
+- (void)setTintAdjustmentMode:(NSInteger)tintAdjustmentMode {}
 
 - (NSInteger)tintAdjustmentMode {
     return 1;
@@ -83,4 +81,37 @@
     return superview;
 }
 
+- (void)layoutIfNeeded {
+    [self layoutSubtreeIfNeeded];
+}
+
+- (void)layoutSubviews {
+    
+}
+
+- (void)setNeedsUpdateConstraints {
+    [self setNeedsUpdateConstraints:YES];
+}
+
+- (void)updateConstraintsIfNeeded {
+    [self updateConstraintsForSubtreeIfNeeded];
+}
+
+- (void)setNeedsDisplay {
+    [self setNeedsDisplay:YES];
+}
+
+
+- (void)setNeedsLayout {
+    [self setNeedsDisplay:YES];
+}
+
+- (void)didMoveToWindow {
+    [self viewDidMoveToWindow];
+}
+
+
 @end
+
+
+

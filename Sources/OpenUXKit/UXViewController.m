@@ -76,7 +76,9 @@
 
 - (void)setView:(NSView *)view {
     if (view) {
-        NSAssert([view isKindOfClass:[UXView class]], @"%s, the view is not of class UXView.", __FUNCTION__);
+        if (![view isKindOfClass:[UXView class]]) {
+            NSAssert([view isKindOfClass:[UXView class]], @"%s, the view is not of class UXView.", __FUNCTION__);
+        }
     }
 
     UXView *uxView = (UXView *)view;
@@ -101,8 +103,8 @@
 }
 
 - (void)_setupLayoutGuidesForView:(UXView *)view {
-    _UXLayoutSpacer *topLayoutGuide = _topLayoutGuide;
-    _UXLayoutSpacer *bottomLayoutGuide = _bottomLayoutGuide;
+    _UXLayoutSpacer *topLayoutGuide = self.topLayoutGuide;
+    _UXLayoutSpacer *bottomLayoutGuide = self.bottomLayoutGuide;
 
     [view addLayoutGuide:topLayoutGuide];
     [view addLayoutGuide:bottomLayoutGuide];

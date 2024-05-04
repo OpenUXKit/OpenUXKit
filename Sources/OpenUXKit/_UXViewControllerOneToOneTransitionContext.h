@@ -16,6 +16,7 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 @property (nonatomic, strong) UXViewController *fromViewController;
 @property (nonatomic, readonly) UXView *fromView;
 @property (nonatomic, readonly) UXView *toView;
+@property (nonatomic, copy, nullable) UXCompletionHandler arbitraryTransitionCompletionHandler;
 
 - (CGRect)finalFrameForViewController:(UXViewController *)viewController;
 - (CGRect)initialFrameForViewController:(UXViewController *)viewController;

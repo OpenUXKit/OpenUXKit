@@ -1,10 +1,3 @@
-//
-//  Header.h
-//  
-//
-//  Created by JH on 2024/4/21.
-//
-
 #ifndef _UXKITDEFINES_H
 #define _UXKITDEFINES_H
 

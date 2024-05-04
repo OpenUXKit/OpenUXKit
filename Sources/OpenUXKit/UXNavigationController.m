@@ -38,9 +38,7 @@ void *UXAccessoryViewControllerObservationContext = &UXAccessoryViewControllerOb
 @implementation UXNavigationController
 
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-
-    if (self) {
+    if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
         _addedConstraints = [NSMutableArray array];
         _navigationRequests = [NSMutableArray array];
         _targetViewControllers = [NSMutableArray array];
@@ -2262,7 +2260,7 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
         return nil;
     } else {
         NSUInteger location = index + 1;
-        NSUInteger length = _targetViewControllers.count - index + 1;
+        NSUInteger length = _targetViewControllers.count - location;
         NSArray<__kindof UXViewController *> *result = [_targetViewControllers subarrayWithRange:NSMakeRange(location, length)];
         [_navigationRequests addObject:navigationRequest];
         [_targetViewControllers removeObjectsInRange:NSMakeRange(location, length)];
