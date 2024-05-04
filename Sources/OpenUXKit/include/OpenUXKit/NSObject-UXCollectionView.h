@@ -1,0 +1,1 @@
+/Volumes/Repositories/Private/Personal/Library/macOS/OpenUXKit/Sources/OpenUXKit/Categories/NSObject-UXCollectionView.h

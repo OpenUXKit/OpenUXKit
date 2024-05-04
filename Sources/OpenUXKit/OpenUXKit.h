@@ -6,9 +6,6 @@ FOUNDATION_EXPORT CGFloat OpenUXKitVersionNumber;
 //! Project version string for OpenUXKit.
 FOUNDATION_EXPORT const unsigned char OpenUXKitVersionString[];
 
-// In this header, you should import all the public headers of your framework using statements like #import <OpenUXKit/PublicHeader.h>
-
-
 #import <OpenUXKit/UXBase.h>
 #import <OpenUXKit/UXKitDefines.h>
 #import <OpenUXKit/UXView.h>
