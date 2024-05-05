@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E9140D332BE784A80005E94C /* UXNavigationItem+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = E9140D322BE784A80005E94C /* UXNavigationItem+Internal.h */; };
+		E9140D352BE7875A0005E94C /* UXToolbar+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = E9140D342BE7875A0005E94C /* UXToolbar+Internal.h */; };
+		E9140D372BE787E40005E94C /* UXView+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = E9140D362BE787E40005E94C /* UXView+Internal.h */; };
 		E937315E2BE26A34006BB9E3 /* UXPopover.m in Sources */ = {isa = PBXBuildFile; fileRef = E937315D2BE26A34006BB9E3 /* UXPopover.m */; };
 		E968E31B2BE619FA00B0A1B9 /* NSResponder-UXKit.m in Sources */ = {isa = PBXBuildFile; fileRef = E968E31A2BE619FA00B0A1B9 /* NSResponder-UXKit.m */; };
 		E968E32A2BE6404C00B0A1B9 /* NSImage-UXKit.m in Sources */ = {isa = PBXBuildFile; fileRef = E968E3292BE6404C00B0A1B9 /* NSImage-UXKit.m */; };
@@ -15,6 +18,7 @@
 		E968E3312BE6730000B0A1B9 /* UXBarButtonItem+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = E968E3302BE6730000B0A1B9 /* UXBarButtonItem+Internal.h */; };
 		E968E3332BE6748F00B0A1B9 /* UXImageView+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = E968E3322BE6748F00B0A1B9 /* UXImageView+Internal.h */; };
 		E968E3352BE6754300B0A1B9 /* UXNavigationBar+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = E968E3342BE6754300B0A1B9 /* UXNavigationBar+Internal.h */; };
+		E968E33C2BE7024100B0A1B9 /* NSWindow-UXKit.m in Sources */ = {isa = PBXBuildFile; fileRef = E968E33B2BE7024100B0A1B9 /* NSWindow-UXKit.m */; };
 		E97369B82BD505F300E88591 /* _UXAccessoryBarContainer-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369122BD505F200E88591 /* _UXAccessoryBarContainer-Protocol.h */; };
 		E97369B92BD505F300E88591 /* _UXBarItemsContainer-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369132BD505F200E88591 /* _UXBarItemsContainer-Protocol.h */; };
 		E97369BA2BD505F300E88591 /* _UXButton.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369142BD505F200E88591 /* _UXButton.h */; };
@@ -190,6 +194,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E9140D322BE784A80005E94C /* UXNavigationItem+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UXNavigationItem+Internal.h"; sourceTree = "<group>"; };
+		E9140D342BE7875A0005E94C /* UXToolbar+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UXToolbar+Internal.h"; sourceTree = "<group>"; };
+		E9140D362BE787E40005E94C /* UXView+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UXView+Internal.h"; sourceTree = "<group>"; };
 		E937315D2BE26A34006BB9E3 /* UXPopover.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UXPopover.m; sourceTree = "<group>"; };
 		E968E31A2BE619FA00B0A1B9 /* NSResponder-UXKit.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSResponder-UXKit.m"; sourceTree = "<group>"; };
 		E968E3292BE6404C00B0A1B9 /* NSImage-UXKit.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSImage-UXKit.m"; sourceTree = "<group>"; };
@@ -198,6 +205,7 @@
 		E968E3302BE6730000B0A1B9 /* UXBarButtonItem+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UXBarButtonItem+Internal.h"; sourceTree = "<group>"; };
 		E968E3322BE6748F00B0A1B9 /* UXImageView+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UXImageView+Internal.h"; sourceTree = "<group>"; };
 		E968E3342BE6754300B0A1B9 /* UXNavigationBar+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UXNavigationBar+Internal.h"; sourceTree = "<group>"; };
+		E968E33B2BE7024100B0A1B9 /* NSWindow-UXKit.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSWindow-UXKit.m"; sourceTree = "<group>"; };
 		E97365A22BD4FFF500E88591 /* OpenUXKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OpenUXKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E97369122BD505F200E88591 /* _UXAccessoryBarContainer-Protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "_UXAccessoryBarContainer-Protocol.h"; sourceTree = "<group>"; };
 		E97369132BD505F200E88591 /* _UXBarItemsContainer-Protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "_UXBarItemsContainer-Protocol.h"; sourceTree = "<group>"; };
@@ -405,27 +413,16 @@
 		E968E3202BE63B5B00B0A1B9 /* Categories */ = {
 			isa = PBXGroup;
 			children = (
-				E97369422BD505F200E88591 /* NSEvent-UXCollectionViewAdditions.h */,
-				E97369432BD505F200E88591 /* NSGestureRecognizer-UXKit.h */,
 				E97369442BD505F200E88591 /* NSImage-UXKit.h */,
 				E968E3292BE6404C00B0A1B9 /* NSImage-UXKit.m */,
-				E97369452BD505F200E88591 /* NSIndexPath-UXCollectionViewAdditions.h */,
-				E97369462BD505F200E88591 /* NSMenuItem-Compatibility.h */,
-				E97369472BD505F200E88591 /* NSNull-NSAccessibility.h */,
-				E97369482BD505F200E88591 /* NSObject-UXCollectionView.h */,
-				E97369492BD505F200E88591 /* NSPasteboard-UXKit.h */,
-				E973694A2BD505F200E88591 /* NSProgressIndicator-Compatibility.h */,
 				E973694B2BD505F200E88591 /* NSResponder-UXKit.h */,
 				E968E31A2BE619FA00B0A1B9 /* NSResponder-UXKit.m */,
-				E973694C2BD505F200E88591 /* NSScreen-Compatibility.h */,
-				E973694D2BD505F200E88591 /* NSScrollView-UXKit.h */,
-				E973694E2BD505F200E88591 /* NSTextField-Compatibility.h */,
-				E973694F2BD505F200E88591 /* NSTextView-Compatibility.h */,
 				E97369502BD505F200E88591 /* NSView-UXKit.h */,
 				E97369512BD505F200E88591 /* NSView-UXKit.m */,
 				E97369522BD505F200E88591 /* NSViewController-UXViewController.h */,
 				E968E32B2BE65D1000B0A1B9 /* NSViewController-UXViewController.m */,
 				E97369532BD505F200E88591 /* NSWindow-UXKit.h */,
+				E968E33B2BE7024100B0A1B9 /* NSWindow-UXKit.m */,
 			);
 			path = Categories;
 			sourceTree = "<group>";
@@ -474,6 +471,18 @@
 		E968E3232BE63D7A00B0A1B9 /* Unimplementation */ = {
 			isa = PBXGroup;
 			children = (
+				E97369422BD505F200E88591 /* NSEvent-UXCollectionViewAdditions.h */,
+				E97369432BD505F200E88591 /* NSGestureRecognizer-UXKit.h */,
+				E97369452BD505F200E88591 /* NSIndexPath-UXCollectionViewAdditions.h */,
+				E97369462BD505F200E88591 /* NSMenuItem-Compatibility.h */,
+				E97369472BD505F200E88591 /* NSNull-NSAccessibility.h */,
+				E97369482BD505F200E88591 /* NSObject-UXCollectionView.h */,
+				E97369492BD505F200E88591 /* NSPasteboard-UXKit.h */,
+				E973694A2BD505F200E88591 /* NSProgressIndicator-Compatibility.h */,
+				E973694C2BD505F200E88591 /* NSScreen-Compatibility.h */,
+				E973694D2BD505F200E88591 /* NSScrollView-UXKit.h */,
+				E973694E2BD505F200E88591 /* NSTextField-Compatibility.h */,
+				E973694F2BD505F200E88591 /* NSTextView-Compatibility.h */,
 				E97369122BD505F200E88591 /* _UXAccessoryBarContainer-Protocol.h */,
 				E97369132BD505F200E88591 /* _UXBarItemsContainer-Protocol.h */,
 				E97369162BD505F200E88591 /* _UXCollectionDocumentView.h */,
@@ -546,8 +555,6 @@
 		E968E3242BE63DC200B0A1B9 /* Public */ = {
 			isa = PBXGroup;
 			children = (
-				E97369572BD505F200E88591 /* UXBackButton.h */,
-				E97369582BD505F200E88591 /* UXBackButton.m */,
 				E97369592BD505F200E88591 /* UXBar.h */,
 				E973695A2BD505F200E88591 /* UXBar.m */,
 				E968E32D2BE6644C00B0A1B9 /* UXBar+Internal.h */,
@@ -568,6 +575,7 @@
 				E97369872BD505F200E88591 /* UXNavigationController.m */,
 				E9736A5F2BD5312400E88591 /* UXNavigationController+Internal.h */,
 				E973698A2BD505F200E88591 /* UXNavigationItem.h */,
+				E9140D322BE784A80005E94C /* UXNavigationItem+Internal.h */,
 				E973698B2BD505F200E88591 /* UXNavigationItem.m */,
 				E973698E2BD505F200E88591 /* UXPopover.h */,
 				E937315D2BE26A34006BB9E3 /* UXPopover.m */,
@@ -582,8 +590,10 @@
 				E973699B2BD505F200E88591 /* UXTabBarItem.h */,
 				E973699C2BD505F200E88591 /* UXTabBarItem.m */,
 				E97369A32BD505F200E88591 /* UXToolbar.h */,
+				E9140D342BE7875A0005E94C /* UXToolbar+Internal.h */,
 				E97369A42BD505F200E88591 /* UXToolbar.m */,
 				E97369A82BD505F200E88591 /* UXView.h */,
+				E9140D362BE787E40005E94C /* UXView+Internal.h */,
 				E97369A92BD505F200E88591 /* UXView.m */,
 				E97369AC2BD505F200E88591 /* UXViewController.h */,
 				E97369AD2BD505F200E88591 /* UXViewController.m */,
@@ -597,6 +607,8 @@
 		E968E3252BE63DD100B0A1B9 /* Private */ = {
 			isa = PBXGroup;
 			children = (
+				E97369572BD505F200E88591 /* UXBackButton.h */,
+				E97369582BD505F200E88591 /* UXBackButton.m */,
 				E97369142BD505F200E88591 /* _UXButton.h */,
 				E9907AAF2BE52D5700A1215E /* _UXButton.m */,
 				E97369152BD505F200E88591 /* _UXButtonCell.h */,
@@ -682,6 +694,7 @@
 				E9736A272BD505F300E88591 /* UXKitDefines.h in Headers */,
 				E9736A042BD505F300E88591 /* UXBarItem.h in Headers */,
 				E9736A012BD505F300E88591 /* UXBarButtonItem.h in Headers */,
+				E9140D352BE7875A0005E94C /* UXToolbar+Internal.h in Headers */,
 				E97369FF2BD505F300E88591 /* UXBar.h in Headers */,
 				E968E3352BE6754300B0A1B9 /* UXNavigationBar+Internal.h in Headers */,
 				E9736A2C2BD505F300E88591 /* UXNavigationController.h in Headers */,
@@ -756,6 +769,7 @@
 				E97369DB2BD505F300E88591 /* _UXSourceSplitViewFullScreenOverlayWindow.h in Headers */,
 				E968E3312BE6730000B0A1B9 /* UXBarButtonItem+Internal.h in Headers */,
 				E9736A472BD505F300E88591 /* UXTableViewController.h in Headers */,
+				E9140D332BE784A80005E94C /* UXNavigationItem+Internal.h in Headers */,
 				E9736A142BD505F300E88591 /* UXCollectionViewIndexPathsSet.h in Headers */,
 				E97369BB2BD505F300E88591 /* _UXButtonCell.h in Headers */,
 				E97369E22BD505F300E88591 /* _UXViewControllerTransitionContext.h in Headers */,
@@ -764,6 +778,7 @@
 				E9736A592BD505F300E88591 /* UXWindowController.h in Headers */,
 				E97369D92BD505F300E88591 /* _UXSourceSplitViewDelegate-Protocol.h in Headers */,
 				E968E3332BE6748F00B0A1B9 /* UXImageView+Internal.h in Headers */,
+				E9140D372BE787E40005E94C /* UXView+Internal.h in Headers */,
 				E97369C12BD505F300E88591 /* _UXCollectionViewOverdraw-Protocol.h in Headers */,
 				E97369F32BD505F300E88591 /* NSScrollView-UXKit.h in Headers */,
 				E97369D62BD505F300E88591 /* _UXSinglePixelLine.h in Headers */,
@@ -905,6 +920,7 @@
 				E9736A312BD505F300E88591 /* UXNavigationItem.m in Sources */,
 				E9736A5E2BD5062C00E88591 /* _UXViewControllerTransitionContext.m in Sources */,
 				E968E32C2BE65D1000B0A1B9 /* NSViewController-UXViewController.m in Sources */,
+				E968E33C2BE7024100B0A1B9 /* NSWindow-UXKit.m in Sources */,
 				E9907A8E2BE2AC8200A1215E /* UXLabel.m in Sources */,
 				E9736A022BD505F300E88591 /* UXBarButtonItem.m in Sources */,
 				E9736A392BD505F300E88591 /* UXSlideTransitionController.m in Sources */,

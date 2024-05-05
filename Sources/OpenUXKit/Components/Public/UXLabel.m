@@ -209,13 +209,9 @@
     _concreteTextField.attributedStringValue = attributedText;
 }
 
-- (void)setShadowOffset:(CGSize)shadowOffset {
-    
-}
+- (void)setShadowOffset:(CGSize)shadowOffset {}
 
-- (void)setShadowColor:(NSColor *)shadowColor {
-    
-}
+- (void)setShadowColor:(NSColor *)shadowColor {}
 
 - (NSString *)text {
     return _concreteTextField.stringValue;

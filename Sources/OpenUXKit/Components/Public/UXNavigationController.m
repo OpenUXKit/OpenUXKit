@@ -13,12 +13,13 @@
 #import <OpenUXKit/UXIdentityTransitionController.h>
 #import <OpenUXKit/UXNavigationBar+Internal.h>
 #import <OpenUXKit/UXNavigationController+Internal.h>
-#import <OpenUXKit/UXNavigationItem.h>
+#import <OpenUXKit/UXNavigationItem+Internal.h>
 #import <OpenUXKit/UXParallaxTransitionController.h>
 #import <OpenUXKit/UXSlideTransitionController.h>
+#import <OpenUXKit/UXToolbar+Internal.h>
 #import <OpenUXKit/UXSubtoolbar.h>
 #import <OpenUXKit/UXTransitionController.h>
-#import <OpenUXKit/UXView.h>
+#import <OpenUXKit/UXView+Internal.h>
 #import <OpenUXKit/UXViewController+Internal.h>
 #import <OpenUXKit/UXViewControllerTransitionCoordinator.h>
 #import <OpenUXKit/UXViewControllerTransitioning.h>

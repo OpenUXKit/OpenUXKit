@@ -64,13 +64,9 @@ typedef NS_ENUM(NSInteger, UXViewContentMode) {
 @class NSColor, NSVisualEffectView, UXViewController, UXImageView;
 
 @interface UXView : NSView
-@property (nonatomic) BOOL accessibilityChildrenHidden;
-@property (nonatomic, readonly) NSVisualEffectView *_visualEffectsView;
-@property (nonatomic, weak, nullable) UXViewController *viewControllerProxy;
-@property (nonatomic) BOOL needsContentBackgroundVisualEffect;
-@property (nonatomic, strong) NSColor *borderColor;
 @property (nonatomic) BOOL userInteractionEnabled;
 @property (nonatomic, getter = isExclusiveTouch) BOOL exclusiveTouch;
+@property (nonatomic, strong, nullable) NSColor *borderColor;
 @property (nonatomic) CGAffineTransform transform;
 @property (nonatomic, readonly) CGPoint center;
 @property (nonatomic, readonly) UXUserInterfaceLayoutDirection effectiveUserInterfaceLayoutDirection;
@@ -87,7 +83,6 @@ typedef NS_ENUM(NSInteger, UXViewContentMode) {
 + (Class)layerClass;
 - (void)updateConstraintsForSubtreeIfNeeded;
 - (CGSize)sizeThatFits:(CGSize)size;
-- (void)setBackgroundColor:(NSColor *)backgroundColor;
 - (UXImageView *)snapshotViewFromRect:(CGRect)rect;
 - (UXImageView *)snapshotView;
 - (NSImage *)snapshotForRect:(CGRect)rect;

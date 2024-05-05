@@ -1,9 +1,9 @@
-#import <OpenUXKit/UXNavigationBar+Internal.h>
-#import <OpenUXKit/NSView-UXKit.h>
 #import <OpenUXKit/_UXNavigationItemContainerView.h>
-#import <OpenUXKit/UXKitDefines.h>
-#import <OpenUXKit/UXNavigationItem.h>
+#import <OpenUXKit/NSView-UXKit.h>
 #import <OpenUXKit/UXBar+Internal.h>
+#import <OpenUXKit/UXKitDefines.h>
+#import <OpenUXKit/UXNavigationBar+Internal.h>
+#import <OpenUXKit/UXNavigationItem+Internal.h>
 
 
 @implementation UXNavigationBar
@@ -13,6 +13,7 @@ void _UXDrawChevronFlipped(BOOL flipped) {
         CGContextRef context = NSGraphicsContext.currentContext.CGContext;
         CGContextConcatCTM(context, CGAffineTransformMake(-1.0, 0.0, 0.0, 1.0, 12.0, 0.0));
     }
+
     NSBezierPath *path = [NSBezierPath bezierPath];
     [path moveToPoint:CGPointMake(8.5, 16.0)];
     [path lineToPoint:CGPointMake(1.5, 9.0)];
@@ -22,12 +23,14 @@ void _UXDrawChevronFlipped(BOOL flipped) {
     [path stroke];
 }
 
-
 NSImage * _UXImageRightChevron(void) {
     static dispatch_once_t onceToken;
     static NSImage *rightChevron = nil;
+
     dispatch_once(&onceToken, ^{
-        rightChevron = [NSImage imageWithSize:NSMakeSize(12.0, 18.0) flipped:YES drawingHandler:^BOOL(NSRect dstRect) {
+        rightChevron = [NSImage imageWithSize:NSMakeSize(12.0, 18.0)
+                                      flipped:YES
+                               drawingHandler:^BOOL (NSRect dstRect) {
             _UXDrawChevronFlipped(YES);
             return YES;
         }];
@@ -39,8 +42,11 @@ NSImage * _UXImageRightChevron(void) {
 NSImage * _UXImageLeftChevron(void) {
     static dispatch_once_t onceToken;
     static NSImage *leftChevron = nil;
+
     dispatch_once(&onceToken, ^{
-        leftChevron = [NSImage imageWithSize:NSMakeSize(12.0, 18.0) flipped:YES drawingHandler:^BOOL(NSRect dstRect) {
+        leftChevron = [NSImage imageWithSize:NSMakeSize(12.0, 18.0)
+                                     flipped:YES
+                              drawingHandler:^BOOL (NSRect dstRect) {
             _UXDrawChevronFlipped(NO);
             return YES;
         }];
@@ -68,6 +74,7 @@ NSImage * _UXImageBackChevron(void) {
         _backIndicatorImage = _UXImageBackChevron();
         _internalItems = [NSMutableArray array];
     }
+
     return self;
 }
 
@@ -97,6 +104,7 @@ NSImage * _UXImageBackChevron(void) {
 
 - (void)layout {
     [super layout];
+
     if (_needsRecalculateWindowKeyViewLoop) {
         _needsRecalculateWindowKeyViewLoop = NO;
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -113,16 +121,20 @@ NSImage * _UXImageBackChevron(void) {
             if ([view isKindOfClass:NSClassFromString(@"NSToolbarView")]) {
                 break;
             }
+
             view = view.superview;
         } while (view);
+
         if (self.topItemContainer) {
             NSView *nextKeyView = self.nextKeyView;
+
             if (!nextKeyView) {
                 if (view) {
                     [view viewDidChangeBackingProperties];
                 }
             }
         }
+
         _recalculatingKeyViewLoop = NO;
     }
 }
@@ -135,13 +147,16 @@ NSImage * _UXImageBackChevron(void) {
     if (animated) {
         [self.barItemsContainer prepareForTransition];
     }
+
     [self _pushItem:item];
     _UXNavigationItemContainerView *topItemContainer = [_UXNavigationItemContainerView layoutContainerForItem:item navigationBar:self];
     NSArray *internalItems = self.internalItems;
     NSUInteger transition = 0;
+
     if (internalItems.count != 0 && animated) {
         transition = 6;
     }
+
     [self _transitionToContainer:topItemContainer transition:transition duration:duration];
     self.topItemContainer = topItemContainer;
 }
@@ -158,29 +173,34 @@ NSImage * _UXImageBackChevron(void) {
     }
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey, id> *)change context:(void *)context {
     if ([self.topItem isEqual:object]) {
         if ([@[
-            @"title",
-            @"titleView",
-            @"condensedTitleView",
-            @"hidesAlternateTitleView",
-        ] containsObject:keyPath]) {
+                 @"title",
+                 @"titleView",
+                 @"condensedTitleView",
+                 @"hidesAlternateTitleView",
+             ] containsObject:keyPath]) {
             [self _updateTitleView];
             return;
         }
+
         NSMutableArray<NSString *> *keyPaths = [NSMutableArray array];
+
         if (NSApp.userInterfaceLayoutDirection == NSUserInterfaceLayoutDirectionRightToLeft) {
             [keyPaths addObject:@"rightBarButtonItems"];
         } else {
             [keyPaths addObject:@"leftBarButtonItems"];
         }
+
         [keyPaths addObjectsFromArray:@[@"hidesBackButton", @"backBarButtonItem"]];
+
         if ([keyPaths containsObject:keyPath]) {
             [self.topItemContainer updateLeftItemViewsAnimated:YES];
         } else {
             NSLog(@"%s WARNING - dynamic update of (%@) NOT IMPLEMENTED, PLEASE FILE A RADAR IF NEEDED", "-[UXNavigationBar observeValueForKeyPath:ofObject:change:context:]", keyPath);
         }
+
         [self setNeedsRecalcuateWindowKeyViewLoop];
     }
 }
@@ -209,24 +229,30 @@ NSImage * _UXImageBackChevron(void) {
 
 - (void)_updateItemContainer {
     _UXNavigationItemContainerView *topItemContainer = [_UXNavigationItemContainerView layoutContainerForItem:self.topItem navigationBar:self];
+
     [self _transitionToContainer:topItemContainer transition:0 duration:0.0];
     self.topItemContainer = topItemContainer;
 }
 
 - (void)_completeInteractiveTransition:(BOOL)completeInteractiveTransition duration:(NSTimeInterval)duration {
-    [self _finishInteractiveTransition:completeInteractiveTransition duration:duration completion:^{
+    [self _finishInteractiveTransition:completeInteractiveTransition
+                              duration:duration
+                            completion:^{
         _UXNavigationItemContainerView *prevTopItemContainer = self.topItemContainer;
         self.topItemContainer = cast(_UXNavigationItemContainerView *, self.barItemsContainer);
+
         if (!completeInteractiveTransition) {
             [prevTopItemContainer prepareForTransition];
             [self.topItemContainer cancelTransistion];
             [self.topItemContainer _updateStateForWindow:self.topItemContainer.window];
+
             if (self.currentOperation == UXNavigationControllerOperationPush) {
                 [self _popNavigationItem];
             } else {
                 [self _pushItem:self.transitioningItem];
             }
         }
+
         self.currentOperation = UXNavigationControllerOperationNone;
         self.transitioningItem = nil;
     }];
@@ -259,10 +285,12 @@ NSImage * _UXImageBackChevron(void) {
 
 - (UXNavigationItem *)_popNavigationItemAnimated:(BOOL)animated duration:(NSTimeInterval)duration {
     NSUInteger transition = 0;
+
     if (animated) {
         [self.barItemsContainer prepareForTransition];
         transition = 6;
     }
+
     UXNavigationItem *result = [self _popNavigationItem];
     _UXNavigationItemContainerView *topItemContainer = [_UXNavigationItemContainerView layoutContainerForItem:self.topItem navigationBar:self];
     [self _transitionToContainer:topItemContainer transition:transition duration:duration];
@@ -272,13 +300,14 @@ NSImage * _UXImageBackChevron(void) {
 
 - (UXNavigationItem *)_popNavigationItem {
     UXNavigationItem *topItem = self.topItem;
+
     [self _removeItem:topItem];
     return topItem;
 }
 
 - (void)_removeItem:(UXNavigationItem *)item {
     if ([self.internalItems containsObject:item]) {
-        NSIndexSet *indexes = [self.internalItems indexesOfObjectsPassingTest:^BOOL(UXNavigationItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        NSIndexSet *indexes = [self.internalItems indexesOfObjectsPassingTest:^BOOL (UXNavigationItem *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
             return [item isEqualTo:obj];
         }];
         [self.internalItems removeObjectAtIndex:indexes.lastIndex];
@@ -307,6 +336,7 @@ NSImage * _UXImageBackChevron(void) {
 - (UXNavigationItem *)backItem {
     NSUInteger internalItemsCount = self.internalItems.count;
     NSUInteger index = internalItemsCount - 2;
+
     if (internalItemsCount < 2) {
         return nil;
     } else {

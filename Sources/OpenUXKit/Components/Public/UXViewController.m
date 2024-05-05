@@ -1,8 +1,8 @@
-#import <OpenUXKit/UXViewController+Internal.h>
 #import <objc/runtime.h>
-#import <QuartzCore/QuartzCore.h>
 #import <OpenUXKit/NSResponder-UXKit.h>
+#import <OpenUXKit/NSView-UXKit.h>
 #import <OpenUXKit/UXLayoutSupport.h>
+#import <OpenUXKit/UXNavigationController+Internal.h>
 #import <OpenUXKit/UXNavigationController.h>
 #import <OpenUXKit/UXNavigationDestination.h>
 #import <OpenUXKit/UXNavigationItem.h>
@@ -12,10 +12,11 @@
 #import <OpenUXKit/UXTabBarItem.h>
 #import <OpenUXKit/UXTabBarItem.h>
 #import <OpenUXKit/UXTabBarItemSegment.h>
-#import <OpenUXKit/UXView.h>
+#import <OpenUXKit/UXView+Internal.h>
+#import <OpenUXKit/UXViewController+Internal.h>
 #import <OpenUXKit/UXViewControllerTransitionCoordinator.h>
 #import <OpenUXKit/UXWindowController.h>
-#import <OpenUXKit/UXNavigationController+Internal.h>
+#import <QuartzCore/QuartzCore.h>
 
 @implementation UXViewController
 
@@ -833,7 +834,3 @@
 }
 
 @end
-
-
-
-

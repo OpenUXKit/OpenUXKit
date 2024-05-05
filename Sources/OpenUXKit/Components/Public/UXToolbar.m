@@ -1,16 +1,8 @@
-#import <OpenUXKit/UXToolbar.h>
+#import <OpenUXKit/UXToolbar+Internal.h>
 #import <OpenUXKit/UXKitDefines.h>
 #import <OpenUXKit/_UXBarItemsContainer-Protocol.h>
 #import <OpenUXKit/_UXToolbarItemsContainer.h>
 #import <OpenUXKit/UXBar+Internal.h>
-
-@interface UXToolbar ()
-{
-    __weak id <UXToolbarDelegate> _delegate;    // 112 = 0x70
-    NSArray *_items;    // 120 = 0x78
-}
-
-@end
 
 @implementation UXToolbar
 

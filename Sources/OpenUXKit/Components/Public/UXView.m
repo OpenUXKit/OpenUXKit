@@ -1,36 +1,14 @@
-#import <OpenUXKit/UXView.h>
+#import <OpenUXKit/UXView+Internal.h>
 #import <OpenUXKit/NSView-UXKit.h>
 #import <OpenUXKit/UXViewController.h>
 #import <OpenUXKit/UXImageView.h>
 #import <OpenUXKit/UXViewAnimationContext.h>
 #import <QuartzCore/QuartzCore.h>
-
-@interface CASpringAnimation (PrivateSPI)
-@property CGFloat velocity;
-@end
+#import <OpenUXKit/UXKitDefines.h>
 
 @interface NSView (PrivateSPI)
+@property CGAffineTransform frameTransform;
 - (id<CAAction>)actionForLayer:(CALayer *)layer forKey:(NSString *)event;
-- (void)setBackgroundColor:(NSColor *)backgroundColor;
-- (void)setFrameTransform:(CGAffineTransform)transform;
-- (CGAffineTransform)frameTransform;
-@end
-
-
-@interface UXView ()
-{
-    BOOL _blurEnabled;    // 108 = 0x6c
-    NSColor *_backgroundColor;    // 112 = 0x70
-    NSColor *_borderColor;    // 120 = 0x78
-    NSVisualEffectView *_contentBackgroundVisualEffectsView;    // 128 = 0x80
-    BOOL _opaque;    // 136 = 0x88
-    BOOL _exclusiveTouch;    // 137 = 0x89
-    BOOL _userInteractionEnabled;    // 138 = 0x8a
-    BOOL _needsContentBackgroundVisualEffect;    // 139 = 0x8b
-    BOOL _accessibilityChildrenHidden;    // 140 = 0x8c
-    __weak UXViewController *_viewControllerProxy;    // 144 = 0x90
-    NSVisualEffectView *__visualEffectsView;    // 152 = 0x98
-}
 @end
 
 @implementation UXView
@@ -92,10 +70,14 @@ void commonInit(UXView *view) {
     _backgroundColor = backgroundColor;
 }
 
+- (NSColor *)backgroundColor {
+    return _backgroundColor;
+}
+
 - (id<CAAction>)actionForLayer:(CALayer *)layer forKey:(NSString *)event {
-   CASpringAnimation *animation = [CATransaction valueForKey:@"__uxview_spring_animation"];
-    if (animation) {
-        return [[self class] defaultSpringAnimationForKey:event mass:animation.mass stiffness:animation.stiffness damping:animation.damping velocity:animation.velocity];
+    UXViewAnimationContext *context = [CATransaction valueForKey:@"__uxview_spring_animation"];
+    if (context) {
+        return [[self class] defaultSpringAnimationForKey:event mass:context.mass stiffness:context.stiffness damping:context.damping velocity:context.velocity];
     } else {
         return [super actionForLayer:layer forKey:event];
     }
@@ -178,7 +160,7 @@ void commonInit(UXView *view) {
 - (void)updateLayer {
     [super updateLayer];
     [self.viewControllerProxy viewUpdateLayer];
-    [super setBackgroundColor:_backgroundColor];
+    super.backgroundColor = _backgroundColor;
     NSColor *borderColor = self.borderColor;
     if (borderColor) {
         self.borderColor = borderColor;
@@ -195,18 +177,27 @@ void commonInit(UXView *view) {
         } else if (options & UXViewAnimationOptionCurveLinear) {
             funtionName = kCAMediaTimingFunctionLinear;
         }
-        
-        [NSAnimationContext runAnimationGroup:^(NSAnimationContext * _Nonnull context) {
-            context.duration = duration;
-            context.timingFunction = [CAMediaTimingFunction functionWithName:funtionName];
-            if (animations) {
-                animations();
-            }
-        } completionHandler:^{
-            if (completion) {
-                completion(YES);
-            }
-        }];
+        auto runAnimation = ^{
+            [NSAnimationContext runAnimationGroup:^(NSAnimationContext * _Nonnull context) {
+                context.duration = duration;
+                context.allowsImplicitAnimation = YES;
+                context.timingFunction = [CAMediaTimingFunction functionWithName:funtionName];
+                if (animations) {
+                    animations();
+                }
+            } completionHandler:^{
+                if (completion) {
+                    completion(YES);
+                }
+            }];
+        };
+        if (delay <= 0.0) {
+            runAnimation();
+        } else {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                runAnimation();
+            });
+        }
     } else {
         if (animations) {
             animations();
@@ -384,13 +375,13 @@ void commonInit(UXView *view) {
     return [self.viewControllerProxy menuForEvent:event];
 }
 
-- (NSArray *)accessibilityChildren {
-    if (self.accessibilityChildrenHidden) {
-        return nil;
-    } else {
-        return [super accessibilityChildren];
-    }
-}
+//- (NSArray *)accessibilityChildren {
+//    if (self.accessibilityChildrenHidden) {
+//        return nil;
+//    } else {
+//        return [super accessibilityChildren];
+//    }
+//}
 
 + (CASpringAnimation *)defaultSpringAnimationForKey:(NSString *)key mass:(CGFloat)mass stiffness:(CGFloat)stiffness damping:(CGFloat)damping velocity:(CGFloat)velocity {
     CASpringAnimation *springAnimation = [CASpringAnimation animationWithKeyPath:key];

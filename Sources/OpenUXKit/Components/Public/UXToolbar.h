@@ -7,8 +7,10 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 @class UXToolbar;
 
 @protocol UXToolbarDelegate <UXBarPositioningDelegate>
+
 @optional
 - (nullable NSResponder *)nextResponderForToolbar:(UXToolbar *)toolbar;
+
 @end
 
 @interface UXToolbar : UXBar
@@ -17,8 +19,6 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 @property (nonatomic, weak, nullable) id <UXToolbarDelegate> delegate;
 
 - (void)setItems:(nullable NSArray<UXBarButtonItem *> *)items animated:(BOOL)animated;
-- (void)_setItems:(nullable NSArray<UXBarButtonItem *> *)items animated:(BOOL)animated duration:(NSTimeInterval)duration;
-- (void)_beginInteractiveTransitionForItems:(NSArray<UXBarButtonItem *> *)items;
 
 @end
 

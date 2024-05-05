@@ -1,14 +1,13 @@
-#import <AppKit/NSWindow.h>
+#import <AppKit/AppKit.h>
 #import <OpenUXKit/UXKitAppearance.h>
 
-@class NSColor, NSString;
-
 @interface NSWindow (UXKit) <UXKitAppearance>
-@property(nonatomic, setter=ux_setToolbarHiddenInFullScreen:) BOOL ux_toolbarHiddenInFullScreen;
-@property(readonly, nonatomic) BOOL ux_inFullScreen;
-- (void)tintColorDidChange;
-@property(nonatomic) NSInteger tintAdjustmentMode;
-@property(strong, nonatomic) NSColor *tintColor;
-- (void)ux_forceEnableStandardWindowButton:(NSWindowButton)windowButton;
-@end
 
+@property (nonatomic, setter = ux_setToolbarHiddenInFullScreen:) BOOL ux_toolbarHiddenInFullScreen;
+@property (nonatomic, readonly) BOOL ux_inFullScreen;
+@property (nonatomic, strong) NSColor *tintColor;
+@property (nonatomic) UXTintAdjustmentMode tintAdjustmentMode;
+- (void)tintColorDidChange;
+- (void)ux_forceEnableStandardWindowButton:(NSWindowButton)windowButton;
+
+@end

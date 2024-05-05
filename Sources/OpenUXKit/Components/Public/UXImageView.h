@@ -7,8 +7,8 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 @interface UXImageView : UXView <NSAccessibilityImage>
 
 @property (nonatomic, getter = isHighlighted) BOOL highlighted;
-@property (nonatomic, strong, nullable) NSImage *highlightedImage;
 @property (nonatomic, strong, nullable) NSImage *image;
+@property (nonatomic, strong, nullable) NSImage *highlightedImage;
 
 @property (nonatomic) BOOL allowsVibrancy;
 @property (nonatomic, copy, nullable) NSString *accessibilityLabel;

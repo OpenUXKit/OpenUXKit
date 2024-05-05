@@ -42,16 +42,16 @@ typedef NS_ENUM(NSInteger, UXBarButtonSystemItem) {
 
 @interface UXBarButtonItem : UXBarItem <UXKitAppearance>
 
-@property (nonatomic, copy) NSString *label;
-@property (nonatomic, copy) NSString *identifier;
-@property (nonatomic, strong) NSView *customView;
+@property (nonatomic, copy, nullable) NSString *label;
+@property (nonatomic, copy, nullable) NSString *identifier;
+@property (nonatomic, strong, nullable) __kindof NSView *customView;
 @property (nonatomic) CGFloat width;
 @property (nonatomic) UXBarButtonItemStyle style;
 @property (nonatomic) BOOL ignoresMultiClick;
 @property (nonatomic) NSControlStateValue buttonState;
 @property (nonatomic) NSEventModifierFlags keyEquivalentModifierMask;
-@property (nonatomic, strong) NSString *keyEquivalent;
-@property (nonatomic, strong) NSString *toolTip;
+@property (nonatomic, strong, nullable) NSString *keyEquivalent;
+@property (nonatomic, strong, nullable) NSString *toolTip;
 @property (nonatomic, weak, nullable) id target;
 @property (nonatomic, nullable) SEL action;
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
