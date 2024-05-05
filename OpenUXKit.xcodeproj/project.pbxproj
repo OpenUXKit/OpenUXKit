@@ -80,7 +80,7 @@
 		E97369F32BD505F300E88591 /* NSScrollView-UXKit.h in Headers */ = {isa = PBXBuildFile; fileRef = E973694D2BD505F200E88591 /* NSScrollView-UXKit.h */; };
 		E97369F42BD505F300E88591 /* NSTextField-Compatibility.h in Headers */ = {isa = PBXBuildFile; fileRef = E973694E2BD505F200E88591 /* NSTextField-Compatibility.h */; };
 		E97369F52BD505F300E88591 /* NSTextView-Compatibility.h in Headers */ = {isa = PBXBuildFile; fileRef = E973694F2BD505F200E88591 /* NSTextView-Compatibility.h */; };
-		E97369F62BD505F300E88591 /* NSView-UXKit.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369502BD505F200E88591 /* NSView-UXKit.h */; };
+		E97369F62BD505F300E88591 /* NSView-UXKit.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369502BD505F200E88591 /* NSView-UXKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E97369F72BD505F300E88591 /* NSView-UXKit.m in Sources */ = {isa = PBXBuildFile; fileRef = E97369512BD505F200E88591 /* NSView-UXKit.m */; };
 		E97369F82BD505F300E88591 /* NSViewController-UXViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369522BD505F200E88591 /* NSViewController-UXViewController.h */; };
 		E97369F92BD505F300E88591 /* NSWindow-UXKit.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369532BD505F200E88591 /* NSWindow-UXKit.h */; };
@@ -687,6 +687,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E97369F62BD505F300E88591 /* NSView-UXKit.h in Headers */,
 				E9736A492BD505F300E88591 /* UXToolbar.h in Headers */,
 				E9736A262BD505F300E88591 /* UXKitAppearance.h in Headers */,
 				E9736A032BD505F300E88591 /* UXBarCommon.h in Headers */,
@@ -784,7 +785,6 @@
 				E97369D62BD505F300E88591 /* _UXSinglePixelLine.h in Headers */,
 				E9736A3F2BD505F300E88591 /* UXTabBarController.h in Headers */,
 				E9736A3A2BD505F300E88591 /* UXSourceController.h in Headers */,
-				E97369F62BD505F300E88591 /* NSView-UXKit.h in Headers */,
 				E9736A462BD505F300E88591 /* UXTableViewCell.h in Headers */,
 				E97369D32BD505F300E88591 /* _UXSettingsGroup.h in Headers */,
 				E9736A102BD505F300E88591 /* UXCollectionViewDelegate-Protocol.h in Headers */,

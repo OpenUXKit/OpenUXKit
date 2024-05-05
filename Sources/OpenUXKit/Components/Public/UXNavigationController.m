@@ -432,12 +432,6 @@ NSString * UXLocalizedString(NSString *key) {
     [self.view removeConstraints:self.addedConstraints];
     [self.addedConstraints removeAllObjects];
 
-    self.topConstraint = [NSLayoutConstraint constraintWithItem:_containerView attribute:(NSLayoutAttributeTop) relatedBy:(NSLayoutRelationEqual) toItem:self.uxView attribute:(NSLayoutAttributeTop) multiplier:1.0 constant:0.0];
-    [self.addedConstraints addObject:self.topConstraint];
-    self.bottomConstraint = [NSLayoutConstraint constraintWithItem:_containerView attribute:(NSLayoutAttributeBottom) relatedBy:(NSLayoutRelationEqual) toItem:self.uxView attribute:(NSLayoutAttributeBottom) multiplier:1.0 constant:0.0];
-    [self.addedConstraints addObject:self.bottomConstraint];
-
-
     NSDictionary *views = @{
             @"topGuide": self.topLayoutGuide,
             @"navigationBar": self.navigationBar,
@@ -446,11 +440,16 @@ NSString * UXLocalizedString(NSString *key) {
             @"bottomGuide": self.bottomLayoutGuide,
     };
 
+    self.topConstraint = [NSLayoutConstraint constraintWithItem:_containerView attribute:(NSLayoutAttributeTop) relatedBy:(NSLayoutRelationEqual) toItem:self.uxView attribute:(NSLayoutAttributeTop) multiplier:1.0 constant:0.0];
+    [self.addedConstraints addObject:self.topConstraint];
+    self.bottomConstraint = [NSLayoutConstraint constraintWithItem:_containerView attribute:(NSLayoutAttributeBottom) relatedBy:(NSLayoutRelationEqual) toItem:self.uxView attribute:(NSLayoutAttributeBottom) multiplier:1.0 constant:0.0];
+    [self.addedConstraints addObject:self.bottomConstraint];
+
     if (self.isNavigationBarDetached) {
         self.navigationBarTopConstraint = nil;
         self.navigationBarConstraints = nil;
     } else {
-        self.navigationBarTopConstraint = [_navigationBar.topAnchor constraintEqualToAnchor:self.topLayoutGuide.bottomAnchor constant:4];
+        self.navigationBarTopConstraint = [_navigationBar.topAnchor constraintEqualToAnchor:self.topLayoutGuide.bottomAnchor constant:self._navigationBarVerticalOffset];
         [self.addedConstraints addObject:self.navigationBarTopConstraint];
         NSArray *layoutConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[navigationBar]|" options:(NSLayoutFormatDirectionLeadingToTrailing) metrics:nil views:views];
         [self.addedConstraints addObjectsFromArray:layoutConstraints];

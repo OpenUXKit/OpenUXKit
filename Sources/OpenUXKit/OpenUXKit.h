@@ -20,3 +20,4 @@ FOUNDATION_EXPORT const unsigned char OpenUXKitVersionString[];
 #import <OpenUXKit/UXImageView.h>
 #import <OpenUXKit/UXLabel.h>
 #import <OpenUXKit/UXNavigationBar.h>
+#import <OpenUXKit/NSView-UXKit.h>
