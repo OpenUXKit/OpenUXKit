@@ -11,8 +11,6 @@ typedef NS_ENUM(NSInteger, UXLayoutConstraintAxis) {
 };
 
 @interface NSView (UXKit) <UXKitAppearance>
-@property (nonatomic) NSInteger tintAdjustmentMode;
-@property (nonatomic, strong, nullable) NSColor *tintColor;
 @property (nonatomic) CGFloat alpha;
 @property (copy, nullable) NSColor *backgroundColor;
 

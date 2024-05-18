@@ -11,6 +11,9 @@
 		E9140D352BE7875A0005E94C /* UXToolbar+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = E9140D342BE7875A0005E94C /* UXToolbar+Internal.h */; };
 		E9140D372BE787E40005E94C /* UXView+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = E9140D362BE787E40005E94C /* UXView+Internal.h */; };
 		E937315E2BE26A34006BB9E3 /* UXPopover.m in Sources */ = {isa = PBXBuildFile; fileRef = E937315D2BE26A34006BB9E3 /* UXPopover.m */; };
+		E9487BB32BF2560400B99CDE /* EXTKeyPathCoding.h in Headers */ = {isa = PBXBuildFile; fileRef = E9487BB02BF2560400B99CDE /* EXTKeyPathCoding.h */; };
+		E9487BB42BF2560400B99CDE /* EXTScope.h in Headers */ = {isa = PBXBuildFile; fileRef = E9487BB12BF2560400B99CDE /* EXTScope.h */; };
+		E9487BB52BF2560400B99CDE /* metamacros.h in Headers */ = {isa = PBXBuildFile; fileRef = E9487BB22BF2560400B99CDE /* metamacros.h */; };
 		E968E31B2BE619FA00B0A1B9 /* NSResponder-UXKit.m in Sources */ = {isa = PBXBuildFile; fileRef = E968E31A2BE619FA00B0A1B9 /* NSResponder-UXKit.m */; };
 		E968E32A2BE6404C00B0A1B9 /* NSImage-UXKit.m in Sources */ = {isa = PBXBuildFile; fileRef = E968E3292BE6404C00B0A1B9 /* NSImage-UXKit.m */; };
 		E968E32C2BE65D1000B0A1B9 /* NSViewController-UXViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E968E32B2BE65D1000B0A1B9 /* NSViewController-UXViewController.m */; };
@@ -51,8 +54,6 @@
 		E97369D52BD505F300E88591 /* _UXSettingsKeyPathObserver-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = E973692F2BD505F200E88591 /* _UXSettingsKeyPathObserver-Protocol.h */; };
 		E97369D62BD505F300E88591 /* _UXSinglePixelLine.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369302BD505F200E88591 /* _UXSinglePixelLine.h */; };
 		E97369D72BD505F300E88591 /* _UXSourceSplitView.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369312BD505F200E88591 /* _UXSourceSplitView.h */; };
-		E97369D82BD505F300E88591 /* _UXSourceSplitViewCursorProvider-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369322BD505F200E88591 /* _UXSourceSplitViewCursorProvider-Protocol.h */; };
-		E97369D92BD505F300E88591 /* _UXSourceSplitViewDelegate-Protocol.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369332BD505F200E88591 /* _UXSourceSplitViewDelegate-Protocol.h */; };
 		E97369DA2BD505F300E88591 /* _UXSourceSplitViewFullScreenOverlayContentView.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369342BD505F200E88591 /* _UXSourceSplitViewFullScreenOverlayContentView.h */; };
 		E97369DB2BD505F300E88591 /* _UXSourceSplitViewFullScreenOverlayWindow.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369352BD505F200E88591 /* _UXSourceSplitViewFullScreenOverlayWindow.h */; };
 		E97369DC2BD505F300E88591 /* _UXSourceSplitViewShadowView.h in Headers */ = {isa = PBXBuildFile; fileRef = E97369362BD505F200E88591 /* _UXSourceSplitViewShadowView.h */; };
@@ -191,6 +192,16 @@
 		E9907AB22BE546CE00A1215E /* _UXButtonCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E9907AB12BE546CE00A1215E /* _UXButtonCell.m */; };
 		E9907AB42BE54B3500A1215E /* _UXViewControllerTransitionCoordinator.m in Sources */ = {isa = PBXBuildFile; fileRef = E9907AB32BE54B3500A1215E /* _UXViewControllerTransitionCoordinator.m */; };
 		E9907ABE2BE6147A00A1215E /* UXBase.h in Headers */ = {isa = PBXBuildFile; fileRef = E97FA0F52BDE82B400111592 /* UXBase.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E99C74382BF105B5001A25D5 /* _UXSourceSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = E99C74372BF105B5001A25D5 /* _UXSourceSplitView.m */; };
+		E99C743A2BF106F6001A25D5 /* _UXSourceSplitViewFullScreenOverlayContentView.m in Sources */ = {isa = PBXBuildFile; fileRef = E99C74392BF106F6001A25D5 /* _UXSourceSplitViewFullScreenOverlayContentView.m */; };
+		E99C743C2BF1078D001A25D5 /* _UXSourceSplitViewFullScreenOverlayWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = E99C743B2BF1078D001A25D5 /* _UXSourceSplitViewFullScreenOverlayWindow.m */; };
+		E99C743E2BF107AD001A25D5 /* _UXSourceSplitViewShadowView.m in Sources */ = {isa = PBXBuildFile; fileRef = E99C743D2BF107AD001A25D5 /* _UXSourceSplitViewShadowView.m */; };
+		E99C74402BF10821001A25D5 /* _UXSourceSplitViewSpringLoadingView.m in Sources */ = {isa = PBXBuildFile; fileRef = E99C743F2BF10821001A25D5 /* _UXSourceSplitViewSpringLoadingView.m */; };
+		E99C74422BF109A3001A25D5 /* _UXSourceSplitItemView.h in Headers */ = {isa = PBXBuildFile; fileRef = E99C74412BF109A3001A25D5 /* _UXSourceSplitItemView.h */; };
+		E99C74442BF10A3E001A25D5 /* _UXSourceSplitItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = E99C74432BF10A3E001A25D5 /* _UXSourceSplitItemView.m */; };
+		E99C74462BF11CA0001A25D5 /* UXKitPrivateUtilites.h in Headers */ = {isa = PBXBuildFile; fileRef = E99C74452BF11CA0001A25D5 /* UXKitPrivateUtilites.h */; };
+		E9E906DB2BF8FCFD00C10C1C /* NSView+PrivateSPI.h in Headers */ = {isa = PBXBuildFile; fileRef = E9E906D82BF8FCFD00C10C1C /* NSView+PrivateSPI.h */; };
+		E9E906DF2BF8FF4F00C10C1C /* NSWindow+PrivateSPI.h in Headers */ = {isa = PBXBuildFile; fileRef = E9E906DC2BF8FF4F00C10C1C /* NSWindow+PrivateSPI.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -198,6 +209,9 @@
 		E9140D342BE7875A0005E94C /* UXToolbar+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UXToolbar+Internal.h"; sourceTree = "<group>"; };
 		E9140D362BE787E40005E94C /* UXView+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UXView+Internal.h"; sourceTree = "<group>"; };
 		E937315D2BE26A34006BB9E3 /* UXPopover.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UXPopover.m; sourceTree = "<group>"; };
+		E9487BB02BF2560400B99CDE /* EXTKeyPathCoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXTKeyPathCoding.h; sourceTree = "<group>"; };
+		E9487BB12BF2560400B99CDE /* EXTScope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXTScope.h; sourceTree = "<group>"; };
+		E9487BB22BF2560400B99CDE /* metamacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = metamacros.h; sourceTree = "<group>"; };
 		E968E31A2BE619FA00B0A1B9 /* NSResponder-UXKit.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSResponder-UXKit.m"; sourceTree = "<group>"; };
 		E968E3292BE6404C00B0A1B9 /* NSImage-UXKit.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSImage-UXKit.m"; sourceTree = "<group>"; };
 		E968E32B2BE65D1000B0A1B9 /* NSViewController-UXViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSViewController-UXViewController.m"; sourceTree = "<group>"; };
@@ -239,8 +253,6 @@
 		E973692F2BD505F200E88591 /* _UXSettingsKeyPathObserver-Protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "_UXSettingsKeyPathObserver-Protocol.h"; sourceTree = "<group>"; };
 		E97369302BD505F200E88591 /* _UXSinglePixelLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _UXSinglePixelLine.h; sourceTree = "<group>"; };
 		E97369312BD505F200E88591 /* _UXSourceSplitView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _UXSourceSplitView.h; sourceTree = "<group>"; };
-		E97369322BD505F200E88591 /* _UXSourceSplitViewCursorProvider-Protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "_UXSourceSplitViewCursorProvider-Protocol.h"; sourceTree = "<group>"; };
-		E97369332BD505F200E88591 /* _UXSourceSplitViewDelegate-Protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "_UXSourceSplitViewDelegate-Protocol.h"; sourceTree = "<group>"; };
 		E97369342BD505F200E88591 /* _UXSourceSplitViewFullScreenOverlayContentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _UXSourceSplitViewFullScreenOverlayContentView.h; sourceTree = "<group>"; };
 		E97369352BD505F200E88591 /* _UXSourceSplitViewFullScreenOverlayWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _UXSourceSplitViewFullScreenOverlayWindow.h; sourceTree = "<group>"; };
 		E97369362BD505F200E88591 /* _UXSourceSplitViewShadowView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _UXSourceSplitViewShadowView.h; sourceTree = "<group>"; };
@@ -379,6 +391,16 @@
 		E9907AAF2BE52D5700A1215E /* _UXButton.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _UXButton.m; sourceTree = "<group>"; };
 		E9907AB12BE546CE00A1215E /* _UXButtonCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _UXButtonCell.m; sourceTree = "<group>"; };
 		E9907AB32BE54B3500A1215E /* _UXViewControllerTransitionCoordinator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _UXViewControllerTransitionCoordinator.m; sourceTree = "<group>"; };
+		E99C74372BF105B5001A25D5 /* _UXSourceSplitView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _UXSourceSplitView.m; sourceTree = "<group>"; };
+		E99C74392BF106F6001A25D5 /* _UXSourceSplitViewFullScreenOverlayContentView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _UXSourceSplitViewFullScreenOverlayContentView.m; sourceTree = "<group>"; };
+		E99C743B2BF1078D001A25D5 /* _UXSourceSplitViewFullScreenOverlayWindow.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _UXSourceSplitViewFullScreenOverlayWindow.m; sourceTree = "<group>"; };
+		E99C743D2BF107AD001A25D5 /* _UXSourceSplitViewShadowView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _UXSourceSplitViewShadowView.m; sourceTree = "<group>"; };
+		E99C743F2BF10821001A25D5 /* _UXSourceSplitViewSpringLoadingView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _UXSourceSplitViewSpringLoadingView.m; sourceTree = "<group>"; };
+		E99C74412BF109A3001A25D5 /* _UXSourceSplitItemView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _UXSourceSplitItemView.h; sourceTree = "<group>"; };
+		E99C74432BF10A3E001A25D5 /* _UXSourceSplitItemView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = _UXSourceSplitItemView.m; sourceTree = "<group>"; };
+		E99C74452BF11CA0001A25D5 /* UXKitPrivateUtilites.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UXKitPrivateUtilites.h; sourceTree = "<group>"; };
+		E9E906D82BF8FCFD00C10C1C /* NSView+PrivateSPI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSView+PrivateSPI.h"; sourceTree = "<group>"; };
+		E9E906DC2BF8FF4F00C10C1C /* NSWindow+PrivateSPI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSWindow+PrivateSPI.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -397,6 +419,10 @@
 			children = (
 				E97FA0F52BDE82B400111592 /* UXBase.h */,
 				E97369812BD505F200E88591 /* UXKitDefines.h */,
+				E99C74452BF11CA0001A25D5 /* UXKitPrivateUtilites.h */,
+				E9487BB02BF2560400B99CDE /* EXTKeyPathCoding.h */,
+				E9487BB12BF2560400B99CDE /* EXTScope.h */,
+				E9487BB22BF2560400B99CDE /* metamacros.h */,
 			);
 			path = Base;
 			sourceTree = "<group>";
@@ -423,6 +449,8 @@
 				E968E32B2BE65D1000B0A1B9 /* NSViewController-UXViewController.m */,
 				E97369532BD505F200E88591 /* NSWindow-UXKit.h */,
 				E968E33B2BE7024100B0A1B9 /* NSWindow-UXKit.m */,
+				E9E906D82BF8FCFD00C10C1C /* NSView+PrivateSPI.h */,
+				E9E906DC2BF8FF4F00C10C1C /* NSWindow+PrivateSPI.h */,
 			);
 			path = Categories;
 			sourceTree = "<group>";
@@ -503,13 +531,6 @@
 				E973692D2BD505F200E88591 /* _UXSettingsGroup.h */,
 				E973692E2BD505F200E88591 /* _UXSettingsGroupObserver-Protocol.h */,
 				E973692F2BD505F200E88591 /* _UXSettingsKeyPathObserver-Protocol.h */,
-				E97369312BD505F200E88591 /* _UXSourceSplitView.h */,
-				E97369322BD505F200E88591 /* _UXSourceSplitViewCursorProvider-Protocol.h */,
-				E97369332BD505F200E88591 /* _UXSourceSplitViewDelegate-Protocol.h */,
-				E97369342BD505F200E88591 /* _UXSourceSplitViewFullScreenOverlayContentView.h */,
-				E97369352BD505F200E88591 /* _UXSourceSplitViewFullScreenOverlayWindow.h */,
-				E97369362BD505F200E88591 /* _UXSourceSplitViewShadowView.h */,
-				E97369372BD505F200E88591 /* _UXSourceSplitViewSpringLoadingView.h */,
 				E97369382BD505F200E88591 /* _UXTableHeaderView.h */,
 				E973693E2BD505F200E88591 /* _UXWindow.h */,
 				E97369552BD505F200E88591 /* UIMutableIndexPath.h */,
@@ -575,8 +596,8 @@
 				E97369872BD505F200E88591 /* UXNavigationController.m */,
 				E9736A5F2BD5312400E88591 /* UXNavigationController+Internal.h */,
 				E973698A2BD505F200E88591 /* UXNavigationItem.h */,
-				E9140D322BE784A80005E94C /* UXNavigationItem+Internal.h */,
 				E973698B2BD505F200E88591 /* UXNavigationItem.m */,
+				E9140D322BE784A80005E94C /* UXNavigationItem+Internal.h */,
 				E973698E2BD505F200E88591 /* UXPopover.h */,
 				E937315D2BE26A34006BB9E3 /* UXPopover.m */,
 				E973698F2BD505F200E88591 /* UXPopoverController.h */,
@@ -593,8 +614,8 @@
 				E9140D342BE7875A0005E94C /* UXToolbar+Internal.h */,
 				E97369A42BD505F200E88591 /* UXToolbar.m */,
 				E97369A82BD505F200E88591 /* UXView.h */,
-				E9140D362BE787E40005E94C /* UXView+Internal.h */,
 				E97369A92BD505F200E88591 /* UXView.m */,
+				E9140D362BE787E40005E94C /* UXView+Internal.h */,
 				E97369AC2BD505F200E88591 /* UXViewController.h */,
 				E97369AD2BD505F200E88591 /* UXViewController.m */,
 				E97369AE2BD505F200E88591 /* UXViewController+Internal.h */,
@@ -607,6 +628,18 @@
 		E968E3252BE63DD100B0A1B9 /* Private */ = {
 			isa = PBXGroup;
 			children = (
+				E97369312BD505F200E88591 /* _UXSourceSplitView.h */,
+				E99C74372BF105B5001A25D5 /* _UXSourceSplitView.m */,
+				E99C74412BF109A3001A25D5 /* _UXSourceSplitItemView.h */,
+				E99C74432BF10A3E001A25D5 /* _UXSourceSplitItemView.m */,
+				E97369342BD505F200E88591 /* _UXSourceSplitViewFullScreenOverlayContentView.h */,
+				E99C74392BF106F6001A25D5 /* _UXSourceSplitViewFullScreenOverlayContentView.m */,
+				E97369352BD505F200E88591 /* _UXSourceSplitViewFullScreenOverlayWindow.h */,
+				E99C743B2BF1078D001A25D5 /* _UXSourceSplitViewFullScreenOverlayWindow.m */,
+				E97369362BD505F200E88591 /* _UXSourceSplitViewShadowView.h */,
+				E99C743D2BF107AD001A25D5 /* _UXSourceSplitViewShadowView.m */,
+				E97369372BD505F200E88591 /* _UXSourceSplitViewSpringLoadingView.h */,
+				E99C743F2BF10821001A25D5 /* _UXSourceSplitViewSpringLoadingView.m */,
 				E97369572BD505F200E88591 /* UXBackButton.h */,
 				E97369582BD505F200E88591 /* UXBackButton.m */,
 				E97369142BD505F200E88591 /* _UXButton.h */,
@@ -733,6 +766,7 @@
 				E9736A1A2BD505F300E88591 /* UXCollectionViewLayoutSectionAccessibility.h in Headers */,
 				E97369F22BD505F300E88591 /* NSScreen-Compatibility.h in Headers */,
 				E9736A3C2BD505F300E88591 /* UXSourceList.h in Headers */,
+				E99C74422BF109A3001A25D5 /* _UXSourceSplitItemView.h in Headers */,
 				E9736A062BD505F300E88591 /* UXCollectionClipView.h in Headers */,
 				E9736A152BD505F300E88591 /* UXCollectionViewLayout.h in Headers */,
 				E9736A582BD505F300E88591 /* UXViewControllerTransitionCoordinator.h in Headers */,
@@ -753,6 +787,7 @@
 				E97369F52BD505F300E88591 /* NSTextView-Compatibility.h in Headers */,
 				E97369DF2BD505F300E88591 /* _UXToolbarItemsContainer.h in Headers */,
 				E9736A0C2BD505F300E88591 /* UXCollectionViewCell.h in Headers */,
+				E9E906DF2BF8FF4F00C10C1C /* NSWindow+PrivateSPI.h in Headers */,
 				E9736A0D2BD505F300E88591 /* UXCollectionViewController.h in Headers */,
 				E9736A212BD505F300E88591 /* UXDestinationAuxiliaryStore.h in Headers */,
 				E97369F12BD505F300E88591 /* NSResponder-UXKit.h in Headers */,
@@ -764,7 +799,7 @@
 				E9736A0E2BD505F300E88591 /* UXCollectionViewData.h in Headers */,
 				E9736A4C2BD505F300E88591 /* UXTransitionController.h in Headers */,
 				E9736A302BD505F300E88591 /* UXNavigationItem.h in Headers */,
-				E97369D82BD505F300E88591 /* _UXSourceSplitViewCursorProvider-Protocol.h in Headers */,
+				E9487BB52BF2560400B99CDE /* metamacros.h in Headers */,
 				E97369BF2BD505F300E88591 /* _UXCollectionViewItemKey.h in Headers */,
 				E9736A092BD505F300E88591 /* UXCollectionView.h in Headers */,
 				E97369DB2BD505F300E88591 /* _UXSourceSplitViewFullScreenOverlayWindow.h in Headers */,
@@ -773,11 +808,11 @@
 				E9140D332BE784A80005E94C /* UXNavigationItem+Internal.h in Headers */,
 				E9736A142BD505F300E88591 /* UXCollectionViewIndexPathsSet.h in Headers */,
 				E97369BB2BD505F300E88591 /* _UXButtonCell.h in Headers */,
+				E9E906DB2BF8FCFD00C10C1C /* NSView+PrivateSPI.h in Headers */,
 				E97369E22BD505F300E88591 /* _UXViewControllerTransitionContext.h in Headers */,
 				E9736A162BD505F300E88591 /* UXCollectionViewLayoutAccessibility.h in Headers */,
 				E9736A2F2BD505F300E88591 /* UXNavigationDestination.h in Headers */,
 				E9736A592BD505F300E88591 /* UXWindowController.h in Headers */,
-				E97369D92BD505F300E88591 /* _UXSourceSplitViewDelegate-Protocol.h in Headers */,
 				E968E3332BE6748F00B0A1B9 /* UXImageView+Internal.h in Headers */,
 				E9140D372BE787E40005E94C /* UXView+Internal.h in Headers */,
 				E97369C12BD505F300E88591 /* _UXCollectionViewOverdraw-Protocol.h in Headers */,
@@ -795,6 +830,7 @@
 				E97369D72BD505F300E88591 /* _UXSourceSplitView.h in Headers */,
 				E97369EB2BD505F300E88591 /* NSIndexPath-UXCollectionViewAdditions.h in Headers */,
 				E97369E32BD505F300E88591 /* _UXViewControllerTransitionCoordinator.h in Headers */,
+				E99C74462BF11CA0001A25D5 /* UXKitPrivateUtilites.h in Headers */,
 				E9736A602BD5312400E88591 /* UXNavigationController+Internal.h in Headers */,
 				E97369E92BD505F300E88591 /* NSGestureRecognizer-UXKit.h in Headers */,
 				E97369CA2BD505F300E88591 /* _UXFlowLayoutSection.h in Headers */,
@@ -823,6 +859,8 @@
 				E9736A132BD505F300E88591 /* UXCollectionViewFlowLayoutInvalidationContext.h in Headers */,
 				E9736A502BD505F300E88591 /* UXViewAnimationContext.h in Headers */,
 				E97369E02BD505F300E88591 /* _UXViewControllerOneToOneTransitionContext.h in Headers */,
+				E9487BB32BF2560400B99CDE /* EXTKeyPathCoding.h in Headers */,
+				E9487BB42BF2560400B99CDE /* EXTScope.h in Headers */,
 				E97369FD2BD505F300E88591 /* UXBackButton.h in Headers */,
 				E97369B82BD505F300E88591 /* _UXAccessoryBarContainer-Protocol.h in Headers */,
 				E9736A292BD505F300E88591 /* UXLayoutSupport.h in Headers */,
@@ -900,6 +938,7 @@
 			files = (
 				E97FA0F42BDBECD000111592 /* _UXNavigationItemContainerView.m in Sources */,
 				E937315E2BE26A34006BB9E3 /* UXPopover.m in Sources */,
+				E99C743A2BF106F6001A25D5 /* _UXSourceSplitViewFullScreenOverlayContentView.m in Sources */,
 				E9736A2D2BD505F300E88591 /* UXNavigationController.m in Sources */,
 				E9736A3B2BD505F300E88591 /* UXSourceController.m in Sources */,
 				E9736A362BD505F300E88591 /* UXPopoverController.m in Sources */,
@@ -907,9 +946,11 @@
 				E9736A532BD505F300E88591 /* UXViewController.m in Sources */,
 				E9736A3E2BD505F300E88591 /* UXSubtoolbar.m in Sources */,
 				E97369E62BD505F300E88591 /* _UXWindowState.m in Sources */,
+				E99C74382BF105B5001A25D5 /* _UXSourceSplitView.m in Sources */,
 				E97369F72BD505F300E88591 /* NSView-UXKit.m in Sources */,
 				E9736A5A2BD505F300E88591 /* UXWindowController.m in Sources */,
 				E97369CC2BD505F300E88591 /* _UXLayoutSpacer.m in Sources */,
+				E99C743E2BF107AD001A25D5 /* _UXSourceSplitViewShadowView.m in Sources */,
 				E9736A402BD505F300E88591 /* UXTabBarController.m in Sources */,
 				E9736A5C2BD505F300E88591 /* UXZoomingCrossfadeTransitionController.m in Sources */,
 				E9907AAE2BE5164500A1215E /* _UXResizableImage.m in Sources */,
@@ -923,10 +964,13 @@
 				E968E33C2BE7024100B0A1B9 /* NSWindow-UXKit.m in Sources */,
 				E9907A8E2BE2AC8200A1215E /* UXLabel.m in Sources */,
 				E9736A022BD505F300E88591 /* UXBarButtonItem.m in Sources */,
+				E99C743C2BF1078D001A25D5 /* _UXSourceSplitViewFullScreenOverlayWindow.m in Sources */,
 				E9736A392BD505F300E88591 /* UXSlideTransitionController.m in Sources */,
 				E9736A332BD505F300E88591 /* UXParallaxTransitionController.m in Sources */,
 				E9736A4D2BD505F300E88591 /* UXTransitionController.m in Sources */,
 				E97369D02BD505F300E88591 /* _UXNavigationRequest.m in Sources */,
+				E99C74402BF10821001A25D5 /* _UXSourceSplitViewSpringLoadingView.m in Sources */,
+				E99C74442BF10A3E001A25D5 /* _UXSourceSplitItemView.m in Sources */,
 				E9736A2B2BD505F300E88591 /* UXNavigationBar.m in Sources */,
 				E9736A252BD505F300E88591 /* UXImageView.m in Sources */,
 				E9907AB42BE54B3500A1215E /* _UXViewControllerTransitionCoordinator.m in Sources */,
@@ -1072,10 +1116,13 @@
 		E97365AA2BD4FFF600E88591 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = D5Q73692VW;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -1102,10 +1149,13 @@
 		E97365AB2BD4FFF600E88591 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = D5Q73692VW;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";

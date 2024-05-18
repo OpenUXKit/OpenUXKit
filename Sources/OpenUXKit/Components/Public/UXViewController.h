@@ -22,15 +22,15 @@ typedef NS_ENUM(NSInteger, UXModalPresentationStyle) {
     UXModalPresentationOverCurrentContext,
     UXModalPresentationPopover,
     UXModalPresentationBlurOverFullScreen,
-    UXModalPresentationNone = -1,
+    UXModalPresentationNone      = -1,
     UXModalPresentationAutomatic = -2,
 };
 
-@class NSArray, NSResponder, NSView, UXNavigationController, UXNavigationItem, UXSourceController, UXTabBarController, UXTabBarItem, UXView, UXWindowController, UXTabBarItemSegment, UXPopoverController;
+@class UXNavigationController, UXNavigationItem, UXSourceController, UXTabBarController, UXTabBarItem, UXView, UXWindowController, UXTabBarItemSegment, UXPopoverController, UXBarButtonItem;
 @protocol UXLayoutSupport, UXNavigationDestination, UXViewControllerTransitionCoordinator;
 
 @interface UXViewController : NSViewController
-
+@property (nonatomic, class, readonly) Class viewClass;
 @property (nonatomic, class, readonly) CGFloat defaultToolbarHeight;
 @property (nonatomic, class, readonly) NSArray *toolbarPropertyNames;
 @property (nonatomic) NSEdgeInsets preferredToolbarDecorationInsets;
@@ -44,32 +44,31 @@ typedef NS_ENUM(NSInteger, UXModalPresentationStyle) {
 @property (nonatomic) BOOL automaticallyAdjustsScrollViewInsets;
 @property (nonatomic) UXRectEdge edgesForExtendedLayout;
 @property (nonatomic) UXModalPresentationStyle modalPresentationStyle;
-@property (nonatomic) BOOL isEditing;
+@property (nonatomic, getter = isEditing) BOOL editing;
 @property (nonatomic) CGRect preferredInitialFrame;
 @property (nonatomic, readonly, nullable) UXViewController *ux_presentingViewController;
 @property (nonatomic, readonly, nullable) UXViewController *ux_parentViewController;
 @property (nonatomic, readonly, nullable) UXViewController *presentedViewController;
 @property (nonatomic, readonly, nullable) UXViewController *contentRepresentingViewController;
 @property (nonatomic, readonly, nullable) id<UXViewControllerTransitionCoordinator> transitionCoordinator;
-@property (nonatomic, readonly) NSResponder *preferredFirstResponder;
+@property (nonatomic, readonly, nullable) NSResponder *preferredFirstResponder;
 @property (nonatomic, readonly) UXView *uxView;
 @property (nonatomic, readonly) id<UXLayoutSupport> topLayoutGuide;
 @property (nonatomic, readonly) id<UXLayoutSupport> bottomLayoutGuide;
 @property (nonatomic, readonly, getter = isWindowInFullScreen) BOOL windowInFullScreen;
 @property (nonatomic, readonly, getter = isWindowConsideredInFullScreen) BOOL windowConsideredInFullScreen;
-@property (nonatomic, readonly, strong, nullable) NSView *viewIfLoaded;
+@property (nonatomic, strong, readonly, nullable) NSView *viewIfLoaded;
 
-+ (Class)viewClass;
 - (void)didUpdateLayoutGuides;
 - (void)invalidateIntrinsicLayoutInsets;
 - (NSEdgeInsets)intrinsicLayoutInsets;
 - (CGSize)preferredContentSizeCappedToSize:(CGSize)size;
 - (void)contentRepresentingViewControllerDidChange;
 - (void)setEditing:(BOOL)editing animated:(BOOL)animated;
-- (void)dismissViewControllerAnimated:(BOOL)animated completion:(id)completion;
-- (void)presentViewController:(id)viewController animated:(BOOL)animated completion:(id)completion;
-- (void)didMoveToParentViewController:(nullable UXViewController *)parent;
-- (void)willMoveToParentViewController:(nullable UXViewController *)parent;
+- (void)dismissViewControllerAnimated:(BOOL)animated completion:(void (^ __nullable)(void))completion NS_SWIFT_DISABLE_ASYNC;
+- (void)presentViewController:(UXViewController *)viewController animated:(BOOL)animated completion:(void (^ __nullable)(void))completion NS_SWIFT_DISABLE_ASYNC;
+- (void)didMoveToParentViewController:(nullable UXViewController *)parent NS_SWIFT_NAME(didMove(toParent:));
+- (void)willMoveToParentViewController:(nullable UXViewController *)parent NS_SWIFT_NAME(willMove(toParent:));
 - (void)removeChildViewControllerAtIndex:(NSInteger)index;
 - (void)windowDidRecalculateKeyViewLoop;
 - (void)windowWillRecalculateKeyViewLoop;
@@ -91,14 +90,14 @@ typedef NS_ENUM(NSInteger, UXModalPresentationStyle) {
 @interface UXViewController (UXNavigationControllerItem)
 @property (nonatomic) BOOL hidesBottomBarWhenPushed;
 @property (nonatomic, strong, nullable) UXViewController *toolbarViewController;
-@property (nonatomic, strong, nullable) NSArray *toolbarItems;
-@property (nonatomic, strong, nullable) NSArray *subtoolbarItems;
-@property (nonatomic, readonly, strong, nullable) UXNavigationItem *navigationItem;
-@property (nonatomic, readonly, strong, nullable) UXNavigationController *navigationController;
+@property (nonatomic, strong, nullable) NSArray<__kindof UXBarButtonItem *> *toolbarItems;
+@property (nonatomic, strong, nullable) NSArray<__kindof UXBarButtonItem *> *subtoolbarItems;
+@property (nonatomic, strong, readonly, nullable) UXNavigationItem *navigationItem;
+@property (nonatomic, strong, readonly, nullable) UXNavigationController *navigationController;
 @property (nonatomic, strong, nullable) UXViewController *accessoryViewController;
-@property (nonatomic, strong, nullable) NSArray *accessoryBarItems;
+@property (nonatomic, strong, nullable) NSArray<__kindof UXBarButtonItem *> *accessoryBarItems;
 @property (nonatomic, readonly) UXBarPosition preferredToolbarPosition;
-- (void)setToolbarItems:(NSArray *)toolbarItems animated:(BOOL)animated;
+- (void)setToolbarItems:(nullable NSArray<UXBarButtonItem *> *)toolbarItems animated:(BOOL)animated;
 @end
 
 @interface UXViewController (UXConstraintBasedLayoutCoreMethods)
@@ -132,7 +131,7 @@ typedef NS_ENUM(NSInteger, UXModalPresentationStyle) {
 
 @interface UXViewController (UXTabBarController)
 @property (nonatomic, strong) UXTabBarItem *tabBarItem;
-@property (nonatomic, readonly, weak, nullable) UXTabBarController *tabBarController;
+@property (nonatomic, weak, readonly, nullable) UXTabBarController *tabBarController;
 @end
 
 @interface UXViewController (UXWindowController)

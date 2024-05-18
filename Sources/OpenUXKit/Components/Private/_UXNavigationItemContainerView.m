@@ -5,6 +5,7 @@
 #import <OpenUXKit/UXKitDefines.h>
 #import <OpenUXKit/UXNavigationBar+Internal.h>
 #import <OpenUXKit/UXNavigationItem+Internal.h>
+#import <OpenUXKit/UXKitPrivateUtilites.h>
 
 @interface _UXNavigationItemContainerView () {
     UXImageView *_snaphotView;  // 112 = 0x70

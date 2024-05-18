@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:OpenUXKit.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:/Volumes/Repositories/Private/Personal/Library/macOS/OpenUXKit/Examples/OpenUXKit-Example-ObjC/OpenUXKit-Example-ObjC.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Examples/OpenUXKit-Example-Swift/OpenUXKit-Example-Swift.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Examples/UXKit-Example/UXKit-Example.xcodeproj">
+   </FileRef>
+</Workspace>

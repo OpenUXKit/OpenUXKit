@@ -25,7 +25,7 @@
 #import <OpenUXKit/UXViewControllerTransitioning.h>
 #import <OpenUXKit/UXWindowController.h>
 #import <OpenUXKit/UXZoomingCrossfadeTransitionController.h>
-
+#import <OpenUXKit/UXKitPrivateUtilites.h>
 
 void *UXToolbarItemsObservationContext = &UXToolbarItemsObservationContext;
 void *UXSubtoolbarItemsObservationContext = &UXSubtoolbarItemsObservationContext;

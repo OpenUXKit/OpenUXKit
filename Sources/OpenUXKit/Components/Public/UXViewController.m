@@ -17,6 +17,7 @@
 #import <OpenUXKit/UXViewControllerTransitionCoordinator.h>
 #import <OpenUXKit/UXWindowController.h>
 #import <QuartzCore/QuartzCore.h>
+#import <OpenUXKit/UXKitPrivateUtilites.h>
 
 @implementation UXViewController
 
@@ -412,7 +413,7 @@
 }
 
 - (void)setEditing:(BOOL)editing animated:(BOOL)animated {
-    [self setIsEditing:editing];
+    [self setEditing:editing];
 }
 
 - (void)dismissViewControllerAnimated:(BOOL)arg1 completion:(id)arg2 {

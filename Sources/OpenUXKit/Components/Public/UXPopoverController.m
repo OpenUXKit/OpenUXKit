@@ -1,10 +1,3 @@
-//
-//  UXPopoverController.m
-//  
-//
-//  Created by JH on 2024/4/21.
-//
-
 #import <Foundation/Foundation.h>
 #import <OpenUXKit/UXPopoverController.h>
 #import <OpenUXKit/UXPopover.h>
@@ -12,6 +5,7 @@
 #import <OpenUXKit/UXView.h>
 #import <OpenUXKit/UXViewController.h>
 #import <OpenUXKit/UXKitDefines.h>
+#import <OpenUXKit/UXKitPrivateUtilites.h>
 
 @interface UXPopoverController ()
 {

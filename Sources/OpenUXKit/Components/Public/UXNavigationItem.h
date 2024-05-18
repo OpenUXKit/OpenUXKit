@@ -19,12 +19,12 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 @property (nonatomic, strong, nullable) NSArray<UXBarButtonItem *> *trailingBarButtonItems;
 
 - (instancetype)initWithTitle:(NSString *)title NS_DESIGNATED_INITIALIZER;
-- (void)setLeadingBarButtonItems:(nullable NSArray<UXBarButtonItem *> *)items animated:(BOOL)animated;
-- (void)setTrailingBarButtonItems:(nullable NSArray<UXBarButtonItem *> *)items animated:(BOOL)animated;
-- (void)setLeftBarButtonItem:(nullable UXBarButtonItem *)item animated:(BOOL)animated;
-- (void)setLeftBarButtonItems:(nullable NSArray<UXBarButtonItem *> *)items animated:(BOOL)animated;
-- (void)setRightBarButtonItem:(nullable UXBarButtonItem *)item animated:(BOOL)animated;
-- (void)setRightBarButtonItems:(nullable NSArray<UXBarButtonItem *> *)items animated:(BOOL)animated;
+- (void)setLeadingBarButtonItems:(nullable NSArray<UXBarButtonItem *> *)items animated:(BOOL)animated NS_SWIFT_NAME(setLeadingBarButtonItems(_:animated:));
+- (void)setTrailingBarButtonItems:(nullable NSArray<UXBarButtonItem *> *)items animated:(BOOL)animated NS_SWIFT_NAME(setTrailingBarButtonItems(_:animated:));
+- (void)setLeftBarButtonItem:(nullable UXBarButtonItem *)item animated:(BOOL)animated NS_SWIFT_NAME(setLeftBarButtonItem(_:animated:));
+- (void)setLeftBarButtonItems:(nullable NSArray<UXBarButtonItem *> *)items animated:(BOOL)animated NS_SWIFT_NAME(setLeftBarButtonItems(_:animated:));
+- (void)setRightBarButtonItem:(nullable UXBarButtonItem *)item animated:(BOOL)animated NS_SWIFT_NAME(setRightBarButtonItem(_:animated:));
+- (void)setRightBarButtonItems:(nullable NSArray<UXBarButtonItem *> *)items animated:(BOOL)animated NS_SWIFT_NAME(setRightBarButtonItems(_:animated:));
 
 @end
 

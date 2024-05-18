@@ -3,7 +3,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface UXNavigationBar ()
-
 {
     BOOL _needsRecalculateWindowKeyViewLoop;    // 108 = 0x6c
     BOOL _recalculatingKeyViewLoop;    // 109 = 0x6d
@@ -44,6 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSMutableArray<UXNavigationItem *> *internalItems;
 @property (nonatomic, strong) NSImage *backIndicatorImage;
 @property (nonatomic, weak, nullable) NSView *titleCenteringTrackedView;
+
 - (void)setNeedsRecalcuateWindowKeyViewLoop;
 - (void)recalculateKeyViewLoop;
 - (void)beginInteractivePop;
@@ -59,6 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)_pushItem:(UXNavigationItem *)item;
 - (void)_removeObserversForItem:(UXNavigationItem *)item;
 - (void)_addObserversForItem:(UXNavigationItem *)item;
+
 @end
 
 NS_ASSUME_NONNULL_END

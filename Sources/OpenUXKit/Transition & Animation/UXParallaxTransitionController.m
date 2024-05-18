@@ -1,10 +1,3 @@
-//
-//  UXParallaxTransitionController.m
-//  
-//
-//  Created by JH on 2024/4/21.
-//
-
 #import <Foundation/Foundation.h>
 #import <OpenUXKit/UXParallaxTransitionController.h>
 #import <OpenUXKit/UXNavigationController.h>
@@ -15,6 +8,7 @@
 #import <OpenUXKit/_UXViewControllerOneToOneTransitionContext.h>
 #import <QuartzCore/QuartzCore.h>
 #import <OpenUXKit/UXKitDefines.h>
+#import <OpenUXKit/UXKitPrivateUtilites.h>
 
 @interface UXParallaxTransitionController ()
 {

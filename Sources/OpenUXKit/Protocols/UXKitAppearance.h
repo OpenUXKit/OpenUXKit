@@ -10,6 +10,6 @@ typedef NS_ENUM(NSInteger, UXTintAdjustmentMode) {
 
 @protocol UXKitAppearance <NSObject>
 @property (nonatomic) UXTintAdjustmentMode tintAdjustmentMode;
-@property (nonatomic, strong) NSColor *tintColor;
+@property (nonatomic, strong, nullable) NSColor *tintColor;
 - (void)tintColorDidChange;
 @end

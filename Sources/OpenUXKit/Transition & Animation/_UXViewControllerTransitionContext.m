@@ -3,7 +3,7 @@
 #import <OpenUXKit/UXViewControllerTransitioning.h>
 #import <OpenUXKit/_UXViewControllerTransitionCoordinator.h>
 #import <OpenUXKit/UXKitDefines.h>
-
+#import <OpenUXKit/UXKitPrivateUtilites.h>
 
 @interface _UXViewControllerTransitionContext ()
 {

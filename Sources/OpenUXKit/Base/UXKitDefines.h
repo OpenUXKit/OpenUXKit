@@ -22,10 +22,4 @@
 #endif
 #endif
 
-#ifndef __cplusplus
-#define auto __auto_type
-#endif
-
-#define cast(cls, var) ((cls)var)
-
 #endif /* _UXKITDEFINES_H */

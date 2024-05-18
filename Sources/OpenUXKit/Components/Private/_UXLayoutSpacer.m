@@ -8,6 +8,7 @@
 #import <Foundation/Foundation.h>
 #import <OpenUXKit/_UXLayoutSpacer.h>
 #import <OpenUXKit/UXKitDefines.h>
+#import <OpenUXKit/UXKitPrivateUtilites.h>
 
 @interface _UXLayoutSpacer ()
 {

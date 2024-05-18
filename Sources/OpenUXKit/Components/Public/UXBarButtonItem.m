@@ -5,6 +5,7 @@
 #import <OpenUXKit/NSView-UXKit.h>
 #import <OpenUXKit/UXViewController.h>
 #import <OpenUXKit/UXKitDefines.h>
+#import <OpenUXKit/UXKitPrivateUtilites.h>
 
 @implementation UXBarButtonItem
 @synthesize tintColor;

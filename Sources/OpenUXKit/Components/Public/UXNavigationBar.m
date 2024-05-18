@@ -4,7 +4,7 @@
 #import <OpenUXKit/UXKitDefines.h>
 #import <OpenUXKit/UXNavigationBar+Internal.h>
 #import <OpenUXKit/UXNavigationItem+Internal.h>
-
+#import <OpenUXKit/UXKitPrivateUtilites.h>
 
 @implementation UXNavigationBar
 

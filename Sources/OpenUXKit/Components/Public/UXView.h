@@ -12,7 +12,7 @@ typedef NS_ENUM(NSInteger, UXViewAnimationCurve) {
     UXViewAnimationCurveEaseIn,            // slow at beginning
     UXViewAnimationCurveEaseOut,           // slow at end
     UXViewAnimationCurveLinear,
-};
+} NS_SWIFT_NAME(UXView.AnimationCurve);
 
 typedef NS_OPTIONS(NSUInteger, UXViewAnimationOptions) {
     UXViewAnimationOptionLayoutSubviews                  = 1 <<  0,
@@ -43,7 +43,7 @@ typedef NS_OPTIONS(NSUInteger, UXViewAnimationOptions) {
     UXViewAnimationOptionPreferredFramesPerSecondDefault = 0 << 24,
     UXViewAnimationOptionPreferredFramesPerSecond60      = 3 << 24,
     UXViewAnimationOptionPreferredFramesPerSecond30      = 7 << 24,
-};
+} NS_SWIFT_NAME(UXView.AnimationOptions);
 
 typedef NS_ENUM(NSInteger, UXViewContentMode) {
     UXViewContentModeScaleToFill,
@@ -59,17 +59,18 @@ typedef NS_ENUM(NSInteger, UXViewContentMode) {
     UXViewContentModeTopRight,
     UXViewContentModeBottomLeft,
     UXViewContentModeBottomRight,
-};
+} NS_SWIFT_NAME(UXView.ContentMode);
 
-@class NSColor, NSVisualEffectView, UXViewController, UXImageView;
+@class UXViewController, UXImageView;
 
 @interface UXView : NSView
+@property (nonatomic, class, readonly) Class layerClass;
 @property (nonatomic) BOOL userInteractionEnabled;
 @property (nonatomic, getter = isExclusiveTouch) BOOL exclusiveTouch;
 @property (nonatomic, strong, nullable) NSColor *borderColor;
 @property (nonatomic) CGAffineTransform transform;
 @property (nonatomic, readonly) CGPoint center;
-@property (nonatomic, readonly) UXUserInterfaceLayoutDirection effectiveUserInterfaceLayoutDirection;
+@property (nonatomic, readonly) NSUserInterfaceLayoutDirection effectiveUserInterfaceLayoutDirection;
 @property (nonatomic) UXViewContentMode contentMode;
 @property (nonatomic) BOOL blurEnabled;
 @property (nonatomic) NSVisualEffectMaterial blurMaterial;
@@ -80,16 +81,15 @@ typedef NS_ENUM(NSInteger, UXViewContentMode) {
 + (void)animateWithDuration:(NSTimeInterval)duration animations:(void (^)(void))animations completion:(void (^__nullable)(BOOL finished))completion NS_SWIFT_DISABLE_ASYNC;
 + (void)animateWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay options:(UXViewAnimationOptions)options animations:(void (^)(void))animations completion:(void (^__nullable)(BOOL finished))completion NS_SWIFT_DISABLE_ASYNC;
 
-+ (Class)layerClass;
 - (void)updateConstraintsForSubtreeIfNeeded;
 - (CGSize)sizeThatFits:(CGSize)size;
-- (UXImageView *)snapshotViewFromRect:(CGRect)rect;
-- (UXImageView *)snapshotView;
-- (NSImage *)snapshotForRect:(CGRect)rect;
 - (void)insertSubview:(NSView *)insertSubview aboveSubview:(NSView *)aboveSubview;
 - (void)insertSubview:(NSView *)insertSubview belowSubview:(NSView *)belowSubview;
-- (void)bringSubviewToFront:(NSView *)subview;
-- (void)sendSubviewToBack:(NSView *)subview;
+- (void)bringSubviewToFront:(NSView *)subview NS_SWIFT_NAME(bringSubviewToFront(_:));
+- (void)sendSubviewToBack:(NSView *)subview NS_SWIFT_NAME(sendSubviewToBack(_:));
+- (nullable UXImageView *)snapshotViewFromRect:(CGRect)rect;
+- (nullable UXImageView *)snapshotView;
+- (nullable NSImage *)snapshotForRect:(CGRect)rect;
 @end
 
 NS_HEADER_AUDIT_END(nullability, sendability)

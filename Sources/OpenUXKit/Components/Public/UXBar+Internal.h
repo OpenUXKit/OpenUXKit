@@ -42,6 +42,7 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 @property (nonatomic, strong) NSColor *barTintColor;
 @property (nonatomic) NSEdgeInsets layoutMargins;
 @property (nonatomic) BOOL bordered;
+
 - (void)_updateDecorationLine;
 - (void)_completeInteractiveTransition:(BOOL)completeInteractiveTransition duration:(NSTimeInterval)duration;
 - (void)_finishInteractiveTransition:(BOOL)finishInteractiveTransition duration:(NSTimeInterval)duration completion:(UXCompletionHandler)completion;

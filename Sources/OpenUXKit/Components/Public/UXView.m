@@ -5,13 +5,114 @@
 #import <OpenUXKit/UXViewAnimationContext.h>
 #import <QuartzCore/QuartzCore.h>
 #import <OpenUXKit/UXKitDefines.h>
-
-@interface NSView (PrivateSPI)
-@property CGAffineTransform frameTransform;
-- (id<CAAction>)actionForLayer:(CALayer *)layer forKey:(NSString *)event;
-@end
+#import <OpenUXKit/UXKitPrivateUtilites.h>
+#import <OpenUXKit/NSView+PrivateSPI.h>
 
 @implementation UXView
+
++ (Class)layerClass {
+    return nil;
+}
+
++ (void)animateWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay options:(UXViewAnimationOptions)options animations:(void (^)(void))animations completion:(void (^)(BOOL))completion {
+    if (duration > 0.0) {
+        CAMediaTimingFunctionName funtionName = kCAMediaTimingFunctionEaseInEaseOut;
+        if (options & UXViewAnimationOptionCurveEaseIn) {
+            funtionName = kCAMediaTimingFunctionEaseIn;
+        } else if (options & UXViewAnimationOptionCurveEaseOut) {
+            funtionName = kCAMediaTimingFunctionEaseOut;
+        } else if (options & UXViewAnimationOptionCurveLinear) {
+            funtionName = kCAMediaTimingFunctionLinear;
+        }
+        auto runAnimation = ^{
+            [NSAnimationContext runAnimationGroup:^(NSAnimationContext * _Nonnull context) {
+                context.duration = duration;
+                context.allowsImplicitAnimation = YES;
+                context.timingFunction = [CAMediaTimingFunction functionWithName:funtionName];
+                if (animations) {
+                    animations();
+                }
+            } completionHandler:^{
+                if (completion) {
+                    completion(YES);
+                }
+            }];
+        };
+        if (delay <= 0.0) {
+            runAnimation();
+        } else {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                runAnimation();
+            });
+        }
+    } else {
+        if (animations) {
+            animations();
+        }
+        if (completion) {
+            completion(YES);
+        }
+    }
+}
+
++ (void)_animateUsingDefaultTimingWithOptions:(UXViewAnimationOptions)options animations:(void (^)(void))animations completion:(void (^)(BOOL))completion {
+    [self animateWithDuration:0.33 delay:0.0 usingSpringWithDamping:500.0 initialSpringVelocity:0.0 options:options animations:animations completion:completion];
+}
+
++ (void)performWithoutAnimation:(void (NS_NOESCAPE ^)(void))actionsWithoutAnimation {
+    [NSAnimationContext runAnimationGroup:^(NSAnimationContext * _Nonnull context) {
+        context.allowsImplicitAnimation = NO;
+        context.duration = 0.0;
+        if (actionsWithoutAnimation) {
+            actionsWithoutAnimation();
+        }
+    }];
+}
+
++ (void)animateWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay usingSpringWithDamping:(CGFloat)dampingRatio initialSpringVelocity:(CGFloat)velocity options:(UXViewAnimationOptions)options animations:(void (^)(void))animations completion:(void (^)(BOOL))completion {
+    UXViewAnimationContext *context = [UXViewAnimationContext new];
+    [context generateSpringPropertiesForDuration:duration damping:dampingRatio velocity:velocity];
+    [CATransaction setValue:context forKey:@"__uxview_spring_animation"];
+    [self animateWithDuration:duration delay:delay options:options animations:animations completion:completion];
+}
+
++ (void)animateWithDuration:(NSTimeInterval)duration animations:(void (^)(void))animations {
+    [self animateWithDuration:duration delay:0.0 options:0 animations:animations completion:nil];
+}
+
++ (void)animateWithDuration:(NSTimeInterval)duration animations:(void (^)(void))animations completion:(void (^)(BOOL))completion {
+    [self animateWithDuration:duration delay:0.0 options:0 animations:animations completion:completion];
+}
+
++ (CASpringAnimation *)defaultSpringAnimationForKey:(NSString *)key mass:(CGFloat)mass stiffness:(CGFloat)stiffness damping:(CGFloat)damping velocity:(CGFloat)velocity {
+    CASpringAnimation *springAnimation = [CASpringAnimation animationWithKeyPath:key];
+    springAnimation.mass = mass;
+    springAnimation.stiffness = stiffness;
+    springAnimation.damping = damping;
+    springAnimation.initialVelocity = velocity;
+    return springAnimation;
+}
++ (UXViewContentMode)_contentModeForLayerContentsGravity:(CALayerContentsGravity)contentsGravity {
+    static dispatch_once_t onceToken;
+    static NSDictionary *contentModeDictionary = nil;
+    dispatch_once(&onceToken, ^{
+        contentModeDictionary = @{
+            kCAGravityCenter: @(UXViewContentModeCenter),
+            kCAGravityTop: @(UXViewContentModeTop),
+            kCAGravityBottom: @(UXViewContentModeBottom),
+            kCAGravityLeft: @(UXViewContentModeLeft),
+            kCAGravityRight: @(UXViewContentModeRight),
+            kCAGravityTopLeft: @(UXViewContentModeTopLeft),
+            kCAGravityTopRight: @(UXViewContentModeTopRight),
+            kCAGravityBottomLeft: @(UXViewContentModeBottomLeft),
+            kCAGravityBottomRight: @(UXViewContentModeBottomRight),
+            kCAGravityResize: @(UXViewContentModeScaleToFill),
+            kCAGravityResizeAspect: @(UXViewContentModeScaleAspectFit),
+            kCAGravityResizeAspectFill: @(UXViewContentModeScaleAspectFill),
+        };
+    });
+    return [contentModeDictionary[contentsGravity] integerValue];
+}
 
 - (instancetype)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
@@ -42,10 +143,6 @@ void commonInit(UXView *view) {
     } else {
         return [super makeBackingLayer];
     }
-}
-
-+ (Class)layerClass {
-    return nil;
 }
 
 - (BOOL)wantsUpdateLayer {
@@ -167,45 +264,8 @@ void commonInit(UXView *view) {
     }
 }
 
-+ (void)animateWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay options:(UXViewAnimationOptions)options animations:(void (^)(void))animations completion:(void (^)(BOOL))completion {
-    if (duration > 0.0) {
-        CAMediaTimingFunctionName funtionName = kCAMediaTimingFunctionEaseInEaseOut;
-        if (options & UXViewAnimationOptionCurveEaseIn) {
-            funtionName = kCAMediaTimingFunctionEaseIn;
-        } else if (options & UXViewAnimationOptionCurveEaseOut) {
-            funtionName = kCAMediaTimingFunctionEaseOut;
-        } else if (options & UXViewAnimationOptionCurveLinear) {
-            funtionName = kCAMediaTimingFunctionLinear;
-        }
-        auto runAnimation = ^{
-            [NSAnimationContext runAnimationGroup:^(NSAnimationContext * _Nonnull context) {
-                context.duration = duration;
-                context.allowsImplicitAnimation = YES;
-                context.timingFunction = [CAMediaTimingFunction functionWithName:funtionName];
-                if (animations) {
-                    animations();
-                }
-            } completionHandler:^{
-                if (completion) {
-                    completion(YES);
-                }
-            }];
-        };
-        if (delay <= 0.0) {
-            runAnimation();
-        } else {
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                runAnimation();
-            });
-        }
-    } else {
-        if (animations) {
-            animations();
-        }
-        if (completion) {
-            completion(YES);
-        }
-    }
+- (NSUserInterfaceLayoutDirection)effectiveUserInterfaceLayoutDirection {
+    return self.userInterfaceLayoutDirection;
 }
 
 - (NSView *)hitTest:(NSPoint)point {
@@ -311,27 +371,7 @@ void commonInit(UXView *view) {
     }
 }
 
-+ (UXViewContentMode)_contentModeForLayerContentsGravity:(CALayerContentsGravity)contentsGravity {
-    static dispatch_once_t onceToken;
-    static NSDictionary *contentModeDictionary = nil;
-    dispatch_once(&onceToken, ^{
-        contentModeDictionary = @{
-            kCAGravityCenter: @(UXViewContentModeCenter),
-            kCAGravityTop: @(UXViewContentModeTop),
-            kCAGravityBottom: @(UXViewContentModeBottom),
-            kCAGravityLeft: @(UXViewContentModeLeft),
-            kCAGravityRight: @(UXViewContentModeRight),
-            kCAGravityTopLeft: @(UXViewContentModeTopLeft),
-            kCAGravityTopRight: @(UXViewContentModeTopRight),
-            kCAGravityBottomLeft: @(UXViewContentModeBottomLeft),
-            kCAGravityBottomRight: @(UXViewContentModeBottomRight),
-            kCAGravityResize: @(UXViewContentModeScaleToFill),
-            kCAGravityResizeAspect: @(UXViewContentModeScaleAspectFit),
-            kCAGravityResizeAspectFill: @(UXViewContentModeScaleAspectFill),
-        };
-    });
-    return [contentModeDictionary[contentsGravity] integerValue];
-}
+
 
 - (CGPoint)center {
     return CGPointMake(CGRectGetMidX(self.frame), CGRectGetMidY(self.frame));
@@ -383,48 +423,14 @@ void commonInit(UXView *view) {
 //    }
 //}
 
-+ (CASpringAnimation *)defaultSpringAnimationForKey:(NSString *)key mass:(CGFloat)mass stiffness:(CGFloat)stiffness damping:(CGFloat)damping velocity:(CGFloat)velocity {
-    CASpringAnimation *springAnimation = [CASpringAnimation animationWithKeyPath:key];
-    springAnimation.mass = mass;
-    springAnimation.stiffness = stiffness;
-    springAnimation.damping = damping;
-    springAnimation.initialVelocity = velocity;
-    return springAnimation;
-}
 
-+ (void)animateWithDuration:(NSTimeInterval)duration animations:(void (^)(void))animations completion:(void (^)(BOOL))completion {
-    [self animateWithDuration:duration delay:0.0 options:0 animations:animations completion:completion];
-}
-
-+ (void)animateWithDuration:(NSTimeInterval)duration animations:(void (^)(void))animations {
-    [self animateWithDuration:duration delay:0.0 options:0 animations:animations completion:nil];
-}
-
-+ (void)animateWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay usingSpringWithDamping:(CGFloat)dampingRatio initialSpringVelocity:(CGFloat)velocity options:(UXViewAnimationOptions)options animations:(void (^)(void))animations completion:(void (^)(BOOL))completion {
-    UXViewAnimationContext *context = [UXViewAnimationContext new];
-    [context generateSpringPropertiesForDuration:duration damping:dampingRatio velocity:velocity];
-    [CATransaction setValue:context forKey:@"__uxview_spring_animation"];
-    [self animateWithDuration:duration delay:delay options:options animations:animations completion:completion];
-}
-
-+ (void)performWithoutAnimation:(void (NS_NOESCAPE ^)(void))actionsWithoutAnimation {
-    [NSAnimationContext runAnimationGroup:^(NSAnimationContext * _Nonnull context) {
-        context.allowsImplicitAnimation = NO;
-        context.duration = 0.0;
-        if (actionsWithoutAnimation) {
-            actionsWithoutAnimation();
-        }
-    }];
-}
-
-+ (void)_animateUsingDefaultTimingWithOptions:(UXViewAnimationOptions)options animations:(void (^)(void))animations completion:(void (^)(BOOL))completion {
-    [self animateWithDuration:0.33 delay:0.0 usingSpringWithDamping:500.0 initialSpringVelocity:0.0 options:options animations:animations completion:completion];
-}
 
 
 - (void)setBlurMaterial:(NSVisualEffectMaterial)blurMaterial {
     _blurMaterial = blurMaterial;
     __visualEffectsView.material = blurMaterial;
 }
+
+
 
 @end

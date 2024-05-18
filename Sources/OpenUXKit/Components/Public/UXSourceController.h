@@ -1,5 +1,4 @@
 #import <AppKit/AppKit.h>
-#import <OpenUXKit/_UXSourceSplitViewDelegate-Protocol.h>
 #import <OpenUXKit/UXNavigationController.h>
 #import <OpenUXKit/UXViewController.h>
 
@@ -8,10 +7,10 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 @class UXNavigationController, UXTransitionController, UXView, UXViewController, _UXSourceSplitView, _UXViewControllerOneToOneTransitionContext;
 @protocol UXNavigationControllerDelegate, UXNavigationDestination, UXSourceList;
 
-@interface UXSourceController : UXViewController <UXNavigationControllerDelegate, _UXSourceSplitViewDelegate>
+@interface UXSourceController : UXViewController <UXNavigationControllerDelegate>
 
 + (Class)_defaultTransitionControllerClass;
-+ (id)_widthDefaultsKeyForAutosaveName:(id)arg1;
++ (id)_widthDefaultsKeyForAutosaveName:(id)autosaveName;
 
 @property (nonatomic, weak, nullable) NSWindow *observedWindow;
 @property (nonatomic, readonly) NSPopUpButton *popUpButton;
@@ -32,78 +31,67 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 @property (nonatomic) NSUInteger selectedIndex;
 
 - (id)fallbackNavigationDestination;
-- (void)_setupDelegateForNavigationController:(id)arg1 operation:(NSInteger)arg2 fromViewController:(id)arg3 toViewController:(id)arg4;
-- (BOOL)navigationController:(id)arg1 shouldBeginInteractivePopFromViewController:(id)arg2 toViewController:(id)arg3;
-- (id)navigationController:(id)arg1 animationControllerForOperation:(NSInteger)arg2 fromViewController:(id)arg3 toViewController:(id)arg4;
-- (id)navigationController:(id)arg1 interactionControllerForAnimationController:(id)arg2;
-- (void)navigationController:(id)arg1 didShowViewController:(id)arg2;
-- (void)navigationController:(id)arg1 willShowViewController:(id)arg2;
-- (BOOL)sourceSplitView:(id)arg1 canSpringLoadRevealSubview:(id)arg2;
-- (void)sourceSplitView:(id)arg1 didChangeAutoCollapsedValue:(BOOL)arg2;
-- (void)sourceSplitView:(id)arg1 didResizeMasterWidth:(CGFloat)arg2;
-- (id)_contextForTransitionOperation:(NSInteger)arg1 fromViewController:(id)arg2 toViewController:(id)arg3 transition:(NSUInteger)arg4;
-- (void)_beginTransitionWithContext:(id)arg1 operation:(NSInteger)arg2;
-- (void)_prepareViewController:(id)arg1 forAnimationInContext:(id)arg2 completion:(id)arg3;
-- (id)transitionCoordinator;
-- (void)dismissViewControllerAnimated:(BOOL)arg1 completion:(id)arg2;
-- (void)presentViewController:(id)arg1 animated:(BOOL)arg2 completion:(id)arg3;
-- (void)removeDestination:(id)arg1 animated:(BOOL)arg2 completion:(id)arg3;
-- (void)_removeDestination:(id)arg1 animated:(BOOL)arg2 completion:(id)arg3;
-- (void)_navigateToDestination:(id)arg1 animated:(BOOL)arg2 completion:(id)arg3;
-- (id)_rootViewControllerProvidingViewControllersForNavigationDestination:(id)arg1;
-- (void)navigateToDestination:(id)arg1 animated:(BOOL)arg2 completion:(id)arg3;
+- (void)_setupDelegateForNavigationController:(UXNavigationController *)navigationController operation:(UXNavigationControllerOperation)operation fromViewController:(UXViewController *)fromViewController toViewController:(UXViewController *)toViewController;
+- (id)_contextForTransitionOperation:(NSInteger)operation fromViewController:(UXViewController *)fromViewController toViewController:(UXViewController *)toViewController transition:(NSUInteger)transition;
+- (void)_beginTransitionWithContext:(id)context operation:(NSInteger)operation;
+- (void)_prepareViewController:(UXViewController *)viewController forAnimationInContext:(id)context completion:(id)completion;
+- (void)removeDestination:(id)destination animated:(BOOL)animated completion:(id)completion;
+- (void)_removeDestination:(id)destination animated:(BOOL)animated completion:(id)completion;
+- (void)_navigateToDestination:(id)destination animated:(BOOL)animated completion:(id)completion;
+- (id)_rootViewControllerProvidingViewControllersForNavigationDestination:(id)destination;
+- (void)navigateToDestination:(id)destination animated:(BOOL)animated completion:(id)completion;
 - (void)windowDidUpdateFirstResponder;
 - (void)didChangeTopViewControllerForNavigationController:(id)arg1;
 - (void)didChangeSelectedViewController;
-- (void)willSelectViewController:(id)arg1;
-- (void)willAddNavigationController:(id)arg1;
-- (void)popUpChanged:(id)arg1;
-- (void)segmentChanged:(id)arg1;
+- (void)willSelectViewController:(id)viewController;
+- (void)willAddNavigationController:(id)navigationController;
+- (void)popUpChanged:(id)sender;
+- (void)segmentChanged:(id)sender;
 - (id)navigationController;
-- (void)setSelectedIndex:(NSUInteger)arg1 animated:(BOOL)arg2;
-- (void)setSelectedViewController:(id)arg1 animated:(BOOL)arg2;
-- (void)setRootViewControllers:(id)arg1 destination:(id)arg2 completion:(id)arg3;
-- (void)_setRootViewControllers:(id)arg1 destination:(id)arg2 completion:(id)arg3;
-- (void)_addRootViewController:(id)arg1;
-- (CGSize)contentSizeForWantsSourceListCollapsed:(BOOL)arg1;
-- (void)_setPreferredStyle:(NSInteger)arg1 animated:(BOOL)arg2 completion:(id)arg3;
-- (void)_setStyle:(NSInteger)arg1 animated:(BOOL)arg2 completion:(id)arg3;
+- (void)setSelectedIndex:(NSUInteger)index animated:(BOOL)animated;
+- (void)setSelectedViewController:(id)selectedViewController animated:(BOOL)animated;
+- (void)setRootViewControllers:(id)rootViewController destination:(id)destination completion:(id)completion;
+- (void)_setRootViewControllers:(id)rootViewController destination:(id)destination completion:(id)completion;
+- (void)_addRootViewController:(id)rootViewController;
+- (CGSize)contentSizeForWantsSourceListCollapsed:(BOOL)collapsed;
+- (void)_setPreferredStyle:(NSInteger)style animated:(BOOL)animated completion:(id)completion;
+- (void)_setStyle:(NSInteger)style animated:(BOOL)animated completion:(id)completion;
 - (void)_didChangeCollapsed;
-- (void)_setStyle:(NSInteger)arg1;
-- (void)_setWantsSourceListCollapsed:(BOOL)arg1 animated:(BOOL)arg2 completion:(id)arg3;
-- (void)_setWantsSourceListCollapsed:(BOOL)arg1;
+- (void)_setStyle:(NSInteger)style;
+- (void)_setWantsSourceListCollapsed:(BOOL)collapsed animated:(BOOL)animated completion:(id)completion;
+- (void)_setWantsSourceListCollapsed:(BOOL)collapsed;
 - (id)tabBarView;
 - (BOOL)_reduceMotionEnabled;
-- (BOOL)_wantsSourceListCollapsedForViewController:(id)arg1;
-- (NSInteger)_effectiveStyleForViewController:(id)arg1;
-- (void)_setSelectedIndex:(NSInteger)arg1 animated:(BOOL)arg2 sender:(id)arg3;
-- (void)_setSelectedViewController:(id)arg1 animated:(BOOL)arg2 sender:(id)arg3;
-- (void)_didChangeSelectedViewControllerFromSender:(id)arg1;
-- (id)_popTransitoryViewControllersInNavigationController:(id)arg1 animated:(BOOL)arg2;
-- (void)_setLeadingContentInset:(CGFloat)arg1;
+- (BOOL)_wantsSourceListCollapsedForViewController:(id)viewController;
+- (NSInteger)_effectiveStyleForViewController:(id)viewController;
+- (void)_setSelectedIndex:(NSInteger)index animated:(BOOL)animated sender:(id)sender;
+- (void)_setSelectedViewController:(id)selectedViewController animated:(BOOL)animated sender:(id)sender;
+- (void)_didChangeSelectedViewControllerFromSender:(id)sender;
+- (id)_popTransitoryViewControllersInNavigationController:(id)navigationController animated:(BOOL)animated;
+- (void)_setLeadingContentInset:(CGFloat)contentInset;
 - (CGFloat)_preferredSourceListWidth;
-- (void)_saveSourceListWidth:(CGFloat)arg1;
+- (void)_saveSourceListWidth:(CGFloat)width;
 - (void)_updateSelectionControls;
-- (void)_configureManagedNavigationController:(id)arg1;
-- (void)unregisterTransitionControllerForTransitionToViewControllerClass:(Class)arg1;
-- (void)registerTranistionControllerClass:(Class)arg1 forViewControllerClass:(Class)arg2;
-- (void)registerTransitionControllerClass:(Class)arg1 forViewControllerClass:(Class)arg2;
-- (void)unregisterTransitoryViewController:(id)arg1;
-- (void)registerTransitoryViewController:(id)arg1;
-- (void)removeRootViewControllerAtIndex:(NSInteger)arg1;
-- (void)insertRootViewController:(id)arg1 atIndex:(NSInteger)arg2;
-- (void)addRootViewController:(id)arg1;
-- (void)_stopObservingFullscreenForWindow:(id)arg1;
-- (void)_startObservingFullscreenForWindow:(id)arg1;
-- (void)_didExitFullscreen:(id)arg1;
-- (void)_didEnterFullscreen:(id)arg1;
+- (void)_configureManagedNavigationController:(id)navigationController;
+- (void)unregisterTransitionControllerForTransitionToViewControllerClass:(Class)ViewControllerClass;
+- (void)registerTranistionControllerClass:(Class)tranistionControllerClass forViewControllerClass:(Class)ViewControllerClass;
+- (void)registerTransitionControllerClass:(Class)transitionControllerClass forViewControllerClass:(Class)viewControllerClass;
+- (void)unregisterTransitoryViewController:(id)viewController;
+- (void)registerTransitoryViewController:(id)viewController;
+- (void)removeRootViewControllerAtIndex:(NSInteger)index;
+- (void)insertRootViewController:(id)rootViewController atIndex:(NSInteger)index;
+- (void)addRootViewController:(id)rootViewController;
+- (void)_stopObservingFullscreenForWindow:(id)window;
+- (void)_startObservingFullscreenForWindow:(id)window;
+- (void)_didExitFullscreen:(id)sender;
+- (void)_didEnterFullscreen:(id)sender;
 - (BOOL)_hasItemToRevealOnEdgeHover;
-- (void)_setHasItemToRevealOnEdgeHover:(BOOL)arg1;
+- (void)_setHasItemToRevealOnEdgeHover:(BOOL)hasItemToRevealOnEdgeHover;
 - (void)_stopObservingEdgeHover;
 - (void)_startObservingEdgeHover;
-- (void)_handleEdgeHoverEvent:(id)arg1;
+- (void)_handleEdgeHoverEvent:(id)event;
 - (void)_cancelOrDismissUncollapsedItem;
-- (void)_uncollapseEdgeRevealItem:(id)arg1;
+- (void)_uncollapseEdgeRevealItem:(id)item;
 
 @end
 
