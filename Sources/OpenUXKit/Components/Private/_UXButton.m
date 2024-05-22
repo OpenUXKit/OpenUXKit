@@ -43,13 +43,13 @@
 - (NSAttributedString *)_attributedStringForState:(UXControlState)state {
     NSDictionary<NSAttributedStringKey, id> *titleAttributes = _titleAttributesByState[@(state)];
     NSString *title = _titlesByState[@(state)];
-    BOOL v11 = NO;
+    BOOL useDefaultAttributes = NO;
     if (titleAttributes) {
-        v11 = title == nil;
+        useDefaultAttributes = title == nil;
     } else {
-        v11 = YES;
+        useDefaultAttributes = YES;
     }
-    if (!v11) {
+    if (!useDefaultAttributes) {
         return [[NSAttributedString alloc] initWithString:title attributes:titleAttributes];
     }
     if (title) {

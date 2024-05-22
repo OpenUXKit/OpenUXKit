@@ -43,10 +43,9 @@
         return NO;
     }
     CGSize currentSize = self.size;
-    CGFloat v12 = currentSize.width - self.capInsets.left;
-    CGFloat v14 = v12 - self.capInsets.right;
-    CGFloat v16 = self.capInsets.top;
-    return (v14 > 1.0) && ((size.width != currentSize.width) || (currentSize.height - v16 - self.capInsets.bottom > 1.0)) && (size.height != currentSize.height);
+    CGFloat left = currentSize.width - self.capInsets.left;
+    CGFloat right = left - self.capInsets.right;
+    return (right > 1.0) && ((size.width != currentSize.width) || (currentSize.height - self.capInsets.top - self.capInsets.bottom > 1.0)) && (size.height != currentSize.height);
 }
 
 - (CGRect)_contentStretchInPixels {
@@ -128,18 +127,18 @@ NSImage *_uxImageFromRect(NSImage *image, CGFloat x, CGFloat y, CGFloat width, C
     CGFloat top = fmax(self.capInsets.top, 1.0);
     CGFloat right = fmax(self.capInsets.right, 1.0);
     CGFloat bottom = fmax(self.capInsets.bottom, 1.0);
-    CGFloat v17 = width - left - right;
-    CGFloat v22 = width - right;
-    CGFloat v31 = height - bottom;
+    CGFloat centerWidth = width - left - right;
+    CGFloat rightEdgeX = width - right;
+    CGFloat bottomEdgeY = height - bottom;
     _topLeftCorner = _uxImageFromRect(image, 0.0, 0.0, left, top);
-    _topEdgeFill = _uxImageFromRect(image, left, 0.0, v17, top);
-    _topRightCorner = _uxImageFromRect(image, v22, 0.0, right, top);
+    _topEdgeFill = _uxImageFromRect(image, left, 0.0, centerWidth, top);
+    _topRightCorner = _uxImageFromRect(image, rightEdgeX, 0.0, right, top);
     _leftEdgeFill = _uxImageFromRect(image, 0.0, top, left, height - top - bottom);
-    _centerFill = _uxImageFromRect(image, left, top, v17, height - top - bottom);
-    _rightEdgeFill = _uxImageFromRect(image, v22, top, right, height - top - bottom);
-    _bottomLeftCorner = _uxImageFromRect(image, 0.0, v31, left, bottom);
-    _bottomEdgeFill = _uxImageFromRect(image, left, v31, v17, bottom);
-    _bottomRightCorner = _uxImageFromRect(image, v22, v31, right, bottom);
+    _centerFill = _uxImageFromRect(image, left, top, centerWidth, height - top - bottom);
+    _rightEdgeFill = _uxImageFromRect(image, rightEdgeX, top, right, height - top - bottom);
+    _bottomLeftCorner = _uxImageFromRect(image, 0.0, bottomEdgeY, left, bottom);
+    _bottomEdgeFill = _uxImageFromRect(image, left, bottomEdgeY, centerWidth, bottom);
+    _bottomRightCorner = _uxImageFromRect(image, rightEdgeX, bottomEdgeY, right, bottom);
 }
 
 @end

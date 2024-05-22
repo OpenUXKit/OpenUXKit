@@ -384,26 +384,26 @@
 
 - (void)_setSelectedIndex:(NSInteger)index animated:(BOOL)animated sender:(id)sender {
     if (_segmentedControl.segmentCount) {
-        NSInteger v9 = 0;
-        NSInteger v10 = 0;
+        NSInteger clampedIndex = 0;
+        NSInteger selectedIndex = 0;
         if (index > 0) {
-            v9 = index;
+            clampedIndex = index;
         }
         if (index != NSNotFound) {
-            v10 = v9;
+            selectedIndex = clampedIndex;
         }
         NSInteger segmentCount = _segmentedControl.segmentCount;
-        if (v10 >= segmentCount - 1) {
-            v10 = segmentCount - 1;
+        if (selectedIndex >= segmentCount - 1) {
+            selectedIndex = segmentCount - 1;
         }
         if (_segmentedControl != sender) {
-            _segmentedControl.selectedSegment = v10;
+            _segmentedControl.selectedSegment = selectedIndex;
         }
         if (_popUpButton != sender) {
-            [_popUpButton selectItemAtIndex:v10];
+            [_popUpButton selectItemAtIndex:selectedIndex];
         }
         if (self.isViewLoaded) {
-            [self _setSelectedViewController:_rootViewControllers[v10] animated:animated sender:sender];
+            [self _setSelectedViewController:_rootViewControllers[selectedIndex] animated:animated sender:sender];
         }
     }
 }

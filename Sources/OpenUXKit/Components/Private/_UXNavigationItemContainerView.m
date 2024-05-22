@@ -242,16 +242,16 @@
         return [view alignmentRectForFrame:view.frame];
     };
     CGRect rect = CGRectMake(bounds.origin.x + edgeInsets.left, bounds.origin.y + edgeInsets.top, bounds.size.width - (edgeInsets.left + edgeInsets.right), bounds.size.height - (edgeInsets.top + edgeInsets.bottom));
-    auto v55 = ^BOOL {
-        BOOL v5 = NO;
+    auto areViewsOverlapping = ^BOOL {
+        BOOL hasOnlyLeftView = NO;
 
         if (self.leftView) {
-            v5 = self.rightView == nil;
+            hasOnlyLeftView = self.rightView == nil;
         } else {
-            v5 = YES;
+            hasOnlyLeftView = YES;
         }
 
-        if (v5) {
+        if (hasOnlyLeftView) {
             return NO;
         } else {
             if (CGRectContainsRect(rect, alignmentRectForFrame(self.leftView))) {
@@ -261,24 +261,24 @@
             }
         }
     };
-    __block BOOL v73 = NO;
-    auto v20 = ^CGFloat {
+    __block BOOL needsLayoutUpdate = NO;
+    auto combinedViewsWidth = ^CGFloat {
         return CGRectGetWidth(CGRectUnion(alignmentRectForFrame(self.leftView), alignmentRectForFrame(self.rightView)));
     };
-    auto v56 = ^{
-        if (v73) {
-            v73 = NO;
+    auto updateLayoutIfNeeded = ^{
+        if (needsLayoutUpdate) {
+            needsLayoutUpdate = NO;
             [self setNeedsUpdateConstraints:YES];
             [self updateConstraintsForSubtreeIfNeeded];
             [super layout];
         }
     };
 
-    if (v55()) {
+    if (areViewsOverlapping()) {
         if (self.minimumWidthForExpandedTitle == 0.0) {
-            self.minimumWidthForExpandedTitle = v20();
+            self.minimumWidthForExpandedTitle = combinedViewsWidth();
             [self _updateTitleView];
-            v73 = YES;
+            needsLayoutUpdate = YES;
             goto LABEL_8;
         }
     }
@@ -290,16 +290,16 @@
         if (minimumWidthForExpandedTitle > 0.0) {
             self.minimumWidthForExpandedTitle = minimumWidthForExpandedTitle;
             [self _updateTitleView];
-            v73 = YES;
+            needsLayoutUpdate = YES;
             goto LABEL_8;
         }
     }
 
  LABEL_8:
-    v56();
+    updateLayoutIfNeeded();
 
-    if (v55() && self.minimumWidthForExpandedItems == 0.0) {
-        self.minimumWidthForExpandedItems = v20();
+    if (areViewsOverlapping() && self.minimumWidthForExpandedItems == 0.0) {
+        self.minimumWidthForExpandedItems = combinedViewsWidth();
 
         for (UXBarButtonItem *item in _itemsSortedByPriority) {
             item.condensed = YES;
@@ -320,9 +320,9 @@
         }
     }
 
-    v73 = YES;
+    needsLayoutUpdate = YES;
  LABEL_28:
-    v56();
+    updateLayoutIfNeeded();
 
     for (NSNumber *minimumWidth in [_overflowItemsByMinimumWidth.allKeys sortedArrayUsingSelector:@selector(compare:)]) {
         if (CGRectGetWidth(rect) >= minimumWidth.floatValue) {
@@ -330,18 +330,18 @@
             item._view.hidden = NO;
             [_itemsSortedByPriority insertObject:item atIndex:0];
             [_overflowItemsByMinimumWidth removeObjectForKey:minimumWidth];
-            v73 = YES;
+            needsLayoutUpdate = YES;
         }
     }
 
-    v56();
+    updateLayoutIfNeeded();
 
-    while (v55() && _leftView && _rightView && _itemsSortedByPriority.count) {
+    while (areViewsOverlapping() && _leftView && _rightView && _itemsSortedByPriority.count) {
         UXBarButtonItem *firstItemsSortedByPriority = _itemsSortedByPriority.firstObject;
         firstItemsSortedByPriority._view.hidden = YES;
         CGFloat m = 0;
 
-        for (m = v20();; m = m + -1.0) {
+        for (m = combinedViewsWidth();; m = m + -1.0) {
             UXBarButtonItem *item = [_overflowItemsByMinimumWidth objectForKey:@(m)];
 
             if (!item) {
@@ -351,8 +351,8 @@
 
         [_overflowItemsByMinimumWidth setObject:firstItemsSortedByPriority forKey:@(m)];
         [_itemsSortedByPriority removeObjectAtIndex:0];
-        v73 = YES;
-        v56();
+        needsLayoutUpdate = YES;
+        updateLayoutIfNeeded();
     }
 }
 

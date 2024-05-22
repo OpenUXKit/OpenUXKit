@@ -75,9 +75,9 @@
                 
             }
         } else {
-            __block BOOL v52 = YES;
+            __block BOOL isFirstItem = YES;
             __block NSView *currentView = nil;
-            __block NSView *v48 = nil;
+            __block NSView *lastWidthConstrainingView = nil;
             __block UXBarButtonItem *prevItem = nil;
             __block NSView *prevView = self;
             __auto_type preferredSpacingToItem = ^CGFloat(UXBarButtonItem *item1, UXBarButtonItem *item2){
@@ -96,7 +96,7 @@
                 if ([self.subviews containsObject:currentView]) {
                     currentView.translatesAutoresizingMaskIntoConstraints = NO;
                     NSLayoutXAxisAnchor *xAxisAnchor = nil;
-                    if (v52) {
+                    if (isFirstItem) {
                         xAxisAnchor = prevView.leadingAnchor;
                     } else {
                         xAxisAnchor = prevView.trailingAnchor;
@@ -110,14 +110,14 @@
                         widthConstraint.priority = NSLayoutPriorityDragThatCannotResizeWindow - 1;
                         [self->__addedConstraints addObject:widthConstraint];
                         
-                        if (v48) {
-                            [self->__addedConstraints addObject:[currentView.widthAnchor constraintEqualToAnchor:v48.widthAnchor]];
+                        if (lastWidthConstrainingView) {
+                            [self->__addedConstraints addObject:[currentView.widthAnchor constraintEqualToAnchor:lastWidthConstrainingView.widthAnchor]];
                         }
-                        v48 = currentView;
+                        lastWidthConstrainingView = currentView;
                     }
                     prevItem = currentItem;
                     prevView = currentView;
-                    v52 = NO;
+                    isFirstItem = NO;
                     UXBarButtonItem *widthConstrainingItem = currentItem._widthConstrainingItem;
                     NSView *widthConstrainingItemView = widthConstrainingItem._view;
                     if (widthConstrainingItem) {

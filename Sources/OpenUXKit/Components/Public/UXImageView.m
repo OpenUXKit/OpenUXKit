@@ -130,15 +130,15 @@
 - (CGSize)_proposedSize {
     CGSize viewSize = self.frame.size;
     CGSize imageSize = self._currentImage.size;
-    CGFloat v12 = viewSize.width / fmax(imageSize.width, 1.0) * (viewSize.height / fmax(imageSize.height, 1.0));
-    CGFloat v13 = 2.0;
-    if (v12 <= 1.5) {
-        v13 = 1.0;
-        if (v12 < 0.333) {
-            v13 = 0.5;
+    CGFloat scaleFactor = viewSize.width / fmax(imageSize.width, 1.0) * (viewSize.height / fmax(imageSize.height, 1.0));
+    CGFloat zoomFactor = 2.0;
+    if (scaleFactor <= 1.5) {
+        zoomFactor = 1.0;
+        if (scaleFactor < 0.333) {
+            zoomFactor = 0.5;
         }
     }
-    CGAffineTransform transform = CGAffineTransformMakeScale(v13, v13);
+    CGAffineTransform transform = CGAffineTransformMakeScale(zoomFactor, zoomFactor);
     CGFloat width = imageSize.height * transform.c + transform.a * imageSize.width;
     CGFloat height = imageSize.height * transform.d + transform.b * imageSize.width;
     return CGSizeMake(width, height);

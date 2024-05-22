@@ -11,13 +11,13 @@
     CGRect bounds = self.bounds;
     CGFloat dividerPosition = self.dividerPosition;
     if (dividerPosition > 0.0) {
-        CGFloat v12 = dividerPosition;
+        CGFloat splitWidth = dividerPosition;
         bounds.size.width = bounds.size.width - dividerPosition;
-        CGFloat v14 = -0.0;
+        CGFloat originXOffset = -0.0;
         if (self.userInterfaceLayoutDirection == NSUserInterfaceLayoutDirectionLeftToRight) {
-            v14 = v12;
+            originXOffset = splitWidth;
         }
-        bounds.origin.x = bounds.origin.x + v14;
+        bounds.origin.x = bounds.origin.x + originXOffset;
     }
     return [self convertRect:bounds toView:nil];
 }

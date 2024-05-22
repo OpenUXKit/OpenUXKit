@@ -742,7 +742,7 @@ NSString * UXLocalizedString(NSString *key) {
 - (NSArray<__kindof UXViewController *> *)_performOrEnqueueNavigationRequest:(_UXNavigationRequest *)navigationRequest {
     [self willChangeValueForKey:NSStringFromSelector(@selector(topViewController))];
     UXNavigationControllerOperation operation = navigationRequest.operation;
-    BOOL v7 = NO;
+    BOOL hasPendingPopOperation = NO;
     NSArray<__kindof UXViewController *> *result = nil;
     auto hasOperation = ^BOOL (UXNavigationControllerOperation operation) {
         for (_UXNavigationRequest *request in self->_navigationRequests) {
@@ -756,17 +756,17 @@ NSString * UXLocalizedString(NSString *key) {
 
     if (operation == UXNavigationControllerOperationPop) {
         result = [self _checkinPopNavigationRequest:navigationRequest];
-        v7 = NO;
+        hasPendingPopOperation = NO;
     } else {
         if (operation == UXNavigationControllerOperationPush) {
-            v7 = hasOperation(UXNavigationControllerOperationPop);
+            hasPendingPopOperation = hasOperation(UXNavigationControllerOperationPop);
             [self _checkinPushNavigationRequest:navigationRequest];
         } else {
             if (!operation) {
                 [self _checkinSetNavigationRequest:navigationRequest];
             }
 
-            v7 = NO;
+            hasPendingPopOperation = NO;
         }
 
         result = nil;
@@ -776,16 +776,13 @@ NSString * UXLocalizedString(NSString *key) {
 
     id<UXViewControllerTransitionCoordinator> currentTransitionCoordinator = self.currentTransitionCoordinator;
 
-    if (!currentTransitionCoordinator && !v7) {
+    if (!currentTransitionCoordinator && !hasPendingPopOperation) {
         [navigationRequest setupContainmentIfNeededInParentViewController:self];
     }
 
     if (_navigationRequests.count == 1) {
         if (currentTransitionCoordinator) {
-            // objc_msgSend(v9, "animateAlongsideTransition:completion:", 0LL, v12);
-            // v12 is transition or completion ? IDA Pro display this is a completion.
-            [currentTransitionCoordinator animateAlongsideTransition:^(id<UXViewControllerTransitionCoordinatorContext>  _Nonnull context) {
-            }
+            [currentTransitionCoordinator animateAlongsideTransition:nil
                                                           completion:^(id<UXViewControllerTransitionCoordinatorContext>  _Nonnull context) {
                 [self _dequeueNavigationRequest];
             }];
@@ -1443,18 +1440,18 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
     }
 
     if (context.initiallyInteractive) {
-        context.interactiveUpdateHandler = ^(BOOL a2, BOOL a3, _UXViewControllerTransitionContext *context, CGFloat a5) {
-            if (a2 && a3) {
+        context.interactiveUpdateHandler = ^(BOOL interactionIsOver, BOOL transitionCompleted, _UXViewControllerTransitionContext *context, CGFloat percentComplete) {
+            if (interactionIsOver && transitionCompleted) {
                 setupContext();
                 return;
             }
 
-            if (a2) {
+            if (interactionIsOver) {
                 setupContext();
                 return;
             }
 
-            CGFloat transition = fmax(a5, 0.0);
+            CGFloat transition = fmax(percentComplete, 0.0);
 
             [weakSelf.navigationBar _updateInteractiveTransition:transition];
             [weakSelf.accessoryBar _updateInteractiveTransition:transition];
@@ -1536,7 +1533,7 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
         contentInset = 0.0;
     }
 
-    BOOL v16 = NO;
+    BOOL shouldUpdateToolbarConstraintImmediately = NO;
 
     if (_topViewControllerLeftConstraint.constant != contentInset) {
         _topViewControllerLeftConstraint.constant = contentInset;
@@ -1547,20 +1544,20 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
             if (viewController.hidesBottomBarWhenPushed) {
                 goto LABEL13;
             } else {
-                v16 = YES;
+                shouldUpdateToolbarConstraintImmediately = YES;
                 goto LABEL16;
             }
         }
 
         if (viewController.toolbarItems.count) {
             if (!viewController.hidesBottomBarWhenPushed) {
-                v16 = YES;
+                shouldUpdateToolbarConstraintImmediately = YES;
                 goto LABEL16;
             }
         }
 
  LABEL13:
-        v16 = viewController.subtoolbarItems.count != 0;
+        shouldUpdateToolbarConstraintImmediately = viewController.subtoolbarItems.count != 0;
 
         if (transitionCoordinator && !viewController.subtoolbarItems.count) {
             [transitionCoordinator animateAlongsideTransition:nil
@@ -1573,7 +1570,7 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
  LABEL16:
         self.toolbarLeadingConstraint.constant = contentInset;
 
-        if (self.isToolbarHidden && self.isSubtoolbarHidden && v16) {
+        if (self.isToolbarHidden && self.isSubtoolbarHidden && shouldUpdateToolbarConstraintImmediately) {
             [self.view layoutSubtreeIfNeeded];
         }
     }
@@ -2029,7 +2026,7 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
         if (_interactivePopGestureRecognizer.isEnabled) {
             if (self.isTransitioning || !self.transitionCoordinator) {
                 if (event.phase == NSEventPhaseBegan || event.phase == NSEventPhaseChanged) {
-                    __block BOOL v11 = NO;
+                    __block BOOL hasBegunInteractivePop = NO;
                     [event trackSwipeEventWithOptions:7
                              dampenAmountThresholdMin:-1.0
                                                   max:1.0
@@ -2038,12 +2035,12 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
                             gestureAmount = -gestureAmount;
                         }
 
-                        if (!v11) {
+                        if (!hasBegunInteractivePop) {
                             if (gestureAmount <= 0.0) {
                                 goto LABEL_17;
                             }
 
-                            v11 = YES;
+                            hasBegunInteractivePop = YES;
                             NSArray<UXViewController *> *currentViewControllers = self->_currentViewControllers;
 
                             if (currentViewControllers.count < 2 || self.isTransitioning) {
@@ -2087,13 +2084,13 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
                         *stop = YES;
  LABEL_17:
                         {
-                            BOOL v18 = YES;
+                            BOOL shouldHandleCompletion = YES;
 
-                            if (v11) {
-                                v18 = isComplete == NO;
+                            if (hasBegunInteractivePop) {
+                                shouldHandleCompletion = isComplete == NO;
                             }
 
-                            if (!v18) {
+                            if (!shouldHandleCompletion) {
                                 CGFloat percentComplete = [self.defaultTransitionController percentComplete];
 
                                 if (percentComplete > 0.3) {
@@ -2405,14 +2402,14 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
 }
 
 - (void)keyDown:(NSEvent *)event {
-    BOOL v7 = 0;
+    BOOL isUpArrowKey = 0;
     auto charactersIgnoringModifiers = event.charactersIgnoringModifiers;
 
     if (event.charactersIgnoringModifiers.length) {
-        v7 = [charactersIgnoringModifiers characterAtIndex:0] == 63232;
+        isUpArrowKey = [charactersIgnoringModifiers characterAtIndex:0] == 63232;
     }
 
-    if (event.isARepeat || ((event.modifierFlags & (NSEventModifierFlagShift | NSEventModifierFlagControl | NSEventModifierFlagOption)) != NSEventModifierFlagCommand) || !v7) {
+    if (event.isARepeat || ((event.modifierFlags & (NSEventModifierFlagShift | NSEventModifierFlagControl | NSEventModifierFlagOption)) != NSEventModifierFlagCommand) || !isUpArrowKey) {
         goto CallToSuperIfNeeded;
     }
 
