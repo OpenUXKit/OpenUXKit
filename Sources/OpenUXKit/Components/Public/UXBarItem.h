@@ -1,9 +1,11 @@
 #import <AppKit/AppKit.h>
+#import <OpenUXKit/UXKitDefines.h>
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 @class NSImage, NSString;
 
+UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @interface UXBarItem : NSObject
 
 @property (nonatomic) NSInteger tag;

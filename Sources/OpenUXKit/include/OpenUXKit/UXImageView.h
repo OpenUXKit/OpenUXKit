@@ -1,1 +1,1 @@
-/Volumes/Repositories/Private/Personal/Library/macOS/OpenUXKit/Sources/OpenUXKit/Components/Public/UXImageView.h
+../../Components/Public/UXImageView.h

@@ -1,5 +1,6 @@
 #import <OpenUXKit/UXBarItem.h>
 #import <OpenUXKit/UXKitAppearance.h>
+#import <OpenUXKit/UXKitDefines.h>
 
 @class UXViewController, UXView;
 
@@ -40,6 +41,7 @@ typedef NS_ENUM(NSInteger, UXBarButtonSystemItem) {
     UXBarButtonSystemItemClose
 };
 
+UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @interface UXBarButtonItem : UXBarItem <UXKitAppearance>
 
 @property (nonatomic, copy, nullable) NSString *label;

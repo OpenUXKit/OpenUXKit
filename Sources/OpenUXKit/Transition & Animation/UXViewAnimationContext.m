@@ -1,13 +1,4 @@
-//
-//  UXViewAnimationContext.m
-//  
-//
-//  Created by JH on 2024/4/7.
-//
-
 #import <OpenUXKit/UXViewAnimationContext.h>
-#import <QuartzCore/QuartzCore.h>
-#import <AppKit/AppKit.h>
 
 @implementation UXViewAnimationContext
 

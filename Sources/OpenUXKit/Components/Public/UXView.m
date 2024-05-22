@@ -1,5 +1,5 @@
 #import <OpenUXKit/UXView+Internal.h>
-#import <OpenUXKit/NSView-UXKit.h>
+#import <OpenUXKit/NSView+UXKit.h>
 #import <OpenUXKit/UXViewController.h>
 #import <OpenUXKit/UXImageView.h>
 #import <OpenUXKit/UXViewAnimationContext.h>

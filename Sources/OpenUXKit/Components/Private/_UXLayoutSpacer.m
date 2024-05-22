@@ -1,11 +1,3 @@
-//
-//  _UXLayoutSpacer.m
-//  OpenUXKit
-//
-//  Created by JH on 2024/4/21.
-//
-
-#import <Foundation/Foundation.h>
 #import <OpenUXKit/_UXLayoutSpacer.h>
 #import <OpenUXKit/UXKitDefines.h>
 #import <OpenUXKit/UXKitPrivateUtilites.h>

@@ -1,11 +1,3 @@
-//
-//  _UXWindowState.m
-//  
-//
-//  Created by JH on 2024/4/21.
-//
-
-#import <Foundation/Foundation.h>
 #import <OpenUXKit/_UXWindowState.h>
 
 @interface _UXWindowState ()

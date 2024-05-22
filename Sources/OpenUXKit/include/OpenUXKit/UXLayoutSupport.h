@@ -1,1 +1,1 @@
-/Volumes/Repositories/Private/Personal/Library/macOS/OpenUXKit/Sources/OpenUXKit/Protocols/UXLayoutSupport.h
+../../Protocols/Public/UXLayoutSupport.h

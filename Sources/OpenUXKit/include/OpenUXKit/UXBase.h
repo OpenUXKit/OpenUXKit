@@ -1,1 +1,1 @@
-/Volumes/Repositories/Private/Personal/Library/macOS/OpenUXKit/Sources/OpenUXKit/Base/UXBase.h
+../../Commons/Public/UXBase.h

@@ -1,6 +1,8 @@
 #import <AppKit/AppKit.h>
 #import <OpenUXKit/_UXContainerView.h>
+#import <OpenUXKit/UXKitDefines.h>
 
+NS_SWIFT_UI_ACTOR
 @protocol NSSplitViewItemSeparatorTrackingAdapter <NSObject>
 
 @property (readonly) CGRect splitFrame;
@@ -12,6 +14,7 @@
 
 @end
 
+UXKIT_PRIVATE NS_SWIFT_UI_ACTOR
 @interface _UXSourceSplitItemView : _UXContainerView <NSSplitViewItemSeparatorTrackingAdapter>
 
 @property (nonatomic) BOOL isRegisteredWithTitlebar;

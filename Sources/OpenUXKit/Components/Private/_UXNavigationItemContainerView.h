@@ -7,7 +7,7 @@
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
-UXKIT_PRIVATE
+UXKIT_PRIVATE NS_SWIFT_UI_ACTOR
 @interface _UXNavigationItemContainerView : UXView <_UXBarItemsContainer>
 
 @property (nonatomic, weak, nullable) NSView *titleCenteringConstraintOwnerView;
@@ -28,6 +28,7 @@ UXKIT_PRIVATE
 @property (nonatomic, weak, readonly, nullable) UXNavigationBar *navigationBar;
 @property (nonatomic, readonly) UXNavigationItem *item;
 @property (nonatomic, readonly) BOOL hidesGlobalTrailingView;
+
 + (instancetype)layoutContainerForItem:(UXNavigationItem *)item navigationBar:(UXNavigationBar *)navigationBar;
 - (void)_updateItemsViews:(NSArray<NSView *> *)itemsView withNewViews:(NSArray<NSView *> *)newViews;
 - (void)setTitleCenteringTrackedView:(NSView *)trackedView updateConstraints:(BOOL)updateConstraints;
@@ -40,6 +41,7 @@ UXKIT_PRIVATE
 - (void)cancelTransistion;
 - (void)prepareForTransition;
 - (void)_updateStateForWindow:(NSWindow *)window;
+
 @end
 
 

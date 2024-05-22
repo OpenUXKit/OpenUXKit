@@ -4,9 +4,9 @@
 #import <OpenUXKit/_UXViewControllerOneToOneTransitionContext.h>
 #import <OpenUXKit/_UXViewControllerTransitionCoordinator.h>
 #import <OpenUXKit/_UXWindowState.h>
-#import <OpenUXKit/NSResponder-UXKit.h>
-#import <OpenUXKit/NSView-UXKit.h>
-#import <OpenUXKit/NSWindow-UXKit.h>
+#import <OpenUXKit/NSResponder+UXKit.h>
+#import <OpenUXKit/NSView+UXKit.h>
+#import <OpenUXKit/NSWindow+UXKit.h>
 #import <OpenUXKit/UXBackButton.h>
 #import <OpenUXKit/UXBar+Internal.h>
 #import <OpenUXKit/UXBarButtonItem+Internal.h>

@@ -1,5 +1,6 @@
 #import <AppKit/AppKit.h>
 #import <OpenUXKit/UXViewController.h>
+#import <OpenUXKit/UXKitDefines.h>
 
 @class UXBarButtonItem, UXView;
 
@@ -15,12 +16,13 @@ typedef NS_OPTIONS(NSUInteger, UXPopoverArrowDirection) {
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 @class UXPopover, UXViewController, UXPopoverController;
-
+NS_SWIFT_UI_ACTOR
 @protocol UXPopoverControllerDelegate <NSObject>
 - (BOOL)popoverControllerShouldDismissPopover:(UXPopoverController *)popoverController;
 - (void)popoverControllerDidDismissPopover:(UXPopoverController *)popoverController;
 @end
 
+UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @interface UXPopoverController : UXViewController <NSPopoverDelegate>
 
 @property (nonatomic, weak, nullable) id <UXPopoverControllerDelegate> delegate;

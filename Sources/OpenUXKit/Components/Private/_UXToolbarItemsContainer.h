@@ -1,11 +1,14 @@
 #import <AppKit/AppKit.h>
 #import <OpenUXKit/_UXBarItemsContainer-Protocol.h>
+#import <OpenUXKit/UXKitDefines.h>
 #import <OpenUXKit/UXView.h>
+
 @class UXToolbar, UXBarButtonItem;
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
-@interface _UXToolbarItemsContainer: UXView <_UXBarItemsContainer>
+UXKIT_PRIVATE NS_SWIFT_UI_ACTOR
+@interface _UXToolbarItemsContainer : UXView <_UXBarItemsContainer>
 
 @property (nonatomic) CGFloat baselineOffsetFromBottom;
 @property (nonatomic) CGFloat interitemSpacing;

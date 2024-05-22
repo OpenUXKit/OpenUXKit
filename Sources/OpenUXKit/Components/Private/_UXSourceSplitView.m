@@ -3,7 +3,7 @@
 #import <OpenUXKit/UXKitPrivateUtilites.h>
 #import <OpenUXKit/_UXSourceSplitViewSpringLoadingView.h>
 #import <OpenUXKit/_UXSourceSplitViewShadowView.h>
-#import <OpenUXKit/NSWindow-UXKit.h>
+#import <OpenUXKit/NSWindow+UXKit.h>
 #import <OpenUXKit/_UXSourceSplitViewFullScreenOverlayContentView.h>
 #import <OpenUXKit/NSView+PrivateSPI.h>
 #import <OpenUXKit/NSWindow+PrivateSPI.h>

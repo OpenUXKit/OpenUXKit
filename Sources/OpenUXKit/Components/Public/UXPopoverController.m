@@ -1,4 +1,3 @@
-#import <Foundation/Foundation.h>
 #import <OpenUXKit/UXPopoverController.h>
 #import <OpenUXKit/UXPopover.h>
 #import <OpenUXKit/UXBarButtonItem.h>

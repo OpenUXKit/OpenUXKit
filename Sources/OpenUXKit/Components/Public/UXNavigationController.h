@@ -2,6 +2,7 @@
 #import <OpenUXKit/UXKitDefines.h>
 #import <OpenUXKit/UXToolbar.h>
 #import <OpenUXKit/UXViewController.h>
+#import <OpenUXKit/UXKitDefines.h>
 
 @class UXNavigationBar, UXToolbar, UXView, UXViewController, UXBarButtonItem;
 @protocol UXViewControllerAnimatedTransitioning, UXViewControllerInteractiveTransitioning, UXNavigationControllerDelegate;
@@ -14,6 +15,7 @@ typedef NS_ENUM(NSInteger, UXNavigationControllerOperation) {
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
+UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @interface UXNavigationController : UXViewController <UXToolbarDelegate, NSMenuDelegate>
 
 @property (nonatomic, weak, nullable) id <UXNavigationControllerDelegate> delegate;
@@ -44,7 +46,7 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 - (void)setNavigationBarHidden:(BOOL)hidden animated:(BOOL)animated;
 
 @end
-
+NS_SWIFT_UI_ACTOR
 @protocol UXNavigationControllerDelegate <NSObject>
 @optional
 - (nullable id<UXViewControllerAnimatedTransitioning>)navigationController:(UXNavigationController *)navigationController animationControllerForOperation:(UXNavigationControllerOperation)operation fromViewController:(UXViewController *)fromViewController toViewController:(UXViewController *)toViewController;

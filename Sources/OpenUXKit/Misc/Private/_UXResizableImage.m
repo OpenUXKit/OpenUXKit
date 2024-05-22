@@ -1,6 +1,5 @@
 #import <OpenUXKit/_UXResizableImage.h>
 
-
 @interface _UXResizableImage ()
 
 {

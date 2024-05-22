@@ -1,9 +1,8 @@
-#import <Foundation/Foundation.h>
 #import <OpenUXKit/UXParallaxTransitionController.h>
 #import <OpenUXKit/UXNavigationController.h>
 #import <OpenUXKit/UXNavigationController+Internal.h>
 #import <OpenUXKit/UXView.h>
-#import <OpenUXKit/NSView-UXKit.h>
+#import <OpenUXKit/NSView+UXKit.h>
 #import <OpenUXKit/UXViewControllerTransitioning.h>
 #import <OpenUXKit/_UXViewControllerOneToOneTransitionContext.h>
 #import <QuartzCore/QuartzCore.h>

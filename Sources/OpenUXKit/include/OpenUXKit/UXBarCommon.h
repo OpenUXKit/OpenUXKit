@@ -1,1 +1,1 @@
-/Volumes/Repositories/Private/Personal/Library/macOS/OpenUXKit/Sources/OpenUXKit/Protocols/UXBarCommon.h
+../../Protocols/Public/UXBarCommon.h

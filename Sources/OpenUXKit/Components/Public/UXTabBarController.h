@@ -1,9 +1,11 @@
 
 
+#import <OpenUXKit/UXKitDefines.h>
 #import <OpenUXKit/UXViewController.h>
 
 @class NSArray, NSLayoutConstraint, NSMapTable, NSPopUpButton, NSSegmentedControl, NSSet, UXNavigationItem, UXTabBarItemSegment, UXTransitionController, UXViewController, _UXViewControllerTransitionContext;
 
+UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @interface UXTabBarController: UXViewController
 
 

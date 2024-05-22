@@ -1,1 +1,1 @@
-/Volumes/Repositories/Private/Personal/Library/macOS/OpenUXKit/Sources/OpenUXKit/Components/Public/UXLabel.h
+../../Components/Public/UXLabel.h

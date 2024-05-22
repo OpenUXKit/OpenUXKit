@@ -2,7 +2,7 @@
 #import <OpenUXKit/UXKitDefines.h>
 #import <OpenUXKit/UXLayoutSupport.h>
 
-UXKIT_PRIVATE
+UXKIT_PRIVATE NS_SWIFT_UI_ACTOR
 @interface _UXLayoutSpacer : NSLayoutGuide <UXLayoutSupport>
 
 @property (nonatomic, copy) void(^lengthUpdateBlock)(void);

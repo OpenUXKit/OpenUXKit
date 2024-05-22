@@ -1,1 +1,1 @@
-/Volumes/Repositories/Private/Personal/Library/macOS/OpenUXKit/Sources/OpenUXKit/Components/Public/UXNavigationItem.h
+../../Components/Public/UXNavigationItem.h

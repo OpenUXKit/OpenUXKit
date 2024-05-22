@@ -1,1 +1,1 @@
-/Volumes/Repositories/Private/Personal/Library/macOS/OpenUXKit/Sources/OpenUXKit/Base/UXKitDefines.h
+../../Commons/Public/UXKitDefines.h

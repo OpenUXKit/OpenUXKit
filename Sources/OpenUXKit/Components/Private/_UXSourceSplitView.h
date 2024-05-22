@@ -1,17 +1,30 @@
 #import <AppKit/AppKit.h>
+#import <OpenUXKit/UXKitDefines.h>
 #import <OpenUXKit/UXView.h>
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
+@class _UXSourceSplitView, _UXContainerView, _UXSourceSplitViewShadowView, _UXSourceSplitViewSpringLoadingView, _UXSourceSplitItemView;
+@protocol _UXSourceSplitViewDelegate;
+
+NS_SWIFT_UI_ACTOR
 @protocol _UXSourceSplitViewCursorProvider <NSObject>
 
 - (NSCursor *)dividerCursor;
 
 @end
 
-@class _UXContainerView, _UXSourceSplitViewShadowView, _UXSourceSplitViewSpringLoadingView, _UXSourceSplitItemView;
-@protocol _UXSourceSplitViewDelegate;
+NS_SWIFT_UI_ACTOR
+@protocol _UXSourceSplitViewDelegate <NSObject>
 
+- (BOOL)sourceSplitView:(_UXSourceSplitView *)sourceSplitView canSpringLoadRevealSubview:(UXView *)subview;
+- (void)sourceSplitView:(_UXSourceSplitView *)sourceSplitView didChangeAutoCollapsedValue:(BOOL)autoCollapsedValue;
+- (void)sourceSplitView:(_UXSourceSplitView *)sourceSplitView didResizeMasterWidth:(CGFloat)masterWidth;
+
+@end
+
+
+UXKIT_PRIVATE NS_SWIFT_UI_ACTOR
 @interface _UXSourceSplitView : UXView <NSGestureRecognizerDelegate, _UXSourceSplitViewCursorProvider, NSAccessibilityGroup>
 
 @property (nonatomic, strong) NSGestureRecognizer *resizeRecognizer;
@@ -47,6 +60,7 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 @property (readonly) CGFloat dividerWidth;
 @property (readonly) CGRect dividerCursorRect;
 @property (nonatomic) NSEdgeInsets sidebarAdditionalSafeAreaInsets;
+
 - (BOOL)_canSpringLoad;
 - (BOOL)_shouldBeCollapsed;
 - (BOOL)_springLoading:(BOOL)springLoading;
@@ -70,14 +84,7 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 - (void)setTransientlyUncollapsed:(BOOL)transientlyUncollapsed animated:(BOOL)animated;
 - (void)toggleSidebar:(id)sender;
 - (void)updateConstraintsForDividerAndMain;
+
 @end
-
-@protocol _UXSourceSplitViewDelegate <NSObject>
-- (BOOL)sourceSplitView:(_UXSourceSplitView *)sourceSplitView canSpringLoadRevealSubview:(UXView *)subview;
-- (void)sourceSplitView:(_UXSourceSplitView *)sourceSplitView didChangeAutoCollapsedValue:(BOOL)autoCollapsedValue;
-- (void)sourceSplitView:(_UXSourceSplitView *)sourceSplitView didResizeMasterWidth:(CGFloat)masterWidth;
-@end
-
-
 
 NS_HEADER_AUDIT_END(nullability, sendability)

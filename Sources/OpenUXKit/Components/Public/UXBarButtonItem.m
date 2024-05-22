@@ -2,7 +2,7 @@
 #import <OpenUXKit/UXView.h>
 #import <OpenUXKit/_UXButton.h>
 #import <OpenUXKit/UXLabel.h>
-#import <OpenUXKit/NSView-UXKit.h>
+#import <OpenUXKit/NSView+UXKit.h>
 #import <OpenUXKit/UXViewController.h>
 #import <OpenUXKit/UXKitDefines.h>
 #import <OpenUXKit/UXKitPrivateUtilites.h>

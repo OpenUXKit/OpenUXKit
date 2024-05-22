@@ -1,5 +1,6 @@
 #import <AppKit/AppKit.h>
 #import <OpenUXKit/UXBarCommon.h>
+#import <OpenUXKit/UXKitDefines.h>
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
@@ -29,6 +30,7 @@ typedef NS_ENUM(NSInteger, UXModalPresentationStyle) {
 @class UXNavigationController, UXNavigationItem, UXSourceController, UXTabBarController, UXTabBarItem, UXView, UXWindowController, UXTabBarItemSegment, UXPopoverController, UXBarButtonItem;
 @protocol UXLayoutSupport, UXNavigationDestination, UXViewControllerTransitionCoordinator;
 
+UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @interface UXViewController : NSViewController
 @property (nonatomic, class, readonly) Class viewClass;
 @property (nonatomic, class, readonly) CGFloat defaultToolbarHeight;

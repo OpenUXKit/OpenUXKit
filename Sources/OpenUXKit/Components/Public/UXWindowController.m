@@ -1,11 +1,3 @@
-//
-//  UXWindowController.m
-//  
-//
-//  Created by JH on 2024/4/21.
-//
-
-#import <Foundation/Foundation.h>
 #import <OpenUXKit/UXWindowController.h>
 
 @interface UXWindowController ()

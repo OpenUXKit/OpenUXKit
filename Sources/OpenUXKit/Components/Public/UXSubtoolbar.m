@@ -2,10 +2,6 @@
 #import <OpenUXKit/UXBar+Internal.h>
 
 @interface UXSubtoolbar ()
-{
-    NSLayoutConstraint *_heightConstraint;    // 128 = 0x80
-}
-
 @end
 
 @implementation UXSubtoolbar

@@ -1,4 +1,5 @@
 #import <AppKit/AppKit.h>
+#import <OpenUXKit/UXKitDefines.h>
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
@@ -63,6 +64,7 @@ typedef NS_ENUM(NSInteger, UXViewContentMode) {
 
 @class UXViewController, UXImageView;
 
+UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @interface UXView : NSView
 @property (nonatomic, class, readonly) Class layerClass;
 @property (nonatomic) BOOL userInteractionEnabled;

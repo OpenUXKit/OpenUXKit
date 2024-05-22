@@ -10,7 +10,4 @@
    <FileRef
       location = "group:Examples/OpenUXKit-Example-Swift/OpenUXKit-Example-Swift.xcodeproj">
    </FileRef>
-   <FileRef
-      location = "group:Examples/UXKit-Example/UXKit-Example.xcodeproj">
-   </FileRef>
 </Workspace>

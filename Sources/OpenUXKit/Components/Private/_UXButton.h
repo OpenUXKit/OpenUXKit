@@ -11,7 +11,7 @@ typedef NS_OPTIONS(NSUInteger, UXControlState) {
     UXControlStateReserved     = 0xFF000000               // flags reserved for internal framework use
 };
 
-UXKIT_PRIVATE
+UXKIT_PRIVATE NS_SWIFT_UI_ACTOR
 @interface _UXButton : NSButton
 
 - (NSColor *)_textColorForState:(UXControlState)state;

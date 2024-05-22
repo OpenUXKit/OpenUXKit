@@ -1,14 +1,16 @@
 #import <AppKit/AppKit.h>
 #import <OpenUXKit/UXBar.h>
 #import <OpenUXKit/UXNavigationController.h>
+#import <OpenUXKit/UXKitDefines.h>
 
 @class UXNavigationItem, _UXNavigationItemContainerView;
-
+NS_SWIFT_UI_ACTOR
 @protocol UXNavigationBarDelegate <NSObject>
 @end
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
+UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @interface UXNavigationBar : UXBar
 
 @property (nonatomic, getter = isTranslucent) BOOL translucent;

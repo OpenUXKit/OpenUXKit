@@ -1,6 +1,5 @@
 #import <OpenUXKit/UXLabel.h>
 
-
 @interface UXLabel () {
     NSTextField *_concreteTextField;    // 112 = 0x70
     NSArray<NSLayoutConstraint *> *_verticalDefaultConstraints;       // 120 = 0x78

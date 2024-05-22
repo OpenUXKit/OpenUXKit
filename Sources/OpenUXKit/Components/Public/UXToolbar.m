@@ -1,8 +1,8 @@
-#import <OpenUXKit/UXToolbar+Internal.h>
-#import <OpenUXKit/UXKitDefines.h>
 #import <OpenUXKit/_UXBarItemsContainer-Protocol.h>
 #import <OpenUXKit/_UXToolbarItemsContainer.h>
 #import <OpenUXKit/UXBar+Internal.h>
+#import <OpenUXKit/UXKitDefines.h>
+#import <OpenUXKit/UXToolbar+Internal.h>
 
 @implementation UXToolbar
 
@@ -12,6 +12,7 @@
         self.wantsLayer = YES;
         self.layer.masksToBounds = NO;
     }
+
     return self;
 }
 
@@ -27,10 +28,12 @@
     if (_items != items && ![_items isEqual:items]) {
         _items = [items copy];
         NSUInteger transition = 0;
+
         if (animated) {
             [self.barItemsContainer prepareForTransition];
             transition = 6;
         }
+
         _UXToolbarItemsContainer *container = [_UXToolbarItemsContainer toolbarItemsContainerForToolbar:self items:items];
         [self _transitionToContainer:container transition:transition duration:duration];
     }
@@ -42,6 +45,7 @@
 
 - (void)_beginInteractiveTransitionForItems:(NSArray<UXBarButtonItem *> *)items {
     _UXToolbarItemsContainer *container = [_UXToolbarItemsContainer toolbarItemsContainerForToolbar:self items:items];
+
     [self _beginInteractiveTransitionToItemContainer:container];
 }
 
@@ -51,35 +55,46 @@
 
 - (NSResponder *)nextResponder {
     NSResponder *result = nil;
+
     if ([self.delegate respondsToSelector:@selector(nextResponderForToolbar:)]) {
         result = [self.delegate nextResponderForToolbar:self];
     }
-    
+
     if (!result) {
         result = [super nextResponder];
     }
-    
+
     return result;
 }
 
-- (void)otherMouseDragged:(NSEvent *)event {}
+- (void)otherMouseDragged:(NSEvent *)event {
+}
 
-- (void)rightMouseDragged:(NSEvent *)event {}
+- (void)rightMouseDragged:(NSEvent *)event {
+}
 
-- (void)mouseDragged:(NSEvent *)event {}
+- (void)mouseDragged:(NSEvent *)event {
+}
 
-- (void)mouseMoved:(NSEvent *)event {}
+- (void)mouseMoved:(NSEvent *)event {
+}
 
-- (void)otherMouseUp:(NSEvent *)event {}
+- (void)otherMouseUp:(NSEvent *)event {
+}
 
-- (void)rightMouseUp:(NSEvent *)event {}
+- (void)rightMouseUp:(NSEvent *)event {
+}
 
-- (void)mouseUp:(NSEvent *)event {}
+- (void)mouseUp:(NSEvent *)event {
+}
 
-- (void)otherMouseDown:(NSEvent *)event {}
+- (void)otherMouseDown:(NSEvent *)event {
+}
 
-- (void)rightMouseDown:(NSEvent *)event {}
+- (void)rightMouseDown:(NSEvent *)event {
+}
 
-- (void)mouseDown:(NSEvent *)event {}
+- (void)mouseDown:(NSEvent *)event {
+}
 
 @end

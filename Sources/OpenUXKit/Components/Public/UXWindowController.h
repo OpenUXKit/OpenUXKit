@@ -1,10 +1,10 @@
-
-
 #import <AppKit/AppKit.h>
 #import <OpenUXKit/_UXAccessoryBarContainer-Protocol.h>
+#import <OpenUXKit/UXKitDefines.h>
 
-@class NSString, NSTitlebarAccessoryViewController, NSToolbarItem, UXToolbar, UXViewController;
+@class UXToolbar, UXViewController;
 
+UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @interface UXWindowController : NSWindowController <NSToolbarDelegate, _UXAccessoryBarContainer, NSWindowDelegate>
 
 
@@ -24,14 +24,14 @@
 - (void)_setupAccessoryBar;
 - (void)_setupNavigationBarToolbarItem;
 - (void)_setAccessoryBarHidden:(BOOL)arg1;
-@property(readonly, nonatomic) CGFloat _accessoryBarHeight;
+@property (nonatomic, readonly) CGFloat _accessoryBarHeight;
 - (id)toolbar:(id)arg1 itemForItemIdentifier:(id)arg2 willBeInsertedIntoToolbar:(BOOL)arg3;
 - (id)toolbarDefaultItemIdentifiers:(id)arg1;
 - (id)toolbarAllowedItemIdentifiers:(id)arg1;
 - (void)setWindow:(id)arg1;
 - (id)rootNavigationController;
-@property(strong, nonatomic) UXViewController *rootViewController;
-@property(readonly, nonatomic) NSTitlebarAccessoryViewController *titlebarAccessoryViewController;
+@property (nonatomic, strong) UXViewController *rootViewController;
+@property (nonatomic, readonly) NSTitlebarAccessoryViewController *titlebarAccessoryViewController;
 - (void)observeValueForKeyPath:(id)arg1 ofObject:(id)arg2 change:(id)arg3 context:(void *)arg4;
 - (void)_tearDownViewControllerHierarchyForViewController:(id)arg1;
 - (void)teardownViewControllerHierarchy;
@@ -40,4 +40,3 @@
 - (id)initWithRootViewController:(id)arg1;
 
 @end
-

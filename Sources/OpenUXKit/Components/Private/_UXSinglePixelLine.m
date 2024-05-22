@@ -1,5 +1,5 @@
 #import <OpenUXKit/_UXSinglePixelLine.h>
-#import <OpenUXKit/NSView-UXKit.h>
+#import <OpenUXKit/NSView+UXKit.h>
 
 
 @interface _UXSinglePixelLine ()

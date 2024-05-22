@@ -3,6 +3,8 @@
 
 @class UXViewController;
 
+NS_HEADER_AUDIT_BEGIN(nullability, sendability)
+
 @interface _UXNavigationRequest : NSObject
 
 @property (nonatomic, readonly) NSArray<UXViewController *> *viewControllers;
@@ -19,3 +21,5 @@
 - (void)setupContainmentIfNeededInParentViewController:(UXViewController *)parentViewController;
 
 @end
+
+NS_HEADER_AUDIT_END(nullability, sendability)

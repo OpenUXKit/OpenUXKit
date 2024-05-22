@@ -1,6 +1,6 @@
 #import <objc/runtime.h>
-#import <OpenUXKit/NSResponder-UXKit.h>
-#import <OpenUXKit/NSView-UXKit.h>
+#import <OpenUXKit/NSResponder+UXKit.h>
+#import <OpenUXKit/NSView+UXKit.h>
 #import <OpenUXKit/UXLayoutSupport.h>
 #import <OpenUXKit/UXNavigationController+Internal.h>
 #import <OpenUXKit/UXNavigationController.h>
@@ -416,11 +416,9 @@
     [self setEditing:editing];
 }
 
-- (void)dismissViewControllerAnimated:(BOOL)arg1 completion:(id)arg2 {
-}
+- (void)dismissViewControllerAnimated:(BOOL)animated completion:(void (^)(void))completion {}
 
-- (void)presentViewController:(id)arg1 animated:(BOOL)arg2 completion:(id)arg3 {
-}
+- (void)presentViewController:(UXViewController *)viewController animated:(BOOL)animated completion:(void (^)(void))completion {}
 
 - (UXViewController *)ux_presentingViewController {
     NSViewController *presentingViewController = [super presentingViewController];

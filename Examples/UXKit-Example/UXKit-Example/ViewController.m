@@ -53,7 +53,7 @@ void printIvarsOfClassRecursively(Class cls) {
         self.secondViewController,
         self.thirdViewController,
     ].mutableCopy;
-    printIvarsOfClassRecursively([_UXSourceSplitItemView class]);
+    printIvarsOfClassRecursively([UXSourceController class]);
     NSView *itemView = [NSView new];
     [itemView performSelector:NSSelectorFromString(@"_setSemanticContext:") withObject:@(7)];
     NSLog(@"%@", [itemView performSelector:NSSelectorFromString(@"_semanticContext")]);

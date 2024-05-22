@@ -1,11 +1,3 @@
-//
-//  _UXNavigationRequest.m
-//  
-//
-//  Created by JH on 2024/2/26.
-//
-
-#import <Foundation/Foundation.h>
 #import <OpenUXKit/_UXNavigationRequest.h>
 #import <OpenUXKit/UXViewController.h>
 

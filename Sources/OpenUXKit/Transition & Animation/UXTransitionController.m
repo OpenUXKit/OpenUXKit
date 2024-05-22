@@ -1,4 +1,3 @@
-#import <Foundation/Foundation.h>
 #import <OpenUXKit/UXTransitionController.h>
 #import <OpenUXKit/_UXViewControllerTransitionContext.h>
 

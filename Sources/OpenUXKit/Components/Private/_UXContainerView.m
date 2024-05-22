@@ -1,11 +1,3 @@
-//
-//  _UXContainerView.m
-//  
-//
-//  Created by JH on 2024/4/21.
-//
-
-#import <Foundation/Foundation.h>
 #import <OpenUXKit/_UXContainerView.h>
 
 @interface _UXContainerView ()

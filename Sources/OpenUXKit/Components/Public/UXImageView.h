@@ -1,9 +1,11 @@
 #import <AppKit/AppKit.h>
 #import <OpenUXKit/UXView.h>
+#import <OpenUXKit/UXKitDefines.h>
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 
+UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @interface UXImageView : UXView <NSAccessibilityImage>
 
 @property (nonatomic, getter = isHighlighted) BOOL highlighted;

@@ -1,11 +1,3 @@
-//
-//  UXIdentityTransitionController.m
-//  
-//
-//  Created by JH on 2024/4/21.
-//
-
-#import <Foundation/Foundation.h>
 #import <OpenUXKit/UXIdentityTransitionController.h>
 #import <OpenUXKit/UXViewControllerTransitioning.h>
 #import <OpenUXKit/_UXViewControllerTransitionContext.h>
