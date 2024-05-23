@@ -7,29 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		E908A0D82BF8672A000325B2 /* OpenUXKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E908A0D72BF8672A000325B2 /* OpenUXKit.framework */; };
-		E908A0D92BF8672A000325B2 /* OpenUXKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E908A0D72BF8672A000325B2 /* OpenUXKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E908A0DC2BF88261000325B2 /* Then.swift in Sources */ = {isa = PBXBuildFile; fileRef = E908A0DB2BF88261000325B2 /* Then.swift */; };
 		E908A0DD2BF88476000325B2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E93796662BF8635E00E3D47F /* Main.storyboard */; };
 		E93796612BF8635D00E3D47F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E93796602BF8635D00E3D47F /* AppDelegate.swift */; };
 		E93796632BF8635D00E3D47F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E93796622BF8635D00E3D47F /* ViewController.swift */; };
 		E93796652BF8635E00E3D47F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E93796642BF8635E00E3D47F /* Assets.xcassets */; };
 		E93796682BF8635E00E3D47F /* Base in Resources */ = {isa = PBXBuildFile; fileRef = E93796672BF8635E00E3D47F /* Base */; };
+		E9B215C02BFF8BDC00677F66 /* OpenUXKit in Frameworks */ = {isa = PBXBuildFile; productRef = E9B215BF2BFF8BDC00677F66 /* OpenUXKit */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		E908A0DA2BF8672B000325B2 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				E908A0D92BF8672A000325B2 /* OpenUXKit.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		E908A0D72BF8672A000325B2 /* OpenUXKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OpenUXKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -47,7 +32,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E908A0D82BF8672A000325B2 /* OpenUXKit.framework in Frameworks */,
+				E9B215C02BFF8BDC00677F66 /* OpenUXKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -102,13 +87,15 @@
 				E93796592BF8635D00E3D47F /* Sources */,
 				E937965A2BF8635D00E3D47F /* Frameworks */,
 				E937965B2BF8635D00E3D47F /* Resources */,
-				E908A0DA2BF8672B000325B2 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = "OpenUXKit-Example-Swift";
+			packageProductDependencies = (
+				E9B215BF2BFF8BDC00677F66 /* OpenUXKit */,
+			);
 			productName = "OpenUXKit-Example-Swift";
 			productReference = E937965D2BF8635D00E3D47F /* OpenUXKit-Example-Swift.app */;
 			productType = "com.apple.product-type.application";
@@ -374,6 +361,13 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E9B215BF2BFF8BDC00677F66 /* OpenUXKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = OpenUXKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E93796552BF8635D00E3D47F /* Project object */;
 }

@@ -1,52 +1,52 @@
-#import <Foundation/Foundation.h>
-#import <OpenUXKit/UXSourceController.h>
-#import <OpenUXKit/_UXSourceSplitView.h>
-#import <OpenUXKit/UXNavigationBar+Internal.h>
-#import <OpenUXKit/UXSourceList.h>
-#import <OpenUXKit/UXNavigationController+Internal.h>
-#import <OpenUXKit/NSWindow+UXKit.h>
-#import <OpenUXKit/NSResponder+UXKit.h>
 #import <OpenUXKit/_UXSourceSplitItemView.h>
-#import <OpenUXKit/UXKitPrivateUtilites.h>
-#import <OpenUXKit/UXViewControllerTransitionCoordinator.h>
+#import <OpenUXKit/_UXSourceSplitView.h>
 #import <OpenUXKit/_UXViewControllerOneToOneTransitionContext.h>
 #import <OpenUXKit/_UXViewControllerTransitionCoordinator.h>
+#import <OpenUXKit/NSResponder+UXKit.h>
+#import <OpenUXKit/NSWindow+UXKit.h>
+#import <OpenUXKit/UXKitPrivateUtilites.h>
+#import <OpenUXKit/UXNavigationBar+Internal.h>
+#import <OpenUXKit/UXNavigationController+Internal.h>
+#import <OpenUXKit/UXSourceController.h>
+#import <OpenUXKit/UXSourceList.h>
 #import <OpenUXKit/UXTabBarItem.h>
-@interface UXSourceController () <_UXSourceSplitViewDelegate>
-{
-    NSView *_tabBarView;    // 16 = 0x10
-    _UXSourceSplitView *_splitView;    // 24 = 0x18
-    NSLayoutConstraint *_popUpWidthContraint;    // 32 = 0x20
+#import <OpenUXKit/UXViewController+Internal.h>
+#import <OpenUXKit/UXViewControllerTransitionCoordinator.h>
+
+@interface UXSourceController () <_UXSourceSplitViewDelegate> {
+    NSView *_tabBarView;
+    _UXSourceSplitView *_splitView;
+    NSLayoutConstraint *_popUpWidthContraint;
     BOOL _needsToSetInitialSourceListWidth;
     double _preferredSourceListWidthFraction;
-    BOOL _isTransitioning;    // 41 = 0x29
-    _UXViewControllerOneToOneTransitionContext *_transitionCtx;    // 48 = 0x30
-    UXTransitionController *_transitionController;    // 56 = 0x38
-    NSMapTable<UXViewController *, UXNavigationController *> *_navigationControllerByRootViewController;    // 64 = 0x40
-    NSMapTable *_transitionControllerClassByToViewControllerClass;    // 72 = 0x48
-    NSOperationQueue *_viewControllerOperations;    // 80 = 0x50
-    UXNavigationController *_targetNavigationController;    // 88 = 0x58
-    id <UXNavigationDestination> _targetNavigationDestination;    // 96 = 0x60
+    BOOL _isTransitioning;
+    _UXViewControllerOneToOneTransitionContext *_transitionCtx;
+    UXTransitionController *_transitionController;
+    NSMapTable<UXViewController *, UXNavigationController *> *_navigationControllerByRootViewController;
+    NSMapTable *_transitionControllerClassByToViewControllerClass;
+    NSOperationQueue *_viewControllerOperations;
+    UXNavigationController *_targetNavigationController;
+    id <UXNavigationDestination> _targetNavigationDestination;
     BOOL _navigatingToDestination;
-    id <UXNavigationControllerDelegate> _currentNavigationDelegate;    // 104 = 0x68
-    id _localEdgeHoverEventMonitor;    // 112 = 0x70
-    id _globalEdgeHoverEventMonitor;    // 120 = 0x78
-    id _windowResizeObserver;    // 128 = 0x80
-    id _windowDeactivateObserver;    // 136 = 0x88
-    UXView *_transientlyUncollapsedView;    // 144 = 0x90
-    BOOL _hasItemToRevealOnEdgeHover;    // 152 = 0x98
+    id <UXNavigationControllerDelegate> _currentNavigationDelegate;
+    id _localEdgeHoverEventMonitor;
+    id _globalEdgeHoverEventMonitor;
+    id _windowResizeObserver;
+    id _windowDeactivateObserver;
+    UXView *_transientlyUncollapsedView;
+    BOOL _hasItemToRevealOnEdgeHover;
     BOOL _wantsDetachedNavigationBars;
-    NSInteger _preferredStyle;    // 160 = 0xa0
-    NSInteger _style;    // 168 = 0xa8
-    UXViewController<UXSourceList> *_sourceListViewController;    // 176 = 0xb0
-    CGFloat _minimumWidthForInlineSourceList;    // 184 = 0xb8
-    NSString *_sourceListAutosaveName;    // 192 = 0xc0
-    NSArray *_rootViewControllers;    // 200 = 0xc8
-    UXViewController *_selectedViewController;    // 208 = 0xd0
-    NSSegmentedControl *_segmentedControl;    // 216 = 0xd8
-    NSPopUpButton *_popUpButton;    // 224 = 0xe0
-    __weak NSWindow *_observedWindow;    // 232 = 0xe8
-    NSSearchToolbarItem* _searchToolbarItem;
+    NSInteger _preferredStyle;
+    NSInteger _style;
+    UXViewController<UXSourceList> *_sourceListViewController;
+    CGFloat _minimumWidthForInlineSourceList;
+    NSString *_sourceListAutosaveName;
+    NSArray *_rootViewControllers;
+    UXViewController *_selectedViewController;
+    NSSegmentedControl *_segmentedControl;
+    NSPopUpButton *_popUpButton;
+    __weak NSWindow *_observedWindow;
+    NSSearchToolbarItem *_searchToolbarItem;
 }
 @end
 
@@ -77,6 +77,7 @@
         _viewControllerOperations.maxConcurrentOperationCount = 1;
         _viewControllerOperations.qualityOfService = NSQualityOfServiceUserInitiated;
     }
+
     return self;
 }
 
@@ -104,10 +105,15 @@
             completion(NO);
         }
     } else if (animated) {
-        [UXView animateWithDuration:0.3 delay:0.0 options:0 animations:^{
+        [UXView animateWithDuration:0.3
+                              delay:0.0
+                            options:0
+                         animations:^{
             [self _setStyle:style];
-        } completion:^(BOOL finished) {
+        }
+                         completion:^(BOOL finished) {
             [self _didChangeCollapsed];
+
             if (completion) {
                 completion(finished);
             }
@@ -115,6 +121,7 @@
     } else {
         [self _setStyle:style];
         [self _didChangeCollapsed];
+
         if (completion) {
             completion(YES);
         }
@@ -125,17 +132,21 @@
     if (_style != style) {
         _style = style;
         [self _setWantsSourceListCollapsed:style == 0];
+
         for (UXNavigationController *navigationController in _navigationControllerByRootViewController.objectEnumerator) {
             UXViewController *firstViewController = navigationController.viewControllers.firstObject;
+
             if (firstViewController != _selectedViewController) {
                 navigationController.navigationBar.alternateTitleEnabled = self.alternateTitleEnabled;
             }
         }
-        [NSAnimationContext runAnimationGroup:^(NSAnimationContext * _Nonnull context) {
+
+        [NSAnimationContext runAnimationGroup:^(NSAnimationContext *_Nonnull context) {
             context.allowsImplicitAnimation = NO;
             self.selectedNavigationController.navigationBar.alternateTitleEnabled = self.alternateTitleEnabled;
             [self.selectedNavigationController.navigationBar layoutSubtreeIfNeeded];
-        } completionHandler:nil];
+        }
+                            completionHandler:nil];
         _tabBarView.hidden = style == 0;
     }
 }
@@ -159,11 +170,13 @@
     if (_hasItemToRevealOnEdgeHover != hasItemToRevealOnEdgeHover) {
         _hasItemToRevealOnEdgeHover = hasItemToRevealOnEdgeHover;
         NSWindow *window = self.viewIfLoaded.window;
+
         if (window) {
             if (hasItemToRevealOnEdgeHover) {
                 if (window.ux_inFullScreen) {
                     [self _startObservingEdgeHover];
                 }
+
                 [self _startObservingFullscreenForWindow:window];
             } else {
                 [self _stopObservingEdgeHover];
@@ -183,8 +196,10 @@
 
 - (void)_didChangeCollapsed {
     [_splitView didChangeCollapsed];
+
     if (_splitView.collapsed) {
         BOOL isInResponderChain = [_splitView.masterView isInResponderChainOf:self.view.window.firstResponder];
+
         if (isInResponderChain) {
             [self.view.window makeFirstResponder:[self preferredFirstResponder]];
         }
@@ -197,31 +212,39 @@
 
 - (void)setSelectedIndex:(NSUInteger)selectedIndex animated:(BOOL)animated {
     NSBlockOperation *blockOperation = [NSBlockOperation new];
+
     @weakify(blockOperation);
     [blockOperation addExecutionBlock:^{
         @strongify(blockOperation);
+
         if (!blockOperation.isCancelled) {
             dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-            
+
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self _setSelectedIndex:selectedIndex animated:animated sender:nil];
-                if (self.transitionCoordinator) {
-                    [self.transitionCoordinator animateAlongsideTransition:nil completion:^(id<UXViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+                               [self _setSelectedIndex:selectedIndex
+                                              animated:animated
+                                                sender:nil];
+
+                               if (self.transitionCoordinator) {
+                                   [self.transitionCoordinator animateAlongsideTransition:nil
+                                                                               completion:^(id<UXViewControllerTransitionCoordinatorContext>  _Nonnull context) {
                         dispatch_semaphore_signal(semaphore);
                     }];
-                } else {
-                    dispatch_semaphore_signal(semaphore);
-                }
-            });
+                               } else {
+                                   dispatch_semaphore_signal(semaphore);
+                               }
+                           });
             dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
         }
     }];
     blockOperation.name = NSStringFromSelector(_cmd);
+
     for (NSOperation *operation in _viewControllerOperations.operations) {
         if ([operation.name isEqualToString:blockOperation.name]) {
             [operation cancel];
         }
     }
+
     [_viewControllerOperations addOperation:blockOperation];
 }
 
@@ -237,7 +260,9 @@
         [_sourceListViewController.view removeFromSuperview];
         [_sourceListViewController removeFromParentViewController];
     }
+
     _sourceListViewController = sourceListViewController;
+
     if (_sourceListViewController) {
         NSParameterAssert([_sourceListViewController conformsToProtocol:@protocol(UXSourceList)]);
         [self addChildViewController:_sourceListViewController];
@@ -251,36 +276,47 @@
 
 - (id<UXNavigationDestination>)currentNavigationDestination {
     NSMutableArray *array = [NSMutableArray array];
+
     for (UXViewController *viewController in self.selectedNavigationController.viewControllers.reverseObjectEnumerator) {
         id<UXNavigationDestination> navigationDestination = viewController.navigationDestination;
+
         if (navigationDestination) {
             for (UXViewController *innerViewController in array.reverseObjectEnumerator) {
                 [innerViewController willEncodeNavigationDestination:navigationDestination];
             }
+
             return navigationDestination;
         }
+
         [array addObject:viewController];
     }
+
     return nil;
 }
 
 - (CGFloat)_preferredSourceListWidth {
     CGFloat result = _splitView.masterWidth;
+
     if (_sourceListAutosaveName.length) {
         float autosaveWidth = [[NSUserDefaults standardUserDefaults] floatForKey:[[self class] _widthDefaultsKeyForAutosaveName:_sourceListAutosaveName]];
         CGFloat width = autosaveWidth;
+
         if (autosaveWidth == 0.0 && self.isViewLoaded) {
             width = round(self.preferredSourceListWidthFraction * CGRectGetWidth(self.view.bounds));
         }
+
         result = _sourceListViewController.minSourceListWidth;
         CGFloat maxSourceListWidth = _sourceListViewController.maxSourceListWidth;
+
         if (width < maxSourceListWidth) {
             maxSourceListWidth = width;
         }
+
         if (result < maxSourceListWidth) {
             return maxSourceListWidth;
         }
     }
+
     return result;
 }
 
@@ -298,6 +334,7 @@
 - (void)setMinimumWidthForInlineSourceList:(CGFloat)minimumWidthForInlineSourceList {
     if (_minimumWidthForInlineSourceList != minimumWidthForInlineSourceList) {
         _minimumWidthForInlineSourceList = minimumWidthForInlineSourceList;
+
         if (_splitView) {
             _splitView.minimumWidthForInlineSourceList = minimumWidthForInlineSourceList;
         }
@@ -310,60 +347,72 @@
 
 - (void)_setPreferredStyle:(NSInteger)style animated:(BOOL)animated completion:(nullable UXParameterCompletionHandler)completion {
     NSBlockOperation *blockOperation = [NSBlockOperation new];
+
     @weakify(blockOperation);
     [blockOperation addExecutionBlock:^{
         @strongify(blockOperation);
+
         if (!blockOperation.isCancelled) {
             dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-            
+
             dispatch_async(dispatch_get_main_queue(), ^{
-                __auto_type performCompletion = ^(BOOL finished) {
+                               __auto_type performCompletion = ^(BOOL finished) {
                     dispatch_semaphore_signal(semaphore);
                     completion(finished);
                 };
-                if (self->_preferredStyle == style) {
-                    performCompletion(NO);
-                } else {
-                    self->_preferredStyle = style;
-                    NSInteger effectiveStyle = [self _effectiveStyleForViewController:self.selectedNavigationController.currentTopViewController];
-                    if (self->_preferredStyle == effectiveStyle) {
-                        performCompletion(NO);
-                    } else {
-                        [self _setStyle:effectiveStyle animated:animated completion:performCompletion];
-                    }
-                }
-            });
+
+                               if (self->_preferredStyle == style) {
+                                   performCompletion(NO);
+                               } else {
+                                   self->_preferredStyle = style;
+                                   NSInteger effectiveStyle = [self _effectiveStyleForViewController:self.selectedNavigationController.currentTopViewController];
+
+                                   if (self->_preferredStyle == effectiveStyle) {
+                                       performCompletion(NO);
+                                   } else {
+                                       [self _setStyle:effectiveStyle
+                                              animated:animated
+                                            completion:performCompletion];
+                                   }
+                               }
+                           });
             dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
         }
     }];
     blockOperation.name = NSStringFromSelector(_cmd);
+
     for (NSOperation *operation in _viewControllerOperations.operations) {
         if ([operation.name isEqualToString:blockOperation.name]) {
             [operation cancel];
         }
     }
+
     [_viewControllerOperations addOperation:blockOperation];
 }
 
 - (void)setRootViewControllers:(NSArray<UXViewController *> *)rootViewControllers destination:(id)destination completion:(UXCompletionHandler)completion {
     UXCompletionHandler innerCompletion = ^{};
+
     if (completion) {
         innerCompletion = completion;
     }
+
     [_viewControllerOperations addOperationWithBlock:^{
         dispatch_block_t block = dispatch_block_create(DISPATCH_BLOCK_INHERIT_QOS_CLASS, ^{
-            innerCompletion();
-        });
+                                                           innerCompletion();
+                                                       });
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self _setRootViewControllers:rootViewControllers destination:destination completion:block];
-        });
+                           [self _setRootViewControllers:rootViewControllers
+                                             destination:destination
+                                              completion:block];
+                       });
         dispatch_block_wait(block, DISPATCH_TIME_FOREVER);
     }];
 }
 
 - (void)viewWillAppear {
     [super viewWillAppear];
-    
+
     if (_needsToSetInitialSourceListWidth) {
         _needsToSetInitialSourceListWidth = NO;
         _splitView.masterWidth = [self _preferredSourceListWidth];
@@ -372,9 +421,11 @@
 
 - (NSResponder *)preferredFirstResponder {
     NSResponder *preferredFirstResponder = self.selectedNavigationController.preferredFirstResponder;
+
     if (!preferredFirstResponder) {
         preferredFirstResponder = self;
     }
+
     return preferredFirstResponder;
 }
 
@@ -386,22 +437,29 @@
     if (_segmentedControl.segmentCount) {
         NSInteger clampedIndex = 0;
         NSInteger selectedIndex = 0;
+
         if (index > 0) {
             clampedIndex = index;
         }
+
         if (index != NSNotFound) {
             selectedIndex = clampedIndex;
         }
+
         NSInteger segmentCount = _segmentedControl.segmentCount;
+
         if (selectedIndex >= segmentCount - 1) {
             selectedIndex = segmentCount - 1;
         }
+
         if (_segmentedControl != sender) {
             _segmentedControl.selectedSegment = selectedIndex;
         }
+
         if (_popUpButton != sender) {
             [_popUpButton selectItemAtIndex:selectedIndex];
         }
+
         if (self.isViewLoaded) {
             [self _setSelectedViewController:_rootViewControllers[selectedIndex] animated:animated sender:sender];
         }
@@ -418,16 +476,19 @@
 
 - (void)viewDidAppear {
     [super viewDidAppear];
-    
+
     NSWindow *window = self.view.window;
+
     if (window) {
         if (self._hasItemToRevealOnEdgeHover) {
             [self _startObservingFullscreenForWindow:window];
+
             if (window.ux_inFullScreen) {
                 [self _startObservingEdgeHover];
             }
         }
     }
+
     self.observedWindow = window;
 }
 
@@ -458,6 +519,7 @@ static void *kFirstResponderObserverContext = &kFirstResponderObserverContext;
         [NSEvent removeMonitor:_localEdgeHoverEventMonitor];
         _localEdgeHoverEventMonitor = nil;
     }
+
     if (_globalEdgeHoverEventMonitor) {
         [NSEvent removeMonitor:_globalEdgeHoverEventMonitor];
         _globalEdgeHoverEventMonitor = nil;
@@ -472,6 +534,7 @@ static void *kFirstResponderObserverContext = &kFirstResponderObserverContext;
 - (void)_setRootViewControllers:(NSArray<UXViewController *> *)rootViewControllers destination:(id<UXNavigationDestination>)destination completion:(UXCompletionHandler)completion {
     if (![_rootViewControllers isEqualToArray:rootViewControllers]) {
         dispatch_group_t group = dispatch_group_create();
+
         for (UXViewController *rootViewController in _rootViewControllers) {
             if (![rootViewControllers containsObject:rootViewController]) {
                 [rootViewController removeObserver:self forKeyPath:@keypath(rootViewController.tabBarItem.title) context:nil];
@@ -484,47 +547,59 @@ static void *kFirstResponderObserverContext = &kFirstResponderObserverContext;
                     [self->_navigationControllerByRootViewController removeObjectForKey:rootViewController];
                     dispatch_group_leave(group);
                 };
+
                 if (rootViewControllers.count && self.selectedViewController == rootViewController) {
                     innerCompletion();
                 } else {
                     [navigationController setViewControllers:@[[UXViewController new]] animated:NO];
+
                     if (!navigationController.transitionCoordinator) {
                         innerCompletion();
                         continue;
                     }
-                    [navigationController.transitionCoordinator animateAlongsideTransition:nil completion:^(id<UXViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+
+                    [navigationController.transitionCoordinator animateAlongsideTransition:nil
+                                                                                completion:^(id<UXViewControllerTransitionCoordinatorContext>  _Nonnull context) {
                         innerCompletion();
                     }];
                 }
             }
         }
-        
+
         dispatch_group_notify(group, dispatch_get_main_queue(), ^{
             for (UXViewController *rootViewController in rootViewControllers) {
                 if (![self->_rootViewControllers containsObject:rootViewController]) {
                     [self _addRootViewController:rootViewController];
                 }
             }
+
             self->_rootViewControllers = rootViewControllers.copy;
             [self _updateSelectionControls];
-            auto setSelectedIndex = ^(NSInteger index){
+            auto setSelectedIndex = ^(NSInteger index) {
                 if (self.selectedIndex != index) {
                     [self _setSelectedIndex:index animated:NO sender:nil];
                 }
+
                 if (self.transitionCoordinator) {
-                    [self.transitionCoordinator animateAlongsideTransition:nil completion:^(id<UXViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+                    [self.transitionCoordinator animateAlongsideTransition:nil
+                                                                completion:^(id<UXViewControllerTransitionCoordinatorContext>  _Nonnull context) {
                         completion();
                     }];
                 } else {
                     completion();
                 }
             };
+
             if (destination) {
-                [self _navigateToDestination:destination animated:NO completion:^(BOOL finished){
+                [self _navigateToDestination:destination
+                                    animated:NO
+                                  completion:^(BOOL finished) {
                     if (finished) {
                         completion();
                     } else {
-                        [self _navigateToDestination:self.fallbackNavigationDestination animated:NO completion:^(BOOL finished) {
+                        [self _navigateToDestination:self.fallbackNavigationDestination
+                                            animated:NO
+                                          completion:^(BOOL finished) {
                             if (finished) {
                                 completion();
                             } else {
@@ -535,15 +610,16 @@ static void *kFirstResponderObserverContext = &kFirstResponderObserverContext;
                 }];
             } else if (rootViewControllers.count) {
                 NSInteger index = [rootViewControllers indexOfObject:self->_selectedViewController];
+
                 if (index == NSNotFound) {
                     index = 0;
                 }
+
                 setSelectedIndex(index);
             } else {
                 setSelectedIndex(-1);
             }
         });
-        
     } else {
         completion();
     }
@@ -554,42 +630,55 @@ static void *kFirstResponderObserverContext = &kFirstResponderObserverContext;
     NSInteger indexOfSelectedItem = _popUpButton.indexOfSelectedItem;
     [_popUpButton removeAllItems];
     NSDictionary<NSAttributedStringKey, id> *attributes = @{
-        NSFontAttributeName: _segmentedControl.font
+            NSFontAttributeName: _segmentedControl.font
     };
-    
+
     __block CGFloat maxWidth = 0.0;
-    [_rootViewControllers enumerateObjectsUsingBlock:^(UXViewController * _Nonnull rootViewController, NSUInteger index, BOOL * _Nonnull stop) {
+    [_rootViewControllers enumerateObjectsUsingBlock:^(UXViewController *_Nonnull rootViewController, NSUInteger index, BOOL *_Nonnull stop) {
         NSString *title = rootViewController.tabBarItem.title;
+
         if (!title) {
             title = @"";
         }
-        [self->_segmentedControl setLabel:title forSegment:index];
-        [self->_popUpButton.menu addItemWithTitle:title action:nil keyEquivalent:@""];
+
+        [self->_segmentedControl setLabel:title
+                               forSegment:index];
+        [self->_popUpButton.menu addItemWithTitle:title
+                                           action:nil
+                                    keyEquivalent:@""];
         NSSet<NSString *> *possibleTitles = rootViewController.tabBarItem.possibleTitles;
+
         if (!possibleTitles) {
             possibleTitles = [NSSet setWithObject:title];
         }
-        
+
         for (NSString *possibleTitle in possibleTitles) {
             CGSize size = [possibleTitle sizeWithAttributes:attributes];
+
             if (maxWidth < size.width) {
                 maxWidth = size.width;
             }
         }
     }];
+
     if (_popUpButton.numberOfItems > indexOfSelectedItem) {
         [_popUpButton selectItemAtIndex:indexOfSelectedItem];
     }
+
     NSInteger segmentCount = _segmentedControl.segmentCount;
     BOOL v11 = maxWidth < 80.0 || segmentCount < 5;
     CGFloat v12 = maxWidth + 29.0;
+
     if (!v11) {
         v12 = 0.0;
     }
+
     maxWidth = v12;
+
     for (NSInteger i = 0; i < _segmentedControl.segmentCount; i++) {
         [_segmentedControl setWidth:maxWidth forSegment:i];
     }
+
     [_segmentedControl layoutSubtreeIfNeeded];
 }
 
@@ -601,9 +690,9 @@ static void *kFirstResponderObserverContext = &kFirstResponderObserverContext;
 //            _rootViewControllers = [_rootViewControllers arrayByAddingObject:rootViewController];
 //            [self _updateSelectionControls];
 //        }
-//        
+//
 //        [rootViewController requestViewControllersForNavigationDestination:destination completion:^(BOOL, NSArray<UXViewController *> * _Nonnull) {
-//                    
+//
 //        }];
 //    } else if (completion) {
 //        completion(NO);
@@ -611,7 +700,7 @@ static void *kFirstResponderObserverContext = &kFirstResponderObserverContext;
 //}
 //
 //- (id)_rootViewControllerProvidingViewControllersForNavigationDestination:(id<UXNavigationDestination>)destination {
-//    
+//
 //}
 
 @end

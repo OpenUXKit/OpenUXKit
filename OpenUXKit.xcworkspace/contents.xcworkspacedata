@@ -5,6 +5,9 @@
       location = "group:OpenUXKit.xcodeproj">
    </FileRef>
    <FileRef
+      location = "group:">
+   </FileRef>
+   <FileRef
       location = "group:/Volumes/Repositories/Private/Personal/Library/macOS/OpenUXKit/Examples/OpenUXKit-Example-ObjC/OpenUXKit-Example-ObjC.xcodeproj">
    </FileRef>
    <FileRef

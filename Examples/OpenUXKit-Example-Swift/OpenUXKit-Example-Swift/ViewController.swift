@@ -56,6 +56,7 @@ class ViewController: NSViewController {
             navigationController.pushViewController(viewControllers[navigationController.viewControllers.count - 1], animated: true)
         }
         checButtonEnabled()
+        
     }
 
     @IBAction func popButtonAction(_ sender: NSButton) {

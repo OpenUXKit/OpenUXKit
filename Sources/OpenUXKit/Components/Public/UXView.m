@@ -1,6 +1,6 @@
 #import <OpenUXKit/UXView+Internal.h>
 #import <OpenUXKit/NSView+UXKit.h>
-#import <OpenUXKit/UXViewController.h>
+#import <OpenUXKit/UXViewController+Internal.h>
 #import <OpenUXKit/UXImageView.h>
 #import <OpenUXKit/UXViewAnimationContext.h>
 #import <QuartzCore/QuartzCore.h>
