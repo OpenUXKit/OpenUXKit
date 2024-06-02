@@ -12,6 +12,10 @@
 #import <OpenUXKit/UXTabBarItem.h>
 #import <OpenUXKit/UXViewController+Internal.h>
 #import <OpenUXKit/UXViewControllerTransitionCoordinator.h>
+#import <OpenUXKit/UXTransitionController.h>
+#import <OpenUXKit/UXNavigationItem+Internal.h>
+#import <OpenUXKit/UXWindowController.h>
+#import <OpenUXKit/_UXViewControllerTransitionContext.h>
 
 @interface UXSourceController () <_UXSourceSplitViewDelegate> {
     NSView *_tabBarView;
@@ -682,25 +686,269 @@ static void *kFirstResponderObserverContext = &kFirstResponderObserverContext;
     [_segmentedControl layoutSubtreeIfNeeded];
 }
 
-//- (void)_navigateToDestination:(id<UXNavigationDestination>)destination animated:(BOOL)animated completion:(UXParameterCompletionHandler)completion {
-//    UXViewController *rootViewController = [self _rootViewControllerProvidingViewControllersForNavigationDestination:destination];
-//    if (rootViewController) {
-//        if (![_rootViewControllers containsObject:rootViewController]) {
-//            [self _addRootViewController:rootViewController];
-//            _rootViewControllers = [_rootViewControllers arrayByAddingObject:rootViewController];
-//            [self _updateSelectionControls];
-//        }
-//
-//        [rootViewController requestViewControllersForNavigationDestination:destination completion:^(BOOL, NSArray<UXViewController *> * _Nonnull) {
-//
-//        }];
-//    } else if (completion) {
-//        completion(NO);
-//    }
-//}
-//
-//- (id)_rootViewControllerProvidingViewControllersForNavigationDestination:(id<UXNavigationDestination>)destination {
-//
-//}
+- (void)_navigateToDestination:(id<UXNavigationDestination>)destination animated:(BOOL)animated completion:(UXParameterCompletionHandler)completion {
+    UXViewController *rootViewController = [self _rootViewControllerProvidingViewControllersForNavigationDestination:destination];
+    if (rootViewController) {
+        if (![_rootViewControllers containsObject:rootViewController]) {
+            [self _addRootViewController:rootViewController];
+            _rootViewControllers = [_rootViewControllers arrayByAddingObject:rootViewController];
+            [self _updateSelectionControls];
+        }
+
+        [rootViewController requestViewControllersForNavigationDestination:destination completion:^(BOOL, NSArray<UXViewController *> * _Nonnull) {
+
+        }];
+    } else if (completion) {
+        completion(NO);
+    }
+}
+
+- (id)_rootViewControllerProvidingViewControllersForNavigationDestination:(id<UXNavigationDestination>)destination {
+    for (UXViewController *rootViewController in self.rootViewControllers) {
+        if ([rootViewController canProvideViewControllersForNavigationDestination:destination]) {
+            return rootViewController;
+        }
+    }
+    return nil;
+}
+
+- (void)_addRootViewController:(UXViewController *)rootViewController {
+    UXNavigationController *navigationController = [[UXNavigationController alloc] initWithRootViewController:rootViewController];
+    [self _configureManagedNavigationController:navigationController];
+    if (self.wantsDetachedNavigationBars) {
+        [navigationController detachNavigationBar];
+    }
+    navigationController.delegate = self;
+    navigationController._locked = YES;
+    [self willAddNavigationController:navigationController];
+    [_navigationControllerByRootViewController setObject:navigationController forKey:rootViewController];
+    [self addChildViewController:navigationController];
+    [navigationController didMoveToParentViewController:self];
+    [rootViewController addObserver:self forKeyPath:@keypath(rootViewController.tabBarItem.title) options:(NSKeyValueObservingOptionNew) context:nil];
+}
+
+- (void)_configureManagedNavigationController:(UXNavigationController *)navigationController {
+    
+}
+
+- (void)willAddNavigationController:(UXNavigationController *)navigationController {
+    
+}
+
+- (id<UXViewControllerAnimatedTransitioning>)navigationController:(UXNavigationController *)navigationController animationControllerForOperation:(UXNavigationControllerOperation)operation fromViewController:(UXViewController *)fromViewController toViewController:(UXViewController *)toViewController {
+    if (!_currentNavigationDelegate) {
+        [self _setupDelegateForNavigationController:navigationController operation:operation fromViewController:fromViewController toViewController:toViewController];
+    }
+    id<UXViewControllerAnimatedTransitioning> animationController = nil;
+    if ([_currentNavigationDelegate respondsToSelector:_cmd]) {
+        animationController = [_currentNavigationDelegate navigationController:navigationController animationControllerForOperation:operation fromViewController:fromViewController toViewController:toViewController];
+    }
+    if (!animationController) {
+        animationController = [[[self class] _defaultTransitionControllerClass] new];
+    }
+    return animationController;
+}
+
+- (void)_setupDelegateForNavigationController:(UXNavigationController *)navigationController operation:(UXNavigationControllerOperation)operation fromViewController:(UXViewController *)fromViewController toViewController:(UXViewController *)toViewController {
+    UXViewController *v10 = nil;
+    UXViewController *v12 = nil;
+    if (operation == UXNavigationControllerOperationPush) {
+        v12 = fromViewController;
+        v10 = toViewController;
+    } else {
+        v10 = fromViewController;
+        v12 = toViewController;
+    }
+    Class transitionControllerClass = [_transitionControllerClassByToViewControllerClass objectForKey:[v10 class]];
+    UXViewController *v17 = nil;
+    if (transitionControllerClass || (transitionControllerClass = [_transitionControllerClassByToViewControllerClass objectForKey:[v12 class]])) {
+        if (transitionControllerClass == [v10 class]) {
+            v17 = v10;
+        } else {
+            if (transitionControllerClass == [v12 class]) {
+                v17 = v12;
+            } else {
+                _currentNavigationDelegate = [transitionControllerClass new];
+                return;
+            }
+        }
+        _currentNavigationDelegate = (id<UXNavigationControllerDelegate>)v17;
+        return;
+    }
+    Class defaultTransitionControllerClass = [[self class] _defaultTransitionControllerClass];
+    if (defaultTransitionControllerClass) {
+        _currentNavigationDelegate = [defaultTransitionControllerClass new];
+        if ([_currentNavigationDelegate isKindOfClass:[UXTransitionController class]]) {
+            cast(UXTransitionController *, _currentNavigationDelegate).operation = operation;
+        }
+    }
+}
+
++ (Class)_defaultTransitionControllerClass {
+    return nil;
+}
+
+- (id<UXViewControllerInteractiveTransitioning>)navigationController:(UXNavigationController *)navigationController interactionControllerForAnimationController:(id<UXViewControllerAnimatedTransitioning>)animationController {
+    
+    if ([_currentNavigationDelegate respondsToSelector:_cmd]) {
+        return [_currentNavigationDelegate navigationController:navigationController interactionControllerForAnimationController:animationController];
+    }
+    return nil;
+}
+
+- (void)navigationController:(UXNavigationController *)navigationController willShowViewController:(UXViewController *)viewController {
+    NSWindow *window = navigationController.view.window;
+    if (window) {
+        [self willChangeTopViewController:viewController];
+    }
+    BOOL isEqualSelectedNavigationController = self.selectedNavigationController == navigationController;
+    BOOL wantsCollapsed = [self _wantsSourceListCollapsedForViewController:viewController];
+    CGFloat leadingContentInset = [_splitView leadingContentInsetForWantsCollapsed:wantsCollapsed];
+    [navigationController _setLeadingContentInset:leadingContentInset forViewController:viewController];
+    [navigationController.transitionCoordinator animateAlongsideTransition:^(id<UXViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+        if (isEqualSelectedNavigationController) {
+            [self _setWantsSourceListCollapsed:wantsCollapsed animated:context.isAnimated completion:nil];
+        }
+        } completion:^(id<UXViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+            self->_currentNavigationDelegate = nil;
+            if (!self->_navigatingToDestination) {
+                id<UXNavigationDestination> currentNavigationDestination = self.currentNavigationDestination;
+                if (isEqualSelectedNavigationController && currentNavigationDestination) {
+                    [self.sourceListViewController selectNavigationDestination:currentNavigationDestination];
+                }
+            }
+        }];
+}
+
+- (BOOL)_wantsSourceListCollapsedForViewController:(UXViewController *)viewController {
+    if (_preferredStyle) {
+        return self.hidesSourceListWhenPushed;
+    } else {
+        return YES;
+    }
+}
+
+- (void)navigationController:(UXNavigationController *)navigationController didShowViewController:(UXViewController *)viewController {
+    if (navigationController.view.window) {
+        [self didChangeTopViewControllerForNavigationController:navigationController];
+    }
+}
+
+- (void)_setSelectedViewController:(UXViewController *)selectedViewController animated:(BOOL)animated sender:(id)sender {
+    if (!_isTransitioning) {
+        [self willSelectViewController:selectedViewController];
+        UXNavigationController *fromNavigationController = self.selectedNavigationController;
+        if (selectedViewController) {
+            if (_selectedViewController != selectedViewController) {
+                _selectedViewController = selectedViewController;
+                [_segmentedControl setSelectedSegment:[_rootViewControllers indexOfObject:_selectedViewController]];
+                [_popUpButton selectItemAtIndex:_segmentedControl.selectedSegment];
+                UXNavigationController *toNavigationController = self.selectedNavigationController;
+                NSInteger transition = 102;
+                if (animated) {
+                    transition = 103;
+                }
+                [self _contextForTransitionOperation:1 fromViewController:fromNavigationController toViewController:toNavigationController transition:transition];
+                [self _beginTransitionWithContext:_transitionCtx operation:1];
+                [_transitionCtx._transitionCoordinator animateAlongsideTransition:nil completion:^(id<UXViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+                    [self _popTransitoryViewControllersInNavigationController:fromNavigationController animated:NO];
+                    [self _didChangeSelectedViewControllerFromSender:sender];
+                    [self.view.window recalculateKeyViewLoop];
+                }];
+                return;
+            }
+        } else if (_selectedViewController) {
+            [fromNavigationController willMoveToParentViewController:nil];
+            [fromNavigationController.view removeFromSuperview];
+            [fromNavigationController removeFromParentViewController];
+            _selectedViewController = nil;
+            [self _didChangeSelectedViewControllerFromSender:sender];
+            [self.view.window recalculateKeyViewLoop];
+            return;
+        }
+        BOOL hidesBackButton = fromNavigationController.navigationBar.topItem.hidesBackButton;
+        if (hidesBackButton) {
+            [self dismissViewControllerAnimated:YES completion:nil];
+        } else {
+            [fromNavigationController popToRootViewControllerAnimated:sender != self];
+            
+        }
+        return;
+        
+    }
+    
+    NSLog(@"%s - Nested transitions are not allowed.", __PRETTY_FUNCTION__);
+}
+
+- (void)willSelectViewController:(UXViewController *)viewController {}
+
+- (id)_contextForTransitionOperation:(NSInteger)operation fromViewController:(UXViewController *)fromViewController toViewController:(UXViewController *)toViewController transition:(NSUInteger)transition {
+    if (fromViewController && toViewController) {
+        NSView *fromView = fromViewController.view;
+        NSView *toView = toViewController.view;
+        if (fromView == toView) {
+            transition = 102;
+        }
+    }
+    UXTransitionController *transitionController = [_transitionControllerClassForTransition(transition) new];
+    _transitionController = transitionController;
+    _transitionController.operation = operation;
+    [self _loadViewIfNotLoaded];
+    [self.view layoutSubtreeIfNeeded];
+    _UXViewControllerOneToOneTransitionContext *transitionContext =  [_UXViewControllerOneToOneTransitionContext new];
+    transitionContext.containerView = _splitView.detailView;
+    transitionContext.animated = transition != 102;
+    transitionContext.animator = _transitionController;
+    transitionContext.interactor = nil;
+    transitionContext.initiallyInteractive = NO;
+    transitionContext.fromViewController = fromViewController;
+    transitionContext.toViewController = toViewController;
+    transitionContext.fromStartFrame = fromViewController.view.frame;
+    transitionContext.fromEndFrame = CGRectMake(0, 0, 0, 0);
+    transitionContext.toStartFrame = CGRectMake(0, 0, 0, 0);
+    transitionContext.toEndFrame = _splitView.detailView.bounds;
+    return transitionContext;
+}
+
+- (void)_beginTransitionWithContext:(_UXViewControllerOneToOneTransitionContext *)context operation:(NSInteger)operation {
+    _isTransitioning = YES;
+    NSWindow *window = self.view.window;
+    NSWindowController *windowController = window.windowController;
+    UXWindowController *uxWindowController = nil;
+    if ([windowController isKindOfClass:[UXWindowController class]]) {
+        uxWindowController = (UXWindowController *)windowController;
+    }
+    UXNavigationController *fromViewController = (UXNavigationController *)[context viewControllerForKey:UXTransitionContextFromViewControllerKey];
+    [fromViewController.navigationBar _snapshot];
+    
+    UXNavigationController *toViewController = (UXNavigationController *)[context viewControllerForKey:UXTransitionContextToViewControllerKey];
+    BOOL isInResponderChainOf = [_splitView.masterView isInResponderChainOf:window.firstResponder];
+    fromViewController.uxView.userInteractionEnabled = NO;
+    CGRect finalFrame = [context finalFrameForViewController:toViewController];
+    toViewController.uxView.frame = finalFrame;
+    NSWindowStyleMask styleMask = window.styleMask;
+    window.styleMask = styleMask & 0x3;
+    NSWindowCollectionBehavior collectionBehavior = window.collectionBehavior;
+    if (!(styleMask & 0x4000)) {
+        window.collectionBehavior = collectionBehavior & 0x7F;
+    }
+    if (styleMask & 4) {
+        [window ux_forceEnableStandardWindowButton:NSWindowMiniaturizeButton];
+    }
+    if (styleMask & 8 || collectionBehavior & 0x80) {
+        [window ux_forceEnableStandardWindowButton:NSWindowZoomButton];
+    }
+    auto animator = context.animator;
+    context.duration = [animator transitionDuration:context];
+    [self _prepareViewController:fromViewController forAnimationInContext:context completion:^{
+            
+    }];
+}
+
+- (void)willChangeTopViewController:(UXViewController *)viewController {}
+
+- (void)didChangeSelectedViewController {}
+
+
 
 @end

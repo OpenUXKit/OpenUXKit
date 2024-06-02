@@ -28,6 +28,7 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @property (nonatomic) NSInteger preferredStyle;
 @property (nonatomic, readonly, getter = isSourceListCollapsed) BOOL sourceListCollapsed;
 @property (nonatomic, readonly) BOOL wantsSourceListCollapsed;
+@property (nonatomic) BOOL wantsDetachedNavigationBars;
 @property (nonatomic, readonly) BOOL alternateTitleEnabled;
 @property (nonatomic, readonly) BOOL isNavigating;
 @property (nonatomic, readonly) id <UXNavigationDestination> currentNavigationDestination;

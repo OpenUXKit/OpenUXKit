@@ -18,10 +18,10 @@ typedef NS_ENUM(NSInteger, UXLayoutConstraintAxis) {
 - (CGFloat)ux_backingScaleFactor;
 - (nullable id)enclosingViewOfClass:(Class)cls;
 - (void)tintColorDidChange;
-- (void)setContentCompressionResistancePriority:(NSLayoutPriority)priority forAxis:(UXLayoutConstraintAxis)axis;
-- (NSLayoutPriority)contentCompressionResistancePriorityForAxis:(UXLayoutConstraintAxis)axis;
-- (void)setContentHuggingPriority:(NSLayoutPriority)priority forAxis:(UXLayoutConstraintAxis)axis;
-- (NSLayoutPriority)contentHuggingPriorityForAxis:(UXLayoutConstraintAxis)axis;
+- (void)setContentCompressionResistancePriority:(NSLayoutPriority)priority forAxis:(UXLayoutConstraintAxis)axis NS_SWIFT_UNAVAILABLE("use AppKit setContentCompressionResistancePriority(_:for:) instead");
+- (NSLayoutPriority)contentCompressionResistancePriorityForAxis:(UXLayoutConstraintAxis)axis NS_SWIFT_UNAVAILABLE("use AppKit contentCompressionResistancePriority(for:) instead");
+- (void)setContentHuggingPriority:(NSLayoutPriority)priority forAxis:(UXLayoutConstraintAxis)axis NS_SWIFT_UNAVAILABLE("use AppKit setContentHuggingPriority(_:for:) instead");
+- (NSLayoutPriority)contentHuggingPriorityForAxis:(UXLayoutConstraintAxis)axis NS_SWIFT_UNAVAILABLE("use AppKit contentHuggingPriority(for:) instead");
 - (BOOL)pointInside:(CGPoint)point withEvent:(NSEvent *)event;
 - (void)layoutIfNeeded;
 - (void)layoutSubviews;
