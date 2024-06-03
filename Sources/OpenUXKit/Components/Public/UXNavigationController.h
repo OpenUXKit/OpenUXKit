@@ -38,7 +38,7 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 - (nullable instancetype)initWithCoder:(NSCoder *)coder NS_UNAVAILABLE;
 - (nullable UXViewController *)popViewControllerAnimated:(BOOL)animated;
 - (nullable NSArray<__kindof UXViewController *> *)popToRootViewControllerAnimated:(BOOL)animated;
-- (nullable NSArray<__kindof UXViewController *> *)popToViewController:(UXViewController *)viewController animated:(BOOL)animated;
+- (nullable NSArray<__kindof UXViewController *> *)popToViewController:(UXViewController *)viewController animated:(BOOL)animated NS_SWIFT_NAME(popToViewController(_:animated:));
 - (void)pushViewController:(UXViewController *)viewController animated:(BOOL)animated;
 - (void)setViewControllers:(NSArray<UXViewController *> *)viewControllers animated:(BOOL)animated;
 - (void)detachNavigationBar;
