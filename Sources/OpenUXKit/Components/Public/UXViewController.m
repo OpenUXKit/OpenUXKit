@@ -281,8 +281,10 @@
 
     if ([parentViewController isKindOfClass:class]) {
         return parentViewController;
-    } else {
+    } else if ([parentViewController isKindOfClass:[UXViewController class]]) {
         return [((UXViewController *)parentViewController) _ancestorViewControllerOfClass:class];
+    } else {
+        return nil;
     }
 }
 
