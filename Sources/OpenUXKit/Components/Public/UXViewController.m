@@ -293,7 +293,7 @@
     _ignoreViewController = YES;
     UXViewController *parentViewController = (UXViewController *)self.parentViewController;
 
-    if (parentViewController && !parentViewController->_ignoreViewController) {
+    if (parentViewController && [parentViewController isKindOfClass:[UXViewController class]] && !parentViewController->_ignoreViewController) {
         return [parentViewController transitionCoordinator];
     } else {
         return nil;

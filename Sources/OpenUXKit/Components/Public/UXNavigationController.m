@@ -587,7 +587,6 @@ NSString * UXLocalizedString(NSString *key) {
     return [self _intrinsicLayoutInsetsForChildViewController:self.currentTopViewController];
 }
 
-// FIXME: - Need Implementation
 - (NSEdgeInsets)_intrinsicLayoutInsetsForChildViewController:(UXViewController *)childViewController {
     NSWindow *window = self.viewIfLoaded.window;
     CGFloat top = 0.0;
