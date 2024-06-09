@@ -6,7 +6,7 @@
 //
 
 import Cocoa
-import OpenUXKit
+import UXKit
 
 class ViewController: NSViewController {
     @IBOutlet var contentBox: NSBox!

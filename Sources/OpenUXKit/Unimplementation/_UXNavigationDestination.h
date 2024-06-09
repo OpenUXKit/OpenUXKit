@@ -2,7 +2,7 @@
 
 #import <objc/NSObject.h>
 
-#import <OpenUXKit/UXNavigationDestination-Protocol.h>
+#import <OpenUXKit/UXNavigationDestination.h>
 
 @class NSSet, NSString, UXDestinationAuxiliaryStore;
 

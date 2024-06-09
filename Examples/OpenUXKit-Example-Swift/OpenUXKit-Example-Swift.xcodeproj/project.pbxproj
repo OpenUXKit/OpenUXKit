@@ -13,7 +13,7 @@
 		E93796632BF8635D00E3D47F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E93796622BF8635D00E3D47F /* ViewController.swift */; };
 		E93796652BF8635E00E3D47F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E93796642BF8635E00E3D47F /* Assets.xcassets */; };
 		E93796682BF8635E00E3D47F /* Base in Resources */ = {isa = PBXBuildFile; fileRef = E93796672BF8635E00E3D47F /* Base */; };
-		E9B215C02BFF8BDC00677F66 /* OpenUXKit in Frameworks */ = {isa = PBXBuildFile; productRef = E9B215BF2BFF8BDC00677F66 /* OpenUXKit */; };
+		E9FD73C22C15BABC00E391F5 /* UXKit in Frameworks */ = {isa = PBXBuildFile; productRef = E9FD73C12C15BABC00E391F5 /* UXKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,7 +32,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E9B215C02BFF8BDC00677F66 /* OpenUXKit in Frameworks */,
+				E9FD73C22C15BABC00E391F5 /* UXKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -94,7 +94,7 @@
 			);
 			name = "OpenUXKit-Example-Swift";
 			packageProductDependencies = (
-				E9B215BF2BFF8BDC00677F66 /* OpenUXKit */,
+				E9FD73C12C15BABC00E391F5 /* UXKit */,
 			);
 			productName = "OpenUXKit-Example-Swift";
 			productReference = E937965D2BF8635D00E3D47F /* OpenUXKit-Example-Swift.app */;
@@ -363,9 +363,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		E9B215BF2BFF8BDC00677F66 /* OpenUXKit */ = {
+		E9FD73C12C15BABC00E391F5 /* UXKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = OpenUXKit;
+			productName = UXKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
