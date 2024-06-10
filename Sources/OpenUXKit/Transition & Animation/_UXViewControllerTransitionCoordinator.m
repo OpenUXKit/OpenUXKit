@@ -2,14 +2,6 @@
 #import <OpenUXKit/_UXViewControllerTransitionContext.h>
 
 @interface _UXViewControllerTransitionCoordinator ()
-{
-   _UXViewControllerTransitionContext *__mainContext;  // 8 = 0x8
-   NSMutableArray *__alongsideAnimations;      // 16 = 0x10
-   NSMutableArray *__alongsideAnimationViews;  // 24 = 0x18
-   NSMutableArray *__alongsideCompletions;     // 32 = 0x20
-   NSMutableArray *__interactiveChangeHandlers;        // 40 = 0x28
-}
-
 @end
 
 @implementation _UXViewControllerTransitionCoordinator

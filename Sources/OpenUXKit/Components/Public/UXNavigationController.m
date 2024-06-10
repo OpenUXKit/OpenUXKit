@@ -11,13 +11,14 @@
 #import <OpenUXKit/UXBar+Internal.h>
 #import <OpenUXKit/UXBarButtonItem+Internal.h>
 #import <OpenUXKit/UXIdentityTransitionController.h>
+#import <OpenUXKit/UXKitPrivateUtilites.h>
 #import <OpenUXKit/UXNavigationBar+Internal.h>
 #import <OpenUXKit/UXNavigationController+Internal.h>
 #import <OpenUXKit/UXNavigationItem+Internal.h>
 #import <OpenUXKit/UXParallaxTransitionController.h>
 #import <OpenUXKit/UXSlideTransitionController.h>
-#import <OpenUXKit/UXToolbar+Internal.h>
 #import <OpenUXKit/UXSubtoolbar.h>
+#import <OpenUXKit/UXToolbar+Internal.h>
 #import <OpenUXKit/UXTransitionController.h>
 #import <OpenUXKit/UXView+Internal.h>
 #import <OpenUXKit/UXViewController+Internal.h>
@@ -25,7 +26,6 @@
 #import <OpenUXKit/UXViewControllerTransitioning.h>
 #import <OpenUXKit/UXWindowController.h>
 #import <OpenUXKit/UXZoomingCrossfadeTransitionController.h>
-#import <OpenUXKit/UXKitPrivateUtilites.h>
 
 void *UXToolbarItemsObservationContext = &UXToolbarItemsObservationContext;
 void *UXSubtoolbarItemsObservationContext = &UXSubtoolbarItemsObservationContext;
@@ -725,6 +725,7 @@ NSString * UXLocalizedString(NSString *key) {
 
 - (instancetype)initWithRootViewController:(UXViewController *)rootViewController {
     NSParameterAssert([rootViewController isKindOfClass:[UXViewController class]]);
+
     if (self = [self initWithNibName:nil bundle:nil]) {
         [self pushViewController:rootViewController animated:NO];
     }
@@ -1014,7 +1015,7 @@ NSArray * _accessoryBarItemsForViewController(UXViewController *viewController) 
         }
     }
 
-    id<UXViewControllerContextTransitioning> context = [self _contextForTransitionOperation:(UXNavigationControllerOperationPush) fromViewController:currentTopViewController toViewController:viewController transition:transition];
+    _UXViewControllerOneToOneTransitionContext *context = [self _contextForTransitionOperation:(UXNavigationControllerOperationPush) fromViewController:currentTopViewController toViewController:viewController transition:transition];
     self.currentTransitionContext = context;
 
     if (self.currentTransitionContext) {
@@ -1024,22 +1025,20 @@ NSArray * _accessoryBarItemsForViewController(UXViewController *viewController) 
 }
 
 - (_UXViewControllerOneToOneTransitionContext *)_contextForTransitionOperation:(UXNavigationControllerOperation)operation fromViewController:(UXViewController *)fromViewController toViewController:(UXViewController *)toViewController transition:(NSUInteger)transition {
-    UXTransitionController *interactor = nil;
-    UXTransitionController *transitionController = [self _customAnimationControllerForOperation:operation fromViewController:fromViewController toViewController:toViewController transition:transition];
+    id<UXViewControllerInteractiveTransitioning> interactor = nil;
+    id<UXViewControllerAnimatedTransitioning> animator = [self _customAnimationControllerForOperation:operation fromViewController:fromViewController toViewController:toViewController transition:transition];
 
-    if (!transitionController) {
-        return nil;
-    }
+    if (!animator) return nil;
 
     UXTransitionController *defaultTransitionController = self.defaultTransitionController;
 
-    if (transitionController != defaultTransitionController) {
-        interactor = [self _customInteractionControllerForAnimationController:transitionController transition:transition];
+    if (animator != defaultTransitionController) {
+        interactor = [self _customInteractionControllerForAnimationController:animator transition:transition];
     } else {
         if (self.isInteractive) {
             interactor = self.defaultTransitionController;
         } else {
-            interactor = [self _customInteractionControllerForAnimationController:transitionController transition:transition];
+            interactor = [self _customInteractionControllerForAnimationController:animator transition:transition];
         }
     }
 
@@ -1049,7 +1048,7 @@ NSArray * _accessoryBarItemsForViewController(UXViewController *viewController) 
     _UXViewControllerOneToOneTransitionContext *oneToOneTransitionContext = [_UXViewControllerOneToOneTransitionContext new];
     oneToOneTransitionContext.containerView = self.containerView;
     oneToOneTransitionContext.animated = transition != 102;
-    oneToOneTransitionContext.animator = transitionController;
+    oneToOneTransitionContext.animator = animator;
     oneToOneTransitionContext.interactor = interactor;
     oneToOneTransitionContext.initiallyInteractive = interactor != nil;
     oneToOneTransitionContext.fromViewController = fromViewController;
@@ -1127,22 +1126,28 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
 }
 
 - (void)_beginTransitionWithContext:(_UXViewControllerOneToOneTransitionContext *)context operation:(UXNavigationControllerOperation)operation {
+    [self __containsGoto_beginTransitionWithContext:context operation:operation];
+}
+
+
+- (void)__containsGoto_beginTransitionWithContext:(_UXViewControllerOneToOneTransitionContext *)context operation:(UXNavigationControllerOperation)operation {
     _navigationBar.userInteractionEnabled = NO;
     _toolbar.userInteractionEnabled = NO;
     _subtoolbar.userInteractionEnabled = NO;
     _isTransitioning = YES;
-    UXViewController *fromViewController = [context viewControllerForKey:@"UXTransitionContextFromViewController"];
-    UXViewController *toViewController = [context viewControllerForKey:@"UXTransitionContextToViewController"];
+    
+    UXViewController *fromViewController = [context viewControllerForKey:UXTransitionContextFromViewControllerKey];
+    UXViewController *toViewController = [context viewControllerForKey:UXTransitionContextToViewControllerKey];
     BOOL selfViewIsInResponderChainOfWindowFirstResponder = [self.view isInResponderChainOf:self.view.window.firstResponder];
     __weak typeof(self) weakSelf = self;
     __weak typeof(context) weakContext = context;
     auto setupContext = ^{
         __strong typeof(weakSelf) strongSelf = weakSelf;
         weakContext.duration = [weakContext.animator transitionDuration:weakContext];
-        weakContext.completionHandler = ^(_UXViewControllerTransitionContext *context, BOOL isEnded) {
-            UXViewController *innerFromViewController = [context viewControllerForKey:@"UXTransitionContextFromViewController"];
-            UXViewController *innerToViewController = [context viewControllerForKey:@"UXTransitionContextToViewController"];
-            id<UXViewControllerAnimatedTransitioning> animator = context.animator;
+        weakContext.completionHandler = ^(_UXViewControllerTransitionContext *innerContext, BOOL isEnded) {
+            UXViewController *innerFromViewController = [innerContext viewControllerForKey:UXTransitionContextFromViewControllerKey];
+            UXViewController *innerToViewController = [innerContext viewControllerForKey:UXTransitionContextToViewControllerKey];
+            id<UXViewControllerAnimatedTransitioning> animator = innerContext.animator;
 
             if ([animator respondsToSelector:@selector(animationEnded:)]) {
                 [animator animationEnded:isEnded];
@@ -1161,7 +1166,7 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
             };
 
             if (isEnded) {
-                CGRect finalFrame = [context finalFrameForViewController:innerToViewController];
+                CGRect finalFrame = [innerContext finalFrameForViewController:innerToViewController];
                 CGFloat leftInset = finalFrame.origin.x;
                 CGFloat width = finalFrame.size.width;
 
@@ -1198,13 +1203,13 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
                 if (operation == UXNavigationControllerOperationPush) {
                     [innerToViewController willMoveToParentViewController:nil];
                     removeFromSuperview(innerToViewController.view);
-                    [strongSelf _addConstraintsForContainedView:innerFromViewController.uxView leftInset:[context initialFrameForViewController:innerFromViewController.uxView].origin.x];
+                    [strongSelf _addConstraintsForContainedView:innerFromViewController.uxView leftInset:[innerContext initialFrameForViewController:innerFromViewController.uxView].origin.x];
                     [innerToViewController removeFromParentViewController];
                     [strongSelf->_targetViewControllers removeLastObject];
                     [strongSelf->_currentViewControllers removeLastObject];
                 } else {
                     removeFromSuperview(innerToViewController.view);
-                    CGRect initialFrame = [context initialFrameForViewController:innerFromViewController];
+                    CGRect initialFrame = [innerContext initialFrameForViewController:innerFromViewController];
                     [strongSelf _addConstraintsForContainedView:innerFromViewController.uxView leftInset:initialFrame.origin.x];
                     [strongSelf->_targetViewControllers addObject:innerFromViewController];
                     [strongSelf->_currentViewControllers addObject:innerFromViewController];
@@ -1321,11 +1326,11 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
         }];
     };
     auto animateAlongsideTransition = ^{
-        [weakContext._transitionCoordinator animateAlongsideTransition:^(id<UXViewControllerTransitionCoordinatorContext>  _Nonnull context) {
-            BOOL isCancelled = context.isCancelled;
-            NSTimeInterval transitionDuration = context.transitionDuration;
+        [weakContext._transitionCoordinator animateAlongsideTransition:^(id<UXViewControllerTransitionCoordinatorContext>  _Nonnull innerContext) {
+            BOOL isCancelled = innerContext.isCancelled;
+            NSTimeInterval transitionDuration = innerContext.transitionDuration;
 
-            if (context.initiallyInteractive) {
+            if (innerContext.initiallyInteractive) {
                 [weakSelf.navigationBar _completeInteractiveTransition:!isCancelled
                                                               duration:transitionDuration];
                 [weakSelf.accessoryBar _completeInteractiveTransition:!isCancelled
@@ -1439,7 +1444,7 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
     }
 
     if (context.initiallyInteractive) {
-        context.interactiveUpdateHandler = ^(BOOL interactionIsOver, BOOL transitionCompleted, _UXViewControllerTransitionContext *context, CGFloat percentComplete) {
+        context.interactiveUpdateHandler = ^(BOOL interactionIsOver, BOOL transitionCompleted, _UXViewControllerTransitionContext *innerContext, CGFloat percentComplete) {
             if (interactionIsOver && transitionCompleted) {
                 setupContext();
                 return;
@@ -1455,7 +1460,7 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
             [weakSelf.navigationBar _updateInteractiveTransition:transition];
             [weakSelf.accessoryBar _updateInteractiveTransition:transition];
             [weakSelf.toolbar _updateInteractiveTransition:transition];
-            UXViewController *toViewController = [context viewControllerForKey:@"UXTransitionContextToViewController"];
+            UXViewController *toViewController = [innerContext viewControllerForKey:UXTransitionContextToViewControllerKey];
             UXViewController *toolbarViewController = toViewController.toolbarViewController;
 
             if (toolbarViewController) {
@@ -1483,12 +1488,378 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
                     if (!toViewController.hidesBottomBarWhenPushed) {
                         return;
                     }
-                } else {
                 }
             }
 
             if (!weakSelf.isToolbarHidden) {
                 weakSelf.toolbarVerticalConstraint.constant = weakSelf._hiddenToolbarOffset + (weakSelf._visibleToolbarOffset - weakSelf._hiddenToolbarOffset) * transition;
+            }
+        };
+
+        prepareTransition(^{
+            toViewController.view.alphaValue = 1.0;
+            [context.interactor startInteractiveTransition:context];
+            animateAlongsideTransition();
+            context.transitionIsInFlight = YES;
+
+            if (operation == UXNavigationControllerOperationPop) {
+                [self.navigationBar beginInteractivePop];
+            } else {
+                [self.navigationBar beginInteractivePushToItem:toViewController.navigationItem];
+            }
+
+            [self.accessoryBar _beginInteractiveTransitionForItems:_accessoryBarItemsForViewController(toViewController)];
+            [self.toolbar _beginInteractiveTransitionForItems:_toolbarItemsForViewController(toViewController)];
+            [self.subtoolbar _beginInteractiveTransitionForItems:_subtoolbarItemsForViewController(toViewController)];
+        });
+    } else {
+        fromViewController.uxView.userInteractionEnabled = NO;
+        prepareTransition(^{
+            modifyCurrentViewControllers();
+            animateAlongsideTransition();
+            toViewController.view.alphaValue = 1.0;
+            setupContext();
+        });
+    }
+}
+
+- (void)__llm_beginTransitionWithContext:(_UXViewControllerOneToOneTransitionContext *)context operation:(UXNavigationControllerOperation)operation {
+    _navigationBar.userInteractionEnabled = NO;
+    _toolbar.userInteractionEnabled = NO;
+    _subtoolbar.userInteractionEnabled = NO;
+    _isTransitioning = YES;
+    UXViewController *fromViewController = [context viewControllerForKey:@"UXTransitionContextFromViewController"];
+    UXViewController *toViewController = [context viewControllerForKey:@"UXTransitionContextToViewController"];
+    BOOL selfViewIsInResponderChainOfWindowFirstResponder = [self.view isInResponderChainOf:self.view.window.firstResponder];
+    __weak typeof(self) weakSelf = self;
+    __weak typeof(context) weakContext = context;
+    auto setupContext = ^{
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        weakContext.duration = [weakContext.animator transitionDuration:weakContext];
+        weakContext.completionHandler = ^(_UXViewControllerTransitionContext *innerContext, BOOL isEnded) {
+            UXViewController *innerFromViewController = [innerContext viewControllerForKey:@"UXTransitionContextFromViewController"];
+            UXViewController *innerToViewController = [innerContext viewControllerForKey:@"UXTransitionContextToViewController"];
+            id<UXViewControllerAnimatedTransitioning> animator = innerContext.animator;
+
+            if ([animator respondsToSelector:@selector(animationEnded:)]) {
+                [animator animationEnded:isEnded];
+            }
+
+            innerFromViewController.uxView.userInteractionEnabled = YES;
+            strongSelf.navigationBar.userInteractionEnabled = YES;
+            strongSelf.toolbar.userInteractionEnabled = YES;
+            strongSelf.subtoolbar.userInteractionEnabled = YES;
+            innerToViewController.uxView.userInteractionEnabled = YES;
+            BOOL fromViewIsNotEqualToView = innerFromViewController.view != innerToViewController.view;
+            auto removeFromSuperview = ^(NSView *view) {
+                if (fromViewIsNotEqualToView) {
+                    [view removeFromSuperview];
+                }
+            };
+
+            if (isEnded) {
+                CGRect finalFrame = [innerContext finalFrameForViewController:innerToViewController];
+                CGFloat leftInset = finalFrame.origin.x;
+                CGFloat width = finalFrame.size.width;
+
+                if (NSApp.userInterfaceLayoutDirection == NSUserInterfaceLayoutDirectionRightToLeft) {
+                    leftInset = strongSelf.view.frame.origin.x - width;
+                }
+
+                if (operation == UXNavigationControllerOperationPush) {
+                    removeFromSuperview(innerFromViewController.view);
+                    [strongSelf _addConstraintsForContainedView:innerToViewController.uxView leftInset:leftInset];
+                    [innerToViewController didMoveToParentViewController:strongSelf];
+                } else {
+                    [innerFromViewController willMoveToParentViewController:nil];
+                    removeFromSuperview(innerFromViewController.view);
+                    [strongSelf _addConstraintsForContainedView:innerToViewController.uxView leftInset:leftInset];
+                    [innerFromViewController removeFromParentViewController];
+                }
+
+                [strongSelf _beginObservingCurrentTopViewController];
+
+                if (selfViewIsInResponderChainOfWindowFirstResponder) {
+                    [strongSelf.view.window makeFirstResponder:innerToViewController.preferredFirstResponder];
+                }
+
+                if (strongSelf && strongSelf->_delegateFlags.didShowViewController) {
+                    [strongSelf.delegate navigationController:strongSelf didShowViewController:innerToViewController];
+                }
+
+                [strongSelf contentRepresentingViewControllerDidChange];
+            } else {
+                [strongSelf willChangeValueForKey:NSStringFromSelector(@selector(currentTopViewController))];
+                [strongSelf _endObservingCurrentTopViewController];
+
+                if (operation == UXNavigationControllerOperationPush) {
+                    [innerToViewController willMoveToParentViewController:nil];
+                    removeFromSuperview(innerToViewController.view);
+                    [strongSelf _addConstraintsForContainedView:innerFromViewController.uxView leftInset:[innerContext initialFrameForViewController:innerFromViewController.uxView].origin.x];
+                    [innerToViewController removeFromParentViewController];
+                    [strongSelf->_targetViewControllers removeLastObject];
+                    [strongSelf->_currentViewControllers removeLastObject];
+                } else {
+                    removeFromSuperview(innerToViewController.view);
+                    CGRect initialFrame = [innerContext initialFrameForViewController:innerFromViewController];
+                    [strongSelf _addConstraintsForContainedView:innerFromViewController.uxView leftInset:initialFrame.origin.x];
+                    [strongSelf->_targetViewControllers addObject:innerFromViewController];
+                    [strongSelf->_currentViewControllers addObject:innerFromViewController];
+                }
+
+                if (selfViewIsInResponderChainOfWindowFirstResponder) {
+                    [strongSelf.view.window makeFirstResponder:[innerFromViewController preferredFirstResponder]];
+                }
+
+                [strongSelf _beginObservingCurrentTopViewController];
+                [strongSelf didChangeValueForKey:NSStringFromSelector(@selector(currentTopViewController))];
+            }
+
+            strongSelf.currentTransitionContext = nil;
+            strongSelf.defaultTransitionController = nil;
+            strongSelf->_isTransitioning = NO;
+
+            if (isEnded) {
+                NSWindow *window = strongSelf.view.window;
+
+                if (window) {
+                    UXViewController *fromAccessoryViewController = fromViewController.accessoryViewController;
+
+                    if (fromAccessoryViewController || fromViewController.accessoryBarItems.count) {
+                        UXViewController *toAccessoryViewController = toViewController.accessoryViewController;
+
+                        if (!toAccessoryViewController && !toViewController.accessoryBarItems.count) {
+                            [strongSelf _setAccessoryBarHidden:YES];
+                        }
+                    }
+                }
+            }
+
+            [strongSelf.view.window recalculateKeyViewLoop];
+        };
+        [strongSelf _invalidateIntrinsicLayoutInsetsForViewController:toViewController];
+        [weakContext.animator animateTransition:weakContext];
+        [weakContext __runAlongsideAnimations];
+        weakContext.transitionIsInFlight = YES;
+    };
+    _UXWindowState *currentWindowState = nil;
+    NSWindow *currentWindow = self.view.window;
+
+    if (self.windowState || !self._hasNoNavigationRequests) {
+        currentWindowState = nil;
+    } else {
+        if (self.currentTransitionCoordinator == [super transitionCoordinator]) {
+            _UXWindowState *windowState = [_UXWindowState windowStateWithStyleMask:currentWindow.styleMask collectionBehavior:currentWindow.collectionBehavior];
+            self.windowState = windowState;
+            currentWindowState = windowState;
+        }
+    }
+
+    auto prepareTransition = ^(void (^toCompletion)(void)) {
+        if (currentWindowState) {
+            currentWindow.styleMask = currentWindowState.styleMask ^ NSWindowStyleMaskMiniaturizable ^ NSWindowStyleMaskResizable;
+
+            if (currentWindowState.styleMask & NSWindowStyleMaskFullScreen) {
+                currentWindow.collectionBehavior = currentWindowState.collectionBehavior ^ NSWindowCollectionBehaviorFullScreenPrimary;
+            }
+
+            if (currentWindowState.styleMask & NSWindowStyleMaskMiniaturizable) {
+                [currentWindow ux_forceEnableStandardWindowButton:(NSWindowMiniaturizeButton)];
+            }
+
+            if (currentWindowState.styleMask & NSWindowStyleMaskResizable || currentWindow.collectionBehavior & NSWindowCollectionBehaviorFullScreenPrimary) {
+                [currentWindow ux_forceEnableStandardWindowButton:NSWindowZoomButton];
+            }
+        }
+
+        auto fromCompletion = ^{
+            if (selfViewIsInResponderChainOfWindowFirstResponder) {
+                [self.view.window makeFirstResponder:self.uxView];
+            }
+
+            if (toViewController._requiresWindowForTransitionPreparation) {
+                toViewController.view.alphaValue = 0.0;
+                UXView *containerView = context.containerView;
+
+                if (operation == UXNavigationControllerOperationPush) {
+                    [containerView addSubview:toViewController.view];
+                } else {
+                    [containerView addSubview:toViewController.view positioned:NSWindowBelow relativeTo:fromViewController.view];
+                }
+            }
+
+            [self _prepareViewController:toViewController
+                   forAnimationInContext:context
+                              completion:^{
+                if (!NSThread.isMainThread) {
+                    NSAssert(false, @"completion block must be called on the main thread");
+                }
+
+                if (toCompletion) {
+                    toCompletion();
+                } else {
+                    NSLog(@"Do not call the completion block passed to prepareForTransitionWithContext:completion: more than once! %@", [NSThread callStackSymbols]);
+                }
+            }];
+        };
+        [self _removeConstraintsForContainedView:fromViewController.uxView];
+        [self.navigationBar _prepareForNavigationItemTransition];
+        [self _prepareViewController:fromViewController
+               forAnimationInContext:context
+                          completion:^{
+            if (!NSThread.isMainThread) {
+                NSAssert(false, @"completion block must be called on the main thread");
+            }
+
+            if (fromCompletion) {
+                fromCompletion();
+            } else {
+                NSLog(@"Do not call the completion block passed to prepareForTransitionWithContext:completion: more than once! %@", [NSThread callStackSymbols]);
+            }
+        }];
+    };
+    auto animateAlongsideTransition = ^{
+        [weakContext._transitionCoordinator animateAlongsideTransition:^(id<UXViewControllerTransitionCoordinatorContext>  _Nonnull innerContext) {
+            BOOL isCancelled = innerContext.isCancelled;
+            NSTimeInterval transitionDuration = innerContext.transitionDuration;
+
+            if (innerContext.initiallyInteractive) {
+                [weakSelf.navigationBar _completeInteractiveTransition:!isCancelled
+                                                              duration:transitionDuration];
+                [weakSelf.accessoryBar _completeInteractiveTransition:!isCancelled
+                                                             duration:transitionDuration];
+                [weakSelf.toolbar _completeInteractiveTransition:!isCancelled
+                                                        duration:transitionDuration];
+
+                if (!isCancelled) {
+                    [weakSelf _updateToolbarsPositionsUsingTopViewController:toViewController];
+                    [weakSelf _updateToolbarVisibilityUsingTopViewController:toViewController
+                                                                    animated:YES
+                                                                    duration:transitionDuration
+                                                              animateSubtree:NO];
+                    [weakSelf _updateToolbarAppearanceUsingTopViewController:toViewController
+                                                                    animated:YES
+                                                                    duration:transitionDuration];
+                } else {
+                    UXViewController *fromAccessoryViewController = fromViewController.accessoryViewController;
+
+                    if (fromAccessoryViewController || fromViewController.accessoryBarItems.count) {
+                        UXViewController *toAccessoryViewController = toViewController.accessoryViewController;
+
+                        if (!toAccessoryViewController && !toViewController.accessoryBarItems.count) {
+                            [weakSelf.accessoryBarContainer _setAccessoryBarHidden:YES];
+                        }
+                    }
+
+                    [weakSelf _updateToolbarsPositionsUsingTopViewController:toViewController];
+                    [weakSelf _updateToolbarVisibilityUsingTopViewController:toViewController
+                                                                    animated:YES
+                                                                    duration:transitionDuration
+                                                              animateSubtree:NO];
+                    [weakSelf _updateToolbarAppearanceUsingTopViewController:toViewController
+                                                                    animated:YES
+                                                                    duration:transitionDuration];
+                }
+            } else {
+                if (operation == UXNavigationControllerOperationPop) {
+                    [weakSelf.navigationBar _popNavigationItemAnimated:YES
+                                                              duration:transitionDuration];
+                } else {
+                    [weakSelf.navigationBar _pushNavigationItem:toViewController.navigationItem
+                                                       animated:YES
+                                                       duration:transitionDuration];
+                }
+
+                [weakSelf _updateToolbarsPositionsUsingTopViewController:toViewController];
+                [weakSelf _updateToolbarVisibilityUsingTopViewController:toViewController
+                                                                animated:YES
+                                                                duration:transitionDuration
+                                                          animateSubtree:NO];
+                [weakSelf _updateToolbarAppearanceUsingTopViewController:toViewController
+                                                                animated:YES
+                                                                duration:transitionDuration];
+                [weakSelf.toolbar _setItems:_toolbarItemsForViewController(toViewController)
+                                   animated:YES
+                                   duration:transitionDuration];
+                [weakSelf.subtoolbar _setItems:_subtoolbarItemsForViewController(toViewController)
+                                      animated:YES
+                                      duration:transitionDuration];
+                [weakSelf.accessoryBar _setItems:_accessoryBarItemsForViewController(toViewController)
+                                        animated:YES
+                                        duration:transitionDuration];
+            }
+
+            if (!isCancelled && UXNavigationController.useIndividualNSToolbarItems) {
+                [[weakSelf windowController] _updateToolbarItems];
+            }
+        }
+                                                            completion:^(id<UXViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+            if (weakSelf._hasNoNavigationRequests) {
+                if (weakSelf.windowState) {
+                    [weakSelf.windowState applyToWindow:currentWindow];
+                    weakSelf.windowState = nil;
+                }
+            }
+        }];
+    };
+    auto modifyCurrentViewControllers = ^{
+        if (operation == UXNavigationControllerOperationPush) {
+            [self->_currentViewControllers addObject:toViewController];
+            [self _endObservingCurrentTopViewController];
+        } else {
+            [self->_currentViewControllers removeObject:fromViewController];
+        }
+    };
+
+    if (_delegateFlags.willShowViewController) {
+        [self.delegate navigationController:self willShowViewController:toViewController];
+    }
+
+    CGRect toEndFrame = context.toEndFrame;
+    CGFloat leftContentInset = self._leftContentInset;
+    CGFloat leadingContentInset = self._leadingContentInset;
+    context.toEndFrame = CGRectMake(toEndFrame.origin.x + leftContentInset, toEndFrame.origin.y, toEndFrame.size.width - leadingContentInset, toEndFrame.size.height);
+    CGRect finalFrame = [context finalFrameForViewController:toViewController];
+    toViewController.uxView.frame = finalFrame;
+    toViewController.uxView.userInteractionEnabled = NO;
+    UXViewController *fromAccessoryViewController = fromViewController.accessoryViewController;
+
+    if (!fromAccessoryViewController && !fromViewController.accessoryBarItems.count) {
+        if (toViewController.accessoryViewController || toViewController.accessoryBarItems.count) {
+            [self _setAccessoryBarHidden:NO];
+        }
+    }
+
+    if (context.initiallyInteractive) {
+        context.interactiveUpdateHandler = ^(BOOL interactionIsOver, BOOL transitionCompleted, _UXViewControllerTransitionContext *context, CGFloat percentComplete) {
+            if (interactionIsOver) {
+                setupContext();
+                return;
+            }
+
+            CGFloat transition = fmax(percentComplete, 0.0);
+
+            [weakSelf.navigationBar _updateInteractiveTransition:transition];
+            [weakSelf.accessoryBar _updateInteractiveTransition:transition];
+            [weakSelf.toolbar _updateInteractiveTransition:transition];
+            UXViewController *toViewController = [context viewControllerForKey:@"UXTransitionContextToViewController"];
+            UXViewController *toolbarViewController = toViewController.toolbarViewController;
+            BOOL shouldHideToolbar = NO;
+
+            if (toolbarViewController) {
+                shouldHideToolbar = toViewController.hidesBottomBarWhenPushed;
+            } else if (toViewController.toolbarItems.count) {
+                shouldHideToolbar = toViewController.hidesBottomBarWhenPushed;
+            }
+
+            if (shouldHideToolbar) {
+                if (!weakSelf.isToolbarHidden) {
+                    weakSelf.toolbarVerticalConstraint.constant = weakSelf._hiddenToolbarOffset + (weakSelf._visibleToolbarOffset - weakSelf._hiddenToolbarOffset) * transition;
+                }
+            } else {
+                if (!shouldHideToolbar && weakSelf.isToolbarHidden) {
+                    weakSelf.toolbarVerticalConstraint.constant = weakSelf._visibleToolbarOffset + (weakSelf._hiddenToolbarOffset - weakSelf._visibleToolbarOffset) * transition;
+                }
             }
         };
 
@@ -2273,12 +2644,13 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
     NSUInteger targetViewControllersCount = _targetViewControllers.count;
 
     if (targetViewControllersCount < 2) {
+        NSLog(@"WARNING YOU ARE ATTEMPTING TO POP FROM A NAVIGATION STACK CONTAINING ONLY 1 VIEWCONTROLLER %s", __PRETTY_FUNCTION__);
         return nil;
     } else {
         UXViewController *toViewController = _targetViewControllers[targetViewControllersCount - 2];
         UXViewController *fromViewController = self.currentTopViewController;
 
-        if (_delegateFlags.shouldPopFromViewControllerToViewController && self.delegate && fromViewController && toViewController  && ![self.delegate navigationController:self shouldPopFromViewController:fromViewController toViewController:toViewController]) {
+        if (_delegateFlags.shouldPopFromViewControllerToViewController && self.delegate && fromViewController && toViewController && ![self.delegate navigationController:self shouldPopFromViewController:fromViewController toViewController:toViewController]) {
             return nil;
         } else {
             return [self popToViewController:toViewController animated:animated].lastObject;

@@ -209,7 +209,9 @@
         view.layer.shadowColor = [NSColor blackColor].CGColor;
         view.layer.shadowOffset = CGSizeMake(0.0, 0.0);
         view.layer.shadowRadius = 10.0;
-        view.layer.shadowPath = CGPathCreateWithRect(view.bounds, nil);
+        CGPathRef shadowPath = CGPathCreateWithRect(view.bounds, nil);
+        view.layer.shadowPath = shadowPath;
+        CGPathRelease(shadowPath);
     }
     view.layer.shadowOpacity = alpha;
 }

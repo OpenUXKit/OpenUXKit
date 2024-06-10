@@ -8,7 +8,7 @@
 @property (nonatomic, strong, setter = _setAlongsideCompletions:) NSMutableArray *_alongsideCompletions;
 @property (nonatomic, strong, setter = _setAlongsideAnimationViews:) NSMutableArray *_alongsideAnimationViews;
 @property (nonatomic, strong, setter = _setAlongsideAnimations:) NSMutableArray *_alongsideAnimations;
-@property (nonatomic, setter = _setMainContext:) _UXViewControllerTransitionContext *_mainContext;
+@property (nonatomic, unsafe_unretained, setter = _setMainContext:) _UXViewControllerTransitionContext *_mainContext;
 @property (nonatomic, readonly, getter = isCompleting) BOOL completing;
 - (instancetype)initWithMainContext:(_UXViewControllerTransitionContext *)mainContext;
 - (void)_applyBlocks:(NSArray *)applyBlocks releaseBlocks:(void(^)(void))releaseBlocks;

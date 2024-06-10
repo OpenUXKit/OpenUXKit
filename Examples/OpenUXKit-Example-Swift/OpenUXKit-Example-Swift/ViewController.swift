@@ -6,13 +6,40 @@
 //
 
 import Cocoa
-import UXKit
+
+ import OpenUXKit
+
+//import UXKit
+
+@objc(FirstViewController)
+class FirstViewController: UXViewController {
+    deinit {
+        print(Thread.callStackSymbols)
+        print("\(Self.self) is deinit")
+    }
+}
+
+@objc(SecondViewController)
+class SecondViewController: UXViewController {
+    deinit {
+        print(Thread.callStackSymbols)
+        print("\(Self.self) is deinit")
+    }
+}
+
+@objc(ThirdViewController)
+class ThirdViewController: UXViewController {
+    deinit {
+        print(Thread.callStackSymbols)
+        print("\(Self.self) is deinit")
+    }
+}
 
 class ViewController: NSViewController {
     @IBOutlet var contentBox: NSBox!
-    
+
     @IBOutlet var pushButton: NSButton!
-    
+
     @IBOutlet var popButton: NSButton!
 
     lazy var navigationController = UXNavigationController(rootViewController: rootViewController).then {
@@ -20,25 +47,19 @@ class ViewController: NSViewController {
     }
 
     lazy var rootViewController = UXViewController().then {
-        $0.view.backgroundColor = .black
+        $0.uxView.backgroundColor = .black
     }
 
-    lazy var firstViewController = UXViewController().then {
-        $0.view.backgroundColor = .systemRed
-    }
+    let firstBackgroundColor = NSColor.systemRed
 
-    lazy var secondViewController = UXViewController().then {
-        $0.view.backgroundColor = .systemBlue
-    }
+    let secondBackgroundColor = NSColor.systemBlue
 
-    lazy var thirdViewController = UXViewController().then {
-        $0.view.backgroundColor = .systemCyan
-    }
+    let thirdBackgroundColor = NSColor.systemCyan
 
-    lazy var viewControllers = [
-        firstViewController,
-        secondViewController,
-        thirdViewController,
+    lazy var backgroundColors = [
+        firstBackgroundColor,
+        secondBackgroundColor,
+        thirdBackgroundColor,
     ]
 
     override func viewDidLoad() {
@@ -52,11 +73,21 @@ class ViewController: NSViewController {
     }
 
     @IBAction func pushButtonAction(_ sender: NSButton) {
-        if navigationController.viewControllers.count <= viewControllers.count {
-            navigationController.pushViewController(viewControllers[navigationController.viewControllers.count - 1], animated: true)
+        if navigationController.viewControllers.count <= backgroundColors.count {
+            let vc = switch navigationController.viewControllers.count {
+            case 1:
+                FirstViewController()
+            case 2:
+                SecondViewController()
+            case 3:
+                ThirdViewController()
+            default:
+                UXViewController()
+            }
+            vc.uxView.backgroundColor = backgroundColors[navigationController.viewControllers.count - 1]
+            navigationController.pushViewController(vc, animated: true)
         }
         checButtonEnabled()
-        
     }
 
     @IBAction func popButtonAction(_ sender: NSButton) {
@@ -65,7 +96,7 @@ class ViewController: NSViewController {
     }
 
     func checButtonEnabled() {
-        pushButton.isEnabled = navigationController.viewControllers.count <= viewControllers.count
+        pushButton.isEnabled = navigationController.viewControllers.count <= backgroundColors.count
         popButton.isEnabled = navigationController.viewControllers.count > 1
     }
 }

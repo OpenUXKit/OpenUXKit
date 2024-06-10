@@ -10,6 +10,8 @@
 
 @implementation UXView
 
+@dynamic backgroundColor;
+
 + (Class)layerClass {
     return nil;
 }
