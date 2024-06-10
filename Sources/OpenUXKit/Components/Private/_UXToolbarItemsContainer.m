@@ -1,17 +1,13 @@
 #import <OpenUXKit/_UXToolbarItemsContainer.h>
-#import <OpenUXKit/UXToolbar.h>
-#import <OpenUXKit/UXImageView.h>
 #import <OpenUXKit/UXBar+Internal.h>
 #import <OpenUXKit/UXBarButtonItem+Internal.h>
-@interface _UXToolbarItemsContainer ()
+#import <OpenUXKit/UXImageView.h>
+#import <OpenUXKit/UXToolbar.h>
 
-{
-   NSMutableArray *__addedConstraints; // 112 = 0x70
-   BOOL _singleItemMode;       // 120 = 0x78
-   BOOL _isTransitioning;      // 121 = 0x79
-   NSArray *_items;    // 128 = 0x80
-   CGFloat _interitemSpacing;  // 136 = 0x88
-   CGFloat _baselineOffsetFromBottom;  // 144 = 0x90
+@interface _UXToolbarItemsContainer () {
+    NSMutableArray *__addedConstraints;
+    BOOL _singleItemMode;
+    BOOL _isTransitioning;
 }
 
 @end
@@ -20,20 +16,25 @@
 
 + (instancetype)toolbarItemsContainerForToolbar:(UXToolbar *)toolbar items:(NSArray<UXBarButtonItem *> *)items {
     _UXToolbarItemsContainer *container = [self new];
+
     container.baselineOffsetFromBottom = toolbar.baselineOffsetFromBottom;
     container.interitemSpacing = toolbar.interitemSpacing;
     container.layoutMargins = toolbar.layoutMargins;
     container->_items = items;
+
     if (items.count == 1) {
         if (items.firstObject.contentViewController) {
             container->_singleItemMode = YES;
         }
     }
+
     NSArray<UXView *> *views = [items valueForKeyPath:@"_view"];
+
     for (UXView *view in views) {
         [view removeFromSuperview];
         [container addSubview:view];
     }
+
     return container;
 }
 
@@ -43,6 +44,7 @@
         self.wantsLayer = YES;
         self.layer.masksToBounds = NO;
     }
+
     return self;
 }
 
@@ -56,23 +58,24 @@
     } else {
         [NSLayoutConstraint deactivateConstraints:__addedConstraints];
         [__addedConstraints removeAllObjects];
-        __auto_type block = ^(UXBarButtonItem *item, NSView *view){
+        __auto_type block = ^(UXBarButtonItem *item, NSView *view) {
             if (item.baselineAnchor) {
                 [self->__addedConstraints addObject:[item.baselineAnchor constraintEqualToAnchor:self.lastBaselineAnchor]];
             } else {
                 [self->__addedConstraints addObject:[view.centerYAnchor constraintEqualToAnchor:self.centerYAnchor]];
             }
         };
+
         if (_singleItemMode) {
             UXBarButtonItem *firstItem = self.items.firstObject;
             NSView *firstSubview = self.subviews.firstObject;
+
             if (firstSubview) {
                 firstSubview.translatesAutoresizingMaskIntoConstraints = NO;
                 [__addedConstraints addObject:[firstSubview.centerXAnchor constraintEqualToAnchor:self.centerXAnchor]];
                 block(firstItem, firstSubview);
                 [__addedConstraints addObject:[firstSubview.widthAnchor constraintEqualToAnchor:self.widthAnchor]];
                 [__addedConstraints addObject:[firstSubview.heightAnchor constraintEqualToAnchor:self.heightAnchor]];
-                
             }
         } else {
             __block BOOL isFirstItem = YES;
@@ -80,46 +83,56 @@
             __block NSView *lastWidthConstrainingView = nil;
             __block UXBarButtonItem *prevItem = nil;
             __block NSView *prevView = self;
-            __auto_type preferredSpacingToItem = ^CGFloat(UXBarButtonItem *item1, UXBarButtonItem *item2){
+            __auto_type preferredSpacingToItem = ^CGFloat (UXBarButtonItem *item1, UXBarButtonItem *item2) {
                 CGFloat interitemSpacing = self.interitemSpacing;
                 CGFloat result = interitemSpacing;
+
                 if (item1) {
                     result = [item1 preferredSpacingToItem:item2 proposedSpacing:interitemSpacing];
                 }
+
                 if (item2) {
                     result = [item2 preferredSpacingToItem:item1 proposedSpacing:result];
                 }
+
                 return result;
             };
-            [self.items enumerateObjectsUsingBlock:^(UXBarButtonItem * _Nonnull currentItem, NSUInteger index, BOOL * _Nonnull stop) {
+            [self.items enumerateObjectsUsingBlock:^(UXBarButtonItem *_Nonnull currentItem, NSUInteger index, BOOL *_Nonnull stop) {
                 currentView = currentItem._view;
+
                 if ([self.subviews containsObject:currentView]) {
                     currentView.translatesAutoresizingMaskIntoConstraints = NO;
                     NSLayoutXAxisAnchor *xAxisAnchor = nil;
+
                     if (isFirstItem) {
                         xAxisAnchor = prevView.leadingAnchor;
                     } else {
                         xAxisAnchor = prevView.trailingAnchor;
                     }
-                    
-                    [self->__addedConstraints addObject:[currentView.leadingAnchor constraintEqualToAnchor:xAxisAnchor constant:preferredSpacingToItem(prevItem, currentItem)]];
+
+                    [self->__addedConstraints addObject:[currentView.leadingAnchor constraintEqualToAnchor:xAxisAnchor
+                                                                                                  constant:preferredSpacingToItem(prevItem, currentItem)]];
                     block(currentItem, currentView);
                     [self->__addedConstraints addObject:[currentView.widthAnchor constraintGreaterThanOrEqualToConstant:0.0]];
+
                     if (!currentItem.systemItem) {
                         NSLayoutConstraint *widthConstraint = [currentView.widthAnchor constraintEqualToAnchor:self.widthAnchor];
                         widthConstraint.priority = NSLayoutPriorityDragThatCannotResizeWindow - 1;
                         [self->__addedConstraints addObject:widthConstraint];
-                        
+
                         if (lastWidthConstrainingView) {
                             [self->__addedConstraints addObject:[currentView.widthAnchor constraintEqualToAnchor:lastWidthConstrainingView.widthAnchor]];
                         }
+
                         lastWidthConstrainingView = currentView;
                     }
+
                     prevItem = currentItem;
                     prevView = currentView;
                     isFirstItem = NO;
                     UXBarButtonItem *widthConstrainingItem = currentItem._widthConstrainingItem;
                     NSView *widthConstrainingItemView = widthConstrainingItem._view;
+
                     if (widthConstrainingItem) {
                         if ([self.subviews containsObject:widthConstrainingItemView]) {
                             [self->__addedConstraints addObject:[currentView.widthAnchor constraintEqualToAnchor:widthConstrainingItemView.widthAnchor]];
@@ -127,8 +140,10 @@
                     }
                 }
             }];
+
             if (prevItem) {
                 CGFloat layoutMarginsRight = self.layoutMargins.right;
+
                 if (layoutMarginsRight == 0.0) {
                     CGFloat constant = preferredSpacingToItem(prevItem, nil);
                     NSLayoutConstraint *trailingConstraint = [self.trailingAnchor constraintEqualToAnchor:prevView.trailingAnchor constant:constant];
@@ -138,10 +153,10 @@
                 }
             }
         }
+
         [NSLayoutConstraint activateConstraints:__addedConstraints];
         [super updateConstraints];
     }
-    
 }
 
 - (CGFloat)lastBaselineOffsetFromBottom {
@@ -158,6 +173,7 @@
         snapshotView.autoresizingMask = NSViewMinYMargin | NSViewMaxYMargin | NSViewWidthSizable;
         self.subviews = @[snapshotView];
     }
+
     _isTransitioning = YES;
 }
 

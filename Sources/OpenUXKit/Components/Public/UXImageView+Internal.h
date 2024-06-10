@@ -6,11 +6,6 @@ NS_ASSUME_NONNULL_BEGIN
 {
     CGFloat _backingScaleFactor;    // 112 = 0x70
     CGSize _proposedSize;    // 120 = 0x78
-    BOOL _allowsVibrancy;    // 136 = 0x88
-    BOOL _highlighted;    // 137 = 0x89
-    NSString *accessibilityLabel;    // 144 = 0x90
-    NSImage *_image;    // 152 = 0x98
-    NSImage *_highlightedImage;    // 160 = 0xa0
 }
 @property (nonatomic, readonly, nullable) NSImage *_currentImage;
 

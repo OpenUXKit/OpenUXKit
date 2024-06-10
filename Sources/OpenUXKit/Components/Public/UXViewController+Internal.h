@@ -27,17 +27,6 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
     BOOL _transitioningIntoFullScreen;
     BOOL _transitioningOutOfFullScreen;
     BOOL _isEditing;
-    BOOL _automaticallyAdjustsScrollViewInsets;
-    UXModalPresentationStyle _modalPresentationStyle;
-    UXRectEdge _edgesForExtendedLayout;
-    UXView *_presentedViewControllerContainerView;
-    CGFloat _preferredToolbarHeight;
-    CGFloat _preferredToolbarBaselineOffsetFromBottom;
-    UXBarPosition _preferredSubtoolbarPosition;
-    CGFloat _preferredSubtoolbarHeight;
-    CGFloat _preferredSubtoolbarBaselineOffsetFromBottom;
-    NSInteger _preferredToolbarStyle;
-    NSEdgeInsets _preferredToolbarDecorationInsets;
 }
 
 @property (nonatomic, readonly, getter = isWindowInFullScreen) BOOL windowInFullScreen;

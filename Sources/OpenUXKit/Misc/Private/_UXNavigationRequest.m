@@ -1,12 +1,8 @@
 #import <OpenUXKit/_UXNavigationRequest.h>
 #import <OpenUXKit/UXViewController.h>
 
-@interface _UXNavigationRequest ()
-{
-    NSMutableArray *_addedViewControllers;    // 8 = 0x8
-    BOOL _animated;    // 16 = 0x10
-    UXNavigationControllerOperation _operation;    // 24 = 0x18
-    NSArray<UXViewController *> *_viewControllers;    // 32 = 0x20
+@interface _UXNavigationRequest () {
+    NSMutableArray *_addedViewControllers;
 }
 
 @end
@@ -22,6 +18,7 @@
         request->_animated = animated;
         return request;
     }
+
     return nil;
 }
 
@@ -33,13 +30,14 @@
     return [self _requestWithOperation:UXNavigationControllerOperationPop viewControllers:@[viewController] animated:animated];
 }
 
-
 + (_UXNavigationRequest *)setRequestWithViewControllers:(NSArray<UXViewController *> *)viewControllers animated:(BOOL)animated {
     NSParameterAssert([viewControllers isKindOfClass:[NSArray class]]);
     NSParameterAssert(viewControllers.count != 0);
+
     if ([NSSet setWithArray:viewControllers].count != viewControllers.count) {
         NSAssert(false, @"All view controllers in a navigation controller must be distinct (%@)", viewControllers);
     }
+
     return [self _requestWithOperation:UXNavigationControllerOperationNone viewControllers:viewControllers animated:animated];
 }
 
@@ -47,10 +45,11 @@
     if (parentViewController) {
         if (!_addedViewControllers) {
             _addedViewControllers = [NSMutableArray array];
+
             if (self.operation != UXNavigationControllerOperationPop) {
                 for (UXViewController *viewController in self.viewControllers) {
                     NSViewController *currentParentViewController = viewController.parentViewController;
-                    
+
                     if (!currentParentViewController) {
                         [parentViewController addChildViewController:viewController];
                         [_addedViewControllers addObject:viewController];
@@ -66,6 +65,7 @@
         for (UXViewController *addedViewController in _addedViewControllers) {
             [addedViewController removeFromParentViewController];
         }
+
         _addedViewControllers = nil;
     }
 }
@@ -84,7 +84,7 @@
 
 - (BOOL)isEqualToNavigationRequest:(_UXNavigationRequest *)request {
     if (request && request.operation == _operation) {
-       return [request.viewControllers isEqualToArray:_viewControllers];
+        return [request.viewControllers isEqualToArray:_viewControllers];
     } else {
         return NO;
     }
@@ -96,12 +96,15 @@
 
 - (NSString *)description {
     NSString *operationString = @"none";
+
     if (_operation == UXNavigationControllerOperationPush) {
         operationString = @"push";
     }
+
     if (_operation == UXNavigationControllerOperationPop) {
         operationString = @"pop";
     }
+
     return [NSString stringWithFormat:@"<%@: %p; operation = %@, viewControllers = %@>", self.class, self, operationString, _viewControllers];
 }
 

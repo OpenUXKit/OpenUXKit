@@ -1,14 +1,9 @@
 #import <OpenUXKit/UXLabel.h>
 
 @interface UXLabel () {
-    NSTextField *_concreteTextField;    // 112 = 0x70
-    NSArray<NSLayoutConstraint *> *_verticalDefaultConstraints;       // 120 = 0x78
-    NSArray<NSLayoutConstraint *> *_verticalCenteringConstraints;     // 128 = 0x80
-    NSColor *_textColor;        // 136 = 0x88
-    NSColor *_shadowColor;      // 144 = 0x90
-    NSColor *_highlightedTextColor;     // 152 = 0x98
-    NSInteger _numberOfLines;   // 160 = 0xa0
-    CGSize _shadowOffset;       // 168 = 0xa8
+    NSTextField *_concreteTextField;
+    NSArray<NSLayoutConstraint *> *_verticalDefaultConstraints;
+    NSArray<NSLayoutConstraint *> *_verticalCenteringConstraints;
 }
 
 @end

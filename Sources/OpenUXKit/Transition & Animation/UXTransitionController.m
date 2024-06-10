@@ -2,10 +2,6 @@
 #import <OpenUXKit/_UXViewControllerTransitionContext.h>
 
 @interface UXTransitionController ()
-{
-    NSInteger _operation;    // 8 = 0x8
-    CGFloat _percentComplete;    // 16 = 0x10
-}
 @end
 
 @implementation UXTransitionController

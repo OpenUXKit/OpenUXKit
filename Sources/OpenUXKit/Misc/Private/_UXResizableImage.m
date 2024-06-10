@@ -1,19 +1,16 @@
 #import <OpenUXKit/_UXResizableImage.h>
 
-@interface _UXResizableImage ()
-
-{
-   NSImage *_topLeftCorner;    // 8 = 0x8
-   NSImage *_topEdgeFill;      // 16 = 0x10
-   NSImage *_topRightCorner;   // 24 = 0x18
-   NSImage *_leftEdgeFill;     // 32 = 0x20
-   NSImage *_centerFill;       // 40 = 0x28
-   NSImage *_rightEdgeFill;    // 48 = 0x30
-   NSImage *_bottomLeftCorner; // 56 = 0x38
-   NSImage *_bottomEdgeFill;   // 64 = 0x40
-   NSImage *_bottomRightCorner;        // 72 = 0x48
-   CGFloat _scale;     // 80 = 0x50
-   BOOL _alwaysStretches;      // 88 = 0x58
+@interface _UXResizableImage () {
+    NSImage *_topLeftCorner;
+    NSImage *_topEdgeFill;
+    NSImage *_topRightCorner;
+    NSImage *_leftEdgeFill;
+    NSImage *_centerFill;
+    NSImage *_rightEdgeFill;
+    NSImage *_bottomLeftCorner;
+    NSImage *_bottomEdgeFill;
+    NSImage *_bottomRightCorner;
+    CGFloat _scale;
 }
 
 
@@ -23,15 +20,18 @@
 
 - (instancetype)initWithImage:(NSImage *)image capInsets:(NSEdgeInsets)capInsets {
     CGImageRef cgImage = [image CGImageForProposedRect:nil context:nil hints:nil];
+
     if (self = [super initWithCGImage:cgImage size:image.size]) {
         self.capInsets = capInsets;
         _scale = CGImageGetWidth(cgImage) / image.size.width;
     }
+
     return self;
 }
 
 - (CGRect)_contentRectInPixels {
-    return [self _contentInsetsInPixels:NSEdgeInsetsZero emptySizeFallback:^CGRect{
+    return [self _contentInsetsInPixels:NSEdgeInsetsZero
+                      emptySizeFallback:^CGRect {
         CGPoint origin = CGPointZero;
         CGSize size = [self _sizeInPixels];
         return CGRectMake(origin.x, origin.y, size.width, size.height);
@@ -42,6 +42,7 @@
     if (_alwaysStretches) {
         return NO;
     }
+
     CGSize currentSize = self.size;
     CGFloat left = currentSize.width - self.capInsets.left;
     CGFloat right = left - self.capInsets.right;
@@ -49,7 +50,8 @@
 }
 
 - (CGRect)_contentStretchInPixels {
-    return [self _contentInsetsInPixels:self.capInsets emptySizeFallback:^CGRect{
+    return [self _contentInsetsInPixels:self.capInsets
+                      emptySizeFallback:^CGRect {
         CGPoint origin = CGPointZero;
         CGSize size = [self _sizeInPixels];
         return CGRectMake(origin.x, origin.y, size.width, size.height);
@@ -61,16 +63,18 @@
     CGAffineTransform transform = CGAffineTransformMakeScale(_scale, _scale);
     CGFloat width = size.height * transform.c + transform.a * size.width;
     CGFloat height = size.height * transform.d + transform.b * size.width;
+
     return CGSizeMake(width, height);
 }
 
-- (CGRect)_contentInsetsInPixels:(NSEdgeInsets)contentInsets emptySizeFallback:(CGRect(^)(void))emptySizeFallback {
+- (CGRect)_contentInsetsInPixels:(NSEdgeInsets)contentInsets emptySizeFallback:(CGRect (^)(void))emptySizeFallback {
     CGSize size = self.size;
     CGFloat scale = _scale;
     CGFloat x = 0.0;
     CGFloat y = 0.0;
     CGFloat width = size.width * scale;
     CGFloat height = size.height * scale;
+
     if (size.width <= 0.0 || size.height <= 0.0) {
         if (emptySizeFallback) {
             CGRect rect = emptySizeFallback();
@@ -87,10 +91,11 @@
         width = fmax(maybeWidth, 0.0);
         height = fmax(maybeHeight, 0.0);
     }
+
     return CGRectMake(x, y, width, height);
 }
 
-- (void)drawInRect:(NSRect)dstSpacePortionRect fromRect:(NSRect)srcSpacePortionRect operation:(NSCompositingOperation)op fraction:(CGFloat)requestedAlpha respectFlipped:(BOOL)respectContextIsFlipped hints:(NSDictionary<NSImageHintKey,id> *)hints {
+- (void)drawInRect:(NSRect)dstSpacePortionRect fromRect:(NSRect)srcSpacePortionRect operation:(NSCompositingOperation)op fraction:(CGFloat)requestedAlpha respectFlipped:(BOOL)respectContextIsFlipped hints:(NSDictionary<NSImageHintKey, id> *)hints {
     if (NSEdgeInsetsEqual(self.capInsets, NSEdgeInsetsZero)) {
         [super drawInRect:dstSpacePortionRect fromRect:srcSpacePortionRect operation:op fraction:requestedAlpha respectFlipped:respectContextIsFlipped hints:hints];
     } else {
@@ -106,8 +111,9 @@
     }
 }
 
-NSImage *_uxImageFromRect(NSImage *image, CGFloat x, CGFloat y, CGFloat width, CGFloat height) {
+NSImage * _uxImageFromRect(NSImage *image, CGFloat x, CGFloat y, CGFloat width, CGFloat height) {
     CGRect rect = CGRectMake(x, y, width, height);
+
     if (image && !CGRectIsEmpty(rect)) {
         CGImageRef cgImage = [image CGImageForProposedRect:nil context:nil hints:nil];
         CGFloat cgImageWidth = CGImageGetWidth(cgImage);
@@ -115,8 +121,9 @@ NSImage *_uxImageFromRect(NSImage *image, CGFloat x, CGFloat y, CGFloat width, C
         CGAffineTransform transform = CGAffineTransformMakeScale(cgImageWidth / nsImageSize.width, cgImageWidth / nsImageSize.width);
         CGRect appliedTransformRect = CGRectApplyAffineTransform(rect, transform);
         CGImageRef newCGImage = CGImageCreateWithImageInRect(cgImage, appliedTransformRect);
-        return [[NSImage alloc] initWithCGImage:newCGImage size:appliedTransformRect.size];;
+        return [[NSImage alloc] initWithCGImage:newCGImage size:appliedTransformRect.size];
     }
+
     return nil;
 }
 
@@ -130,6 +137,7 @@ NSImage *_uxImageFromRect(NSImage *image, CGFloat x, CGFloat y, CGFloat width, C
     CGFloat centerWidth = width - left - right;
     CGFloat rightEdgeX = width - right;
     CGFloat bottomEdgeY = height - bottom;
+
     _topLeftCorner = _uxImageFromRect(image, 0.0, 0.0, left, top);
     _topEdgeFill = _uxImageFromRect(image, left, 0.0, centerWidth, top);
     _topRightCorner = _uxImageFromRect(image, rightEdgeX, 0.0, right, top);

@@ -8,8 +8,6 @@ NS_ASSUME_NONNULL_BEGIN
     BOOL _wantsToUseCustomWidth;
     BOOL _ignoresMultiClick;    // 16 = 0x10
     BOOL _isSystemItem;
-    BOOL _condensed;    // 17 = 0x11
-    float _visibilityPriority;    // 20 = 0x14
     NSColor *_tintColor;    // 24 = 0x18
     UXTintAdjustmentMode _tintAdjustmentMode;    // 32 = 0x20
     SEL _action;    // 40 = 0x28
@@ -19,13 +17,6 @@ NS_ASSUME_NONNULL_BEGIN
     NSString *_keyEquivalent;    // 64 = 0x40
     NSEventModifierFlags _keyEquivalentModifierMask;    // 72 = 0x48
     NSControlStateValue _buttonState;    // 80 = 0x50
-    UXBarButtonItemStyle _style;    // 88 = 0x58
-    CGFloat _width;    // 96 = 0x60
-    NSView *_customView;    // 104 = 0x68
-    NSLayoutAnchor *_baselineAnchor;    // 112 = 0x70
-    UXViewController *_contentViewController;    // 120 = 0x78
-    UXBarButtonSystemItem _systemItem;    // 128 = 0x80
-    __weak UXBarButtonItem *__widthConstrainingItem;    // 136 = 0x88
 }
 
 @property (nonatomic, weak, setter = _setWidthConstrainingItem:) UXBarButtonItem *_widthConstrainingItem;

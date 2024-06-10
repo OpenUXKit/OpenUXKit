@@ -1,16 +1,13 @@
 #import <OpenUXKit/_UXWindowState.h>
 
 @interface _UXWindowState ()
-{
-    NSWindowStyleMask _styleMask;    // 8 = 0x8
-    NSWindowCollectionBehavior _collectionBehavior;    // 16 = 0x10
-}
 @end
 
 @implementation _UXWindowState
 
 + (instancetype)windowStateWithStyleMask:(NSWindowStyleMask)styleMask collectionBehavior:(NSWindowCollectionBehavior)collectionBehavior {
     _UXWindowState *windowState = [[self alloc] init];
+
     windowState->_styleMask = styleMask;
     windowState->_collectionBehavior = collectionBehavior;
     return windowState;

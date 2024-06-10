@@ -22,7 +22,6 @@
     _UXSourceSplitView *_splitView;
     NSLayoutConstraint *_popUpWidthContraint;
     BOOL _needsToSetInitialSourceListWidth;
-    double _preferredSourceListWidthFraction;
     BOOL _isTransitioning;
     _UXViewControllerOneToOneTransitionContext *_transitionCtx;
     UXTransitionController *_transitionController;
@@ -39,17 +38,6 @@
     id _windowDeactivateObserver;
     UXView *_transientlyUncollapsedView;
     BOOL _hasItemToRevealOnEdgeHover;
-    BOOL _wantsDetachedNavigationBars;
-    NSInteger _preferredStyle;
-    NSInteger _style;
-    UXViewController<UXSourceList> *_sourceListViewController;
-    CGFloat _minimumWidthForInlineSourceList;
-    NSString *_sourceListAutosaveName;
-    NSArray *_rootViewControllers;
-    UXViewController *_selectedViewController;
-    NSSegmentedControl *_segmentedControl;
-    NSPopUpButton *_popUpButton;
-    __weak NSWindow *_observedWindow;
     NSSearchToolbarItem *_searchToolbarItem;
 }
 @end

@@ -1,10 +1,7 @@
 #import <OpenUXKit/_UXSourceSplitViewSpringLoadingView.h>
 
-@interface _UXSourceSplitViewSpringLoadingView ()
-{
-    BOOL _didSpringLoad;    // 108 = 0x6c
-    id _springLoadingHandler;    // 112 = 0x70
-    id _canSpringLoadHandler;    // 120 = 0x78
+@interface _UXSourceSplitViewSpringLoadingView () {
+    BOOL _didSpringLoad;
 }
 
 @end
@@ -37,6 +34,7 @@
             [self performSelector:@selector(_unSpringLoad) withObject:nil afterDelay:0.25 inModes:@[NSRunLoopCommonModes]];
         }
     }
+
     _didSpringLoad = NO;
 }
 
@@ -44,14 +42,17 @@
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
 }
 
-- (void)springLoadingHighlightChanged:(id<NSDraggingInfo>)draggingInfo {}
+- (void)springLoadingHighlightChanged:(id<NSDraggingInfo>)draggingInfo {
+}
 
-- (void)springLoadingActivated:(BOOL)activated draggingInfo:(id<NSDraggingInfo>)draggingInfo {}
+- (void)springLoadingActivated:(BOOL)activated draggingInfo:(id<NSDraggingInfo>)draggingInfo {
+}
 
 - (NSSpringLoadingOptions)springLoadingEntered:(id<NSDraggingInfo>)draggingInfo {
     if (!_didSpringLoad) {
         [self performSelector:@selector(_springLoad) withObject:nil afterDelay:0.4 inModes:@[NSRunLoopCommonModes]];
     }
+
     return NSSpringLoadingDisabled;
 }
 
@@ -71,10 +72,11 @@
     if (self.isHidden) {
         return NO;
     }
+
     if (!self.canSpringLoadHandler) {
         return YES;
     }
-    
+
     return self.canSpringLoadHandler();
 }
 
