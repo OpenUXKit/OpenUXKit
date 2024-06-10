@@ -6,15 +6,11 @@
 //
 
 import Cocoa
-
- import OpenUXKit
-
-//import UXKit
+import OpenUXKit
 
 @objc(FirstViewController)
 class FirstViewController: UXViewController {
     deinit {
-        print(Thread.callStackSymbols)
         print("\(Self.self) is deinit")
     }
 }
@@ -22,7 +18,6 @@ class FirstViewController: UXViewController {
 @objc(SecondViewController)
 class SecondViewController: UXViewController {
     deinit {
-        print(Thread.callStackSymbols)
         print("\(Self.self) is deinit")
     }
 }
@@ -30,7 +25,6 @@ class SecondViewController: UXViewController {
 @objc(ThirdViewController)
 class ThirdViewController: UXViewController {
     deinit {
-        print(Thread.callStackSymbols)
         print("\(Self.self) is deinit")
     }
 }
