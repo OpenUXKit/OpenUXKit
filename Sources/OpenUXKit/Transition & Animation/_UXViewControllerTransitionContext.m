@@ -106,10 +106,10 @@
 
 - (void)_runAlongsideCompletions {
     if (__auxContext) {
-        auto alongsideAnimations = __auxContext._alongsideAnimations;
-        [__auxContext _applyBlocks:alongsideAnimations
+        auto alongsideCompletions = __auxContext._alongsideCompletions;
+        [__auxContext _applyBlocks:alongsideCompletions
                      releaseBlocks:^{
-            self->__auxContext._alongsideAnimations = nil;
+            self->__auxContext._alongsideCompletions = nil;
         }];
     }
 }

@@ -79,7 +79,7 @@ class ViewController: NSViewController {
                 UXViewController()
             }
             vc.uxView.backgroundColor = backgroundColors[navigationController.viewControllers.count - 1]
-            navigationController.pushViewController(vc, animated: true)
+            navigationController.setViewControllers([vc], animated: true)
         }
         checButtonEnabled()
     }
