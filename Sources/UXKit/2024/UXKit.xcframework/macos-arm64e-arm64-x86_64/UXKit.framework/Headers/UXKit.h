@@ -7,28 +7,28 @@ FOUNDATION_EXPORT CGFloat OpenUXKitVersionNumber;
 FOUNDATION_EXPORT const unsigned char OpenUXKitVersionString[];
 
 // Common
-#import <OpenUXKit/UXBase.h>
-#import <OpenUXKit/UXKitDefines.h>
+#import <UXKit/UXBase.h>
+#import <UXKit/UXKitDefines.h>
 
 // Components
-#import <OpenUXKit/UXView.h>
-#import <OpenUXKit/UXViewController.h>
-#import <OpenUXKit/UXBar.h>
-#import <OpenUXKit/UXToolbar.h>
-#import <OpenUXKit/UXBarItem.h>
-#import <OpenUXKit/UXBarButtonItem.h>
-#import <OpenUXKit/UXNavigationBar.h>
-#import <OpenUXKit/UXNavigationController.h>
-#import <OpenUXKit/UXNavigationItem.h>
-#import <OpenUXKit/UXLabel.h>
-#import <OpenUXKit/UXImageView.h>
+#import <UXKit/UXView.h>
+#import <UXKit/UXViewController.h>
+#import <UXKit/UXBar.h>
+#import <UXKit/UXToolbar.h>
+#import <UXKit/UXBarItem.h>
+#import <UXKit/UXBarButtonItem.h>
+#import <UXKit/UXNavigationBar.h>
+#import <UXKit/UXNavigationController.h>
+#import <UXKit/UXNavigationItem.h>
+#import <UXKit/UXLabel.h>
+#import <UXKit/UXImageView.h>
 
 // Protocols
-#import <OpenUXKit/UXKitAppearance.h>
-#import <OpenUXKit/UXViewControllerTransitionCoordinator.h>
-#import <OpenUXKit/UXViewControllerTransitioning.h>
-#import <OpenUXKit/UXBarCommon.h>
-#import <OpenUXKit/UXLayoutSupport.h>
+#import <UXKit/UXKitAppearance.h>
+#import <UXKit/UXViewControllerTransitionCoordinator.h>
+#import <UXKit/UXViewControllerTransitioning.h>
+#import <UXKit/UXBarCommon.h>
+#import <UXKit/UXLayoutSupport.h>
 
 
 // Categories
