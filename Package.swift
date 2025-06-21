@@ -36,15 +36,15 @@ let package = Package(
         .target(
             name: "OpenUXKit",
             cSettings: [
-                .headerSearchPath("PrivateHeaders")
+                .headerSearchPath("PrivateHeaders"),
             ]
         ),
-        .target(
+
+        .binaryTarget(
             name: "UXKit",
-            linkerSettings: [
-                .unsafeFlags([sourcesDirectory.appendingPathComponent("UXKit/UXKit.tbd").path])
-            ]
+            path: "Sources/UXKit/2024/UXKit.xcframework"
         ),
+
         .testTarget(
             name: "OpenUXKitTests",
             dependencies: ["OpenUXKit"]
