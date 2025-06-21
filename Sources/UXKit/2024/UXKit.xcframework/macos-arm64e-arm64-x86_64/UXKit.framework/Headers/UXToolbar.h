@@ -1,7 +1,7 @@
 #import <AppKit/AppKit.h>
-#import <OpenUXKit/UXBar.h>
-#import <OpenUXKit/UXBarButtonItem.h>
-#import <OpenUXKit/UXKitDefines.h>
+#import <UXKit/UXBar.h>
+#import <UXKit/UXBarButtonItem.h>
+#import <UXKit/UXKitDefines.h>
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 

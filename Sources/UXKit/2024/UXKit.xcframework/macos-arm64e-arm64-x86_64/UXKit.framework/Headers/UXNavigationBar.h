@@ -1,7 +1,7 @@
 #import <AppKit/AppKit.h>
-#import <OpenUXKit/UXBar.h>
-#import <OpenUXKit/UXNavigationController.h>
-#import <OpenUXKit/UXKitDefines.h>
+#import <UXKit/UXBar.h>
+#import <UXKit/UXNavigationController.h>
+#import <UXKit/UXKitDefines.h>
 
 @class UXNavigationItem, _UXNavigationItemContainerView;
 NS_SWIFT_UI_ACTOR

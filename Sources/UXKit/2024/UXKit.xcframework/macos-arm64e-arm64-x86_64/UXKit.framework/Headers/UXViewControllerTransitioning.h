@@ -1,9 +1,9 @@
 #import <AppKit/AppKit.h>
-#import <OpenUXKit/UXBase.h>
-#import <OpenUXKit/UXView.h>
-#import <OpenUXKit/UXKitDefines.h>
-#import <OpenUXKit/UXViewController.h>
-#import <OpenUXKit/UXViewControllerTransitionCoordinator.h>
+#import <UXKit/UXBase.h>
+#import <UXKit/UXView.h>
+#import <UXKit/UXKitDefines.h>
+#import <UXKit/UXViewController.h>
+#import <UXKit/UXViewControllerTransitionCoordinator.h>
 
 @class UXView, UXViewController;
 

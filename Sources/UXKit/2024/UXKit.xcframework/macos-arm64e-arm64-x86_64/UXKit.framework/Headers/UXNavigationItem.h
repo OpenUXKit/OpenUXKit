@@ -1,5 +1,5 @@
 #import <AppKit/AppKit.h>
-#import <OpenUXKit/UXKitDefines.h>
+#import <UXKit/UXKitDefines.h>
 
 @class UXBarButtonItem;
 

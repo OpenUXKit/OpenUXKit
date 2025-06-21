@@ -1,6 +1,6 @@
-#import <OpenUXKit/UXBarItem.h>
-#import <OpenUXKit/UXKitAppearance.h>
-#import <OpenUXKit/UXKitDefines.h>
+#import <UXKit/UXBarItem.h>
+#import <UXKit/UXKitAppearance.h>
+#import <UXKit/UXKitDefines.h>
 
 @class UXViewController, UXView;
 

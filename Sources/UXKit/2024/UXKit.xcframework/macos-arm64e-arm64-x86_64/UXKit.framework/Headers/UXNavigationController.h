@@ -1,8 +1,8 @@
 #import <AppKit/AppKit.h>
-#import <OpenUXKit/UXKitDefines.h>
-#import <OpenUXKit/UXToolbar.h>
-#import <OpenUXKit/UXViewController.h>
-#import <OpenUXKit/UXKitDefines.h>
+#import <UXKit/UXKitDefines.h>
+#import <UXKit/UXToolbar.h>
+#import <UXKit/UXViewController.h>
+#import <UXKit/UXKitDefines.h>
 
 @class UXNavigationBar, UXToolbar, UXView, UXViewController, UXBarButtonItem;
 @protocol UXViewControllerAnimatedTransitioning, UXViewControllerInteractiveTransitioning, UXNavigationControllerDelegate;
