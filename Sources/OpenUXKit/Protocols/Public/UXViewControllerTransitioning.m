@@ -10,5 +10,3 @@
 
 UXTransitionContextViewControllerKey const UXTransitionContextFromViewControllerKey = @"UXTransitionContextFromViewController";
 UXTransitionContextViewControllerKey const UXTransitionContextToViewControllerKey = @"UXTransitionContextToViewController";
-UXTransitionContextViewKey const UXTransitionContextFromViewKey = @"UXTransitionContextFromView";
-UXTransitionContextViewKey const UXTransitionContextToViewKey = @"UXTransitionContextToView";

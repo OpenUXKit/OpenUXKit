@@ -46,8 +46,10 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 - (void)setNavigationBarHidden:(BOOL)hidden animated:(BOOL)animated;
 
 @end
+
 NS_SWIFT_UI_ACTOR
 @protocol UXNavigationControllerDelegate <NSObject>
+
 @optional
 - (nullable id<UXViewControllerAnimatedTransitioning>)navigationController:(UXNavigationController *)navigationController animationControllerForOperation:(UXNavigationControllerOperation)operation fromViewController:(UXViewController *)fromViewController toViewController:(UXViewController *)toViewController;
 - (nullable id<UXViewControllerInteractiveTransitioning>)navigationController:(UXNavigationController *)navigationController interactionControllerForAnimationController:(id<UXViewControllerAnimatedTransitioning>)animationController;
