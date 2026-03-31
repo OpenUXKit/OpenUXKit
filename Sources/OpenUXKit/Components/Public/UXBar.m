@@ -51,6 +51,13 @@
     [_decorationLine setNeedsDisplay:YES];
 }
 
+- (CGFloat)visibleHeight {
+    if (self.isHidden) {
+        return 0.0;
+    }
+    return self.height;
+}
+
 - (void)setHeight:(CGFloat)height {
     height = fmax(height, 25.0);
 

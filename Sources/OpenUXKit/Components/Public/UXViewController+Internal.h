@@ -41,6 +41,7 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 @property (nonatomic) CGFloat preferredToolbarHeight;
 @property (nonatomic) CGFloat preferredToolbarBaselineOffsetFromBottom;
 @property (nonatomic) CGFloat preferredSubtoolbarHeight;
+@property (nonatomic) CGFloat preferredScopeBarHeight;
 @property (nonatomic) UXBarPosition preferredSubtoolbarPosition;
 @property (nonatomic) CGFloat preferredSubtoolbarBaselineOffsetFromBottom;
 @property (nonatomic) CGRect preferredInitialFrame;

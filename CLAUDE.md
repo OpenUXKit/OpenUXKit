@@ -10,20 +10,25 @@ Two library products exist:
 - **OpenUXKit** — the open-source reimplementation (primary development target)
 - **UXKit** — a thin target that links against Apple's private `/System/Library/PrivateFrameworks/UXKit.framework` via a TBD stub
 
+An Xcode workspace (`OpenUXKit.xcworkspace`) aggregates the main project and example apps under `Examples/`.
+
 ## Build Commands
 
 ```bash
-# SPM build
-swift build 2>&1 | xcsift
+# SPM build (always update packages first)
+swift package update && swift build 2>&1 | xcsift
 
 # SPM tests
-swift test 2>&1 | xcsift
+swift package update && swift test 2>&1 | xcsift
 
-# Xcode build
+# Run a single test
+swift test --filter OpenUXKitTests/testMethodName 2>&1 | xcsift
+
+# Xcode build (framework target only — tests are SPM-only)
 xcodebuild -project OpenUXKit.xcodeproj -scheme OpenUXKit -configuration Debug build 2>&1 | xcsift
 ```
 
-Platform requirement: macOS 11+ (Swift tools version 5.10).
+Platform requirement: macOS 11+ (Swift tools version 5.10). No linter or formatter is configured.
 
 ## Architecture
 
@@ -41,9 +46,20 @@ All `UX*` classes inherit from AppKit counterparts and add UIKit-style interface
 
 ### Header Organization (Public / Private / Internal)
 
-- **`Sources/OpenUXKit/include/OpenUXKit/`** — public headers (symlinks), exposed to consumers
-- **`Sources/OpenUXKit/PrivateHeaders/OpenUXKit/`** — internal headers (`+Internal.h`) and unimplemented class stubs; added via `cSettings: .headerSearchPath("PrivateHeaders")` in SPM
-- **`+Internal.h` pattern** — every major class has a `ClassName+Internal.h` that exposes private properties/methods to sibling implementation files (e.g. `UXView+Internal.h`, `UXViewController+Internal.h`)
+The header system has two directories with distinct roles:
+
+- **`Sources/OpenUXKit/PrivateHeaders/OpenUXKit/`** — contains **all** headers: public API, internal (`+Internal.h`), private classes (`_UX*`), and unimplemented stubs. This is the single source of truth for all `.h` files. Added to the compiler via `cSettings: .headerSearchPath("PrivateHeaders")` in SPM.
+- **`Sources/OpenUXKit/include/OpenUXKit/`** — contains **only symlinks** to the ~20 public headers that consumers can import. Each symlink points back into the source tree (e.g., `UXView.h → ../../Components/Public/UXView.h`). This is what SPM exposes as the module's public interface.
+
+The `+Internal.h` pattern: every major class has a `ClassName+Internal.h` that exposes private properties/methods for use by sibling `.m` files (e.g., `UXView+Internal.h`, `UXViewController+Internal.h`).
+
+### Adding a New Class
+
+1. Create the header `.h` in the appropriate `Sources/OpenUXKit/` subdirectory
+2. Create the implementation `.m` in the same directory
+3. The header is **automatically** available via PrivateHeaders (it's a flat directory that aggregates all headers)
+4. If the class should be **public API**: add a symlink in `Sources/OpenUXKit/include/OpenUXKit/` pointing to the header. You can use the `symbollink.sh` script in that directory (regenerates all symlinks) or create one manually
+5. Add the `#import` to `OpenUXKit.h` (the umbrella header)
 
 ### Source Layout
 
@@ -53,7 +69,7 @@ Sources/OpenUXKit/
 ├── Categories/Private/       # Private SPI access (NSView+PrivateSPI)
 ├── Commons/Public/           # UXBase.h, UXKitDefines.h
 ├── Commons/Private/          # extobjc macros, UXKitPrivateUtilites.h
-├── Components/Public/        # Implemented components (.m files)
+├── Components/Public/        # Implemented components (.h + .m files)
 ├── Components/Private/       # Internal components (_UXButton, etc.)
 ├── Protocols/Public/         # UXBarCommon, UXKitAppearance protocols
 ├── Transition & Animation/   # View controller transition controllers
@@ -91,6 +107,10 @@ Sources/OpenUXKit/
 - `UXZoomingCrossfadeTransitionController` — zoom crossfade
 - `_UXViewControllerTransitionContext` — transition context implementation
 
+### UXKit Target (Apple Private Framework Shim)
+
+`Sources/UXKit/` links against Apple's private framework via `UXKit.tbd`. It shares the same public headers as OpenUXKit (via symlink: `include → ../OpenUXKit/include`). The only source file is `NSViewController+UXKitFixups.m`, which adds `transitionCoordinator` and `_ancestorViewControllerOfClass:` to `NSViewController` as compatibility shims.
+
 ## Code Conventions
 
 ### Naming
@@ -114,8 +134,24 @@ All public headers use `NS_SWIFT_UI_ACTOR` (MainActor), `NS_SWIFT_NAME(...)`, an
 ### Third-party
 Uses embedded **extobjc** macros (`@weakify`/`@strongify`, `@onExit`, `@keypath`) from `Commons/Private/`.
 
-## Implementation Status
+## Resource Search Paths
 
-Completed: `UXView`, `UXViewController`, `UXBar`, `UXToolbar`, `UXBarItem`, `UXBarButtonItem`, `UXNavigationBar`, `UXNavigationController`, `UXNavigationItem`, `UXLabel`, `UXImageView`.
+When looking for pre-exported headers or IDA databases for reverse engineering reference, search the following paths **in order** and use the first match:
 
-Unimplemented (header stubs only in `Unimplementation/`): `UXCollectionView` family, `UXTableView` family, `UXControl`, `UXSourceController`, `UXTabBarController`, `UXWindowController`, and various `_UX` internal classes.
+| Priority | Description |
+|----------|-------------|
+| 1 | Primary local storage for Dyld Shared Cache exports |
+|   | `/Volumes/RE/Dyld-Shared-Cache/macOS/<version>/`  |
+|   | `/Volumes/Code/Dump/DyldSharedCaches/macOS/<version>/` |
+| 2 | RuntimeViewer MCP / ida-pro-mcp Live MCP fallback when local files do not exist |
+
+Each search path follows this directory layout:
+
+```
+<search-root>/<version>/
+├── <Framework>/
+│   ├── ObjCHeaders/          # RuntimeViewer exported ObjC headers (equivalent to get_type_interface)
+│   └── SwiftInterfaces/      # RuntimeViewer exported Swift interfaces
+├── <Framework>.i64           # IDA Pro database (e.g., UIKitCore.i64, AppKit.i64)
+└── ...
+```

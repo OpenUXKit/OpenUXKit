@@ -7,6 +7,7 @@ UXKIT_EXTERN void *UXSubtoolbarItemsObservationContext;
 UXKIT_EXTERN void *UXToolbarPositionsObservationContext;
 UXKIT_EXTERN void *UXToolbarAppearanceObservationContext;
 UXKIT_EXTERN void *UXAccessoryViewControllerObservationContext;
+UXKIT_EXTERN void *UXScopeBarItemsObservationContext;
 
 @class UXNavigationBar, UXToolbar, UXTransitionController, UXView, UXViewController, _UXContainerView, _UXViewControllerOneToOneTransitionContext, _UXWindowState, _UXNavigationRequest, UXBarButtonItem;
 @protocol UXNavigationControllerDelegate, _UXAccessoryBarContainer, UXViewControllerAnimatedTransitioning;
@@ -25,6 +26,7 @@ typedef struct {
 typedef struct {
     BOOL toolbarItems;
     BOOL subtoolbarItems;
+    BOOL scopeBarItems;
     BOOL positions;
     BOOL visibility;
     BOOL appearance;
@@ -37,6 +39,9 @@ typedef struct {
     UXNavigationBar *_navigationBar;    // 40 = 0x28
     UXToolbar *_accessoryBar;    // 48 = 0x30
     UXToolbar *_toolbar;    // 56 = 0x38
+    UXToolbar *_subtoolbar;
+    UXToolbar *_scopeBar;
+    NSView *_detachedBarsContainer;
     UXNavigationControllerDelegateFlags _delegateFlags;    // 64 = 0x40
     BOOL _isPerformingToolbarsChanges;    // 68 = 0x44
     UXNavigationControllerToolbarsNeedUpdateFlags _toolbarsNeedUpdateFlags;    // 69 = 0x45
@@ -53,6 +58,14 @@ typedef struct {
 @property (nonatomic, weak, nullable) id <_UXAccessoryBarContainer> accessoryBarContainer;
 @property (nonatomic, strong) NSVisualEffectView *subtoolbarVisualEffectsView;
 @property (nonatomic, strong) NSVisualEffectView *toolbarVisualEffectsView;
+@property (nonatomic, strong) NSVisualEffectView *scopeBarVisualEffectsView;
+@property (nonatomic, strong) NSLayoutConstraint *scopeBarVerticalConstraint;
+@property (nonatomic, strong) NSLayoutConstraint *detachedSubtoolbarTopConstraint;
+@property (nonatomic, strong) NSLayoutConstraint *detachedScopeBarTopConstraint;
+@property (nonatomic, strong) NSLayoutConstraint *detachedBarsContainerHeightConstraint;
+@property (nonatomic, strong) NSLayoutConstraint *containerTopConstraint;
+@property (nonatomic, getter=areToolbarsDetached) BOOL toolbarsDetached;
+@property (nonatomic, readonly) NSView *detachedBarsContainer;
 @property (nonatomic) BOOL shouldAnimateToolbarUpdates;
 @property (nonatomic, readonly) UXView *toolbarExtendedBackgroundView;
 @property (nonatomic, getter = isBackButtonMenuEnabled) BOOL backButtonMenuEnabled;
@@ -127,10 +140,11 @@ typedef struct {
 - (void)_setLeadingContentInset:(CGFloat)contentInset forViewController:(UXViewController *)viewController;
 - (CGFloat)_visibleToolbarOffset;
 - (CGFloat)_hiddenToolbarOffset;
-- (void)_setToolbarHidden:(BOOL)toolbarHidden subtoolbarHidden:(BOOL)subtoolbarHidden animated:(BOOL)animated duration:(NSTimeInterval)duration animateSubtree:(BOOL)animateSubtree;
+- (void)_setToolbarHidden:(BOOL)toolbarHidden subtoolbarHidden:(BOOL)subtoolbarHidden scopeBarHidden:(BOOL)scopeBarHidden animated:(BOOL)animated duration:(NSTimeInterval)duration animateSubtree:(BOOL)animateSubtree;
 - (BOOL)_toolbarNeedsVerticalOffsetUpdate;
 - (BOOL)_requiresWindowForTransitionPreparation;
 - (NSEdgeInsets)_intrinsicLayoutInsetsForChildViewController:(UXViewController *)childViewController;
+- (NSEdgeInsets)_toolbarLayoutInsetsForChildViewController:(UXViewController *)childViewController;
 - (NSLayoutConstraint *)_verticalToolbarLayoutConstraint;
 - (CGFloat)_toolbarVerticalOffset;
 - (CGFloat)_navigationBarVerticalOffset;
@@ -141,6 +155,11 @@ typedef struct {
 - (NSResponder *)nextResponderForToolbar:(UXToolbar *)toolbar;
 - (void)goBackWithMenuItem:(NSMenuItem *)menuItem;
 - (UXBarPosition)positionForBar:(id<UXBarPositioning>)bar;
+- (void)_invalidateScopeBarItems;
+- (CGFloat)_scopeBarVerticalOffset;
+- (void)_updateToolbarContainerConstraints;
+- (NSLayoutConstraint *)_verticalLayoutConstraintForToolbar:(UXToolbar *)toolbar;
+- (void)detachToolbars;
 @end
 
 NS_ASSUME_NONNULL_END

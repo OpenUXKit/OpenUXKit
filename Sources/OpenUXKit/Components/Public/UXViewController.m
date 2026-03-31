@@ -325,6 +325,7 @@
             @"preferredSubtoolbarHeight",
             @"preferredSubtoolbarBaselineOffsetFromBottom",
             @"preferredSubtoolbarPosition",
+            @"scopeBarItems",
         ];
     });
     return toolbarPropertyNames;

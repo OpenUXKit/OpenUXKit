@@ -25,6 +25,8 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @property (nonatomic, getter = isSubtoolbarHidden) BOOL subtoolbarHidden;
 @property (nonatomic, readonly, null_resettable) UXToolbar *accessoryBar;
 @property (nonatomic, readonly, getter = isAccessoryBarHidden) BOOL accessoryBarHidden;
+@property (nonatomic, readonly, nullable) UXToolbar *scopeBar;
+@property (nonatomic, getter=isScopeBarHidden) BOOL scopeBarHidden;
 @property (nonatomic, readonly) UXNavigationBar *navigationBar;
 @property (nonatomic, getter = isNavigationBarHidden) BOOL navigationBarHidden;
 @property (nonatomic, getter = isNavigationBarDetached) BOOL navigationBarDetached;
@@ -44,6 +46,7 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 - (void)detachNavigationBar;
 - (void)setToolbarHidden:(BOOL)hidden animated:(BOOL)animated;
 - (void)setNavigationBarHidden:(BOOL)hidden animated:(BOOL)animated;
+- (void)detachToolbars;
 
 @end
 
