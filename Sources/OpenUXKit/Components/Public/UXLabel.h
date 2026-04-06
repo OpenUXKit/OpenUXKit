@@ -26,9 +26,6 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 - (__kindof NSCell *)textFieldCell;
 - (CGSize)sizeThatFits:(CGSize)size;
 - (void)sizeToFit;
-- (CGFloat)lastBaselineOffsetFromBottom;
-- (CGFloat)firstBaselineOffsetFromTop;
-- (NSEdgeInsets)alignmentRectInsets;
 
 @end
 

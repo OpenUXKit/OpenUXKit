@@ -45,7 +45,7 @@
 
 - (void)_commonInit {
     _edgesForExtendedLayout = UXRectEdgeAll;
-    _isEditing = NO;
+    _editing = NO;
     _automaticallyAdjustsScrollViewInsets = YES;
     _preferredSubtoolbarPosition = 2;
 }
@@ -559,7 +559,7 @@
 - (void)updateFirstResponderIfNeeded {
     NSResponder *firstResponder = self.view.window.firstResponder;
 
-    if ([self isInResponderChainOf:firstResponder] && ![self.preferredFirstResponder isInResponderChainOf:firstResponder]) {
+    if ([self ux_isInResponderChainOf:firstResponder] && ![self.preferredFirstResponder ux_isInResponderChainOf:firstResponder]) {
         [self.view.window makeFirstResponder:self.preferredFirstResponder];
     }
 }

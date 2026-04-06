@@ -14,24 +14,21 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
     UXNavigationItem *_navigationItem;
     UXTabBarItem *_tabBarItem;
     UXViewController *_accessoryViewController;
+    UXViewController *_inspectorViewController;
     NSArray *_accessoryBarItems;
     UXViewController *_toolbarViewController;
     NSArray *_toolbarItems;
     NSArray *_subtoolbarItems;
+    NSArray *_scopeBarItems;
     BOOL _hidesBottomBarWhenPushed;
     CGSize _ux_preferredContentSize;
-    BOOL _viewDidLoad;
     BOOL _ignoreViewController;
     _UXLayoutSpacer *_topLayoutGuide;
     _UXLayoutSpacer *_bottomLayoutGuide;
     BOOL _transitioningIntoFullScreen;
     BOOL _transitioningOutOfFullScreen;
-    BOOL _isEditing;
 }
 
-@property (nonatomic, readonly, getter = isWindowInFullScreen) BOOL windowInFullScreen;
-@property (nonatomic, readonly, getter = isWindowConsideredInFullScreen) BOOL windowConsideredInFullScreen;
-@property (nonatomic, readonly, nullable) UXViewController *contentRepresentingViewController;
 @property (nonatomic) UXRectEdge edgesForExtendedLayout;
 @property (nonatomic, strong) UXView *presentedViewControllerContainerView;
 @property (nonatomic, class, readonly) NSArray *toolbarPropertyNames;
@@ -42,18 +39,24 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 @property (nonatomic) CGFloat preferredToolbarBaselineOffsetFromBottom;
 @property (nonatomic) CGFloat preferredSubtoolbarHeight;
 @property (nonatomic) CGFloat preferredScopeBarHeight;
+@property (nonatomic) CGFloat preferredScopeBarBaselineOffsetFromBottom;
 @property (nonatomic) UXBarPosition preferredSubtoolbarPosition;
 @property (nonatomic) CGFloat preferredSubtoolbarBaselineOffsetFromBottom;
 @property (nonatomic) CGRect preferredInitialFrame;
-@property (nonatomic, readonly, nullable) NSResponder *preferredFirstResponder;
+@property (nonatomic, strong, nullable) UXView *observedView;
+@property (nonatomic, readonly, nullable) UXNavigationItem *navigationItemIfLoaded;
+@property (nonatomic) NSEdgeInsets additionalToolbarInsets;
+@property (nonatomic, readonly) BOOL hidesInspectorWhenPushed;
+@property (nonatomic, readonly) BOOL prefersSidebarAndToolbarHiddenInFullscreenWindowMode;
+@property (nonatomic, readonly) BOOL delegatesSidebarAndToolbarFullscreenVisibilityManagement;
 
+- (void)observeValueForKeyPath:(nullable NSString *)keyPath ofObject:(nullable id)object change:(nullable NSDictionary<NSKeyValueChangeKey, id> *)change context:(nullable void *)context;
 - (void)didUpdateLayoutGuides;
 - (void)_animateView:(UXView *)view fromFrame:(CGRect)fromFrame toFrame:(CGRect)toFrame;
 - (void)_setupLayoutGuidesForView:(UXView *)view;
+- (void)_setupAdditionSafeAreaInsetsForView:(UXView *)view;
 - (BOOL)_requiresWindowForTransitionPreparation;
-- (id)_ancestorViewControllerOfClass:(Class)cls;
 - (CGRect)_defaultInitialFrame;
-- (void)_loadViewIfNotLoaded;
 - (void)_prepareForAnimationInContext:(id)context completion:(void (^)(void))completion;
 - (void)_startObservingFullScreenNotifications;
 - (void)_stopObservingFullScreenNotifications;
@@ -62,18 +65,15 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 - (void)_didExitFullScreenNotification:(NSNotification *)notification;
 - (void)_didEnterFullScreenNotification:(NSNotification *)notification;
 - (nullable NSMenu *)menuForEvent:(NSEvent *)event;
-- (BOOL)delegatesSidebarAndToolbarFullscreenVisibilityManagement;
-- (BOOL)prefersSidebarAndToolbarHiddenInFullscreenWindowMode;
 - (void)windowDidEnterFullScreen;
 - (void)windowDidExitFullScreen;
 - (void)windowWillEnterFullScreen;
 - (void)windowWillExitFullScreen;
 - (void)viewUpdateLayer;
 - (void)updateFirstResponderIfNeeded;
-- (void)windowDidRecalculateKeyViewLoop;
-- (void)windowWillRecalculateKeyViewLoop;
 - (CGSize)preferredContentSizeCappedToSize:(CGSize)size;
-- (void)contentRepresentingViewControllerDidChange;
+- (nullable id)inspectorViewController;
+- (void)setInspectorViewController:(nullable id)inspectorViewController;
 @end
 
 @interface UXViewController (UXNavigationControllerContextualToolbarItems_Private)

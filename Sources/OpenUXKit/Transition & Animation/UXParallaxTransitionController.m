@@ -2,6 +2,7 @@
 #import <OpenUXKit/UXNavigationController.h>
 #import <OpenUXKit/UXNavigationController+Internal.h>
 #import <OpenUXKit/UXView.h>
+#import <OpenUXKit/UXView+Internal.h>
 #import <OpenUXKit/NSView+UXKit.h>
 #import <OpenUXKit/UXViewControllerTransitioning.h>
 #import <OpenUXKit/_UXViewControllerOneToOneTransitionContext.h>

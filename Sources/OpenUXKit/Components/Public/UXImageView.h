@@ -11,9 +11,8 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @property (nonatomic, getter = isHighlighted) BOOL highlighted;
 @property (nonatomic, strong, nullable) NSImage *image;
 @property (nonatomic, strong, nullable) NSImage *highlightedImage;
-
-@property (nonatomic) BOOL allowsVibrancy;
-@property (nonatomic, copy, nullable) NSString *accessibilityLabel;
+@property (nonatomic, strong, nullable) NSColor *tintColor;
+@property (nonatomic) NSInteger preferredImageDynamicRange;
 
 - (instancetype)initWithImage:(nullable NSImage *)image highlightedImage:(nullable NSImage *)highlightedImage;
 - (instancetype)initWithImage:(nullable NSImage *)image;

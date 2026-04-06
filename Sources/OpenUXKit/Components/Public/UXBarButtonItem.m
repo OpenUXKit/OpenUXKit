@@ -8,8 +8,6 @@
 #import <OpenUXKit/UXKitPrivateUtilites.h>
 
 @implementation UXBarButtonItem
-@synthesize tintColor;
-@synthesize tintAdjustmentMode;
 
 - (instancetype)init {
     if (self = [super init]) {
@@ -348,11 +346,7 @@ if (button) {\
 - (void)setTintAdjustmentMode:(UXTintAdjustmentMode)tintAdjustmentMode {}
 
 - (NSColor *)tintColor {
-    if (_tintColor) {
-        return _tintColor;
-    } else {
-        return [NSColor controlTextColor];
-    }
+    return [NSColor controlTextColor];
 }
 
 - (void)setBaselineAnchor:(NSLayoutAnchor *)baselineAnchor {

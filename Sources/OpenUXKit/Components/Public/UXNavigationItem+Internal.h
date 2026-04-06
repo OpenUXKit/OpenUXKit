@@ -5,11 +5,13 @@ NS_ASSUME_NONNULL_BEGIN
 @interface UXNavigationItem () {
     NSArray *_leftBarButtonItems;
     NSArray *_rightBarButtonItems;
-    NSTextField *_internalTitleView;
+    NSStackView *_internalTitleView;
 }
 
 @property (nonatomic, strong, nullable) UXBarButtonItem *switchLibraryButtonItem;
-@property (nonatomic, readonly, nullable) NSTextField *internalTitleView;
+@property (nonatomic, readonly, nullable) NSView *internalTitleView;
+@property (nonatomic, readonly, nullable) NSTextField *internalTitleLabel;
+@property (nonatomic, readonly, nullable) NSTextField *internalSubtitleLabel;
 @property (nonatomic, strong, nullable) NSView *condensedTitleView;
 @property (nonatomic) BOOL leftItemsSupplementBackButton;
 @property (nonatomic) BOOL hidesGlobalTrailingView;

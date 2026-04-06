@@ -1,6 +1,9 @@
 #import <OpenUXKit/UXNavigationItem+Internal.h>
 
-@implementation UXNavigationItem
+@implementation UXNavigationItem {
+    NSTextField *_internalTitleLabel;
+    NSTextField *_internalSubtitleLabel;
+}
 
 @synthesize identifier;
 
@@ -137,11 +140,9 @@
 }
 
 - (void)_updateInternalTitleView {
-    if (self.title) {
-        _internalTitleView.stringValue = self.title;
-    } else {
-        _internalTitleView.stringValue = @"";
-    }
+    _internalTitleLabel.stringValue = self.title ?: @"";
+    _internalSubtitleLabel.stringValue = self.subtitle ?: @"";
+    _internalSubtitleLabel.hidden = (self.subtitle.length == 0);
 }
 
 - (void)setTitle:(NSString *)title {
@@ -149,18 +150,46 @@
     [self _updateInternalTitleView];
 }
 
-- (NSTextField *)internalTitleView {
+- (NSTextField *)internalTitleLabel {
+    return _internalTitleLabel;
+}
+
+- (NSTextField *)internalSubtitleLabel {
+    return _internalSubtitleLabel;
+}
+
+- (NSView *)internalTitleView {
     if (!_internalTitleView) {
-        _internalTitleView = [NSTextField labelWithString:@""];
-        _internalTitleView.alignment = NSTextAlignmentCenter;
-        _internalTitleView.textColor = NSColor.windowFrameTextColor;
-        _internalTitleView.font = [NSFont titleBarFontOfSize:NSFont.systemFontSize];
-        _internalTitleView.lineBreakMode = NSLineBreakByTruncatingTail;
+        _internalTitleLabel = [NSTextField labelWithString:@""];
+        _internalTitleLabel.alignment = NSTextAlignmentCenter;
+        _internalTitleLabel.textColor = NSColor.windowFrameTextColor;
+        _internalTitleLabel.font = [NSFont titleBarFontOfSize:NSFont.systemFontSize];
+        _internalTitleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
+        _internalTitleLabel.translatesAutoresizingMaskIntoConstraints = NO;
+        [_internalTitleLabel setContentCompressionResistancePriority:300 forOrientation:(NSLayoutConstraintOrientationHorizontal)];
+
+        _internalSubtitleLabel = [NSTextField labelWithString:@""];
+        _internalSubtitleLabel.alignment = NSTextAlignmentCenter;
+        _internalSubtitleLabel.textColor = NSColor.secondaryLabelColor;
+        _internalSubtitleLabel.font = [NSFont systemFontOfSize:NSFont.smallSystemFontSize];
+        _internalSubtitleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
+        _internalSubtitleLabel.translatesAutoresizingMaskIntoConstraints = NO;
+        _internalSubtitleLabel.hidden = YES;
+
+        _internalTitleView = [NSStackView stackViewWithViews:@[_internalTitleLabel, _internalSubtitleLabel]];
+        _internalTitleView.orientation = NSUserInterfaceLayoutOrientationVertical;
+        _internalTitleView.alignment = NSLayoutAttributeCenterX;
+        _internalTitleView.spacing = 0;
         _internalTitleView.translatesAutoresizingMaskIntoConstraints = NO;
         [_internalTitleView setContentCompressionResistancePriority:300 forOrientation:(NSLayoutConstraintOrientationHorizontal)];
         [self _updateInternalTitleView];
     }
     return _internalTitleView;
+}
+
+- (void)setSubtitle:(NSString *)subtitle {
+    _subtitle = [subtitle copy];
+    [self _updateInternalTitleView];
 }
 
 - (void)setRightBarButtonItem:(UXBarButtonItem *)item animated:(BOOL)animated {

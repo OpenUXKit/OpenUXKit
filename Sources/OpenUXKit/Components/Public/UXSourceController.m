@@ -190,7 +190,7 @@
     [_splitView didChangeCollapsed];
 
     if (_splitView.collapsed) {
-        BOOL isInResponderChain = [_splitView.masterView isInResponderChainOf:self.view.window.firstResponder];
+        BOOL isInResponderChain = [_splitView.masterView ux_isInResponderChainOf:self.view.window.firstResponder];
 
         if (isInResponderChain) {
             [self.view.window makeFirstResponder:[self preferredFirstResponder]];
@@ -881,7 +881,7 @@ static void *kFirstResponderObserverContext = &kFirstResponderObserverContext;
     UXTransitionController *transitionController = [_transitionControllerClassForTransition(transition) new];
     _transitionController = transitionController;
     _transitionController.operation = operation;
-    [self _loadViewIfNotLoaded];
+    [self loadViewIfNeeded];
     [self.view layoutSubtreeIfNeeded];
     _UXViewControllerOneToOneTransitionContext *transitionContext =  [_UXViewControllerOneToOneTransitionContext new];
     transitionContext.containerView = _splitView.detailView;
@@ -910,7 +910,7 @@ static void *kFirstResponderObserverContext = &kFirstResponderObserverContext;
     [fromViewController.navigationBar _snapshot];
     
     UXNavigationController *toViewController = (UXNavigationController *)[context viewControllerForKey:UXTransitionContextToViewControllerKey];
-    BOOL isInResponderChainOf = [_splitView.masterView isInResponderChainOf:window.firstResponder];
+    BOOL isInResponderChainOf = [_splitView.masterView ux_isInResponderChainOf:window.firstResponder];
     fromViewController.uxView.userInteractionEnabled = NO;
     CGRect finalFrame = [context finalFrameForViewController:toViewController];
     toViewController.uxView.frame = finalFrame;
