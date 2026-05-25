@@ -6,13 +6,19 @@
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 UXKIT_EXTERN NS_SWIFT_UI_ACTOR
-@interface UXNavigationItem : NSObject <NSUserInterfaceItemIdentification>
+@interface UXNavigationItem : NSObject
 
-@property (nonatomic, strong, nullable) NSString *title;
+@property (nonatomic, copy, nullable) NSString *title;
+@property (nonatomic, copy, nullable) NSString *subtitle;
 @property (nonatomic, strong, nullable) NSView *titleView;
 @property (nonatomic, copy, nullable) NSString *prompt;
 @property (nonatomic, strong, nullable) UXBarButtonItem *backBarButtonItem;
 @property (nonatomic) BOOL hidesBackButton;
+@property (nonatomic) BOOL hidesSidebarToggleButton;
+@property (nonatomic) BOOL useWindowForTitleOutput;
+@property (nonatomic, copy, nullable) NSString *identifier;
+@property (nonatomic, strong, nullable) UXBarButtonItem *progressButtonItem;
+@property (nonatomic, strong, nullable) NSToolbarItemGroup *centerToolbarItemGroup;
 @property (nonatomic, strong, nullable) UXBarButtonItem *leftBarButtonItem;
 @property (nonatomic, strong, nullable) UXBarButtonItem *rightBarButtonItem;
 @property (nonatomic, strong, nullable) NSArray<UXBarButtonItem *> *leftBarButtonItems;

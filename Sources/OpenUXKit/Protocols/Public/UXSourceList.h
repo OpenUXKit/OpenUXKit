@@ -4,9 +4,11 @@
 
 @protocol UXSourceList <NSObject>
 
-@property (nonatomic, readonly) CGFloat maxSourceListWidth;
-@property (nonatomic, readonly) CGFloat minSourceListWidth;
-@property (nonatomic, getter = isSourceListCollapsed) BOOL sourceListCollapsed;
+@required
+
+@property (nonatomic, readonly) CGFloat sourceListMinimumWidth;
+@property (nonatomic, readonly) CGFloat sourceListMaximumWidth;
+@property (nonatomic, readonly) CGFloat sourceListPreferredWidthFraction;
 
 - (void)selectNavigationDestination:(id <UXNavigationDestination>)navigationDestination;
 

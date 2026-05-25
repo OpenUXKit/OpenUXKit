@@ -1,6 +1,7 @@
 #import <OpenUXKit/_UXNavigationItemContainerView.h>
 #import <OpenUXKit/NSView+UXKit.h>
 #import <OpenUXKit/UXBar+Internal.h>
+#import <OpenUXKit/UXView+Internal.h>
 #import <OpenUXKit/UXKitDefines.h>
 #import <OpenUXKit/UXNavigationBar+Internal.h>
 #import <OpenUXKit/UXNavigationItem+Internal.h>

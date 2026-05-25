@@ -26,7 +26,6 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 @property (nonatomic) BOOL isInteractiveTransitioning;
 @property (nonatomic) CGFloat baselineOffsetFromBottom;
 @property (nonatomic) CGFloat height;
-@property (nonatomic, readonly) CGFloat visibleHeight;
 @property (nonatomic) CGFloat interitemSpacing;
 @property (nonatomic, strong) NSColor *barTintColor;
 @property (nonatomic) NSEdgeInsets layoutMargins;

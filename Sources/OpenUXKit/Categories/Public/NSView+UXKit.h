@@ -13,11 +13,15 @@ typedef NS_ENUM(NSInteger, UXLayoutConstraintAxis) {
 @interface NSView (UXKit) <UXKitAppearance>
 
 @property (nonatomic) CGFloat alpha;
-@property (copy, nullable) NSColor *backgroundColor;
+@property (nonatomic, getter=isHidden, readonly) BOOL hidden;
 
 - (CGFloat)ux_backingScaleFactor;
-- (nullable id)enclosingViewOfClass:(Class)cls;
-- (void)tintColorDidChange;
+- (nullable id)ux_enclosingViewOfClass:(Class)cls;
+- (void)sendSubviewToBack:(NSView *)subview;
+- (void)bringSubviewToFront:(NSView *)subview;
+- (void)insertSubview:(NSView *)subview atIndex:(NSUInteger)index;
+- (nullable id)ux_snapshotView;
+- (nullable id)ux_snapshotForRect:(CGRect)rect;
 - (void)setContentCompressionResistancePriority:(NSLayoutPriority)priority forAxis:(UXLayoutConstraintAxis)axis NS_SWIFT_UNAVAILABLE("use AppKit setContentCompressionResistancePriority(_:for:) instead");
 - (NSLayoutPriority)contentCompressionResistancePriorityForAxis:(UXLayoutConstraintAxis)axis NS_SWIFT_UNAVAILABLE("use AppKit contentCompressionResistancePriority(for:) instead");
 - (void)setContentHuggingPriority:(NSLayoutPriority)priority forAxis:(UXLayoutConstraintAxis)axis NS_SWIFT_UNAVAILABLE("use AppKit setContentHuggingPriority(_:for:) instead");

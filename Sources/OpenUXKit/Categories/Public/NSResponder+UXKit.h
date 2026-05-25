@@ -2,7 +2,7 @@
 
 @interface NSResponder (UXKit)
 
-- (BOOL)isInResponderChainOf:(NSResponder *)responder;
+- (BOOL)ux_isInResponderChainOf:(NSResponder *)responder;
 
 @end
 
