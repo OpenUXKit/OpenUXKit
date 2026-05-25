@@ -14,12 +14,9 @@ typedef NS_ENUM(NSInteger, UXLayoutConstraintAxis) {
 
 @property (nonatomic) CGFloat alpha;
 @property (nonatomic, getter=isHidden, readonly) BOOL hidden;
-@property (copy, nullable) NSColor *backgroundColor;
 
 - (CGFloat)ux_backingScaleFactor;
 - (nullable id)ux_enclosingViewOfClass:(Class)cls;
-- (nullable id)enclosingViewOfClass:(Class)cls API_DEPRECATED_WITH_REPLACEMENT("ux_enclosingViewOfClass:", macos(10.0, API_TO_BE_DEPRECATED));
-- (void)tintColorDidChange;
 - (void)sendSubviewToBack:(NSView *)subview;
 - (void)bringSubviewToFront:(NSView *)subview;
 - (void)insertSubview:(NSView *)subview atIndex:(NSUInteger)index;
