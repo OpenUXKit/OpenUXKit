@@ -20,12 +20,11 @@
 }
 
 - (void)setColor:(NSColor *)color {
-    _color = color;
-    self.layer.backgroundColor = color.CGColor;
+    self.backgroundColor = color;
 }
 
 - (NSColor *)color {
-    return _color;
+    return self.backgroundColor;
 }
 
 - (void)viewDidChangeBackingProperties {

@@ -40,9 +40,6 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 - (void)presentPopoverFromRect:(CGRect)rect inView:(UXView *)view preferredEdge:(NSRectEdge)preferredEdge;
 - (void)setPopoverContentSize:(CGSize)size animated:(BOOL)animated;
 - (void)_updateContentSize;
-- (void)popoverDidClose:(NSNotification *)notification;
-- (BOOL)popoverShouldClose:(NSPopover *)popover;
-- (void)popoverWillShow:(NSNotification *)notification;
 @end
 
 

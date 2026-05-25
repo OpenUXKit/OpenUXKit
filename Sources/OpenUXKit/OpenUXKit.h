@@ -25,7 +25,6 @@ FOUNDATION_EXPORT const unsigned char OpenUXKitVersionString[];
 #import <OpenUXKit/UXImageView.h>
 
 // Protocols
-#import <OpenUXKit/UXViewController-Protocol.h>
 #import <OpenUXKit/UXKitAppearance.h>
 #import <OpenUXKit/UXViewControllerTransitionCoordinator.h>
 #import <OpenUXKit/UXViewControllerTransitioning.h>

@@ -16,6 +16,7 @@ UXKIT_PRIVATE NS_SWIFT_UI_ACTOR
 
 - (NSColor *)_textColorForState:(UXControlState)state;
 - (NSAttributedString *)_attributedStringForState:(UXControlState)state;
+- (void)tintColorDidChange;
 - (void)setTitleAttributes:(NSDictionary<NSAttributedStringKey, id> *)titleAttributes forState:(UXControlState)state;
 - (void)setTitle:(NSString *)title forState:(UXControlState)state;
 

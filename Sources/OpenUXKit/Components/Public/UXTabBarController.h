@@ -5,10 +5,8 @@
 
 @class NSArray, NSLayoutConstraint, NSMapTable, NSPopUpButton, NSSegmentedControl, NSSet, UXNavigationItem, UXTabBarItemSegment, UXTransitionController, UXViewController, _UXViewControllerTransitionContext;
 
-@protocol UXTabBarControllerDelegate;
-
 UXKIT_EXTERN NS_SWIFT_UI_ACTOR
-@interface UXTabBarController: UXViewController <NSMenuItemValidation>
+@interface UXTabBarController: UXViewController
 
 
 @property(strong, nonatomic) UXViewController *transientViewController; // @synthesize transientViewController=_transientViewController;
@@ -16,13 +14,10 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @property(nonatomic) BOOL viewControllerTransitionInProgress; // @synthesize viewControllerTransitionInProgress=_viewControllerTransitionInProgress;
 @property(nonatomic) BOOL segmentTransitionInProgress; // @synthesize segmentTransitionInProgress=_segmentTransitionInProgress;
 @property(readonly, nonatomic) NSMapTable *transitionControllerClassByToViewControllerClass; // @synthesize transitionControllerClassByToViewControllerClass=_transitionControllerClassByToViewControllerClass;
-@property(readonly, nonatomic) NSToolbarItemGroup *toolbarItemGroup;
-@property(strong, nonatomic) NSArray *centerToolbarItemGroupTitles;
 @property(strong, nonatomic) NSArray *shortcutMenuItems; // @synthesize shortcutMenuItems=_shortcutMenuItems;
 @property(strong, nonatomic) UXViewController *observedViewController; // @synthesize observedViewController=_observedViewController;
 @property(strong, nonatomic) UXNavigationItem *observedNavigationItem; // @synthesize observedNavigationItem=_observedNavigationItem;
 @property(strong, nonatomic) NSSet *observedItemSegments; // @synthesize observedItemSegments=_observedItemSegments;
-@property(strong, nonatomic) NSSet *observedTabBarItems;
 @property(strong, nonatomic) NSArray *representedSegments; // @synthesize representedSegments=_representedSegments;
 @property(strong, nonatomic) NSMapTable *representedSegmentsToViewControllers; // @synthesize representedSegmentsToViewControllers=_representedSegmentsToViewControllers;
 @property(readonly, nonatomic) NSLayoutConstraint *popUpButtonWidthConstraint; // @synthesize popUpButtonWidthConstraint=_popUpButtonWidthConstraint;
@@ -30,8 +25,6 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @property(readonly, nonatomic) NSSegmentedControl *segmentedControl; // @synthesize segmentedControl=_segmentedControl;
 @property(nonatomic) __weak UXViewController *selectedViewController; // @synthesize selectedViewController=_selectedViewController;
 @property(copy, nonatomic) NSArray *viewControllers; // @synthesize viewControllers=_viewControllers;
-@property(nonatomic) BOOL tabBarHidden;
-@property(nonatomic, weak) id<UXTabBarControllerDelegate> delegate;
 - (void)populateShortcutMenuItemsStartingAtIndex:(NSUInteger)arg1 ofMenu:(id)arg2 useSeparators:(BOOL)arg3;
 - (id)contentRepresentingViewController;
 - (id)_childViewControllerAbleToNavigateToDestination:(id)arg1;
@@ -74,11 +67,6 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 - (void)_updateToolbarProperties;
 - (void)_transitionToTargetViewControllerWithCompletion:(id)arg1;
 - (void)_invalidateIntrinsicLayoutInsetsForViewController:(id)arg1;
-- (void)_updateControls;
-- (void)_updateTitleProperties;
-- (void)_notifyDelegateWithIndexSelection:(NSUInteger)indexSelection;
-- (void)_updateProgressBarButtonItem;
-- (void)toolbarItemGroupSelectionDidChange:(id)toolbarItemGroupSelectionDidChange;
 - (void)_updateControlsProperties;
 - (void)_updateControlsSelection;
 - (void)_setSelectedIndex:(NSUInteger)arg1;

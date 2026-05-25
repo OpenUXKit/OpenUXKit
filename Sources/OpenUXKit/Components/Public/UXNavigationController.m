@@ -71,11 +71,16 @@ void *UXScopeBarItemsObservationContext = &UXScopeBarItemsObservationContext;
 - (void)_setToolbarHidden:(BOOL)toolbarHidden subtoolbarHidden:(BOOL)subtoolbarHidden scopeBarHidden:(BOOL)scopeBarHidden animated:(BOOL)animated duration:(NSTimeInterval)duration animateSubtree:(BOOL)animateSubtree {
     BOOL currentToolbarHidden = _toolbarHidden;
 
-    if (currentToolbarHidden == toolbarHidden
-        && _subtoolbarHidden == subtoolbarHidden
-        && _scopeBarHidden == scopeBarHidden
-        && !self._toolbarNeedsVerticalOffsetUpdate) {
-        return;
+    if (currentToolbarHidden == toolbarHidden) {
+        currentToolbarHidden = toolbarHidden;
+
+        if (_subtoolbarHidden == subtoolbarHidden && self->_scopeBarHidden == scopeBarHidden) {
+            if (!self._toolbarNeedsVerticalOffsetUpdate) {
+                return;
+            }
+
+            currentToolbarHidden = _toolbarHidden;
+        }
     }
 
     BOOL previousSubtoolbarHidden = _subtoolbarHidden;
@@ -197,44 +202,19 @@ void *UXScopeBarItemsObservationContext = &UXScopeBarItemsObservationContext;
         [self.view addSubview:self.navigationBar];
     }
 
-    UXToolbar *toolbar = self.toolbar;
-    UXToolbar *subtoolbar = self.subtoolbar;
-    UXToolbar *scopeBar = self.scopeBar;
-
-    if (self.areToolbarsDetached) {
-        NSView *barsContainer = self.detachedBarsContainer;
-        [barsContainer addSubview:toolbar];
-        [barsContainer addSubview:subtoolbar positioned:NSWindowBelow relativeTo:toolbar];
-        [barsContainer addSubview:scopeBar positioned:NSWindowBelow relativeTo:toolbar];
-
-        self.detachedSubtoolbarTopConstraint = [subtoolbar.topAnchor constraintEqualToAnchor:barsContainer.topAnchor constant:toolbar.visibleHeight];
-        self.detachedScopeBarTopConstraint = [scopeBar.topAnchor constraintEqualToAnchor:barsContainer.topAnchor constant:toolbar.visibleHeight + subtoolbar.visibleHeight];
-        self.detachedBarsContainerHeightConstraint = [barsContainer.heightAnchor constraintEqualToConstant:toolbar.visibleHeight + subtoolbar.visibleHeight + scopeBar.visibleHeight];
-
-        [NSLayoutConstraint activateConstraints:@[
-            [toolbar.topAnchor constraintEqualToAnchor:barsContainer.topAnchor],
-            [toolbar.leadingAnchor constraintEqualToAnchor:barsContainer.leadingAnchor],
-            [toolbar.trailingAnchor constraintEqualToAnchor:barsContainer.trailingAnchor],
-            [subtoolbar.leadingAnchor constraintEqualToAnchor:barsContainer.leadingAnchor],
-            [subtoolbar.trailingAnchor constraintEqualToAnchor:barsContainer.trailingAnchor],
-            self.detachedSubtoolbarTopConstraint,
-            [scopeBar.leadingAnchor constraintEqualToAnchor:barsContainer.leadingAnchor],
-            [scopeBar.trailingAnchor constraintEqualToAnchor:barsContainer.trailingAnchor],
-            self.detachedScopeBarTopConstraint,
-            self.detachedBarsContainerHeightConstraint,
-        ]];
-    } else {
-        [self.view addSubview:toolbar];
-        [self.view addSubview:subtoolbar positioned:NSWindowBelow relativeTo:toolbar];
-        [self.view addSubview:scopeBar positioned:NSWindowBelow relativeTo:toolbar];
-
-        _toolbarExtendedBackgroundView = [[UXView alloc] init];
-        _toolbarExtendedBackgroundView.translatesAutoresizingMaskIntoConstraints = NO;
-        _toolbarExtendedBackgroundView.hidden = YES;
-        _toolbarExtendedBackgroundView.wantsLayer = YES;
-        [_toolbarExtendedBackgroundView setBackgroundColor:NSColor.controlBackgroundColor];
-        [self.view addSubview:_toolbarExtendedBackgroundView];
-    }
+    self.toolbar.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.view addSubview:self.toolbar];
+    _subtoolbar = [[UXSubtoolbar alloc] initWithFrame:CGRectZero];
+    _subtoolbar.translatesAutoresizingMaskIntoConstraints = NO;
+    _subtoolbar.hidden = _subtoolbarHidden;
+    _subtoolbar.delegate = self;
+    [self.view addSubview:_subtoolbar positioned:NSWindowBelow relativeTo:self.toolbar];
+    _toolbarExtendedBackgroundView = [[UXView alloc] init];
+    _toolbarExtendedBackgroundView.translatesAutoresizingMaskIntoConstraints = NO;
+    _toolbarExtendedBackgroundView.hidden = YES;
+    _toolbarExtendedBackgroundView.wantsLayer = YES;
+    [_toolbarExtendedBackgroundView setBackgroundColor:NSColor.controlBackgroundColor];
+    [self.view addSubview:_toolbarExtendedBackgroundView];
 }
 
 NSString * UXLocalizedString(NSString *key) {
@@ -262,20 +242,6 @@ NSString * UXLocalizedString(NSString *key) {
     return _toolbar;
 }
 
-- (UXToolbar *)subtoolbar {
-    if (_subtoolbar == nil) {
-        _subtoolbar = [[UXSubtoolbar alloc] initWithFrame:CGRectZero];
-        _subtoolbar.delegate = self;
-        _subtoolbar.hidden = _subtoolbarHidden;
-        _subtoolbar.accessibilityIdentifier = @"UXNavigationControllerSubtoolbar";
-        _subtoolbar.accessibilityRoleDescription = UXLocalizedString(@"UXNavigationControllerToolbarAXRoleDescription");
-        _subtoolbar.accessibilityLabel = UXLocalizedString(@"UXNavigationControllerToolbarAXLabel");
-        _subtoolbar.translatesAutoresizingMaskIntoConstraints = NO;
-    }
-
-    return _subtoolbar;
-}
-
 - (UXBarPosition)positionForBar:(id<UXBarPositioning>)bar {
     if (self.toolbar == bar) {
         return self._toolbarPosition;
@@ -289,22 +255,41 @@ NSString * UXLocalizedString(NSString *key) {
 }
 
 - (void)detachNavigationBar {
-    if (self.isNavigationBarDetached) {
-        return;
-    }
+    if (!self.isNavigationBarDetached) {
+        NSArray *navigationBarConstraints = self.navigationBarConstraints;
 
-    self.navigationBarDetached = YES;
+        if (navigationBarConstraints) {
+            [self.view removeConstraints:self.navigationBarConstraints];
+            self.navigationBarConstraints = nil;
+            self.navigationBarTopConstraint = nil;
+        }
 
-    if (self.isViewLoaded) {
+        id secondItem = self.toolbarVerticalConstraint.secondItem;
+
+        if (secondItem == self.navigationBar) {
+            [self.view removeConstraint:self.toolbarVerticalConstraint];
+            NSMutableArray *addedConstraints = [self addedConstraints];
+            [addedConstraints removeObject:self.toolbarVerticalConstraint];
+            self.toolbarVerticalConstraint = nil;
+        }
+
         [self.navigationBar removeFromSuperview];
-        [self.view setNeedsUpdateConstraints:YES];
-    }
 
-    self.navigationBar.centerYOffset = 0.0;
-    self.navigationBar.detached = YES;
-    self.navigationBar.edgeInsets = NSEdgeInsetsMake(0.0, 1.0, 0.0, 1.0);
-    self.navigationBar.blurEnabled = NO;
-    [self.navigationBar setBackgroundColor:NSColor.clearColor];
+        self.navigationBarDetached = YES;
+
+        if (!self.toolbarVerticalConstraint) {
+            self.toolbarVerticalConstraint = self._verticalToolbarLayoutConstraint;
+            NSMutableArray *addedConstraints = [self addedConstraints];
+            [addedConstraints addObject:self.toolbarVerticalConstraint];
+            [self.view addConstraint:self.toolbarVerticalConstraint];
+        }
+
+        self.navigationBar.centerYOffset = 0.0;
+        self.navigationBar.detached = YES;
+        self.navigationBar.edgeInsets = NSEdgeInsetsMake(0.0, 1.0, 0.0, 1.0);
+        self.navigationBar.blurEnabled = NO;
+        [self.navigationBar setBackgroundColor:NSColor.clearColor];
+    }
 }
 
 - (void)detachToolbars {
@@ -320,7 +305,7 @@ NSString * UXLocalizedString(NSString *key) {
     }
 
     if (self.isNavigationBarDetached) {
-        return [NSLayoutConstraint constraintWithItem:_toolbar attribute:(NSLayoutAttributeTop) relatedBy:(NSLayoutRelationEqual) toItem:self.topLayoutGuide attribute:(NSLayoutAttributeBottom) multiplier:1.0 constant:toolbarVerticalOffset];
+        return [NSLayoutConstraint constraintWithItem:_toolbar attribute:(NSLayoutAttributeTop) relatedBy:(NSLayoutRelationEqual) toItem:self.topLayoutGuide attribute:(NSLayoutAttributeTop) multiplier:1.0 constant:toolbarVerticalOffset];
     }
 
     return [NSLayoutConstraint constraintWithItem:_toolbar attribute:(NSLayoutAttributeTop) relatedBy:(NSLayoutRelationEqual) toItem:self.navigationBar attribute:(NSLayoutAttributeBottom) multiplier:1.0 constant:toolbarVerticalOffset];
@@ -438,7 +423,7 @@ NSString * UXLocalizedString(NSString *key) {
 }
 
 - (void)invalidateIntrinsicLayoutInsets {
-    [self loadViewIfNeeded];
+    [self _loadViewIfNotLoaded];
     _UXViewControllerOneToOneTransitionContext *context = self.currentTransitionContext;
 
     if (context) {
@@ -529,10 +514,6 @@ NSString * UXLocalizedString(NSString *key) {
     [self.addedConstraints addObject:self.toolbarVerticalConstraint];
     self.toolbarLeadingConstraint = [_toolbar.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:__leadingContentInset];
     [self.addedConstraints addObject:self.toolbarLeadingConstraint];
-
-    self.scopeBarVerticalConstraint = [self.scopeBar.topAnchor constraintEqualToAnchor:self.toolbar.topAnchor constant:self._scopeBarVerticalOffset];
-    [self.addedConstraints addObject:self.scopeBarVerticalConstraint];
-
     [self.addedConstraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[containerView]|" options:NSLayoutFormatDirectionLeadingToTrailing metrics:nil views:views]];
     [self.addedConstraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[toolbar]|" options:NSLayoutFormatDirectionLeadingToTrailing metrics:nil views:views]];
     NSLayoutConstraint *layoutConstraint = nil;
@@ -551,8 +532,6 @@ NSString * UXLocalizedString(NSString *key) {
          [self.toolbar.bottomAnchor constraintEqualToAnchor:self.subtoolbar.topAnchor],
          [self.toolbar.leftAnchor constraintEqualToAnchor:self.subtoolbar.leftAnchor],
          [self.toolbar.rightAnchor constraintEqualToAnchor:self.subtoolbar.rightAnchor],
-         [self.toolbar.leftAnchor constraintEqualToAnchor:self.scopeBar.leftAnchor],
-         [self.toolbar.rightAnchor constraintEqualToAnchor:self.scopeBar.rightAnchor],
     ]];
     [self.view addConstraints:self.addedConstraints];
     [super updateViewConstraints];
@@ -675,10 +654,10 @@ NSString * UXLocalizedString(NSString *key) {
         if (fromViewController == childViewController) {
             BOOL fromHasAccessory = fromViewController.accessoryViewController || fromViewController.accessoryBarItems.count;
 
-            if (!fromHasAccessory) {
-                BOOL toHasAccessory = toViewController.accessoryViewController || toViewController.accessoryBarItems.count;
+            if (fromHasAccessory) {
+                UXViewController *toAccessoryViewController = toViewController.accessoryViewController;
 
-                if (toHasAccessory) {
+                if (!toAccessoryViewController && !toViewController.accessoryBarItems.count) {
                     top = top - self.accessoryBarContainer._accessoryBarHeight;
                 }
             }
@@ -705,10 +684,6 @@ NSString * UXLocalizedString(NSString *key) {
 }
 
 - (NSEdgeInsets)_toolbarLayoutInsetsForChildViewController:(UXViewController *)childViewController {
-    if (self.areToolbarsDetached) {
-        return NSEdgeInsetsZero;
-    }
-
     CGFloat top = 0.0;
     CGFloat bottom = 0.0;
 
@@ -979,7 +954,7 @@ NSArray * _accessoryBarItemsForViewController(UXViewController *viewController) 
     NSArray<UXViewController *> *viewControllers = navigationRequest.viewControllers;
 
     if (![_targetViewControllers isEqualToArray:viewControllers]) {
-        for (_UXNavigationRequest *request in [_navigationRequests reverseObjectEnumerator]) {
+        for (_UXNavigationRequest *request in _navigationRequests) {
             [request tearDownContainmentIfNeeded];
         }
 
@@ -999,7 +974,8 @@ NSArray * _accessoryBarItemsForViewController(UXViewController *viewController) 
         id<UXViewControllerTransitionCoordinator> currentTransitionCoordinator = self.currentTransitionCoordinator;
 
         if (currentTransitionCoordinator) {
-            [currentTransitionCoordinator animateAlongsideTransition:nil
+            [currentTransitionCoordinator animateAlongsideTransition:^(id<UXViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+            }
                                                           completion:^(id<UXViewControllerTransitionCoordinatorContext>  _Nonnull context) {
                 [self _dequeueNavigationRequest];
             }];
@@ -1095,7 +1071,7 @@ NSArray * _accessoryBarItemsForViewController(UXViewController *viewController) 
         }
     }
 
-    [self loadViewIfNeeded];
+    [self _loadViewIfNotLoaded];
     [self.view layoutSubtreeIfNeeded];
 
     _UXViewControllerOneToOneTransitionContext *oneToOneTransitionContext = [_UXViewControllerOneToOneTransitionContext new];
@@ -1111,8 +1087,8 @@ NSArray * _accessoryBarItemsForViewController(UXViewController *viewController) 
         [weakSelf testing_notifyTransitionAnimationDidComplete];
     };
     oneToOneTransitionContext.fromStartFrame = fromViewController.view.frame;
-    oneToOneTransitionContext.fromEndFrame = CGRectNull;
-    oneToOneTransitionContext.toStartFrame = CGRectNull;
+    oneToOneTransitionContext.fromEndFrame = CGRectZero;
+    oneToOneTransitionContext.toStartFrame = CGRectZero;
     oneToOneTransitionContext.toEndFrame = self.containerView.bounds;
     return oneToOneTransitionContext;
 }
@@ -1184,11 +1160,10 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
     _subtoolbar.userInteractionEnabled = NO;
     _scopeBar.userInteractionEnabled = NO;
     _isTransitioning = YES;
-
+    
     UXViewController *fromViewController = [context viewControllerForKey:UXTransitionContextFromViewControllerKey];
     UXViewController *toViewController = [context viewControllerForKey:UXTransitionContextToViewControllerKey];
-    BOOL selfViewIsInResponderChainOfWindowFirstResponder = [self.view ux_isInResponderChainOf:self.view.window.firstResponder];
-    NSInteger savedTitlebarSeparatorStyle = self.view.window.titlebarSeparatorStyle;
+    BOOL selfViewIsInResponderChainOfWindowFirstResponder = [self.view isInResponderChainOf:self.view.window.firstResponder];
     __weak typeof(self) weakSelf = self;
     __weak typeof(context) weakContext = context;
     auto setupContext = ^{
@@ -1273,9 +1248,9 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
                 [strongSelf didChangeValueForKey:NSStringFromSelector(@selector(currentTopViewController))];
             }
 
-            strongSelf.currentTransitionContext = nil;
-            strongSelf.defaultTransitionController = nil;
-            strongSelf->_isTransitioning = NO;
+            self.currentTransitionContext = nil;
+            self.defaultTransitionController = nil;
+            self->_isTransitioning = NO;
 
             if (isEnded) {
                 NSWindow *window = strongSelf.view.window;
@@ -1296,7 +1271,6 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
             if (UXKitBehavior.sharedBehavior.recalculatesKeyViewLoopAfterTransition) {
                 [strongSelf.view.window recalculateKeyViewLoop];
             }
-            strongSelf.view.window.titlebarSeparatorStyle = savedTitlebarSeparatorStyle;
         };
         [strongSelf _invalidateIntrinsicLayoutInsetsForViewController:toViewController];
         [weakContext.animator animateTransition:weakContext];
@@ -1473,7 +1447,6 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
     CGRect finalFrame = [context finalFrameForViewController:toViewController];
     toViewController.uxView.frame = finalFrame;
     toViewController.uxView.userInteractionEnabled = NO;
-    self.view.window.titlebarSeparatorStyle = NSTitlebarSeparatorStyleLine;
     UXViewController *fromAccessoryViewController = fromViewController.accessoryViewController;
 
     if (!fromAccessoryViewController && !fromViewController.accessoryBarItems.count) {
@@ -1729,111 +1702,91 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
 }
 
 - (void)_updateToolbarAppearanceUsingTopViewController:(UXViewController *)topViewController animated:(BOOL)animated duration:(NSTimeInterval)duration {
-    UXToolbar *toolbar = self.toolbar;
-    UXToolbar *subtoolbar = self.subtoolbar;
-    UXToolbar *scopeBar = self.scopeBar;
-
-    BOOL toolbarHeightChanged = NO;
     CGFloat preferredToolbarHeight = topViewController.preferredToolbarHeight;
+    CGFloat toolbarHeight = self.toolbar.height;
+    BOOL invalidPreferredToolbarHeight = NO;
 
-    if (preferredToolbarHeight > 0.0 && preferredToolbarHeight != toolbar.height) {
-        toolbar.height = preferredToolbarHeight;
-        toolbarHeightChanged = YES;
+    if (preferredToolbarHeight <= 0.0 || preferredToolbarHeight == toolbarHeight) {
+        invalidPreferredToolbarHeight = YES;
+    } else {
+        invalidPreferredToolbarHeight = NO;
+        self.toolbar.height = preferredToolbarHeight;
     }
 
     if (topViewController.preferredToolbarBaselineOffsetFromBottom > 0.0) {
-        toolbar.baselineOffsetFromBottom = topViewController.preferredToolbarBaselineOffsetFromBottom;
+        self.toolbar.baselineOffsetFromBottom = topViewController.preferredToolbarBaselineOffsetFromBottom;
     }
 
-    if (topViewController.preferredSubtoolbarHeight > 0.0 && topViewController.preferredSubtoolbarHeight != subtoolbar.height) {
-        subtoolbar.height = topViewController.preferredSubtoolbarHeight;
+    if (topViewController.preferredSubtoolbarHeight > 0.0) {
+        self.subtoolbar.height = topViewController.preferredSubtoolbarHeight;
     }
 
     if (topViewController.preferredSubtoolbarBaselineOffsetFromBottom > 0.0) {
-        subtoolbar.baselineOffsetFromBottom = topViewController.preferredSubtoolbarBaselineOffsetFromBottom;
-    }
-
-    if (topViewController.preferredScopeBarHeight > 0.0) {
-        scopeBar.height = topViewController.preferredScopeBarHeight;
+        self.subtoolbar.baselineOffsetFromBottom = topViewController.preferredSubtoolbarBaselineOffsetFromBottom;
     }
 
     NSEdgeInsets layoutMargins = topViewController.navigationItem.layoutMargins;
-    toolbar.layoutMargins = layoutMargins;
-    subtoolbar.layoutMargins = layoutMargins;
-    scopeBar.layoutMargins = layoutMargins;
-
+    self.toolbar.layoutMargins = layoutMargins;
+    self.subtoolbar.layoutMargins = layoutMargins;
     NSInteger preferredToolbarStyle = topViewController.preferredToolbarStyle;
     NSColor *backgroundColor = nil;
-    BOOL blurEnabled = NO;
+    NSColor *toolbarBorderColor = nil;
+    NSColor *subtoolbarBorderColor = nil;
+    BOOL subtoolbarBlurEnabled = NO;
 
-    if (!preferredToolbarStyle) {
+    if (preferredToolbarStyle) {
+        NSEdgeInsets preferredToolbarDecorationInsets = topViewController.preferredToolbarDecorationInsets;
+
+        if (preferredToolbarStyle == 1) {
+            [self.toolbarVisualEffectsView removeFromSuperview];
+            [self.subtoolbarVisualEffectsView removeFromSuperview];
+            self.toolbar.blurEnabled = YES;
+            self.toolbar.blurMaterial = NSVisualEffectMaterialHeaderView;
+            toolbarBorderColor = [NSColor colorWithSRGBRed:0.0 green:0.0 blue:0.0 alpha:0.15];
+            backgroundColor = [NSColor clearColor];
+            subtoolbarBlurEnabled = YES;
+        } else {
+            if (preferredToolbarStyle == 2) {
+                if (!self.toolbarVisualEffectsView.superview) {
+                    CGRect toolbarBounds = self.toolbar.bounds;
+                    self.toolbarVisualEffectsView.frame = toolbarBounds;
+                    [self.toolbar addSubview:self.toolbarVisualEffectsView positioned:NSWindowBelow relativeTo:nil];
+                }
+
+                if (!self.subtoolbarVisualEffectsView.superview) {
+                    self.subtoolbarVisualEffectsView.frame = self.subtoolbar.bounds;
+                    [self.subtoolbar addSubview:self.subtoolbarVisualEffectsView positioned:NSWindowBelow relativeTo:nil];
+                }
+
+                backgroundColor = NSColor.clearColor;
+                subtoolbarBorderColor = NSColor.quaternaryLabelColor;
+            }
+
+            self.toolbar.blurEnabled = NO;
+            subtoolbarBlurEnabled = NO;
+        }
+
+        [self.toolbar setBackgroundColor:backgroundColor];
+        self.toolbar.borderColor = toolbarBorderColor;
+        self.toolbar.bordered = toolbarBorderColor != nil;
+        self.toolbar.decorationInsets = preferredToolbarDecorationInsets;
+        self.subtoolbar.blurEnabled = subtoolbarBlurEnabled;
+        [self.subtoolbar setBackgroundColor:backgroundColor];
+        self.subtoolbar.borderColor = subtoolbarBorderColor;
+        self.subtoolbar.bordered = subtoolbarBorderColor != nil;
+        self.subtoolbar.decorationInsets = preferredToolbarDecorationInsets;
+        self.toolbarExtendedBackgroundView.hidden = subtoolbarBlurEnabled;
+    } else {
         self.toolbarExtendedBackgroundView.hidden = YES;
         [self.toolbarVisualEffectsView removeFromSuperview];
         [self.subtoolbarVisualEffectsView removeFromSuperview];
-        [self.scopeBarVisualEffectsView removeFromSuperview];
-        goto animateIfNeeded;
     }
 
-    NSEdgeInsets preferredToolbarDecorationInsets = topViewController.preferredToolbarDecorationInsets;
-
-    if (preferredToolbarStyle == 1) {
-        [self.toolbarVisualEffectsView removeFromSuperview];
-        [self.subtoolbarVisualEffectsView removeFromSuperview];
-        [self.scopeBarVisualEffectsView removeFromSuperview];
-        toolbar.blurEnabled = YES;
-        toolbar.blurMaterial = NSVisualEffectMaterialHeaderView;
-        backgroundColor = [NSColor clearColor];
-        blurEnabled = YES;
-    } else if (preferredToolbarStyle == 2) {
-        if (!self.toolbarVisualEffectsView.superview) {
-            self.toolbarVisualEffectsView.frame = toolbar.bounds;
-            [toolbar addSubview:self.toolbarVisualEffectsView positioned:NSWindowBelow relativeTo:nil];
-        }
-
-        if (!self.subtoolbarVisualEffectsView.superview) {
-            self.subtoolbarVisualEffectsView.frame = subtoolbar.bounds;
-            [subtoolbar addSubview:self.subtoolbarVisualEffectsView positioned:NSWindowBelow relativeTo:nil];
-        }
-
-        if (!self.scopeBarVisualEffectsView.superview) {
-            self.scopeBarVisualEffectsView.frame = scopeBar.bounds;
-            [scopeBar addSubview:self.scopeBarVisualEffectsView positioned:NSWindowBelow relativeTo:nil];
-        }
-
-        backgroundColor = [NSColor clearColor];
-        toolbar.blurEnabled = NO;
-        blurEnabled = NO;
-    } else {
-        toolbar.blurEnabled = NO;
-        blurEnabled = NO;
-    }
-
-    [toolbar setBackgroundColor:backgroundColor];
-    toolbar.borderColor = nil;
-    toolbar.bordered = NO;
-    toolbar.decorationInsets = preferredToolbarDecorationInsets;
-
-    subtoolbar.blurEnabled = blurEnabled;
-    [subtoolbar setBackgroundColor:backgroundColor];
-    subtoolbar.borderColor = nil;
-    subtoolbar.bordered = NO;
-    subtoolbar.decorationInsets = preferredToolbarDecorationInsets;
-
-    scopeBar.blurEnabled = blurEnabled;
-    [scopeBar setBackgroundColor:backgroundColor];
-    scopeBar.borderColor = nil;
-    scopeBar.bordered = NO;
-    scopeBar.decorationInsets = preferredToolbarDecorationInsets;
-
-    self.toolbarExtendedBackgroundView.hidden = blurEnabled;
-
-animateIfNeeded:
-    if (animated && toolbarHeightChanged) {
+    if (!(invalidPreferredToolbarHeight || !animated)) {
         [UXView animateWithDuration:duration
                          animations:^{
-            [toolbar layoutSubtreeIfNeeded];
-            [subtoolbar layoutSubtreeIfNeeded];
-            [scopeBar layoutSubtreeIfNeeded];
+            [self.toolbar layoutSubtreeIfNeeded];
+            [self.subtoolbar layoutSubtreeIfNeeded];
         }];
     }
 }
@@ -1957,45 +1910,38 @@ animateIfNeeded:
 
 - (void)menuNeedsUpdate:(NSMenu *)menu {
     [menu removeAllItems];
-
-    UXViewController *topViewController = self.topViewController;
-    __block UXViewController *previousViewController = nil;
-
+    __block UXViewController *currentViewController = nil;
     [self.viewControllers enumerateObjectsWithOptions:(NSEnumerationReverse)
-                                           usingBlock:^(UXViewController *_Nonnull viewController, NSUInteger index, BOOL *_Nonnull stop) {
-        if (viewController == topViewController) {
-            previousViewController = viewController;
-            return;
-        }
+                                           usingBlock:^(UXViewController *_Nonnull viewController, NSUInteger idx, BOOL *_Nonnull stop) {
+        if (self.topViewController != viewController) {
+            NSString *title = nil;
 
-        NSString *title = nil;
+            if ([currentViewController respondsToSelector:@selector(navigationItem)]) {
+                title = currentViewController.navigationItem.backBarButtonItem.title;
 
-        if ([previousViewController respondsToSelector:@selector(navigationItem)]) {
-            title = previousViewController.navigationItem.backBarButtonItem.title;
-        }
-
-        if (!title) {
-            if ([viewController respondsToSelector:@selector(navigationItem)]) {
-                title = viewController.navigationItem.title;
+                if (title) {
+                    //FIXME: - keyEquivalent
+                    NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:title
+                                                                      action:@selector(goBackWithMenuItem:)
+                                                               keyEquivalent:@""];
+                    menuItem.tag = idx;
+                    [menu addItem:menuItem];
+                }
             }
 
-            if (!title) {
-                title = viewController.title;
-
-                if (!title) {
-                    previousViewController = viewController;
-                    return;
+            if ([viewController respondsToSelector:@selector(navigationItem)] && ((title = viewController.navigationItem.title) || (title = viewController.title))) {
+                if (title) {
+                    //FIXME: - keyEquivalent
+                    NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:title
+                                                                      action:@selector(goBackWithMenuItem:)
+                                                               keyEquivalent:@""];
+                    menuItem.tag = idx;
+                    [menu addItem:menuItem];
                 }
             }
         }
 
-        NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:title
-                                                          action:@selector(goBackWithMenuItem:)
-                                                   keyEquivalent:@""];
-        menuItem.tag = index;
-        [menu addItem:menuItem];
-
-        previousViewController = viewController;
+        currentViewController = viewController;
     }];
 }
 
@@ -2006,7 +1952,7 @@ animateIfNeeded:
 - (UXBarButtonItem *)_backItemWithTitle:(NSString *)title target:(id)target action:(SEL)action {
     UXBarButtonItem *backButtonItem = nil;
 
-    if (self.isViewLoaded) {
+    if (self.isViewLoaded && [self.view.tintColor isEqual:NSColor.controlTextColor]) {
         NSString *symbolName = nil;
 
         if (NSApp.userInterfaceLayoutDirection == NSUserInterfaceLayoutDirectionRightToLeft) {
@@ -2033,7 +1979,7 @@ animateIfNeeded:
         backButton.hidesTitle = self._hidesBackTitles;
 
         if (self.isBackButtonMenuEnabled) {
-            NSMenu *menu = [[NSMenu alloc] initWithTitle:@""];
+            NSMenu *menu = [[NSMenu alloc] initWithTitle:@"Back"];
             menu.delegate = self;
             backButton.menu = menu;
         }
@@ -2347,33 +2293,6 @@ animateIfNeeded:
     }
 }
 
-- (NSArray<__kindof UXViewController *> *)_popTransitoryViewControllersAnimated:(BOOL)animated {
-    NSArray<UXViewController *> *viewControllers = self.viewControllers;
-    UXViewController *previousViewController = nil;
-
-    for (UXViewController *viewController in viewControllers) {
-        if (previousViewController != nil && viewController.isTransitory) {
-            return [self popToViewController:previousViewController animated:animated];
-        }
-
-        previousViewController = viewController;
-    }
-
-    return nil;
-}
-
-- (NSArray<__kindof UXViewController *> *)px_popToViewControllerPrecedingViewController:(UXViewController *)viewController animated:(BOOL)animated {
-    NSArray<UXViewController *> *viewControllers = self.viewControllers;
-    NSUInteger index = [viewControllers indexOfObjectIdenticalTo:viewController];
-
-    if (index != 0 && index != NSNotFound) {
-        UXViewController *precedingViewController = viewControllers[index - 1];
-        return [self popToViewController:precedingViewController animated:animated];
-    }
-
-    return nil;
-}
-
 - (NSGestureRecognizer *)interactivePopEventTracker {
     return self.interactivePopGestureRecognizer;
 }
@@ -2404,17 +2323,6 @@ animateIfNeeded:
     }
 
     return _toolbarVisualEffectsView;
-}
-
-- (NSVisualEffectView *)scopeBarVisualEffectsView {
-    if (_scopeBarVisualEffectsView == nil) {
-        _scopeBarVisualEffectsView = [[NSVisualEffectView alloc] initWithFrame:self.scopeBar.bounds];
-        _scopeBarVisualEffectsView.blendingMode = NSVisualEffectBlendingModeWithinWindow;
-        _scopeBarVisualEffectsView.material = NSVisualEffectMaterialHeaderView;
-        _scopeBarVisualEffectsView.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
-    }
-
-    return _scopeBarVisualEffectsView;
 }
 
 - (UXToolbar *)scopeBar {

@@ -17,6 +17,8 @@ UXKIT_PRIVATE NS_SWIFT_UI_ACTOR
 @property (nonatomic) NSEdgeInsets layoutMargins;
 
 + (instancetype)toolbarItemsContainerForToolbar:(UXToolbar *)toolbar items:(NSArray<UXBarButtonItem *> *)items;
+- (CGFloat)lastBaselineOffsetFromBottom;
+- (void)updateConstraints;
 - (void)prepareForTransition;
 
 @end
