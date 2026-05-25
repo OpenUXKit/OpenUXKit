@@ -8,3 +8,4 @@ DerivedData/
 .netrc
 .swiftpm
 project.xcworkspace
+.omc
