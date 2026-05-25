@@ -3,7 +3,6 @@
 #import <OpenUXKit/UXBar+Internal.h>
 #import <OpenUXKit/UXKitDefines.h>
 #import <OpenUXKit/UXToolbar+Internal.h>
-#import <OpenUXKit/UXView+Internal.h>
 
 @implementation UXToolbar
 
@@ -58,7 +57,7 @@
     NSResponder *result = nil;
 
     if ([self.delegate respondsToSelector:@selector(nextResponderForToolbar:)]) {
-        result = [(id<UXToolbarDelegatePrivate>)self.delegate nextResponderForToolbar:self];
+        result = [self.delegate nextResponderForToolbar:self];
     }
 
     if (!result) {

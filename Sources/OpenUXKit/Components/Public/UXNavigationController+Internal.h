@@ -45,13 +45,12 @@ typedef struct {
     UXNavigationControllerDelegateFlags _delegateFlags;    // 64 = 0x40
     BOOL _isPerformingToolbarsChanges;    // 68 = 0x44
     UXNavigationControllerToolbarsNeedUpdateFlags _toolbarsNeedUpdateFlags;    // 69 = 0x45
+    NSArray *_toolbarDefaultItemIdentifiers;
+    NSArray *_toolbarAllowedItemIdentifiers;
 }
 @property (nonatomic, class) BOOL useIndividualNSToolbarItems;
 @property (nonatomic, class) BOOL useNSSearchToolbarItem;
 @property (nonatomic, class) BOOL allowToolbarCustomization;
-@property (nonatomic, copy, nullable) NSArray *toolbarDefaultItemIdentifiers;
-@property (nonatomic, copy, nullable) NSArray *toolbarAllowedItemIdentifiers;
-@property (nonatomic, copy, nullable) NSDictionary *toolbarItemByIdentifier;
 @property (nonatomic, strong) Class toolbarClass;
 @property (nonatomic, strong) Class navigationBarClass;
 @property (nonatomic, readonly) BOOL isInteractive;
@@ -143,8 +142,10 @@ typedef struct {
 - (CGFloat)_hiddenToolbarOffset;
 - (void)_setToolbarHidden:(BOOL)toolbarHidden subtoolbarHidden:(BOOL)subtoolbarHidden scopeBarHidden:(BOOL)scopeBarHidden animated:(BOOL)animated duration:(NSTimeInterval)duration animateSubtree:(BOOL)animateSubtree;
 - (BOOL)_toolbarNeedsVerticalOffsetUpdate;
+- (BOOL)_requiresWindowForTransitionPreparation;
 - (NSEdgeInsets)_intrinsicLayoutInsetsForChildViewController:(UXViewController *)childViewController;
 - (NSEdgeInsets)_toolbarLayoutInsetsForChildViewController:(UXViewController *)childViewController;
+- (NSLayoutConstraint *)_verticalToolbarLayoutConstraint;
 - (CGFloat)_toolbarVerticalOffset;
 - (CGFloat)_navigationBarVerticalOffset;
 - (void)_invalidateIntrinsicLayoutInsetsForViewController:(UXViewController *)viewController;
@@ -152,7 +153,6 @@ typedef struct {
 - (void)testing_notifyTransitionAnimationDidComplete;
 - (void)testing_installTransitionAnimationCompletionHandler:(void(^)(void))handler;
 - (NSResponder *)nextResponderForToolbar:(UXToolbar *)toolbar;
-- (void)moveToBeginningOfDocument:(nullable id)sender;
 - (void)goBackWithMenuItem:(NSMenuItem *)menuItem;
 - (UXBarPosition)positionForBar:(id<UXBarPositioning>)bar;
 - (void)_invalidateScopeBarItems;
@@ -160,8 +160,6 @@ typedef struct {
 - (void)_updateToolbarContainerConstraints;
 - (NSLayoutConstraint *)_verticalLayoutConstraintForToolbar:(UXToolbar *)toolbar;
 - (void)detachToolbars;
-- (nullable NSArray<__kindof UXViewController *> *)_popTransitoryViewControllersAnimated:(BOOL)animated;
-- (nullable NSArray<__kindof UXViewController *> *)px_popToViewControllerPrecedingViewController:(UXViewController *)viewController animated:(BOOL)animated;
 @end
 
 NS_ASSUME_NONNULL_END

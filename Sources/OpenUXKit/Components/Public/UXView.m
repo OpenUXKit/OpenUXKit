@@ -259,7 +259,7 @@ void commonInit(UXView *view) {
 - (void)updateLayer {
     [super updateLayer];
     [self.viewControllerProxy viewUpdateLayer];
-    self.layer.backgroundColor = _backgroundColor.CGColor;
+    super.backgroundColor = _backgroundColor;
     NSColor *borderColor = self.borderColor;
     if (borderColor) {
         self.borderColor = borderColor;

@@ -6,7 +6,6 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 - (void)didMoveToParentViewController:(nullable NSViewController *)parent;
 - (void)willMoveToParentViewController:(nullable NSViewController *)parent;
-- (nullable id)ux_ancestorViewControllerOfClass:(Class)cls;
 
 @end
 

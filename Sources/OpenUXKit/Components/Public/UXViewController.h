@@ -1,7 +1,6 @@
 #import <AppKit/AppKit.h>
 #import <OpenUXKit/UXBarCommon.h>
 #import <OpenUXKit/UXKitDefines.h>
-#import <OpenUXKit/UXViewController-Protocol.h>
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
@@ -32,23 +31,30 @@ typedef NS_ENUM(NSInteger, UXModalPresentationStyle) {
 @protocol UXLayoutSupport, UXNavigationDestination, UXViewControllerTransitionCoordinator;
 
 UXKIT_EXTERN NS_SWIFT_UI_ACTOR
-@interface UXViewController : NSViewController <UXViewController>
+@interface UXViewController : NSViewController
 @property (nonatomic, class, readonly) Class viewClass;
 @property (nonatomic) BOOL automaticallyAdjustsScrollViewInsets;
 @property (nonatomic) UXModalPresentationStyle modalPresentationStyle;
-@property (nonatomic, getter=isEditing) BOOL editing;
+@property (nonatomic, getter = isEditing) BOOL editing;
 @property (nonatomic, readonly, nullable) UXViewController *ux_presentingViewController;
 @property (nonatomic, readonly, nullable) UXViewController *ux_parentViewController;
 @property (nonatomic, readonly, nullable) UXViewController *presentedViewController;
+@property (nonatomic, readonly, nullable) id<UXViewControllerTransitionCoordinator> transitionCoordinator;
 @property (nonatomic, readonly) UXView *uxView;
+@property (nonatomic, readonly) id<UXLayoutSupport> topLayoutGuide;
+@property (nonatomic, readonly) id<UXLayoutSupport> bottomLayoutGuide;
+@property (nonatomic, strong, readonly, nullable) NSView *viewIfLoaded;
 
+- (void)invalidateIntrinsicLayoutInsets;
 - (NSEdgeInsets)intrinsicLayoutInsets;
 
 - (void)setEditing:(BOOL)editing animated:(BOOL)animated;
 - (void)dismissViewControllerAnimated:(BOOL)animated completion:(void (^ __nullable)(void))completion NS_SWIFT_DISABLE_ASYNC;
 - (void)presentViewController:(UXViewController *)viewController animated:(BOOL)animated completion:(void (^ __nullable)(void))completion NS_SWIFT_DISABLE_ASYNC;
+- (void)didMoveToParentViewController:(nullable UXViewController *)parent NS_SWIFT_NAME(didMove(toParent:));
+- (void)willMoveToParentViewController:(nullable UXViewController *)parent NS_SWIFT_NAME(willMove(toParent:));
+- (void)removeChildViewControllerAtIndex:(NSInteger)index;
 
-- (void)viewSafeAreaInsetsDidChange;
 - (void)viewDidLiveResize;
 - (void)viewWillLiveResize;
 - (void)viewDidLayoutSubviews;

@@ -3,7 +3,7 @@
 
 @implementation NSResponder (UXKit)
 
-- (BOOL)ux_isInResponderChainOf:(NSResponder *)responder {
+- (BOOL)isInResponderChainOf:(NSResponder *)responder {
     NSInteger i = 0;
     for (i = responder == nil; responder; i = responder == nil) {
         if (responder == self) {

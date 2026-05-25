@@ -45,8 +45,6 @@ typedef NS_ENUM(NSInteger, UXImageRenderingMode) {
 - (NSImage *)imageWithHorizontallyFlippedOrientation;
 - (NSImage *)resizableImageWithCapInsets:(NSEdgeInsets)capInsets resizingMode:(UXImageResizingMode)resizingMode;
 - (NSImage *)resizableImageWithCapInsets:(NSEdgeInsets)capInsets;
-- (instancetype)initWithCGImage:(CGImageRef)cgImage;
-- (instancetype)initWithCGImage:(CGImageRef)cgImage imageOrientation:(UXImageOrientation)imageOrientation;
 
 @end
 

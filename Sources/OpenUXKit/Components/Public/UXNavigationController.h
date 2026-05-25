@@ -16,7 +16,7 @@ typedef NS_ENUM(NSInteger, UXNavigationControllerOperation) {
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 UXKIT_EXTERN NS_SWIFT_UI_ACTOR
-@interface UXNavigationController : UXViewController <UXToolbarDelegatePrivate, NSMenuDelegate>
+@interface UXNavigationController : UXViewController <UXToolbarDelegate, NSMenuDelegate>
 
 @property (nonatomic, weak, nullable) id <UXNavigationControllerDelegate> delegate;
 @property (nonatomic, readonly, null_resettable) UXToolbar *toolbar;

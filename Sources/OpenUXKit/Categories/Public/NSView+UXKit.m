@@ -10,6 +10,8 @@
 
 @implementation NSView (UXKit)
 
+@dynamic backgroundColor;
+
 - (NSColor *)tintColor {
     NSColor *tintColor = objc_getAssociatedObject(self, @selector(tintColor));
     if (!tintColor) {
@@ -68,7 +70,7 @@
     return backingScaleFactor;
 }
 
-- (id)ux_enclosingViewOfClass:(Class)cls {
+- (id)enclosingViewOfClass:(Class)cls {
     NSView *superview = self.superview;
     if (superview) {
         do {

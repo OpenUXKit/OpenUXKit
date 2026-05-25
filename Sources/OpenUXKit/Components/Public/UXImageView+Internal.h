@@ -16,7 +16,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)_updateLayerContents;
 - (CGSize)_proposedSize;
 - (void)_setContentStretchInPixels:(CGRect)pixels forContentSize:(CGSize)contentSize shouldTile:(BOOL)shouldTile;
-- (CGFloat)_maximumEDRForDynamicRange:(NSInteger)dynamicRange;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -74,7 +74,9 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @property (nonatomic, readonly) CGPoint center;
 @property (nonatomic, readonly) NSUserInterfaceLayoutDirection effectiveUserInterfaceLayoutDirection;
 @property (nonatomic) UXViewContentMode contentMode;
-@property (nonatomic) BOOL wantsSafeAreaInsetsFrozen;
+@property (nonatomic) BOOL blurEnabled;
+@property (nonatomic) NSVisualEffectMaterial blurMaterial;
+@property (nonatomic, strong, nullable) NSColor *backgroundColor;
 
 + (void)performWithoutAnimation:(void (NS_NOESCAPE ^)(void))actionsWithoutAnimation;
 + (void)animateWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay usingSpringWithDamping:(CGFloat)dampingRatio initialSpringVelocity:(CGFloat)velocity options:(UXViewAnimationOptions)options animations:(void (^)(void))animations completion:(void (^__nullable)(BOOL finished))completion NS_SWIFT_DISABLE_ASYNC;
@@ -91,7 +93,6 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 - (nullable UXImageView *)snapshotViewFromRect:(CGRect)rect;
 - (nullable UXImageView *)snapshotView;
 - (nullable NSImage *)snapshotForRect:(CGRect)rect;
-- (NSEdgeInsets)safeAreaInsets;
 @end
 
 NS_HEADER_AUDIT_END(nullability, sendability)

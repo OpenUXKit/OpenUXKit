@@ -42,7 +42,7 @@ typedef NS_ENUM(NSInteger, UXBarButtonSystemItem) {
 };
 
 UXKIT_EXTERN NS_SWIFT_UI_ACTOR
-@interface UXBarButtonItem : UXBarItem
+@interface UXBarButtonItem : UXBarItem <UXKitAppearance>
 
 @property (nonatomic, copy, nullable) NSString *label;
 @property (nonatomic, copy, nullable) NSString *identifier;
