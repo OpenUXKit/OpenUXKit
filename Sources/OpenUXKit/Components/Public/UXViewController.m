@@ -637,6 +637,14 @@
     return _subtoolbarItems;
 }
 
+- (void)setScopeBarItems:(NSArray *)scopeBarItems {
+    _scopeBarItems = scopeBarItems;
+}
+
+- (NSArray *)scopeBarItems {
+    return _scopeBarItems;
+}
+
 - (UXNavigationItem *)navigationItem {
     if (_navigationItem == nil) {
         _navigationItem = [[UXNavigationItem alloc] initWithTitle:self.title];

@@ -18,6 +18,7 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
     UXViewController *_toolbarViewController;
     NSArray *_toolbarItems;
     NSArray *_subtoolbarItems;
+    NSArray *_scopeBarItems;
     BOOL _hidesBottomBarWhenPushed;
     CGSize _ux_preferredContentSize;
     BOOL _viewDidLoad;
