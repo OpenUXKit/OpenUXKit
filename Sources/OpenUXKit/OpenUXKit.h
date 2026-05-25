@@ -9,6 +9,7 @@ FOUNDATION_EXPORT const unsigned char OpenUXKitVersionString[];
 // Common
 #import <OpenUXKit/UXBase.h>
 #import <OpenUXKit/UXKitDefines.h>
+#import <OpenUXKit/UXKitBehavior.h>
 
 // Components
 #import <OpenUXKit/UXView.h>
@@ -30,6 +31,7 @@ FOUNDATION_EXPORT const unsigned char OpenUXKitVersionString[];
 #import <OpenUXKit/UXViewControllerTransitioning.h>
 #import <OpenUXKit/UXBarCommon.h>
 #import <OpenUXKit/UXLayoutSupport.h>
+#import <OpenUXKit/UXBackButtonProtocol.h>
 
 
 // Categories

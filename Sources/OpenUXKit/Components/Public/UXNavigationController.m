@@ -8,6 +8,8 @@
 #import <OpenUXKit/NSView+UXKit.h>
 #import <OpenUXKit/NSWindow+UXKit.h>
 #import <OpenUXKit/UXBackButton.h>
+#import <OpenUXKit/UXBackButtonProtocol.h>
+#import <OpenUXKit/UXKitBehavior.h>
 #import <OpenUXKit/UXBar+Internal.h>
 #import <OpenUXKit/UXBarButtonItem+Internal.h>
 #import <OpenUXKit/UXIdentityTransitionController.h>
@@ -1291,7 +1293,9 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
                 }
             }
 
-            [strongSelf.view.window recalculateKeyViewLoop];
+            if (UXKitBehavior.sharedBehavior.recalculatesKeyViewLoopAfterTransition) {
+                [strongSelf.view.window recalculateKeyViewLoop];
+            }
             strongSelf.view.window.titlebarSeparatorStyle = savedTitlebarSeparatorStyle;
         };
         [strongSelf _invalidateIntrinsicLayoutInsetsForViewController:toViewController];
@@ -2011,7 +2015,8 @@ animateIfNeeded:
             symbolName = @"chevron.left";
         }
 
-        UXBackButton *backButton = [UXBackButton new];
+        Class backButtonClass = UXKitBehavior.sharedBehavior.backButtonClass;
+        NSControl<UXBackButtonProtocol> *backButton = [[backButtonClass alloc] init];
         backButton.image = [NSImage imageWithSystemSymbolName:symbolName accessibilityDescription:nil];
         backButton.title = title;
         backButton.target = target;
@@ -2030,7 +2035,7 @@ animateIfNeeded:
         if (self.isBackButtonMenuEnabled) {
             NSMenu *menu = [[NSMenu alloc] initWithTitle:@""];
             menu.delegate = self;
-            [backButton setMenu:menu forSegment:0];
+            backButton.menu = menu;
         }
 
         backButtonItem = [[UXBarButtonItem alloc] initWithCustomView:backButton];
