@@ -599,19 +599,13 @@ NSString * UXLocalizedString(NSString *key) {
     if (__locked) {
         NSLog(@"Warning - Attempting to set the delegate of a UXNavigationController that is being managed by another controller (%@). This is not allowed.\n %@", NSStringFromClass(delegate.class), NSThread.callStackSymbols);
     } else {
-        _delegateFlags.willShowViewController = NO;
-        _delegateFlags.willShowViewController = [self.delegate respondsToSelector:@selector(navigationController:willShowViewController:)];
-        _delegateFlags.didShowViewController = NO;
-        _delegateFlags.didShowViewController = [self.delegate respondsToSelector:@selector(navigationController:didShowViewController:)];
-        _delegateFlags.interactionControllerForAnimationController = NO;
-        _delegateFlags.interactionControllerForAnimationController = [self.delegate respondsToSelector:@selector(navigationController:interactionControllerForAnimationController:)];
-        _delegateFlags.animationControllerForOperation = NO;
-        _delegateFlags.animationControllerForOperation = [self.delegate respondsToSelector:@selector(navigationController:animationControllerForOperation:fromViewController:toViewController:)];
-        _delegateFlags.shouldBeginInteractivePopFromViewControllerToViewController = NO;
-        _delegateFlags.shouldBeginInteractivePopFromViewControllerToViewController = [self.delegate respondsToSelector:@selector(navigationController:shouldBeginInteractivePopFromViewController:toViewController:)];
-        _delegateFlags.shouldPopFromViewControllerToViewController = NO;
-        _delegateFlags.shouldPopFromViewControllerToViewController = [self.delegate respondsToSelector:@selector(navigationController:shouldPopFromViewController:toViewController:)];
         _delegate = delegate;
+        _delegateFlags.willShowViewController = [delegate respondsToSelector:@selector(navigationController:willShowViewController:)];
+        _delegateFlags.didShowViewController = [delegate respondsToSelector:@selector(navigationController:didShowViewController:)];
+        _delegateFlags.interactionControllerForAnimationController = [delegate respondsToSelector:@selector(navigationController:interactionControllerForAnimationController:)];
+        _delegateFlags.animationControllerForOperation = [delegate respondsToSelector:@selector(navigationController:animationControllerForOperation:fromViewController:toViewController:)];
+        _delegateFlags.shouldBeginInteractivePopFromViewControllerToViewController = [delegate respondsToSelector:@selector(navigationController:shouldBeginInteractivePopFromViewController:toViewController:)];
+        _delegateFlags.shouldPopFromViewControllerToViewController = [delegate respondsToSelector:@selector(navigationController:shouldPopFromViewController:toViewController:)];
     }
 }
 
