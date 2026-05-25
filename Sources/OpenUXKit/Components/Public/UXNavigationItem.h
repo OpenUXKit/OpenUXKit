@@ -6,7 +6,7 @@
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 UXKIT_EXTERN NS_SWIFT_UI_ACTOR
-@interface UXNavigationItem : NSObject
+@interface UXNavigationItem : NSObject <NSUserInterfaceItemIdentification>
 
 @property (nonatomic, copy, nullable) NSString *title;
 @property (nonatomic, copy, nullable) NSString *subtitle;

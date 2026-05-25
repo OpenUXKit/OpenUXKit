@@ -10,6 +10,12 @@
 
 @implementation NSView (UXKit)
 
+@dynamic backgroundColor;
+
+- (id)enclosingViewOfClass:(Class)cls {
+    return [self ux_enclosingViewOfClass:cls];
+}
+
 - (NSColor *)tintColor {
     NSColor *tintColor = objc_getAssociatedObject(self, @selector(tintColor));
     if (!tintColor) {

@@ -41,6 +41,7 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @property (nonatomic, readonly, nullable) UXViewController *ux_parentViewController;
 @property (nonatomic, readonly, nullable) UXViewController *presentedViewController;
 @property (nonatomic, readonly) UXView *uxView;
+@property (nonatomic, readonly, nullable) NSView *viewIfLoaded;
 
 - (NSEdgeInsets)intrinsicLayoutInsets;
 

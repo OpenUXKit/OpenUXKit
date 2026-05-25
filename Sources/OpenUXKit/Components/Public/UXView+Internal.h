@@ -4,7 +4,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface UXView () {
     BOOL _blurEnabled;
-    NSInteger _blurMaterial;
+    NSVisualEffectMaterial _blurMaterial;
     NSColor *_backgroundColor;
     NSEdgeInsets _frozenSafeAreaInsets;
     NSVisualEffectView *_contentBackgroundVisualEffectsView;
@@ -15,9 +15,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak, nullable) UXViewController *viewControllerProxy;
 @property (nonatomic) BOOL needsContentBackgroundVisualEffect;
 @property (nonatomic) BOOL accessibilityChildrenHidden;
-@property (nonatomic) BOOL blurEnabled;
-@property (nonatomic) NSInteger blurMaterial;
-@property (nonatomic, strong, nullable) NSColor *backgroundColor;
 
 + (nullable id)defaultSpringAnimationForKey:(NSString *)key mass:(CGFloat)mass stiffness:(CGFloat)stiffness damping:(CGFloat)damping velocity:(CGFloat)velocity;
 + (void)_animateUsingDefaultTimingWithOptions:(UXViewAnimationOptions)options animations:(void (^)(void))animations completion:(void (^__nullable)(BOOL finished))completion;
