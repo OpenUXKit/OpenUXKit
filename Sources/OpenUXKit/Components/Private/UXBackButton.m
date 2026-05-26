@@ -43,7 +43,7 @@
 
 - (void)setHidesTitle:(BOOL)hidesTitle {
     if (hidesTitle) {
-        [self setLabel:@"" forSegment:0];
+        [self setLabel:@"" forSegment:0]; 
         [self setWidth:19.0 forSegment:0];
         if (_hidesTitle != hidesTitle) {
             self.toolTip = self.title;
@@ -55,14 +55,6 @@
             self.toolTip = nil;
         }
     }
-}
-
-/// Routes the supplied menu to segment 0 so the back chevron's long-press
-/// menu works regardless of whether callers use the segmented `setMenu:forSegment:`
-/// API directly or the `UXBackButtonProtocol`-defined `menu` property.
-- (void)setMenu:(NSMenu *)menu {
-    [super setMenu:menu];
-    [self setMenu:menu forSegment:0];
 }
 
 @end
