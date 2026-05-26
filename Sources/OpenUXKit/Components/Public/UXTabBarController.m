@@ -555,7 +555,7 @@ static void *kToolbarPropertiesObservationContext = &kToolbarPropertiesObservati
 }
 
 - (BOOL)_requiresWindowForTransitionPreparation {
-    return self._targetViewController._requiresWindowForTransitionPreparation;
+    return [self._targetViewController _requiresWindowForTransitionPreparation];
 }
 
 #pragma mark - Transition controllers
@@ -776,7 +776,7 @@ static void *kToolbarPropertiesObservationContext = &kToolbarPropertiesObservati
 #pragma mark - Responder / content
 
 - (NSResponder *)preferredFirstResponder {
-    NSResponder *preferredFirstResponder = self._targetViewController.preferredFirstResponder;
+    NSResponder *preferredFirstResponder = [self._targetViewController preferredFirstResponder];
 
     if (!preferredFirstResponder) {
         preferredFirstResponder = [super preferredFirstResponder];
@@ -786,7 +786,7 @@ static void *kToolbarPropertiesObservationContext = &kToolbarPropertiesObservati
 }
 
 - (NSViewController *)contentRepresentingViewController {
-    return self._targetViewController.contentRepresentingViewController;
+    return [self._targetViewController contentRepresentingViewController];
 }
 
 - (id<UXViewControllerTransitionCoordinator>)transitionCoordinator {

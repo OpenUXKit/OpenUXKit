@@ -215,12 +215,6 @@ void *UXScopeBarItemsObservationContext = &UXScopeBarItemsObservationContext;
     [self.view addSubview:_toolbarExtendedBackgroundView];
 }
 
-NSString * UXLocalizedString(NSString *key) {
-    NSBundle *currentBundle = [NSBundle bundleForClass:[UXNavigationController class]];
-
-    return [currentBundle localizedStringForKey:key value:nil table:nil];
-}
-
 - (UXToolbar *)toolbar {
     if (_toolbar == nil) {
         Class toolbarClass = self.toolbarClass;
