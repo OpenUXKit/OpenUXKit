@@ -1,1 +1,1 @@
-../../Components/Public/UXCollectionViewCell.h
+../../Unimplementation/UXCollectionViewCell.h

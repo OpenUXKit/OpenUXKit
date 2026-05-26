@@ -1,1 +1,0 @@
-../../Categories/Public/NSEvent+UXCollectionViewAdditions.h
