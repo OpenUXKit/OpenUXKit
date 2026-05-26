@@ -1,0 +1,1 @@
+../../Categories/Public/NSIndexPath+UXCollectionViewAdditions.h

@@ -23,6 +23,29 @@ FOUNDATION_EXPORT const unsigned char OpenUXKitVersionString[];
 #import <OpenUXKit/UXLabel.h>
 #import <OpenUXKit/UXImageView.h>
 
+// CollectionView
+#import <OpenUXKit/UXCollectionViewLayoutAttributes.h>
+#import <OpenUXKit/UXCollectionViewUpdateItem.h>
+#import <OpenUXKit/UXCollectionViewUpdateGap.h>
+#import <OpenUXKit/UXCollectionViewIndexPathsSet.h>
+#import <OpenUXKit/UXCollectionViewMutableIndexPathsSet.h>
+#import <OpenUXKit/UXCollectionViewLayoutInvalidationContext.h>
+#import <OpenUXKit/UXCollectionViewFlowLayoutInvalidationContext.h>
+#import <OpenUXKit/UXCollectionViewLayout.h>
+#import <OpenUXKit/UXCollectionViewUpdate.h>
+#import <OpenUXKit/UXCollectionViewAnimation.h>
+#import <OpenUXKit/UXCollectionViewAnimationContext.h>
+
+// CollectionView Protocols
+#import <OpenUXKit/UXCollectionViewDataSource.h>
+#import <OpenUXKit/UXCollectionViewDelegate.h>
+#import <OpenUXKit/UXCollectionViewLayoutProxyDelegate.h>
+
+// Categories (CollectionView)
+#import <OpenUXKit/NSIndexPath+UXCollectionViewAdditions.h>
+#import <OpenUXKit/NSEvent+UXCollectionViewAdditions.h>
+#import <OpenUXKit/NSObject+UXCollectionView.h>
+
 // Protocols
 #import <OpenUXKit/UXKitAppearance.h>
 #import <OpenUXKit/UXViewControllerTransitionCoordinator.h>
