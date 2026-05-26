@@ -160,6 +160,8 @@ typedef struct {
 - (void)_updateToolbarContainerConstraints;
 - (NSLayoutConstraint *)_verticalLayoutConstraintForToolbar:(UXToolbar *)toolbar;
 - (void)detachToolbars;
+- (void)_popTransitoryViewControllersAnimated:(BOOL)animated;
+@property (nonatomic, readonly, nullable) UXViewController *inspectorViewController;
 @end
 
 NS_ASSUME_NONNULL_END

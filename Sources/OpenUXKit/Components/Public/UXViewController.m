@@ -769,6 +769,18 @@
     return [objc_getAssociatedObject(self, @selector(setHidesSourceListWhenPushed:)) boolValue];
 }
 
+- (void)setHidesInspectorWhenPushed:(BOOL)hidesInspectorWhenPushed {
+    objc_setAssociatedObject(self, _cmd, [NSNumber numberWithBool:hidesInspectorWhenPushed], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (BOOL)hidesInspectorWhenPushed {
+    return [objc_getAssociatedObject(self, @selector(setHidesInspectorWhenPushed:)) boolValue];
+}
+
+- (UXViewController *)inspectorViewController {
+    return nil;
+}
+
 - (BOOL)canProvideViewControllersForNavigationDestination:(id<UXNavigationDestination>)navigationDestination {
     return [self.navigationDestination isEqual:navigationDestination];
 }

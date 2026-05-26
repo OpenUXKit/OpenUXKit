@@ -2536,4 +2536,21 @@ static BOOL _allowToolbarCustomization = NO;
     self.testingTransitionAnimationCompletionHandler = handler;
 }
 
+- (UXViewController *)inspectorViewController {
+    return self.topViewController.inspectorViewController;
+}
+
+- (void)_popTransitoryViewControllersAnimated:(BOOL)animated {
+    UXViewController *previousViewController = nil;
+
+    for (UXViewController *viewController in self.viewControllers) {
+        if (previousViewController && viewController.isTransitory) {
+            [self popToViewController:previousViewController animated:animated];
+            return;
+        }
+
+        previousViewController = viewController;
+    }
+}
+
 @end

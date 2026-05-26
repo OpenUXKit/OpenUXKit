@@ -2,8 +2,10 @@
 
 #import <OpenUXKit/UXKitDefines.h>
 #import <OpenUXKit/UXViewController.h>
+#import <OpenUXKit/UXTabBarControllerDelegate.h>
 
-@class NSArray, NSLayoutConstraint, NSMapTable, NSPopUpButton, NSSegmentedControl, NSSet, UXNavigationItem, UXTabBarItemSegment, UXTransitionController, UXViewController, _UXViewControllerTransitionContext;
+@class NSArray, NSLayoutConstraint, NSMapTable, NSPopUpButton, NSSegmentedControl, NSSet, NSToolbarItemGroup, UXNavigationItem, UXTabBarItemSegment, UXTransitionController, UXViewController, _UXViewControllerTransitionContext;
+@protocol UXTabBarControllerDelegate;
 
 UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @interface UXTabBarController: UXViewController
@@ -25,6 +27,27 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @property(readonly, nonatomic) NSSegmentedControl *segmentedControl; // @synthesize segmentedControl=_segmentedControl;
 @property(nonatomic) __weak UXViewController *selectedViewController; // @synthesize selectedViewController=_selectedViewController;
 @property(copy, nonatomic) NSArray *viewControllers; // @synthesize viewControllers=_viewControllers;
+@property(readonly, nonatomic) NSToolbarItemGroup *toolbarItemGroup;
+@property(strong, nonatomic) NSArray *centerToolbarItemGroupTitles;
+@property(strong, nonatomic) NSSet *observedTabBarItems;
+@property(nonatomic) BOOL tabBarHidden;
+@property(weak, nonatomic) id<UXTabBarControllerDelegate> delegate;
+- (void)setViewControllers:(NSArray *)viewControllers;
+- (void)setSelectedViewController:(UXViewController *)selectedViewController;
+- (void)setSelectedItemSegment:(UXTabBarItemSegment *)selectedItemSegment;
+- (void)setObservedItemSegments:(NSSet *)observedItemSegments;
+- (void)setObservedTabBarItems:(NSSet *)observedTabBarItems;
+- (void)setObservedViewController:(UXViewController *)observedViewController;
+- (void)setObservedNavigationItem:(UXNavigationItem *)observedNavigationItem;
+- (void)setRepresentedSegments:(NSArray *)representedSegments;
+- (void)setRepresentedSegmentsToViewControllers:(NSMapTable *)representedSegmentsToViewControllers;
+- (void)setShortcutMenuItems:(NSArray *)shortcutMenuItems;
+- (void)setCenterToolbarItemGroupTitles:(NSArray *)centerToolbarItemGroupTitles;
+- (void)_updateControls;
+- (void)_updateTitleProperties;
+- (void)_updateProgressBarButtonItem;
+- (void)_notifyDelegateWithIndexSelection:(NSUInteger)indexSelection;
+- (void)toolbarItemGroupSelectionDidChange:(id)sender;
 - (void)populateShortcutMenuItemsStartingAtIndex:(NSUInteger)arg1 ofMenu:(id)arg2 useSeparators:(BOOL)arg3;
 - (id)contentRepresentingViewController;
 - (id)_childViewControllerAbleToNavigateToDestination:(id)arg1;

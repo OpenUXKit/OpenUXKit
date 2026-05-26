@@ -15,6 +15,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL hidesGlobalTrailingView;
 @property (nonatomic) BOOL hidesAlternateTitleView;
 @property (nonatomic) NSEdgeInsets layoutMargins;
+@property (nonatomic, copy, nullable) NSString *subtitle;
+@property (nonatomic) BOOL useWindowForTitleOutput;
+@property (nonatomic, strong, nullable) UXBarButtonItem *progressButtonItem;
+@property (nonatomic, strong, nullable) NSToolbarItemGroup *centerToolbarItemGroup;
 
 + (NSArray<NSString *> *)keyPathsToObserve;
 - (void)_updateInternalTitleView;

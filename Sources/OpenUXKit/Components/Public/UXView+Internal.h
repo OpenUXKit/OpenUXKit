@@ -12,6 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly, nullable) NSVisualEffectView *_visualEffectsView;
 @property (nonatomic, weak, nullable) UXViewController *viewControllerProxy;
 @property (nonatomic) BOOL needsContentBackgroundVisualEffect;
+@property (nonatomic) BOOL wantsSafeAreaInsetsFrozen;
 
 @end
 

@@ -7,6 +7,7 @@
 #import <OpenUXKit/UXKitDefines.h>
 #import <OpenUXKit/UXKitPrivateUtilites.h>
 #import <OpenUXKit/NSView+PrivateSPI.h>
+#import <objc/runtime.h>
 
 @implementation UXView
 
@@ -431,6 +432,14 @@ void commonInit(UXView *view) {
 - (void)setBlurMaterial:(NSVisualEffectMaterial)blurMaterial {
     _blurMaterial = blurMaterial;
     __visualEffectsView.material = blurMaterial;
+}
+
+- (void)setWantsSafeAreaInsetsFrozen:(BOOL)wantsSafeAreaInsetsFrozen {
+    objc_setAssociatedObject(self, @selector(wantsSafeAreaInsetsFrozen), @(wantsSafeAreaInsetsFrozen), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (BOOL)wantsSafeAreaInsetsFrozen {
+    return [objc_getAssociatedObject(self, @selector(wantsSafeAreaInsetsFrozen)) boolValue];
 }
 
 

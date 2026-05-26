@@ -101,6 +101,8 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 @property (nonatomic, readonly, nullable) UXSourceController *sourceController;
 @property (nonatomic, getter = isTransitory) BOOL transitory;
 @property (nonatomic) BOOL hidesSourceListWhenPushed;
+@property (nonatomic) BOOL hidesInspectorWhenPushed;
+@property (nonatomic, readonly, nullable) UXViewController *inspectorViewController;
 @property (nonatomic, readonly, nullable) id <UXNavigationDestination> navigationDestination;
 
 - (void)updateForEqualNavigationDestination:(id<UXNavigationDestination>)navigationDestination;
