@@ -1,7 +1,7 @@
 #import <AppKit/AppKit.h>
 #import <OpenUXKit/UXKitDefines.h>
 
-@class UXBarButtonItem;
+@class UXBarButtonItem, NSToolbarItemGroup;
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
@@ -19,6 +19,11 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @property (nonatomic, strong, nullable) NSArray<UXBarButtonItem *> *rightBarButtonItems;
 @property (nonatomic, strong, nullable) NSArray<UXBarButtonItem *> *leadingBarButtonItems;
 @property (nonatomic, strong, nullable) NSArray<UXBarButtonItem *> *trailingBarButtonItems;
+@property (nonatomic, strong, nullable) UXBarButtonItem *progressButtonItem;
+@property (nonatomic, strong, nullable) UXBarButtonItem *switchLibraryButtonItem;
+@property (nonatomic, strong, nullable) NSToolbarItemGroup *centerToolbarItemGroup;
+@property (nonatomic) BOOL hidesSidebarToggleButton;
+@property (nonatomic) BOOL hidesGlobalTrailingView;
 
 - (instancetype)initWithTitle:(NSString *)title NS_DESIGNATED_INITIALIZER;
 - (void)setLeadingBarButtonItems:(nullable NSArray<UXBarButtonItem *> *)items animated:(BOOL)animated NS_SWIFT_NAME(setLeadingBarButtonItems(_:animated:));

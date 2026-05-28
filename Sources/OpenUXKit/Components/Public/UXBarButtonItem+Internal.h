@@ -20,12 +20,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 @property (nonatomic, weak, setter = _setWidthConstrainingItem:) UXBarButtonItem *_widthConstrainingItem;
-@property (nonatomic) NSLayoutPriority visibilityPriority;
 @property (nonatomic, getter = isCondensed) BOOL condensed;
 @property (nonatomic, readonly) UXBarButtonSystemItem systemItem;
 @property (nonatomic, readonly) UXViewController *contentViewController;
 @property (nonatomic, strong) NSLayoutAnchor *baselineAnchor;
-@property (nonatomic, readonly) NSView *_view;
 
 - (nullable id)_viewOfClass:(Class)cls;
 - (CGFloat)preferredSpacingToItem:(UXBarItem *)item proposedSpacing:(CGFloat)spacing;

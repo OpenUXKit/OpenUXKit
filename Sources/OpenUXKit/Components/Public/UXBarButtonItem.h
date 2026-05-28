@@ -2,7 +2,7 @@
 #import <OpenUXKit/UXKitAppearance.h>
 #import <OpenUXKit/UXKitDefines.h>
 
-@class UXViewController, UXView;
+@class UXViewController, UXView, NSColor, NSImage, NSMenu, NSToolbarItem;
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
@@ -56,6 +56,14 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @property (nonatomic, strong, nullable) NSString *toolTip;
 @property (nonatomic, weak, nullable) id target;
 @property (nonatomic, nullable) SEL action;
+@property (nonatomic, copy, nullable) NSColor *backgroundColor;
+@property (nonatomic) float visibilityPriority;
+@property (nonatomic, weak, nullable) NSToolbarItem *toolbarItem;
+@property (nonatomic, getter=isNavigational) BOOL navigational;
+@property (nonatomic, strong, nullable) NSMenu *menu;
+@property (nonatomic, getter=isHidden) BOOL hidden;
+@property (nonatomic, readonly) BOOL isSystemItem;
+@property (nonatomic, readonly, nullable) NSView *_view;
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 - (instancetype)initWithStyle:(UXBarButtonItemStyle)style target:(nullable id)target action:(nullable SEL)action NS_DESIGNATED_INITIALIZER;
 - (instancetype)initWithContentViewController:(UXViewController *)contentViewController;
