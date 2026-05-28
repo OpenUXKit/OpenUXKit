@@ -1,5 +1,6 @@
 #import <OpenUXKit/UXCollectionViewAnimation.h>
 #import <OpenUXKit/UXCollectionViewLayoutAttributes.h>
+#import <OpenUXKit/UXCollectionReusableView.h>
 #import <OpenUXKit/UXKitPrivateUtilites.h>
 #import <QuartzCore/QuartzCore.h>
 

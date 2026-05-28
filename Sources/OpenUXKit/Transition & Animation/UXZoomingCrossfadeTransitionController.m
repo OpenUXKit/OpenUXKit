@@ -23,7 +23,7 @@
         fromView.layer.transform = CATransform3DIdentity;
     };
 
-    auto animation = ^{
+    auto pushAnimation = ^{
         if (!transitionContext.transitionWasCancelled) {
             toView.layer.transform = CATransform3DIdentity;
             toView.layer.opacity = 1.0;
@@ -34,13 +34,24 @@
         }
     };
 
+    auto popAnimation = ^{
+        if (!transitionContext.transitionWasCancelled) {
+            toView.layer.transform = CATransform3DIdentity;
+            toView.layer.opacity = 1.0;
+            fromView.layer.opacity = 0.0;
+            CATransform3D transform = CATransform3DMakeScale(0.98, 0.98, 1.0);
+            transform = CATransform3DTranslate(transform, CGRectGetWidth(toEndFrame) * 0.02 * 0.5, CGRectGetHeight(toEndFrame) * 0.02, 0.0);
+            fromView.layer.transform = transform;
+        }
+    };
+
     if (self.operation == 1) {
         if (transitionContext.initiallyInteractive) {
-            [UXView animateWithDuration:0.33 delay:0.0 options:0 animations:animation completion:completion];
+            [UXView animateWithDuration:0.33 delay:0.0 options:0 animations:pushAnimation completion:completion];
         } else {
             [CATransaction begin];
             [CATransaction setCompletionBlock:^{
-                [UXView animateWithDuration:0.33 delay:0.0 options:0 animations:animation completion:completion];
+                [UXView animateWithDuration:0.33 delay:0.0 options:0 animations:pushAnimation completion:completion];
             }];
             fromView.autoresizingMask = NSViewNotSizable;
             toView.autoresizingMask = NSViewNotSizable;
@@ -54,11 +65,11 @@
         }
     } else {
         if (transitionContext.initiallyInteractive) {
-            [UXView animateWithDuration:0.33 delay:0.0 options:0 animations:animation completion:completion];
+            [UXView animateWithDuration:0.33 delay:0.0 options:0 animations:popAnimation completion:completion];
         } else {
             [CATransaction begin];
             [CATransaction setCompletionBlock:^{
-                [UXView animateWithDuration:0.33 delay:0.0 options:0 animations:animation completion:completion];
+                [UXView animateWithDuration:0.33 delay:0.0 options:0 animations:popAnimation completion:completion];
             }];
             fromView.autoresizingMask = NSViewNotSizable;
             toView.autoresizingMask = NSViewNotSizable;

@@ -2,6 +2,7 @@
 #import <OpenUXKit/UXCollectionViewUpdateItem+Internal.h>
 #import <OpenUXKit/UXCollectionViewUpdateGap.h>
 #import <OpenUXKit/UXCollectionViewLayoutAttributes.h>
+#import <OpenUXKit/UXCollectionViewData.h>
 #import <OpenUXKit/NSIndexPath+UXCollectionViewAdditions.h>
 #import <OpenUXKit/UXKitPrivateUtilites.h>
 
@@ -108,8 +109,8 @@
 #pragma mark - Section Updates
 
 - (void)_computeSectionUpdates {
-    NSInteger oldSectionCount = [(id)_oldModel numberOfSections];
-    NSInteger newSectionCount = [(id)_newModel numberOfSections];
+    NSInteger oldSectionCount = [_oldModel numberOfSections];
+    NSInteger newSectionCount = [_newModel numberOfSections];
     _oldSectionMap = (NSInteger *)malloc(sizeof(NSInteger) * oldSectionCount);
     _newSectionMap = (NSInteger *)malloc(sizeof(NSInteger) * newSectionCount);
     _deletedSections = [[NSMutableIndexSet alloc] init];
@@ -191,9 +192,9 @@
 #pragma mark - Item Updates
 
 - (void)_computeItemUpdates {
-    NSInteger oldGlobalItemCount = [(id)_oldModel numberOfItems];
+    NSInteger oldGlobalItemCount = [_oldModel numberOfItems];
     NSAssert(oldGlobalItemCount >= 0, @"oldGlobalItemCount >= 0");
-    NSInteger newGlobalItemCount = [(id)_newModel numberOfItems];
+    NSInteger newGlobalItemCount = [_newModel numberOfItems];
     NSAssert(newGlobalItemCount >= 0, @"newGlobalItemCount >= 0");
     _oldGlobalItemMap = (NSInteger *)malloc(sizeof(NSInteger) * oldGlobalItemCount);
     _newGlobalItemMap = (NSInteger *)malloc(sizeof(NSInteger) * newGlobalItemCount);
@@ -226,9 +227,9 @@
         [affectedItems removeAllIndexes];
         if (item == NSNotFound) {
             NSInteger section = [indexPath section];
-            [affectedItems addIndexesInRange:NSMakeRange([(id)model numberOfItemsBeforeSection:section], [(id)model numberOfItemsInSection:section])];
+            [affectedItems addIndexesInRange:NSMakeRange([model numberOfItemsBeforeSection:section], [model numberOfItemsInSection:section])];
         } else {
-            NSInteger globalIndex = [(id)model globalIndexForItemAtIndexPath:indexPath];
+            NSInteger globalIndex = [model globalIndexForItemAtIndexPath:indexPath];
             if (globalIndex == NSNotFound) {
                 continue;
             }
@@ -241,13 +242,13 @@
             if ([updateItem _isSectionOperation]) {
                 newIndexPath = [NSIndexPath indexPathForItem:0 inSection:[newIndexPath section]];
             }
-            destinationGlobalIndex = [(id)_newModel globalIndexForItemAtIndexPath:newIndexPath];
+            destinationGlobalIndex = [_newModel globalIndexForItemAtIndexPath:newIndexPath];
         }
 
         for (NSInteger globalItem = [affectedItems firstIndex]; globalItem != NSNotFound; globalItem = [affectedItems indexGreaterThanIndex:globalItem]) {
             if (action == UXCollectionUpdateActionDelete) {
                 _oldGlobalItemMap[globalItem] = NSNotFound;
-                NSInteger currentOldCount = [(id)_oldModel numberOfItems];
+                NSInteger currentOldCount = [_oldModel numberOfItems];
                 for (NSInteger following = globalItem + 1; following < currentOldCount; following++) {
                     if (_oldGlobalItemMap[following] != NSNotFound) {
                         _oldGlobalItemMap[following]--;
@@ -317,8 +318,8 @@ buildNewMap:
 #pragma mark - Supplementary Updates
 
 - (void)_computeSupplementaryUpdates {
-    NSInteger oldSectionCount = [(id)_oldModel numberOfSections];
-    NSInteger newSectionCount = [(id)_newModel numberOfSections];
+    NSInteger oldSectionCount = [_oldModel numberOfSections];
+    NSInteger newSectionCount = [_newModel numberOfSections];
     _deletedSupplementaryTopLevelIndexesDict = [[NSMutableDictionary alloc] init];
     _insertedSupplementaryTopLevelIndexesDict = [[NSMutableDictionary alloc] init];
     _deletedSupplementaryIndexesSectionArray = [[NSMutableArray alloc] initWithCapacity:oldSectionCount];
@@ -331,8 +332,8 @@ buildNewMap:
         [_insertedSupplementaryIndexesSectionArray addObject:[NSMutableDictionary dictionary]];
     }
 
-    NSSet<NSString *> *oldKinds = [(id)_oldModel knownSupplementaryElementKinds];
-    NSSet<NSString *> *allKinds = [(id)_newModel knownSupplementaryElementKinds];
+    NSSet<NSString *> *oldKinds = [_oldModel knownSupplementaryElementKinds];
+    NSSet<NSString *> *allKinds = [_newModel knownSupplementaryElementKinds];
     if (oldKinds) {
         allKinds = [oldKinds setByAddingObjectsFromSet:allKinds];
     }
@@ -372,19 +373,19 @@ buildNewMap:
 - (CGRect)_frameForUpdateItem:(UXCollectionViewUpdateItem *)updateItem usingData:(UXCollectionViewData *)data {
     NSIndexPath *indexPath = [updateItem _indexPath];
     if (![updateItem _isSectionOperation]) {
-        return [(id)data layoutAttributesForItemAtIndexPath:indexPath].frame;
+        return ((UXCollectionViewLayoutAttributes *)[data layoutAttributesForItemAtIndexPath:indexPath]).frame;
     }
 
     CGRect unionFrame = CGRectNull;
     NSInteger section = [indexPath section];
-    NSInteger itemCount = [(id)data numberOfItemsInSection:section];
-    NSInteger globalIndex = [(id)data globalIndexForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:[indexPath section]]];
+    NSInteger itemCount = [data numberOfItemsInSection:section];
+    NSInteger globalIndex = [data globalIndexForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:[indexPath section]]];
     if (globalIndex != NSNotFound) {
         for (NSInteger offset = 0; offset < itemCount; offset++) {
-            CGRect itemFrame = [(id)data layoutAttributesForGlobalItemIndex:globalIndex + offset].frame;
+            CGRect itemFrame = ((UXCollectionViewLayoutAttributes *)[data layoutAttributesForGlobalItemIndex:globalIndex + offset]).frame;
             unionFrame = CGRectUnion(unionFrame, itemFrame);
         }
-        for (UXCollectionViewLayoutAttributes *attributes in [(id)data layoutAttributesForElementsInSection:section]) {
+        for (UXCollectionViewLayoutAttributes *attributes in [data layoutAttributesForElementsInSection:section]) {
             unionFrame = CGRectUnion(unionFrame, attributes.frame);
         }
     }

@@ -59,7 +59,7 @@
     CGFloat height = CGRectGetHeight(containerView.bounds);
 
     auto setFrameOrigin = ^(NSView *view, CGFloat x, CGFloat y) {
-        [view.animator setFrameOrigin:CGPointMake(x, y)];
+        [view setFrameOrigin:CGPointMake(x, y)];
     };
 
     auto completion = ^(BOOL isCompletion) {
@@ -70,19 +70,33 @@
         [transitionContext completeTransition:!transitionContext.transitionWasCancelled];
     };
 
+    auto pushAnimation = ^{
+        if (transitionContext.transitionWasCancelled) {
+            setFrameOrigin(toView, width, 0.0);
+            setFrameOrigin(fromView, 0.0, 0.0);
+        } else {
+            setFrameOrigin(toView, 0.0, 0.0);
+            setFrameOrigin(fromView, floorf(-width), 0.0);
+        }
+    };
+
+    auto popAnimation = ^{
+        if (transitionContext.transitionWasCancelled) {
+            setFrameOrigin(toView, floorf(-width), 0.0);
+            setFrameOrigin(fromView, 0.0, 0.0);
+        } else {
+            setFrameOrigin(toView, 0.0, 0.0);
+            setFrameOrigin(fromView, width, 0.0);
+        }
+    };
+
     if (self.operation == 1) {
-        if (!transitionContext.initiallyInteractive) {
+        if (transitionContext.initiallyInteractive) {
+            [UXView animateWithDuration:0.33 delay:0.0 options:0x20000 animations:pushAnimation completion:completion];
+        } else {
             [CATransaction begin];
             [CATransaction setCompletionBlock:^{
-                [UXView animateWithDuration:0.33 delay:0.0 options:0x20000 animations:^{
-                    if (transitionContext.transitionWasCancelled) {
-                        setFrameOrigin(toView, width, 0.0);
-                        setFrameOrigin(fromView, 0.0, 0.0);
-                    } else {
-                        setFrameOrigin(toView, 0.0, 0.0);
-                        setFrameOrigin(fromView, floorf(-width), 0.0);
-                    }
-                } completion:completion];
+                [UXView animateWithDuration:0.33 delay:0.0 options:0x20000 animations:pushAnimation completion:completion];
             }];
             fromView.autoresizingMask = NSViewNotSizable;
             toView.autoresizingMask = NSViewNotSizable;
@@ -91,18 +105,12 @@
             [CATransaction commit];
         }
     } else {
-        if (!transitionContext.initiallyInteractive) {
+        if (transitionContext.initiallyInteractive) {
+            [UXView animateWithDuration:0.33 delay:0.0 options:0x20000 animations:popAnimation completion:completion];
+        } else {
             [CATransaction begin];
             [CATransaction setCompletionBlock:^{
-                [UXView animateWithDuration:0.33 delay:0.0 options:0x20000 animations:^{
-                    if (transitionContext.transitionWasCancelled) {
-                        setFrameOrigin(toView, floorf(-width), 0.0);
-                        setFrameOrigin(fromView, 0.0, 0.0);
-                    } else {
-                        setFrameOrigin(toView, 0.0, 0.0);
-                        setFrameOrigin(fromView, width, 0.0);
-                    }
-                } completion:completion];
+                [UXView animateWithDuration:0.33 delay:0.0 options:0x20000 animations:popAnimation completion:completion];
             }];
             fromView.autoresizingMask = NSViewNotSizable;
             toView.autoresizingMask = NSViewNotSizable;

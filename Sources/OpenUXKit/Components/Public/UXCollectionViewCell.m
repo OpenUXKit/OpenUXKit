@@ -1,8 +1,6 @@
 #import <OpenUXKit/UXCollectionViewCell.h>
 #import <QuartzCore/QuartzCore.h>
 
-static void UXCollectionViewCellCommonInit(UXCollectionViewCell *cell);
-
 @interface UXCollectionViewCell () {
     NSView *_contentView;
     BOOL _selected;
@@ -13,9 +11,23 @@ static void UXCollectionViewCellCommonInit(UXCollectionViewCell *cell);
 
 @implementation UXCollectionViewCell
 
+- (void)_commonInit {
+    self.autoresizingMask = NSViewNotSizable;
+    self.translatesAutoresizingMaskIntoConstraints = YES;
+    NSView *contentView = [[NSView alloc] initWithFrame:CGRectMake(0.0, 0.0, CGRectGetWidth(self.bounds), CGRectGetHeight(self.bounds))];
+    _contentView = contentView;
+    contentView.accessibilityRole = NSAccessibilityGroupRole;
+    contentView.accessibilityElement = NO;
+    contentView.autoresizingMask = NSViewNotSizable;
+    contentView.translatesAutoresizingMaskIntoConstraints = YES;
+    contentView.wantsLayer = YES;
+    contentView.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
+    [self addSubview:contentView];
+}
+
 - (instancetype)initWithFrame:(NSRect)frame {
     if (self = [super initWithFrame:frame]) {
-        UXCollectionViewCellCommonInit(self);
+        [self _commonInit];
     }
 
     return self;
@@ -23,7 +35,7 @@ static void UXCollectionViewCellCommonInit(UXCollectionViewCell *cell);
 
 - (instancetype)initWithCoder:(NSCoder *)coder {
     if (self = [super initWithCoder:coder]) {
-        UXCollectionViewCellCommonInit(self);
+        [self _commonInit];
     }
 
     return self;
@@ -90,17 +102,3 @@ static void UXCollectionViewCellCommonInit(UXCollectionViewCell *cell);
 }
 
 @end
-
-static void UXCollectionViewCellCommonInit(UXCollectionViewCell *cell) {
-    cell.autoresizingMask = NSViewNotSizable;
-    cell.translatesAutoresizingMaskIntoConstraints = YES;
-    NSView *contentView = [[NSView alloc] initWithFrame:CGRectMake(0.0, 0.0, CGRectGetWidth(cell.bounds), CGRectGetHeight(cell.bounds))];
-    cell->_contentView = contentView;
-    contentView.accessibilityRole = NSAccessibilityGroupRole;
-    contentView.accessibilityElement = NO;
-    contentView.autoresizingMask = NSViewNotSizable;
-    contentView.translatesAutoresizingMaskIntoConstraints = YES;
-    contentView.wantsLayer = YES;
-    contentView.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
-    [cell addSubview:contentView];
-}

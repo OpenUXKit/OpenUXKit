@@ -28,6 +28,16 @@ static void *kFirstResponderObserverContext = &kFirstResponderObserverContext;
 static void *kInspectorViewControllerObserverContext = &kInspectorViewControllerObserverContext;
 static void *kCollapsedObserverContext = &kCollapsedObserverContext;
 
+static BOOL UXSourceControllerShouldForceSelectionForNavigationDestination(id<UXNavigationDestination> destination) {
+    id value = [destination.destinationAuxiliaryStore valueForKey:@"UXSourceControllerForceSelection" inNamespace:nil];
+
+    if ([value isKindOfClass:[NSNumber class]]) {
+        return [value boolValue];
+    }
+
+    return NO;
+}
+
 @interface UXSourceController () <NSSplitViewDelegate> {
     BOOL _needsToSetInitialSourceListWidth;
     BOOL _wantsSourceListCollapsed;
@@ -614,7 +624,58 @@ static void *kCollapsedObserverContext = &kCollapsedObserverContext;
         }
     }
 
+    __block BOOL completionDidFire = NO;
     [rootViewController requestViewControllersForNavigationDestination:destination completion:^(BOOL finished, NSArray<UXViewController *> *viewControllers) {
+        NSAssert(!completionDidFire, @"API misuse. The completion block of -[UXViewController requestViewControllersForNavigationDestination:completion:] was called multiple times");
+        completionDidFire = YES;
+        NSAssert(viewControllers.count > 0, @"Error: Attempting to push an empty navigation stack.\n%@", NSThread.callStackSymbols);
+        NSAssert([self.rootViewControllers containsObject:viewControllers.firstObject], @"Error attempting to push a view controller stack without an existing root view controller\n%@", NSThread.callStackSymbols);
+
+        UXNavigationController *selectedNavigationController = self.selectedNavigationController;
+        UXViewController *originalTopViewController = selectedNavigationController.topViewController;
+        UXViewController *lastViewController = viewControllers.lastObject;
+        self->_navigatingToDestination = YES;
+        [self _prepareTransitionToRootViewController:rootViewController];
+        UXNavigationController *navigationController = [self->_navigationControllerByRootViewController objectForKey:rootViewController];
+        [navigationController setViewControllers:viewControllers animated:animated];
+
+        UXCompletionHandler afterSetViewControllers = ^{
+            if (rootViewController.navigationController == selectedNavigationController) {
+                if (originalTopViewController == lastViewController && UXSourceControllerShouldForceSelectionForNavigationDestination(destination)) {
+                    [lastViewController updateForEqualNavigationDestination:destination];
+                }
+            } else {
+                [self _setSelectedViewController:rootViewController animated:animated sender:self];
+            }
+
+            [self.sourceListViewController selectNavigationDestination:destination];
+
+            UXCompletionHandler afterSelection = ^{
+                self->_navigatingToDestination = NO;
+                if (completion) {
+                    completion(YES);
+                }
+            };
+
+            id<UXViewControllerTransitionCoordinator> postSelectionCoordinator = selectedNavigationController.transitionCoordinator ?: self.transitionCoordinator;
+
+            if (postSelectionCoordinator) {
+                [postSelectionCoordinator animateAlongsideTransition:nil completion:^(id<UXViewControllerTransitionCoordinatorContext> transitionContext) {
+                    afterSelection();
+                }];
+            } else {
+                afterSelection();
+            }
+        };
+
+        id<UXViewControllerTransitionCoordinator> coordinator = navigationController.transitionCoordinator;
+        if (coordinator) {
+            [coordinator animateAlongsideTransition:nil completion:^(id<UXViewControllerTransitionCoordinatorContext> transitionContext) {
+                afterSetViewControllers();
+            }];
+        } else {
+            afterSetViewControllers();
+        }
     }];
 }
 
@@ -645,6 +706,7 @@ static void *kCollapsedObserverContext = &kCollapsedObserverContext;
 
                 if (fallbackDestination) {
                     [self _navigateToDestination:fallbackDestination animated:animated completion:^(BOOL finished) {
+                        [self _removeRootViewController:rootViewController];
                         innerCompletion(finished);
                     }];
                     return;
@@ -769,13 +831,15 @@ static void *kCollapsedObserverContext = &kCollapsedObserverContext;
 }
 
 - (id)_contextForTransitionOperation:(NSInteger)operation fromViewController:(UXViewController *)fromViewController toViewController:(UXViewController *)toViewController transition:(NSUInteger)transition {
+    NSUInteger effectiveTransition = transition;
+
     if (fromViewController && toViewController) {
         if (fromViewController.view == toViewController.view) {
-            transition = 102;
+            effectiveTransition = 102;
         }
     }
 
-    _transitionController = [_transitionControllerClassForTransition(transition) new];
+    _transitionController = [_transitionControllerClassForTransition(effectiveTransition) new];
     _transitionController.operation = operation;
     [self.view layoutSubtreeIfNeeded];
 
@@ -870,7 +934,7 @@ static void *kCollapsedObserverContext = &kCollapsedObserverContext;
 
         [toNavigationController.navigationBar _updateItemContainer];
 
-        if (sourceListInResponderChain) {
+        if (!sourceListInResponderChain) {
             [window makeFirstResponder:toNavigationController.preferredFirstResponder];
         }
 

@@ -1,4 +1,5 @@
 #import <OpenUXKit/UXTabBarController.h>
+#import <OpenUXKit/NSResponder+UXKit.h>
 #import <OpenUXKit/UXTabBarItem.h>
 #import <OpenUXKit/UXTabBarItemSegment.h>
 #import <OpenUXKit/UXNavigationController+Internal.h>
@@ -392,6 +393,7 @@ static void *kToolbarPropertiesObservationContext = &kToolbarPropertiesObservati
     if (_needsTransition && [self _canPerformTransition]) {
         _needsTransition = NO;
         [self _transitionToTargetViewControllerWithCompletion:^{
+            [self _performTransitionIfNeeded];
         }];
     }
 }
@@ -415,6 +417,11 @@ static void *kToolbarPropertiesObservationContext = &kToolbarPropertiesObservati
             self.segmentTransitionInProgress = YES;
             [_installedViewController prepareForTransitionToSelectedTabBarItemSegmentWithCompletion:^{
                 self.segmentTransitionInProgress = NO;
+                NSWindow *window = self.view.window;
+                if ([self.view isInResponderChainOf:window.firstResponder]) {
+                    [window makeFirstResponder:viewController.preferredFirstResponder];
+                }
+                [window recalculateKeyViewLoop];
                 innerCompletion();
             }];
         } else {
@@ -434,9 +441,11 @@ static void *kToolbarPropertiesObservationContext = &kToolbarPropertiesObservati
 }
 
 - (id)_contextForTransitionOperation:(NSInteger)operation fromViewController:(UXViewController *)fromViewController toViewController:(UXViewController *)toViewController transition:(NSUInteger)transition {
+    NSUInteger effectiveTransition = transition;
+
     if (fromViewController && toViewController) {
         if (fromViewController.view == toViewController.view) {
-            transition = 102;
+            effectiveTransition = 102;
         }
     }
 
@@ -447,7 +456,7 @@ static void *kToolbarPropertiesObservationContext = &kToolbarPropertiesObservati
     }
 
     if (!transitionControllerClass) {
-        transitionControllerClass = _transitionControllerClassForTransition(transition);
+        transitionControllerClass = _transitionControllerClassForTransition(effectiveTransition);
     }
 
     _transitionController = [transitionControllerClass new];

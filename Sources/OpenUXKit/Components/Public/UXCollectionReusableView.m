@@ -1,5 +1,6 @@
 #import <OpenUXKit/UXCollectionReusableView.h>
 #import <OpenUXKit/UXCollectionViewLayoutAttributes.h>
+#import <OpenUXKit/UXCollectionViewLayoutAttributes+Internal.h>
 #import <QuartzCore/QuartzCore.h>
 
 @interface UXCollectionReusableView () {

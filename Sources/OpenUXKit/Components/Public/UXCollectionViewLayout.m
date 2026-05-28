@@ -2,7 +2,11 @@
 #import <OpenUXKit/UXCollectionViewLayoutAttributes+Internal.h>
 #import <OpenUXKit/UXCollectionViewLayoutInvalidationContext.h>
 #import <OpenUXKit/UXCollectionViewLayoutAccessibility.h>
-#import <OpenUXKit/UXCollectionViewUpdate.h>
+#import <OpenUXKit/UXCollectionViewUpdate+Internal.h>
+#import <OpenUXKit/UXCollectionViewUpdateItem+Internal.h>
+#import <OpenUXKit/UXCollectionView.h>
+#import <OpenUXKit/UXCollectionViewData.h>
+#import <OpenUXKit/UXCollectionReusableView.h>
 #import <OpenUXKit/_UXCollectionViewItemKey.h>
 #import <OpenUXKit/NSIndexPath+UXCollectionViewAdditions.h>
 #import <OpenUXKit/UXKitPrivateUtilites.h>
@@ -226,7 +230,7 @@
 - (UXCollectionReusableView *)_decorationViewForLayoutAttributes:(UXCollectionViewLayoutAttributes *)layoutAttributes {
     NSString *elementKind = [layoutAttributes _elementKind];
     Class viewClass = [_decorationViewClassDict valueForKey:elementKind];
-    id view = [[viewClass alloc] initWithFrame:layoutAttributes.frame];
+    UXCollectionReusableView *view = [[viewClass alloc] initWithFrame:layoutAttributes.frame];
     if (!view) {
         [[NSAssertionHandler currentHandler] handleFailureInMethod:_cmd
                                                             object:self
@@ -426,7 +430,7 @@
     UXCollectionViewLayoutAttributes *attributes = [_initialAnimationLayoutAttributesDict objectForKey:[_UXCollectionViewItemKey collectionItemKeyForCellWithIndexPath:itemIndexPath]];
     UXCollectionView *collectionView = _collectionView;
     if (!attributes) {
-        if ([itemIndexPath section] >= [(id)collectionView numberOfSections] || [itemIndexPath item] >= [(id)collectionView numberOfItemsInSection:[itemIndexPath section]]) {
+        if ([itemIndexPath section] >= [collectionView numberOfSections] || [itemIndexPath item] >= [collectionView numberOfItemsInSection:[itemIndexPath section]]) {
             attributes = nil;
         } else {
             id source = (_transitioningFromLayout && !_inTransitionFromTransitionLayout) ? _transitioningFromLayout : self;
@@ -461,7 +465,7 @@
     UXCollectionViewLayoutAttributes *attributes = [_initialAnimationLayoutAttributesDict objectForKey:[_UXCollectionViewItemKey collectionItemKeyForSupplementaryViewOfKind:elementKind andIndexPath:elementIndexPath]];
     UXCollectionView *collectionView = _collectionView;
     if (!attributes) {
-        if ([elementIndexPath length] == 1 || [elementIndexPath section] < [(id)collectionView numberOfSections]) {
+        if ([elementIndexPath length] == 1 || [elementIndexPath section] < [collectionView numberOfSections]) {
             id source = (_transitioningFromLayout && !_inTransitionFromTransitionLayout) ? _transitioningFromLayout : self;
             attributes = [source layoutAttributesForSupplementaryViewOfKind:elementKind atIndexPath:elementIndexPath];
         } else {
@@ -508,7 +512,7 @@
     UXCollectionViewLayoutAttributes *attributes = [_initialAnimationLayoutAttributesDict objectForKey:[_UXCollectionViewItemKey collectionItemKeyForDecorationViewOfKind:elementKind andIndexPath:decorationIndexPath]];
     UXCollectionView *collectionView = _collectionView;
     if (!attributes) {
-        if ([decorationIndexPath length] == 1 || [decorationIndexPath section] < [(id)collectionView numberOfSections]) {
+        if ([decorationIndexPath length] == 1 || [decorationIndexPath section] < [collectionView numberOfSections]) {
             id source = (_transitioningFromLayout && !_inTransitionFromTransitionLayout) ? _transitioningFromLayout : self;
             attributes = [source layoutAttributesForDecorationViewOfKind:elementKind atIndexPath:decorationIndexPath];
         } else {
@@ -608,7 +612,7 @@
         return NO;
     }
     UXCollectionView *collectionView = _collectionView;
-    return section < [(id)collectionView numberOfSections] && item < [(id)collectionView numberOfItemsInSection:section];
+    return section < [collectionView numberOfSections] && item < [collectionView numberOfItemsInSection:section];
 }
 
 - (BOOL)_selectableItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -636,11 +640,11 @@
 
 - (NSIndexPath *)firstSelectableItemIndexPath {
     UXCollectionView *collectionView = _collectionView;
-    if ([(id)collectionView numberOfSections] < 1) {
+    if ([collectionView numberOfSections] < 1) {
         return nil;
     }
     NSIndexPath *indexPath = [NSIndexPath indexPathForItem:0 inSection:0];
-    if (![(id)collectionView numberOfItemsInSection:[indexPath section]]) {
+    if (![collectionView numberOfItemsInSection:[indexPath section]]) {
         indexPath = [(id)collectionView nextIndexPath:indexPath];
     }
     for (; indexPath; indexPath = [(id)collectionView nextIndexPath:indexPath]) {
@@ -653,12 +657,12 @@
 
 - (NSIndexPath *)lastSelectableItemIndexPath {
     UXCollectionView *collectionView = _collectionView;
-    NSInteger sectionCount = [(id)collectionView numberOfSections];
+    NSInteger sectionCount = [collectionView numberOfSections];
     if (sectionCount < 1) {
         return nil;
     }
     NSInteger lastSection = sectionCount - 1;
-    NSInteger itemCount = [(id)collectionView numberOfItemsInSection:lastSection];
+    NSInteger itemCount = [collectionView numberOfItemsInSection:lastSection];
     if (itemCount < 1) {
         return nil;
     }
@@ -690,26 +694,26 @@
     UXCollectionView *collectionView = _collectionView;
     NSInteger step = (comparison == NSOrderedDescending) ? -1 : 1;
     while (YES) {
-        if (currentItem < 0 || currentItem >= [(id)collectionView numberOfItemsInSection:currentSection]) {
+        if (currentItem < 0 || currentItem >= [collectionView numberOfItemsInSection:currentSection]) {
             if (comparison == NSOrderedDescending) {
                 currentSection--;
                 if (currentSection < 0) {
                     return result;
                 }
-                NSInteger sectionItemCount = [(id)collectionView numberOfItemsInSection:currentSection];
+                NSInteger sectionItemCount = [collectionView numberOfItemsInSection:currentSection];
                 currentItem = sectionItemCount - 1;
                 if (sectionItemCount < 1) {
                     goto advance;
                 }
             } else {
                 currentSection++;
-                if (currentSection >= [(id)collectionView numberOfSections]) {
+                if (currentSection >= [collectionView numberOfSections]) {
                     return result;
                 }
                 currentItem = 0;
             }
         }
-        if (currentSection >= 0 && currentItem < [(id)collectionView numberOfItemsInSection:currentSection] && currentSection < [(id)collectionView numberOfSections]) {
+        if (currentSection >= 0 && currentItem < [collectionView numberOfItemsInSection:currentSection] && currentSection < [collectionView numberOfSections]) {
             NSIndexPath *indexPath = [NSIndexPath indexPathForItem:currentItem inSection:currentSection];
             if ([self layoutAttributesForItemAtIndexPath:indexPath]) {
                 [result addObject:indexPath];
