@@ -1,4 +1,4 @@
-#import <OpenUXKit/_UXAccessoryBarContainer-Protocol.h>
+#import <OpenUXKit/_UXAccessoryBarContainer.h>
 #import <OpenUXKit/_UXContainerView.h>
 #import <OpenUXKit/_UXNavigationRequest.h>
 #import <OpenUXKit/_UXViewControllerOneToOneTransitionContext.h>

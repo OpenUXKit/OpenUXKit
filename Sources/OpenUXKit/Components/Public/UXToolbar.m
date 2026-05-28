@@ -1,4 +1,4 @@
-#import <OpenUXKit/_UXBarItemsContainer-Protocol.h>
+#import <OpenUXKit/_UXBarItemsContainer.h>
 #import <OpenUXKit/_UXToolbarItemsContainer.h>
 #import <OpenUXKit/UXBar+Internal.h>
 #import <OpenUXKit/UXKitDefines.h>

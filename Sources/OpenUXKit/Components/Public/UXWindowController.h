@@ -1,5 +1,5 @@
 #import <AppKit/AppKit.h>
-#import <OpenUXKit/_UXAccessoryBarContainer-Protocol.h>
+#import <OpenUXKit/_UXAccessoryBarContainer.h>
 #import <OpenUXKit/UXKitDefines.h>
 
 @class UXToolbar, UXViewController;
