@@ -1,0 +1,40 @@
+#import <AppKit/AppKit.h>
+#import <OpenUXKit/UXKitDefines.h>
+#import <OpenUXKit/UXCollectionViewLayoutProxyDelegate.h>
+
+NS_HEADER_AUDIT_BEGIN(nullability, sendability)
+
+@class UXCollectionView, UXCollectionViewCell;
+
+UXKIT_PRIVATE NS_SWIFT_UI_ACTOR
+@interface _UXCollectionViewRearrangingCoordinator : NSObject <UXCollectionViewLayoutProxyDelegate, NSGestureRecognizerDelegate, NSDraggingSource, NSDraggingDestination>
+
+@property (nonatomic, weak, readonly, nullable) UXCollectionView *collectionView;
+
+@property (nonatomic) BOOL enabled;
+@property (nonatomic, readonly) BOOL isRearranging;
+@property (nonatomic) NSInteger initiationMode;
+@property (nonatomic) BOOL allowDragOutsideCells;
+@property (nonatomic) BOOL continuouslyUpdateInsideCells;
+@property (nonatomic) BOOL usePileForSingleItem;
+@property (nonatomic) BOOL allowAutoscroll;
+@property (nonatomic) CGFloat rearrangingInitialDelay;
+@property (nonatomic) CGFloat rearrangingPreviewDelay;
+
+@property (nonatomic) NSRange initialIndexRange;
+@property (nonatomic) NSRange targetIndexRange;
+@property (nonatomic) NSRange movedIndexRange;
+@property (nonatomic) NSRange exchangedIndexRange;
+@property (nonatomic) BOOL shouldExchange;
+@property (nonatomic, strong, nullable) UXCollectionViewCell *dropTargetCell;
+@property (nonatomic) NSUInteger dropOperation;
+@property (nonatomic, copy, readonly, nullable) NSString *dragSourceIdentifier;
+
+- (instancetype)initWithCollectionView:(UXCollectionView *)collectionView;
+
+- (void)updateDraggingItemsForDrag:(id<NSDraggingInfo>)draggingInfo;
+- (BOOL)wantsPeriodicDraggingUpdates;
+
+@end
+
+NS_HEADER_AUDIT_END(nullability, sendability)

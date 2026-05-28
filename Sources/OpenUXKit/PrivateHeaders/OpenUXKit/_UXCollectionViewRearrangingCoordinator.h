@@ -1,1 +1,1 @@
-../../Unimplementation/_UXCollectionViewRearrangingCoordinator.h
+../../Components/Private/_UXCollectionViewRearrangingCoordinator.h
