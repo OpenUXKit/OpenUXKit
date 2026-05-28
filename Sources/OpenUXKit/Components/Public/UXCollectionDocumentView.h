@@ -3,10 +3,12 @@
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
-UXKIT_EXTERN NS_SWIFT_UI_ACTOR
-@interface UXCollectionClipView : NSClipView
+@class UXCollectionView;
 
-- (void)_invalidateFocus;
+UXKIT_EXTERN NS_SWIFT_UI_ACTOR
+@interface UXCollectionDocumentView : NSView
+
+@property (nonatomic, weak, nullable) UXCollectionView *collectionView;
 
 @end
 

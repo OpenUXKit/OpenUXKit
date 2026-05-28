@@ -1,1 +1,1 @@
-../../Unimplementation/UXCollectionClipView.h
+../../Components/Public/UXCollectionClipView.h
