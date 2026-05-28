@@ -32,6 +32,7 @@
 - (void)_setLayoutAttributes:(nullable UXCollectionViewLayoutAttributes *)layoutAttributes;
 - (void)_setReuseIdentifier:(nullable NSString *)reuseIdentifier;
 - (void)_markAsDequeued;
+- (void)_invalidateLayoutWithContext:(nullable UXCollectionViewLayoutInvalidationContext *)context;
 - (NSArray<UXCollectionViewLayoutAttributes *> *)layoutAttributesForElementsInRect:(CGRect)rect;
 @end
 
@@ -451,7 +452,7 @@
         if (_transitioningToLayout && !_inTransitionToTransitionLayout) {
             attributes = [_transitioningToLayout layoutAttributesForItemAtIndexPath:itemIndexPath];
         } else {
-            attributes = [[(id)collectionView cellForItemAtIndexPath:itemIndexPath] _layoutAttributes];
+            attributes = [(id)[(id)collectionView cellForItemAtIndexPath:itemIndexPath] _layoutAttributes];
         }
     }
     if ((![(id)collectionView _currentUpdate] || [_deletedSectionsSet containsIndex:[itemIndexPath section]]) && !_transitioningToLayout) {
