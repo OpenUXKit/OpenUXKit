@@ -1,1 +1,1 @@
-../../Unimplementation/_UXCollectionSnapshotView.h
+../../Components/Private/_UXCollectionSnapshotView.h
