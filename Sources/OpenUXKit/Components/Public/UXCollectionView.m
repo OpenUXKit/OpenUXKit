@@ -445,10 +445,20 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
 }
 
 - (NSIndexPath *)indexPathForItemAtPoint:(CGPoint)point {
-    if ([_layout respondsToSelector:@selector(indexPathForItemAtPoint:)]) {
-        return [(UXCollectionViewFlowLayout *)_layout indexPathForItemAtPoint:point];
+    if (!_doneFirstLayout) {
+        [self reloadData];
+        _doneFirstLayout = YES;
     }
-    return nil;
+    CGRect probeRect = CGRectMake(point.x, point.y, 1.0, 1.0);
+    NSArray<UXCollectionViewLayoutAttributes *> *attributesInRect = [_collectionViewData layoutAttributesForElementsInRect:probeRect];
+    __block NSIndexPath *foundIndexPath = nil;
+    [attributesInRect enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(UXCollectionViewLayoutAttributes *attributes, NSUInteger index, BOOL *stop) {
+        if (attributes.representedElementCategory == UXCollectionElementCategoryCell) {
+            foundIndexPath = attributes.indexPath;
+            *stop = YES;
+        }
+    }];
+    return foundIndexPath;
 }
 
 #pragma mark - Layout attribute queries
@@ -498,14 +508,7 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
 }
 
 - (void)selectItemsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths byExtendingSelection:(BOOL)extend animated:(BOOL)animated {
-    if (!extend) {
-        [self deselectAllItems:NO];
-    }
-    for (NSIndexPath *indexPath in indexPaths) {
-        [_indexPathsForSelectedItems addIndexPath:indexPath];
-        UXCollectionViewCell *cell = [self cellForItemAtIndexPath:indexPath];
-        cell.selected = YES;
-    }
+    [self _selectItemsAtIndexPaths:indexPaths byExtendingSelection:extend animated:animated notifyDelegate:NO];
 }
 
 - (void)deselectItemAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated {
@@ -513,11 +516,51 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
 }
 
 - (void)deselectItemsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths animated:(BOOL)animated {
+    [self _deselectItemsAtIndexPaths:indexPaths animated:animated notifyDelegate:NO];
+}
+
+- (void)_selectItemsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths byExtendingSelection:(BOOL)extend animated:(BOOL)animated notifyDelegate:(BOOL)notifyDelegate {
+    id<UXCollectionViewDelegate> delegate = self.delegate;
+    BOOL respondsToDidSelect = notifyDelegate && [delegate respondsToSelector:@selector(collectionView:didSelectItemAtIndexPath:)];
+
+    if (!extend) {
+        [self _deselectItemsAtIndexPaths:[_indexPathsForSelectedItems allIndexPaths] animated:NO notifyDelegate:notifyDelegate];
+    }
     for (NSIndexPath *indexPath in indexPaths) {
+        if ([_indexPathsForSelectedItems containsIndexPath:indexPath]) {
+            continue;
+        }
+        [_indexPathsForSelectedItems addIndexPath:indexPath];
+        UXCollectionViewCell *cell = [self cellForItemAtIndexPath:indexPath];
+        cell.selected = YES;
+        if (respondsToDidSelect) {
+            [delegate collectionView:self didSelectItemAtIndexPath:indexPath];
+        }
+    }
+}
+
+- (BOOL)_deselectItemsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths animated:(BOOL)animated notifyDelegate:(BOOL)notifyDelegate {
+    id<UXCollectionViewDelegate> delegate = self.delegate;
+    BOOL respondsToShouldDeselect = notifyDelegate && [delegate respondsToSelector:@selector(collectionView:shouldDeselectItemAtIndexPath:)];
+    BOOL respondsToDidDeselect = notifyDelegate && [delegate respondsToSelector:@selector(collectionView:didDeselectItemAtIndexPath:)];
+
+    BOOL deselectedAny = NO;
+    for (NSIndexPath *indexPath in indexPaths) {
+        if (![_indexPathsForSelectedItems containsIndexPath:indexPath]) {
+            continue;
+        }
+        if (respondsToShouldDeselect && ![delegate collectionView:self shouldDeselectItemAtIndexPath:indexPath]) {
+            continue;
+        }
         [_indexPathsForSelectedItems removeIndexPath:indexPath];
         UXCollectionViewCell *cell = [self cellForItemAtIndexPath:indexPath];
         cell.selected = NO;
+        deselectedAny = YES;
+        if (respondsToDidDeselect) {
+            [delegate collectionView:self didDeselectItemAtIndexPath:indexPath];
+        }
     }
+    return deselectedAny;
 }
 
 - (void)deselectAllItems:(BOOL)animated {
@@ -538,6 +581,59 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
         }
     }
     [self selectItemsAtIndexPaths:all byExtendingSelection:NO animated:animated];
+}
+
+- (NSIndexPath *)_firstSelectableItemIndexPath {
+    NSInteger sectionCount = [self numberOfSections];
+    for (NSInteger section = 0; section < sectionCount; section++) {
+        NSInteger itemCount = [self numberOfItemsInSection:section];
+        for (NSInteger item = 0; item < itemCount; item++) {
+            NSIndexPath *candidate = [NSIndexPath indexPathForItem:item inSection:section];
+            if ([self selectableItemAtIndexPath:candidate]) {
+                return candidate;
+            }
+        }
+    }
+    return nil;
+}
+
+- (NSIndexPath *)_lastSelectableItemIndexPath {
+    NSInteger sectionCount = [self numberOfSections];
+    for (NSInteger section = sectionCount - 1; section >= 0; section--) {
+        NSInteger itemCount = [self numberOfItemsInSection:section];
+        for (NSInteger item = itemCount - 1; item >= 0; item--) {
+            NSIndexPath *candidate = [NSIndexPath indexPathForItem:item inSection:section];
+            if ([self selectableItemAtIndexPath:candidate]) {
+                return candidate;
+            }
+        }
+    }
+    return nil;
+}
+
+- (NSIndexPath *)_selectableIndexPathForItemContainingHitView:(NSView *)hitView {
+    NSView *currentView = hitView;
+    while (currentView) {
+        if ([currentView isKindOfClass:[UXCollectionViewCell class]] || [currentView isKindOfClass:[UXCollectionView class]]) {
+            break;
+        }
+        currentView = currentView.superview;
+    }
+    if (![currentView isKindOfClass:[UXCollectionViewCell class]]) {
+        return nil;
+    }
+    return [self indexPathForCell:(UXCollectionViewCell *)currentView];
+}
+
+- (NSIndexPath *)_indexPathOfSelectableItemHitByEvent:(NSEvent *)event {
+    NSView *documentSuperview = [_collectionDocumentView superview];
+    NSPoint pointInWindow = event.locationInWindow;
+    NSPoint pointInSuperview = [documentSuperview convertPoint:pointInWindow fromView:nil];
+    NSView *hitView = [_collectionDocumentView hitTest:pointInSuperview];
+    if (!hitView) {
+        return nil;
+    }
+    return [self _selectableIndexPathForItemContainingHitView:hitView];
 }
 
 #pragma mark - Scrolling
@@ -658,6 +754,138 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
 - (void)layout {
     [super layout];
     [self _updateVisibleCells];
+}
+
+#pragma mark - Mouse / Key Selection
+
+- (BOOL)acceptsFirstResponder {
+    return YES;
+}
+
+- (void)mouseDown:(NSEvent *)event {
+    id<UXCollectionViewDelegate> delegate = self.delegate;
+    if ([delegate respondsToSelector:@selector(collectionView:mouseDownWithEvent:)]) {
+        [delegate collectionView:self mouseDownWithEvent:event];
+    }
+    NSIndexPath *hitIndexPath = [self _indexPathOfSelectableItemHitByEvent:event];
+    if (hitIndexPath) {
+        UXCollectionViewCell *cell = [self cellForItemAtIndexPath:hitIndexPath];
+        [self _performItemSelectionForMouseEvent:event onCell:cell atIndexPath:hitIndexPath];
+        if (event.clickCount == 2 && [delegate respondsToSelector:@selector(collectionView:itemWasDoubleClickedAtIndexPath:withEvent:)]) {
+            [delegate collectionView:self itemWasDoubleClickedAtIndexPath:hitIndexPath withEvent:event];
+        }
+    }
+    [super mouseDown:event];
+}
+
+- (void)rightMouseDown:(NSEvent *)event {
+    id<UXCollectionViewDelegate> delegate = self.delegate;
+    NSIndexPath *hitIndexPath = [self _indexPathOfSelectableItemHitByEvent:event];
+    if (hitIndexPath && [delegate respondsToSelector:@selector(collectionView:itemWasRightClickedAtIndexPath:withEvent:)]) {
+        [delegate collectionView:self itemWasRightClickedAtIndexPath:hitIndexPath withEvent:event];
+    }
+    [super rightMouseDown:event];
+}
+
+- (void)keyDown:(NSEvent *)event {
+    NSString *characters = event.charactersIgnoringModifiers;
+    if (characters.length == 0) {
+        [super keyDown:event];
+        return;
+    }
+    unichar keyCharacter = [characters characterAtIndex:0];
+    NSEventModifierFlags modifiers = event.modifierFlags;
+    if (![self _performItemSelectionForKey:keyCharacter withModifiers:modifiers]) {
+        [super keyDown:event];
+    }
+}
+
+- (void)_performItemSelectionForMouseEvent:(NSEvent *)event onCell:(UXCollectionViewCell *)cell atIndexPath:(NSIndexPath *)indexPath {
+    NSEventModifierFlags modifiers = event.modifierFlags;
+    BOOL commandPressed = (modifiers & NSEventModifierFlagCommand) != 0;
+    BOOL shiftPressed = (modifiers & NSEventModifierFlagShift) != 0;
+    BOOL extendingModifierPressed = commandPressed || shiftPressed;
+
+    if (cell.selected) {
+        BOOL allowDeselect = commandPressed || _allowsContinuousSelection;
+        if (allowDeselect) {
+            [self _deselectItemsAtIndexPaths:@[indexPath] animated:YES notifyDelegate:YES];
+        }
+        return;
+    }
+    if (![self selectableItemAtIndexPath:indexPath]) {
+        return;
+    }
+    BOOL extend = extendingModifierPressed && _allowsMultipleSelection;
+    [self _selectItemsAtIndexPaths:@[indexPath] byExtendingSelection:extend animated:YES notifyDelegate:YES];
+}
+
+- (BOOL)_performItemSelectionForKey:(uint16_t)key withModifiers:(NSUInteger)modifiers {
+    if ((modifiers & NSEventModifierFlagCommand) != 0) {
+        return NO;
+    }
+    NSIndexPath *anchorIndexPath = [_indexPathsForSelectedItems lastIndexPath];
+    NSIndexPath *targetIndexPath = nil;
+    switch (key) {
+        case NSUpArrowFunctionKey:
+            targetIndexPath = [self _indexPathByMovingFromIndexPath:anchorIndexPath delta:-1 fallback:[self _firstSelectableItemIndexPath]];
+            break;
+        case NSDownArrowFunctionKey:
+            targetIndexPath = [self _indexPathByMovingFromIndexPath:anchorIndexPath delta:1 fallback:[self _firstSelectableItemIndexPath]];
+            break;
+        case NSLeftArrowFunctionKey:
+            targetIndexPath = [self _indexPathByMovingFromIndexPath:anchorIndexPath delta:-1 fallback:[self _firstSelectableItemIndexPath]];
+            break;
+        case NSRightArrowFunctionKey:
+            targetIndexPath = [self _indexPathByMovingFromIndexPath:anchorIndexPath delta:1 fallback:[self _firstSelectableItemIndexPath]];
+            break;
+        case NSHomeFunctionKey:
+            targetIndexPath = [self _firstSelectableItemIndexPath];
+            break;
+        case NSEndFunctionKey:
+            targetIndexPath = [self _lastSelectableItemIndexPath];
+            break;
+        default:
+            return NO;
+    }
+    if (!targetIndexPath) {
+        return NO;
+    }
+    BOOL extend = (modifiers & NSEventModifierFlagShift) != 0 && _allowsMultipleSelection;
+    [self _selectItemsAtIndexPaths:@[targetIndexPath] byExtendingSelection:extend animated:NO notifyDelegate:YES];
+    [self scrollToItemAtIndexPath:targetIndexPath atScrollPosition:UXCollectionViewScrollPositionNone animated:NO];
+    return YES;
+}
+
+- (NSIndexPath *)_indexPathByMovingFromIndexPath:(NSIndexPath *)indexPath delta:(NSInteger)delta fallback:(NSIndexPath *)fallback {
+    if (!indexPath) {
+        return fallback;
+    }
+    NSInteger section = indexPath.section;
+    NSInteger item = indexPath.item + delta;
+    NSInteger sectionCount = [self numberOfSections];
+    while (section >= 0 && section < sectionCount) {
+        NSInteger itemCount = [self numberOfItemsInSection:section];
+        if (item < 0) {
+            section--;
+            if (section < 0) {
+                return nil;
+            }
+            item = [self numberOfItemsInSection:section] - 1;
+            continue;
+        }
+        if (item >= itemCount) {
+            section++;
+            item = 0;
+            continue;
+        }
+        NSIndexPath *candidate = [NSIndexPath indexPathForItem:item inSection:section];
+        if ([self selectableItemAtIndexPath:candidate]) {
+            return candidate;
+        }
+        item += (delta >= 0) ? 1 : -1;
+    }
+    return nil;
 }
 
 - (void)_updateVisibleCells {
