@@ -180,7 +180,7 @@
     });
 
     CGRect bounds = self.layer.bounds;
-    CGContextRef context = CGBitmapContextCreate(NULL, (size_t)CGRectGetWidth(bounds), (size_t)CGRectGetHeight(bounds), 8, 4 * (size_t)CGRectGetWidth(bounds), colorSpace, flipped ? (kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Host) : kCGImageAlphaPremultipliedFirst);
+    CGContextRef context = CGBitmapContextCreate(NULL, (size_t)CGRectGetWidth(bounds), (size_t)CGRectGetHeight(bounds), 8, 4 * (size_t)CGRectGetWidth(bounds), colorSpace, flipped ? (kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Host) : (kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Host));
 
     if (!context) {
         return NULL;

@@ -20,7 +20,7 @@
     NSUInteger _viewType;
     NSMutableArray *_completionHandlers;
     NSMutableArray *_startupHandlers;
-    void (^_animationBlock)(void);
+    void (^_animationBlock)(void (^)(BOOL));
     struct {
         unsigned int animateFromCurrentPosition : 1;
         unsigned int deleteAterAnimation : 1;
@@ -44,7 +44,7 @@
                  endFraction:(CGFloat)endFraction
    animateFromCurrentPosition:(BOOL)animateFromCurrentPosition
         deleteAfterAnimation:(BOOL)deleteAfterAnimation
-            customAnimations:(void (^)(void))customAnimations {
+            customAnimations:(void (^)(void (^)(BOOL)))customAnimations {
     if (!view) {
         [[NSAssertionHandler currentHandler] handleFailureInMethod:_cmd
                                                             object:self
@@ -145,13 +145,13 @@
     UXCollectionReusableView *view = _view;
     if (_animationBlock) {
         [view _setBaseLayoutAttributes:_finalLayoutAttributes];
-        _animationBlock();
+        _animationBlock(^(BOOL finished) {
+            for (void (^completionHandler)(void) in self->_completionHandlers) {
+                completionHandler();
+            }
+            [self->_completionHandlers removeAllObjects];
+        });
         [view applyLayoutAttributes:_finalLayoutAttributes];
-
-        for (void (^completionHandler)(void) in _completionHandlers) {
-            completionHandler();
-        }
-        [_completionHandlers removeAllObjects];
     } else {
         BOOL animateFromCurrentPosition = _collectionViewAnimationFlags.animateFromCurrentPosition;
         UXCollectionViewLayoutAttributes *finalLayoutAttributes = _finalLayoutAttributes;

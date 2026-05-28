@@ -25,7 +25,7 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
                  endFraction:(CGFloat)endFraction
    animateFromCurrentPosition:(BOOL)animateFromCurrentPosition
         deleteAfterAnimation:(BOOL)deleteAfterAnimation
-            customAnimations:(nullable void (^)(void))customAnimations;
+            customAnimations:(nullable void (^)(void (^completion)(BOOL finished)))customAnimations;
 
 - (void)addStartupHandler:(void (^)(void))startupHandler;
 - (void)addCompletionHandler:(void (^)(void))completionHandler;

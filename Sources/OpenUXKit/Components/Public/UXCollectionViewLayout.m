@@ -384,7 +384,7 @@
                     [attributes setAlpha:0.0];
                     [_initialAnimationLayoutAttributesDict setObject:attributes forKey:key];
                 }
-            } else if (updateAction == UXCollectionUpdateActionDelete) {
+            } else if (updateAction == UXCollectionUpdateActionDelete || updateAction == UXCollectionUpdateActionReload) {
                 _UXCollectionViewItemKey *key = [_UXCollectionViewItemKey collectionItemKeyForCellWithIndexPath:[updateItem indexPathBeforeUpdate]];
                 UXCollectionViewLayoutAttributes *attributes = [[[[(id)collectionView _visibleViewsDict] objectForKey:key] _layoutAttributes] copy];
                 if (attributes) {
