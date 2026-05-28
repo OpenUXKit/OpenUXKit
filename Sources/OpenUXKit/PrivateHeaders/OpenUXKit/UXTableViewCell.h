@@ -1,1 +1,1 @@
-../../Unimplementation/UXTableViewCell.h
+../../Components/Public/UXTableViewCell.h
