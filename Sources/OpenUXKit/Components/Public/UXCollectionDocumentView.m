@@ -3,6 +3,8 @@
 
 @interface NSObject (UXCollectionDocumentViewSPI)
 - (void)_prepareCellsForOverdraw:(CGRect)rect;
+- (void)_updateVisibleCellsNow:(BOOL)now;
+- (CGRect)documentContentRect;
 @end
 
 @interface UXCollectionDocumentView () {
@@ -37,6 +39,20 @@
 }
 
 - (void)layout {
+    [super layout];
+    UXCollectionView *collectionView = _collectionView;
+    if (!collectionView) {
+        return;
+    }
+    CGRect contentRect = [collectionView documentContentRect];
+    if (!CGSizeEqualToSize(contentRect.size, self.frame.size)) {
+        NSRect newFrame = self.frame;
+        newFrame.size = contentRect.size;
+        self.frame = newFrame;
+    }
+    if ([collectionView respondsToSelector:@selector(_updateVisibleCellsNow:)]) {
+        [collectionView _updateVisibleCellsNow:YES];
+    }
 }
 
 - (void)_invalidateFocus {

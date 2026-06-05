@@ -84,7 +84,17 @@
 }
 
 - (CGFloat)scrollView:(NSScrollView *)scrollView pageAlignedOriginOnAxis:(NSInteger)axis forProposedDestination:(CGFloat)destination currentOrigin:(CGFloat)current initialOrigin:(CGFloat)initial velocity:(CGFloat)velocity {
-    return destination;
+    UXCollectionView *collectionView = self.collectionView;
+    UXCollectionViewLayout *layout = collectionView.collectionViewLayout;
+    if (!layout) {
+        return destination;
+    }
+    CGPoint proposed = (axis == 0)
+        ? CGPointMake(destination, current)
+        : CGPointMake(current, destination);
+    CGPoint resolved = [layout targetContentOffsetForProposedContentOffset:proposed
+                                                     withScrollingVelocity:(axis == 0 ? CGPointMake(velocity, 0.0) : CGPointMake(0.0, velocity))];
+    return (axis == 0) ? resolved.x : resolved.y;
 }
 
 @end

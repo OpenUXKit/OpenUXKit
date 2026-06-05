@@ -1,7 +1,14 @@
 #import <OpenUXKit/UXCollectionReusableView.h>
+#import <OpenUXKit/UXCollectionView.h>
 #import <OpenUXKit/UXCollectionViewLayoutAttributes.h>
 #import <OpenUXKit/UXCollectionViewLayoutAttributes+Internal.h>
 #import <QuartzCore/QuartzCore.h>
+
+@interface NSObject (UXCollectionReusableViewSPI)
+- (nullable NSIndexPath *)indexPathForCell:(id)cell;
+- (nullable NSIndexPath *)indexPathForSupplementaryView:(id)view;
+- (void)scrollToItemAtIndexPath:(NSIndexPath *)indexPath atScrollPosition:(NSUInteger)position animated:(BOOL)animated;
+@end
 
 @interface UXCollectionReusableView () {
     UXCollectionViewLayoutAttributes *_layoutAttributes;
@@ -170,6 +177,57 @@
 }
 
 - (void)willTransitionFromLayout:(UXCollectionViewLayout *)layout toLayout:(UXCollectionViewLayout *)toLayout {
+}
+
+#pragma mark - Accessibility helpers
+
+- (NSIndexPath *)_accessibilityIndexPath {
+    UXCollectionView *collectionView = _collectionView;
+    if (!collectionView) {
+        return nil;
+    }
+    if ([self respondsToSelector:NSSelectorFromString(@"isKindOfClass:")]) {
+        // Resolve via collection view to support both cells and supplementary views.
+        NSIndexPath *fromCell = nil;
+        if ([collectionView respondsToSelector:@selector(indexPathForCell:)]) {
+            fromCell = [(id)collectionView indexPathForCell:self];
+        }
+        if (fromCell) {
+            return fromCell;
+        }
+        if ([collectionView respondsToSelector:@selector(indexPathForSupplementaryView:)]) {
+            return [(id)collectionView indexPathForSupplementaryView:self];
+        }
+    }
+    return _layoutAttributes.indexPath;
+}
+
+- (NSString *)_accessibilityDefaultRole {
+    return NSAccessibilityGroupRole;
+}
+
+- (id)_dynamicAccessibilityParent {
+    return _collectionView;
+}
+
+- (id)_layoutSectionAccessibility {
+    return nil;
+}
+
+- (BOOL)accessibilityPerformScrollToVisible {
+    UXCollectionView *collectionView = _collectionView;
+    if (!collectionView) {
+        return NO;
+    }
+    NSIndexPath *indexPath = [self _accessibilityIndexPath];
+    if (!indexPath) {
+        return NO;
+    }
+    if ([collectionView respondsToSelector:@selector(scrollToItemAtIndexPath:atScrollPosition:animated:)]) {
+        [(id)collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:0 animated:NO];
+        return YES;
+    }
+    return NO;
 }
 
 - (CGImageRef)_snapshot:(BOOL)flipped {

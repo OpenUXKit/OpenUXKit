@@ -32,9 +32,15 @@ FOUNDATION_EXPORT const unsigned char OpenUXKitVersionString[];
 #import <OpenUXKit/UXCollectionViewLayoutInvalidationContext.h>
 #import <OpenUXKit/UXCollectionViewFlowLayoutInvalidationContext.h>
 #import <OpenUXKit/UXCollectionViewLayout.h>
+#import <OpenUXKit/UXCollectionViewFlowLayout.h>
 #import <OpenUXKit/UXCollectionViewUpdate.h>
 #import <OpenUXKit/UXCollectionViewAnimation.h>
 #import <OpenUXKit/UXCollectionViewAnimationContext.h>
+#import <OpenUXKit/UXCollectionView.h>
+#import <OpenUXKit/UXCollectionViewCell.h>
+#import <OpenUXKit/UXCollectionReusableView.h>
+#import <OpenUXKit/UXCollectionViewController.h>
+#import <OpenUXKit/UXCollectionDocumentView.h>
 
 // CollectionView Protocols
 #import <OpenUXKit/UXCollectionViewDataSource.h>

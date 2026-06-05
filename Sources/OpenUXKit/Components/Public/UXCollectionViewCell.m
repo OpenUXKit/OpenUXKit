@@ -101,4 +101,14 @@
     _contentView.frame = CGRectMake(0.0, 0.0, CGRectGetWidth(self.bounds), CGRectGetHeight(self.bounds));
 }
 
+#pragma mark - Accessibility helpers
+
+- (void)_axPerformDoubleClick {
+    [self _axSimulateClick:0 withNumberOfClicks:2];
+}
+
+- (id)_axSimulateClick:(NSUInteger)clickType withNumberOfClicks:(NSUInteger)clicks {
+    return nil;
+}
+
 @end

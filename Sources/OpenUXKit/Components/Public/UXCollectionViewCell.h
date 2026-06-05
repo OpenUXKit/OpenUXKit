@@ -11,6 +11,8 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @property (nonatomic, getter=isHighlighted) BOOL highlighted;
 
 - (void)_setSelected:(BOOL)selected animated:(BOOL)animated;
+- (void)_axPerformDoubleClick;
+- (nullable id)_axSimulateClick:(NSUInteger)clickType withNumberOfClicks:(NSUInteger)clicks;
 
 @end
 

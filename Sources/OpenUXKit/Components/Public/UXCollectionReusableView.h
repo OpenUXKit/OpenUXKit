@@ -29,6 +29,14 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 - (void)_markAsDequeued;
 - (nullable CGImageRef)_snapshot:(BOOL)flipped CF_RETURNS_RETAINED;
 
+#pragma mark - Accessibility
+
+- (nullable NSIndexPath *)_accessibilityIndexPath;
+- (nullable NSString *)_accessibilityDefaultRole;
+- (nullable id)_dynamicAccessibilityParent;
+- (nullable id)_layoutSectionAccessibility;
+- (BOOL)accessibilityPerformScrollToVisible;
+
 @end
 
 NS_HEADER_AUDIT_END(nullability, sendability)
