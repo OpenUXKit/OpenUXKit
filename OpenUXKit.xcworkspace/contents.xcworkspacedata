@@ -2,13 +2,13 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:OpenUXKit.xcodeproj">
-   </FileRef>
-   <FileRef
       location = "group:">
    </FileRef>
    <FileRef
-      location = "group:/Volumes/Repositories/Private/Personal/Library/macOS/OpenUXKit/Examples/OpenUXKit-Example-ObjC/OpenUXKit-Example-ObjC.xcodeproj">
+      location = "group:OpenUXKit.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Examples/OpenUXKit-Example-ObjC/OpenUXKit-Example-ObjC.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:Examples/OpenUXKit-Example-Swift/OpenUXKit-Example-Swift.xcodeproj">

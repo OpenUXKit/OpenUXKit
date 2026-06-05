@@ -42,19 +42,29 @@
 }
 
 - (void)setHidesTitle:(BOOL)hidesTitle {
+    BOOL previousValue = _hidesTitle;
+    _hidesTitle = hidesTitle;
     if (hidesTitle) {
-        [self setLabel:@"" forSegment:0]; 
+        [self setLabel:@"" forSegment:0];
         [self setWidth:19.0 forSegment:0];
-        if (_hidesTitle != hidesTitle) {
+        if (previousValue != hidesTitle) {
             self.toolTip = self.title;
         }
     } else {
         [self setLabel:self.title forSegment:0];
         [self setWidth:0.0 forSegment:0];
-        if (_hidesTitle) {
+        if (previousValue) {
             self.toolTip = nil;
         }
     }
+}
+
+- (NSString *)description {
+    NSRect frame = self.frame;
+    return [NSString stringWithFormat:@"<%@: %p; frame = (%g %g; %g %g>",
+            NSStringFromClass(self.class), self,
+            frame.origin.x, frame.origin.y,
+            frame.size.width, frame.size.height];
 }
 
 @end

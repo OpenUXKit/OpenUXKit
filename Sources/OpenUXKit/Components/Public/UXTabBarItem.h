@@ -1,16 +1,18 @@
-
-
-#import <OpenUXKit/UXKitDefines.h>
 #import <OpenUXKit/UXBarItem.h>
+#import <OpenUXKit/UXKitDefines.h>
 
-@class NSArray, NSSet, UXTabBarItemSegment;
+@class UXTabBarItemSegment;
+
+NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 UXKIT_EXTERN NS_SWIFT_UI_ACTOR
-@interface UXTabBarItem: UXBarItem
+@interface UXTabBarItem : UXBarItem
 
-@property(copy, nonatomic) NSArray<UXTabBarItemSegment *> *representedSegments; // @synthesize representedSegments=_representedSegments;
-@property(copy, nonatomic) NSSet *possibleTitles; // @synthesize possibleTitles=_possibleTitles;
-- (id)initWithTitle:(NSString *)title;
+@property (nonatomic, copy, nullable) NSArray<UXTabBarItemSegment *> *representedSegments;
+@property (nonatomic, copy, nullable) NSSet<NSString *> *possibleTitles;
+
+- (instancetype)initWithTitle:(nullable NSString *)title;
 
 @end
 
+NS_HEADER_AUDIT_END(nullability, sendability)

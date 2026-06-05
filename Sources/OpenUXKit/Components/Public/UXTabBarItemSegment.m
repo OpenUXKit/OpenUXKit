@@ -21,11 +21,35 @@
     return self;
 }
 
+- (instancetype)init {
+    [self doesNotRecognizeSelector:_cmd];
+    return nil;
+}
+
 - (BOOL)isEqualToTabBarItemSegment:(UXTabBarItemSegment *)tabBarItemSegment {
     return tabBarItemSegment
         && [_title isEqualToString:tabBarItemSegment->_title]
         && _enabled == tabBarItemSegment->_enabled
         && _symbol == tabBarItemSegment->_symbol;
+}
+
+- (BOOL)isEqual:(id)object {
+    if (object == self) {
+        return YES;
+    }
+    if (![object isKindOfClass:self.class]) {
+        return NO;
+    }
+    return [self isEqualToTabBarItemSegment:(UXTabBarItemSegment *)object];
+}
+
+- (NSUInteger)hash {
+    return _title.hash ^ (NSUInteger)_enabled ^ _symbol.hash;
+}
+
+- (NSString *)description {
+    return [NSString stringWithFormat:@"<%@: %p; title = %@>",
+            NSStringFromClass(self.class), self, _title];
 }
 
 @end

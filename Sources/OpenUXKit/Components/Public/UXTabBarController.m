@@ -1,4 +1,5 @@
-#import <OpenUXKit/UXTabBarController.h>
+#import <OpenUXKit/UXTabBarController+Internal.h>
+#import <OpenUXKit/UXSourceController.h>
 #import <OpenUXKit/NSResponder+UXKit.h>
 #import <OpenUXKit/UXTabBarItem.h>
 #import <OpenUXKit/UXTabBarItemSegment.h>
@@ -31,12 +32,6 @@ static void *kToolbarPropertiesObservationContext = &kToolbarPropertiesObservati
     BOOL _tabBarHidden;
     __weak UXViewController *_selectedViewController;
 }
-
-@property (nonatomic, strong, readwrite) NSSegmentedControl *segmentedControl;
-@property (nonatomic, strong, readwrite) NSPopUpButton *popUpButton;
-@property (nonatomic, strong, readwrite) NSLayoutConstraint *popUpButtonWidthConstraint;
-@property (nonatomic, strong, readwrite) NSToolbarItemGroup *toolbarItemGroup;
-@property (nonatomic, strong, readwrite) NSMapTable *transitionControllerClassByToViewControllerClass;
 @end
 
 @implementation UXTabBarController
@@ -87,6 +82,11 @@ static void *kToolbarPropertiesObservationContext = &kToolbarPropertiesObservati
     self.observedItemSegments = nil;
     self.observedNavigationItem = nil;
     self.observedViewController = nil;
+}
+
+- (void)setHidesSourceListWhenPushed:(BOOL)hidesSourceListWhenPushed {
+    [super setHidesSourceListWhenPushed:hidesSourceListWhenPushed];
+    [self.sourceController viewController:self changedSourceListCollapsed:hidesSourceListWhenPushed];
 }
 
 - (void)viewDidLoad {
@@ -538,7 +538,7 @@ static void *kToolbarPropertiesObservationContext = &kToolbarPropertiesObservati
     }];
 }
 
-- (void)_prepareViewController:(UXViewController *)viewController forTransitionInContext:(id)context completion:(UXCompletionHandler)completion {
+- (void)_prepareViewController:(UXViewController *)viewController forTransitionInContext:(_UXViewControllerOneToOneTransitionContext *)context completion:(UXCompletionHandler)completion {
     if (viewController) {
         [viewController prepareForTransitionWithContext:context completion:completion];
     } else if (completion) {

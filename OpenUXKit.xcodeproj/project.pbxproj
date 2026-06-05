@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		003DB94FD625E9C6B52D8F19 /* UXWindowController+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = C095F1423069B448C556053D /* UXWindowController+Internal.h */; };
+		C7F978A93F4E0AC400A2E5BA /* UXTabBarController+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = EF99E6EFBFBDDAFAFCBD28B8 /* UXTabBarController+Internal.h */; };
 		E9140D332BE784A80005E94C /* UXNavigationItem+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = E9140D322BE784A80005E94C /* UXNavigationItem+Internal.h */; };
 		E9140D352BE7875A0005E94C /* UXToolbar+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = E9140D342BE7875A0005E94C /* UXToolbar+Internal.h */; };
 		E9140D372BE787E40005E94C /* UXView+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = E9140D362BE787E40005E94C /* UXView+Internal.h */; };
@@ -205,6 +207,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		C095F1423069B448C556053D /* UXWindowController+Internal.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; lastKnownFileType = sourcecode.c.h; name = "UXWindowController+Internal.h"; path = "UXWindowController+Internal.h"; sourceTree = "<group>"; };
 		E9140D322BE784A80005E94C /* UXNavigationItem+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UXNavigationItem+Internal.h"; sourceTree = "<group>"; };
 		E9140D342BE7875A0005E94C /* UXToolbar+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UXToolbar+Internal.h"; sourceTree = "<group>"; };
 		E9140D362BE787E40005E94C /* UXView+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UXView+Internal.h"; sourceTree = "<group>"; };
@@ -401,6 +404,7 @@
 		E99C74452BF11CA0001A25D5 /* UXKitPrivateUtilites.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UXKitPrivateUtilites.h; sourceTree = "<group>"; };
 		E9E906D82BF8FCFD00C10C1C /* NSView+PrivateSPI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSView+PrivateSPI.h"; sourceTree = "<group>"; };
 		E9E906DC2BF8FF4F00C10C1C /* NSWindow+PrivateSPI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSWindow+PrivateSPI.h"; sourceTree = "<group>"; };
+		EF99E6EFBFBDDAFAFCBD28B8 /* UXTabBarController+Internal.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; lastKnownFileType = sourcecode.c.h; name = "UXTabBarController+Internal.h"; path = "UXTabBarController+Internal.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -599,6 +603,8 @@
 				E97369AE2BD505F200E88591 /* UXViewController+Internal.h */,
 				E97369B32BD505F200E88591 /* UXWindowController.h */,
 				E97369B42BD505F200E88591 /* UXWindowController.m */,
+				EF99E6EFBFBDDAFAFCBD28B8 /* UXTabBarController+Internal.h */,
+				C095F1423069B448C556053D /* UXWindowController+Internal.h */,
 			);
 			path = Public;
 			sourceTree = "<group>";
@@ -905,6 +911,8 @@
 				E97369B82BD505F300E88591 /* _UXAccessoryBarContainer-Protocol.h in Headers */,
 				E9736A292BD505F300E88591 /* UXLayoutSupport.h in Headers */,
 				E9736A5B2BD505F300E88591 /* UXZoomingCrossfadeTransitionController.h in Headers */,
+				C7F978A93F4E0AC400A2E5BA /* UXTabBarController+Internal.h in Headers */,
+				003DB94FD625E9C6B52D8F19 /* UXWindowController+Internal.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
