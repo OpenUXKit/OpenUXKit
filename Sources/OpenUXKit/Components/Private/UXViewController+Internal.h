@@ -6,7 +6,7 @@
 //
 
 #import <OpenUXKit/UXViewController.h>
-#import <OpenUXKit/_UXLayoutSpacer.h>
+#import "_UXLayoutSpacer.h"
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
