@@ -8,8 +8,12 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 @class UXToolbar;
 NS_SWIFT_UI_ACTOR
 @protocol UXToolbarDelegate <UXBarPositioningDelegate>
+@end
 
-@optional
+NS_SWIFT_UI_ACTOR
+@protocol UXToolbarDelegatePrivate <UXToolbarDelegate>
+
+@required
 - (nullable NSResponder *)nextResponderForToolbar:(UXToolbar *)toolbar;
 
 @end
