@@ -4,12 +4,14 @@
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
-@class UXCollectionView, UXCollectionViewCell;
+@class UXCollectionView, UXCollectionViewCell, UXCollectionViewLayout, _UXCollectionViewLayoutProxy;
 
 UXKIT_PRIVATE NS_SWIFT_UI_ACTOR
 @interface _UXCollectionViewRearrangingCoordinator : NSObject <UXCollectionViewLayoutProxyDelegate, NSGestureRecognizerDelegate, NSDraggingSource, NSDraggingDestination>
 
 @property (nonatomic, weak, readonly, nullable) UXCollectionView *collectionView;
+@property (nonatomic, readonly, nullable) UXCollectionViewLayout *collectionViewLayout;
+@property (nonatomic, readonly, nullable) _UXCollectionViewLayoutProxy *layoutProxy;
 
 @property (nonatomic) BOOL enabled;
 @property (nonatomic, readonly) BOOL isRearranging;
@@ -30,9 +32,10 @@ UXKIT_PRIVATE NS_SWIFT_UI_ACTOR
 @property (nonatomic) NSUInteger dropOperation;
 @property (nonatomic, copy, readonly, nullable) NSString *dragSourceIdentifier;
 
-- (instancetype)initWithCollectionView:(UXCollectionView *)collectionView;
+- (instancetype)init;
+- (instancetype)initWithCollectionView:(nullable UXCollectionView *)collectionView NS_DESIGNATED_INITIALIZER;
 
-- (void)updateDraggingItemsForDrag:(id<NSDraggingInfo>)draggingInfo;
+- (void)updateDraggingItemsForDrag:(nullable id<NSDraggingInfo>)draggingInfo;
 - (BOOL)wantsPeriodicDraggingUpdates;
 
 @end
