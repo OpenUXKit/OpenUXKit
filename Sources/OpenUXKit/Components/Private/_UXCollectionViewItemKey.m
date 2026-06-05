@@ -1,7 +1,7 @@
-#import <OpenUXKit/_UXCollectionViewItemKey.h>
-#import <OpenUXKit/UXCollectionViewLayoutAttributes+Internal.h>
+#import "_UXCollectionViewItemKey.h"
+#import "UXCollectionViewLayoutAttributes+Internal.h"
 #import <OpenUXKit/NSIndexPath+UXCollectionViewAdditions.h>
-#import <OpenUXKit/UXKitPrivateUtilites.h>
+#import "UXKitPrivateUtilites.h"
 
 static NSString *const UXCollectionViewItemKeyCellIdentifier = @"_Cell_";
 

@@ -1,4 +1,4 @@
-#import <OpenUXKit/_UXWindowState.h>
+#import "_UXWindowState.h"
 
 @interface _UXWindowState ()
 @end

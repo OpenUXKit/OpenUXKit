@@ -1,7 +1,7 @@
 #import <OpenUXKit/UXCollectionViewMutableIndexPathsSet.h>
-#import <OpenUXKit/UXCollectionViewIndexPathsSet+Internal.h>
-#import <OpenUXKit/_UXCollectionViewSectionItemIndexes.h>
-#import <OpenUXKit/UXKitPrivateUtilites.h>
+#import "UXCollectionViewIndexPathsSet+Internal.h"
+#import "_UXCollectionViewSectionItemIndexes.h"
+#import "UXKitPrivateUtilites.h"
 
 @interface UXCollectionViewMutableIndexPathsSet ()
 

@@ -1,11 +1,11 @@
-#import <OpenUXKit/_UXNavigationItemContainerView.h>
+#import "_UXNavigationItemContainerView.h"
 #import <OpenUXKit/NSView+UXKit.h>
-#import <OpenUXKit/UXBar+Internal.h>
-#import <OpenUXKit/UXBarButtonItem+Internal.h>
+#import "UXBar+Internal.h"
+#import "UXBarButtonItem+Internal.h"
 #import <OpenUXKit/UXKitDefines.h>
-#import <OpenUXKit/UXKitPrivateUtilites.h>
-#import <OpenUXKit/UXNavigationBar+Internal.h>
-#import <OpenUXKit/UXNavigationItem+Internal.h>
+#import "UXKitPrivateUtilites.h"
+#import "UXNavigationBar+Internal.h"
+#import "UXNavigationItem+Internal.h"
 
 @interface _UXNavigationItemContainerView () {
     UXImageView *_snaphotView;

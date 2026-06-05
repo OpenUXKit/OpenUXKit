@@ -1,6 +1,6 @@
-#import <OpenUXKit/_UXCollectionViewSectionItemIndexes.h>
+#import "_UXCollectionViewSectionItemIndexes.h"
 #import <OpenUXKit/NSIndexPath+UXCollectionViewAdditions.h>
-#import <OpenUXKit/UXKitPrivateUtilites.h>
+#import "UXKitPrivateUtilites.h"
 
 @interface _UXCollectionViewSectionItemIndexes () {
     NSMutableIndexSet *_itemIndexesSet;

@@ -1,4 +1,4 @@
-#import <OpenUXKit/_UXButtonCell.h>
+#import "_UXButtonCell.h"
 #import <OpenUXKit/UXKitDefines.h>
 #import <CoreGraphics/CoreGraphics.h>
 

@@ -1,6 +1,6 @@
-#import <OpenUXKit/_UXButton.h>
+#import "_UXButton.h"
 #import <OpenUXKit/NSView+UXKit.h>
-#import <OpenUXKit/_UXButtonCell.h>
+#import "_UXButtonCell.h"
 
 
 @interface _UXButton ()

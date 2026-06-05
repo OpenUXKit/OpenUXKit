@@ -1,12 +1,12 @@
 #import <OpenUXKit/UXCollectionViewFlowLayout.h>
 #import <OpenUXKit/UXCollectionViewFlowLayoutInvalidationContext.h>
 #import <OpenUXKit/UXCollectionViewLayoutAttributes.h>
-#import <OpenUXKit/UXCollectionViewLayoutAttributes+Internal.h>
+#import "UXCollectionViewLayoutAttributes+Internal.h"
 #import <OpenUXKit/UXCollectionView.h>
-#import <OpenUXKit/_UXFlowLayoutInfo.h>
-#import <OpenUXKit/_UXFlowLayoutSection.h>
-#import <OpenUXKit/_UXFlowLayoutRow.h>
-#import <OpenUXKit/_UXFlowLayoutItem.h>
+#import "_UXFlowLayoutInfo.h"
+#import "_UXFlowLayoutSection.h"
+#import "_UXFlowLayoutRow.h"
+#import "_UXFlowLayoutItem.h"
 
 NSString *const UXFlowLayoutCommonRowHorizontalAlignmentKey = @"UXFlowLayoutCommonRowHorizontalAlignmentKey";
 NSString *const UXFlowLayoutLastRowHorizontalAlignmentKey = @"UXFlowLayoutLastRowHorizontalAlignmentKey";

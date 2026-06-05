@@ -1,4 +1,4 @@
-#import <OpenUXKit/_UXFlowLayoutItem.h>
+#import "_UXFlowLayoutItem.h"
 
 @interface _UXFlowLayoutItem () {
     CGRect _itemFrame;

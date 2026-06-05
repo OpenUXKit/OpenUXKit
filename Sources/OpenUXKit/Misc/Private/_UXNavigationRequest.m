@@ -1,4 +1,4 @@
-#import <OpenUXKit/_UXNavigationRequest.h>
+#import "_UXNavigationRequest.h"
 #import <OpenUXKit/UXViewController.h>
 
 @interface _UXNavigationRequest () {

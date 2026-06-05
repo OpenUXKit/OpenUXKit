@@ -1,4 +1,4 @@
-#import <OpenUXKit/_UXSettingsGroup.h>
+#import "_UXSettingsGroup.h"
 
 @interface _UXSettingsGroup () {
     NSMutableArray<_UXSettings *> *_internal_group;

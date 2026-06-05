@@ -1,4 +1,4 @@
-#import <OpenUXKit/_UXContainerView.h>
+#import "_UXContainerView.h"
 
 @interface _UXContainerView () {
     NSVisualEffectView *_effectView;

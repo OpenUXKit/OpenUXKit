@@ -1,4 +1,4 @@
-#import <OpenUXKit/_UXSourceSplitViewShadowView.h>
+#import "_UXSourceSplitViewShadowView.h"
 
 @implementation _UXSourceSplitViewShadowView
 

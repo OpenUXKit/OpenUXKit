@@ -1,4 +1,4 @@
-#import <OpenUXKit/_UXCollectionViewLayoutProxy.h>
+#import "_UXCollectionViewLayoutProxy.h"
 #import <OpenUXKit/UXCollectionViewLayout.h>
 #import <objc/runtime.h>
 

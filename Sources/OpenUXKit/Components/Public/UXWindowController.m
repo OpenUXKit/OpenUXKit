@@ -1,20 +1,20 @@
 #import <objc/message.h>
-#import <OpenUXKit/UXWindowController+Internal.h>
+#import "UXWindowController+Internal.h"
 #import <OpenUXKit/UXNavigationController.h>
-#import <OpenUXKit/UXNavigationController+Internal.h>
+#import "UXNavigationController+Internal.h"
 #import <OpenUXKit/UXNavigationBar.h>
-#import <OpenUXKit/UXNavigationBar+Internal.h>
+#import "UXNavigationBar+Internal.h"
 #import <OpenUXKit/UXNavigationItem.h>
-#import <OpenUXKit/UXNavigationItem+Internal.h>
+#import "UXNavigationItem+Internal.h"
 #import <OpenUXKit/UXSourceController.h>
 #import <OpenUXKit/UXViewController.h>
-#import <OpenUXKit/UXViewController+Internal.h>
+#import "UXViewController+Internal.h"
 #import <OpenUXKit/UXViewControllerTransitionCoordinator.h>
-#import <OpenUXKit/UXBar+Internal.h>
+#import "UXBar+Internal.h"
 #import <OpenUXKit/UXToolbar.h>
-#import <OpenUXKit/UXToolbar+Internal.h>
+#import "UXToolbar+Internal.h"
 #import <OpenUXKit/UXWindowToolbarController.h>
-#import <OpenUXKit/_UXWindow.h>
+#import "_UXWindow.h"
 #import <OpenUXKit/NSResponder+UXKit.h>
 
 void *UXWindowControllerContentLayoutRectContext = &UXWindowControllerContentLayoutRectContext;

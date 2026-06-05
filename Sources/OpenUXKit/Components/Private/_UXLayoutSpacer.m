@@ -1,6 +1,6 @@
-#import <OpenUXKit/_UXLayoutSpacer.h>
+#import "_UXLayoutSpacer.h"
 #import <OpenUXKit/UXKitDefines.h>
-#import <OpenUXKit/UXKitPrivateUtilites.h>
+#import "UXKitPrivateUtilites.h"
 
 @interface _UXLayoutSpacer () {
     NSLayoutConstraint *_counterDimensionConstraint;

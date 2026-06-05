@@ -1,8 +1,8 @@
-#import <OpenUXKit/UXTableViewCell+Internal.h>
+#import "UXTableViewCell+Internal.h"
 #import <OpenUXKit/UXLabel.h>
 #import <OpenUXKit/UXImageView.h>
 #import <OpenUXKit/UXView.h>
-#import <OpenUXKit/_UXButton.h>
+#import "_UXButton.h"
 
 @interface UXTableViewCell () {
     NSString *_text;

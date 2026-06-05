@@ -1,4 +1,4 @@
-#import <OpenUXKit/_UXWindow.h>
+#import "_UXWindow.h"
 
 @implementation _UXWindow
 

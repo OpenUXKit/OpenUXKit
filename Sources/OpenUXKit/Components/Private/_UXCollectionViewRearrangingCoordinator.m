@@ -1,7 +1,7 @@
-#import <OpenUXKit/_UXCollectionViewRearrangingCoordinator.h>
-#import <OpenUXKit/_UXCollectionViewLayoutProxy.h>
+#import "_UXCollectionViewRearrangingCoordinator.h"
+#import "_UXCollectionViewLayoutProxy.h"
 #import <OpenUXKit/UXCollectionView.h>
-#import <OpenUXKit/UXCollectionView+Internal.h>
+#import "UXCollectionView+Internal.h"
 #import <OpenUXKit/UXCollectionViewCell.h>
 #import <OpenUXKit/UXCollectionViewLayout.h>
 #import <OpenUXKit/UXCollectionViewLayoutAttributes.h>

@@ -1,5 +1,5 @@
-#import <OpenUXKit/_UXSourceSplitViewFullScreenOverlayContentView.h>
-#import <OpenUXKit/_UXSourceSplitView.h>
+#import "_UXSourceSplitViewFullScreenOverlayContentView.h"
+#import "_UXSourceSplitView.h"
 
 @interface _UXSourceSplitViewFullScreenOverlayContentView ()
 

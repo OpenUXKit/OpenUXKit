@@ -1,4 +1,4 @@
-#import <OpenUXKit/_UXResizableImage.h>
+#import "_UXResizableImage.h"
 
 @interface _UXResizableImage () {
     NSImage *_topLeftCorner;

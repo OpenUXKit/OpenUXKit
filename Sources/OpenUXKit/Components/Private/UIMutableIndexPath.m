@@ -1,4 +1,4 @@
-#import <OpenUXKit/UIMutableIndexPath.h>
+#import "UIMutableIndexPath.h"
 
 @interface UIMutableIndexPath () {
     NSUInteger *_mutableIndexes;

@@ -1,4 +1,4 @@
-#import <OpenUXKit/_UXSourceSplitViewSpringLoadingView.h>
+#import "_UXSourceSplitViewSpringLoadingView.h"
 
 @interface _UXSourceSplitViewSpringLoadingView () {
     BOOL _didSpringLoad;

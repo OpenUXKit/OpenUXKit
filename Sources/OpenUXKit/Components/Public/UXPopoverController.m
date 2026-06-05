@@ -1,6 +1,6 @@
 #import <OpenUXKit/UXBarButtonItem.h>
 #import <OpenUXKit/UXKitDefines.h>
-#import <OpenUXKit/UXKitPrivateUtilites.h>
+#import "UXKitPrivateUtilites.h"
 #import <OpenUXKit/UXPopover.h>
 #import <OpenUXKit/UXPopoverController.h>
 #import <OpenUXKit/UXView.h>

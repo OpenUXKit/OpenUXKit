@@ -1,8 +1,8 @@
-#import <OpenUXKit/_UXFlowLayoutInfo.h>
-#import <OpenUXKit/_UXFlowLayoutSection.h>
-#import <OpenUXKit/_UXFlowLayoutItem.h>
+#import "_UXFlowLayoutInfo.h"
+#import "_UXFlowLayoutSection.h"
+#import "_UXFlowLayoutItem.h"
 #import <OpenUXKit/NSIndexPath+UXCollectionViewAdditions.h>
-#import <OpenUXKit/UXKitPrivateUtilites.h>
+#import "UXKitPrivateUtilites.h"
 
 @interface _UXFlowLayoutInfo () {
     NSMutableArray<_UXFlowLayoutSection *> *_sections;

@@ -1,4 +1,4 @@
-#import <OpenUXKit/_UXCollectionDocumentView.h>
+#import "_UXCollectionDocumentView.h"
 
 @implementation _UXCollectionDocumentView
 

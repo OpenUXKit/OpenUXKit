@@ -1,4 +1,4 @@
-#import <OpenUXKit/UXBackButton.h>
+#import "UXBackButton.h"
 
 @interface UXBackButton ()
 @end

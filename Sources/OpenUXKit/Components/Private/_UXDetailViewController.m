@@ -1,6 +1,6 @@
-#import <OpenUXKit/_UXDetailViewController.h>
+#import "_UXDetailViewController.h"
 #import <OpenUXKit/UXSourceController.h>
-#import <OpenUXKit/UXViewController+Internal.h>
+#import "UXViewController+Internal.h"
 #import <OpenUXKit/UXViewControllerTransitionCoordinator.h>
 
 @implementation _UXDetailViewController {

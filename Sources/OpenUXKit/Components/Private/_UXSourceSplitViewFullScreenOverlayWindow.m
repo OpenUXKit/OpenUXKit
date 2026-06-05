@@ -1,5 +1,5 @@
-#import <OpenUXKit/_UXSourceSplitViewFullScreenOverlayWindow.h>
-#import <OpenUXKit/NSWindow+PrivateSPI.h>
+#import "_UXSourceSplitViewFullScreenOverlayWindow.h"
+#import "NSWindow+PrivateSPI.h"
 
 @implementation _UXSourceSplitViewFullScreenOverlayWindow
 

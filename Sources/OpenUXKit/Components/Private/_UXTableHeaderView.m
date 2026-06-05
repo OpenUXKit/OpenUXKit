@@ -1,7 +1,7 @@
-#import <OpenUXKit/_UXTableHeaderView.h>
+#import "_UXTableHeaderView.h"
 #import <OpenUXKit/UXLabel.h>
 #import <OpenUXKit/UXView.h>
-#import <OpenUXKit/UXView+Internal.h>
+#import "UXView+Internal.h"
 
 @interface _UXTableHeaderView () {
     NSString *_text;

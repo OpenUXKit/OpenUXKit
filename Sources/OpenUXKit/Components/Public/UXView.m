@@ -1,12 +1,12 @@
-#import <OpenUXKit/UXView+Internal.h>
+#import "UXView+Internal.h"
 #import <OpenUXKit/NSView+UXKit.h>
-#import <OpenUXKit/UXViewController+Internal.h>
+#import "UXViewController+Internal.h"
 #import <OpenUXKit/UXImageView.h>
 #import <OpenUXKit/UXViewAnimationContext.h>
 #import <QuartzCore/QuartzCore.h>
 #import <OpenUXKit/UXKitDefines.h>
-#import <OpenUXKit/UXKitPrivateUtilites.h>
-#import <OpenUXKit/NSView+PrivateSPI.h>
+#import "UXKitPrivateUtilites.h"
+#import "NSView+PrivateSPI.h"
 #import <objc/runtime.h>
 
 @implementation UXView

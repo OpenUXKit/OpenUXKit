@@ -1,5 +1,5 @@
-#import <OpenUXKit/_UXSourceSplitItemView.h>
-#import <OpenUXKit/NSView+PrivateSPI.h>
+#import "_UXSourceSplitItemView.h"
+#import "NSView+PrivateSPI.h"
 
 @implementation _UXSourceSplitItemView
 

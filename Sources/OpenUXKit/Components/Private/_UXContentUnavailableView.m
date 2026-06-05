@@ -1,4 +1,4 @@
-#import <OpenUXKit/_UXContentUnavailableView.h>
+#import "_UXContentUnavailableView.h"
 
 @interface _UXContentUnavailableView () {
     BOOL _showProgress;

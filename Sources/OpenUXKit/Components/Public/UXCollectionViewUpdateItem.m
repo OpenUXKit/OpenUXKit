@@ -1,6 +1,6 @@
-#import <OpenUXKit/UXCollectionViewUpdateItem+Internal.h>
+#import "UXCollectionViewUpdateItem+Internal.h"
 #import <OpenUXKit/NSIndexPath+UXCollectionViewAdditions.h>
-#import <OpenUXKit/UXKitPrivateUtilites.h>
+#import "UXKitPrivateUtilites.h"
 
 @interface UXCollectionViewUpdateItem () {
     NSIndexPath *_initialIndexPath;

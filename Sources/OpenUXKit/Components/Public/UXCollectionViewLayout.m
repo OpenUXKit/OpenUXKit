@@ -1,15 +1,15 @@
-#import <OpenUXKit/UXCollectionViewLayout+Internal.h>
-#import <OpenUXKit/UXCollectionViewLayoutAttributes+Internal.h>
+#import "UXCollectionViewLayout+Internal.h"
+#import "UXCollectionViewLayoutAttributes+Internal.h"
 #import <OpenUXKit/UXCollectionViewLayoutInvalidationContext.h>
 #import <OpenUXKit/UXCollectionViewLayoutAccessibility.h>
-#import <OpenUXKit/UXCollectionViewUpdate+Internal.h>
-#import <OpenUXKit/UXCollectionViewUpdateItem+Internal.h>
+#import "UXCollectionViewUpdate+Internal.h"
+#import "UXCollectionViewUpdateItem+Internal.h"
 #import <OpenUXKit/UXCollectionView.h>
 #import <OpenUXKit/UXCollectionViewData.h>
 #import <OpenUXKit/UXCollectionReusableView.h>
-#import <OpenUXKit/_UXCollectionViewItemKey.h>
+#import "_UXCollectionViewItemKey.h"
 #import <OpenUXKit/NSIndexPath+UXCollectionViewAdditions.h>
-#import <OpenUXKit/UXKitPrivateUtilites.h>
+#import "UXKitPrivateUtilites.h"
 
 // SPI on UXCollectionView / UXCollectionViewData / UXCollectionReusableView owned by the view layer.
 @interface NSObject (UXCollectionViewLayoutSPI)

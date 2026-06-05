@@ -3,7 +3,7 @@
 #import <OpenUXKit/UXView.h>
 #import <OpenUXKit/UXViewControllerTransitioning.h>
 #import <OpenUXKit/_UXViewControllerOneToOneTransitionContext.h>
-#import <OpenUXKit/UXKitPrivateUtilites.h>
+#import "UXKitPrivateUtilites.h"
 #import <QuartzCore/QuartzCore.h>
 
 @implementation UXSlideTransitionController

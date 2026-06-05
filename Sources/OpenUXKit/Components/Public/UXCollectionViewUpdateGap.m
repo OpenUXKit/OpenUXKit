@@ -1,6 +1,6 @@
 #import <OpenUXKit/UXCollectionViewUpdateGap.h>
-#import <OpenUXKit/UXCollectionViewUpdateItem+Internal.h>
-#import <OpenUXKit/UXKitPrivateUtilites.h>
+#import "UXCollectionViewUpdateItem+Internal.h"
+#import "UXKitPrivateUtilites.h"
 
 @interface UXCollectionViewUpdateGap () {
     UXCollectionViewUpdateItem *_firstUpdateItem;

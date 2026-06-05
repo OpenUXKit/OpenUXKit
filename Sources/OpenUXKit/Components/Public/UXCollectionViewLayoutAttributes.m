@@ -1,5 +1,5 @@
-#import <OpenUXKit/UXCollectionViewLayoutAttributes+Internal.h>
-#import <OpenUXKit/UXKitPrivateUtilites.h>
+#import "UXCollectionViewLayoutAttributes+Internal.h"
+#import "UXKitPrivateUtilites.h"
 
 static NSString *const UXCollectionViewElementKindCell = @"UXCollectionViewElementKindCell";
 static NSString *const UXCollectionElementIsOriginal = @"_UXCollectionElementIsOriginal";

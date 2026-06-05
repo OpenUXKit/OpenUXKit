@@ -1,12 +1,12 @@
-#import <OpenUXKit/_UXSourceSplitItemView.h>
-#import <OpenUXKit/_UXSourceSplitView.h>
-#import <OpenUXKit/_UXSourceSplitViewFullScreenOverlayContentView.h>
-#import <OpenUXKit/_UXSourceSplitViewShadowView.h>
-#import <OpenUXKit/_UXSourceSplitViewSpringLoadingView.h>
-#import <OpenUXKit/NSView+PrivateSPI.h>
-#import <OpenUXKit/NSWindow+PrivateSPI.h>
+#import "_UXSourceSplitItemView.h"
+#import "_UXSourceSplitView.h"
+#import "_UXSourceSplitViewFullScreenOverlayContentView.h"
+#import "_UXSourceSplitViewShadowView.h"
+#import "_UXSourceSplitViewSpringLoadingView.h"
+#import "NSView+PrivateSPI.h"
+#import "NSWindow+PrivateSPI.h"
 #import <OpenUXKit/NSWindow+UXKit.h>
-#import <OpenUXKit/UXKitPrivateUtilites.h>
+#import "UXKitPrivateUtilites.h"
 
 
 @interface _UXSourceSplitView () {

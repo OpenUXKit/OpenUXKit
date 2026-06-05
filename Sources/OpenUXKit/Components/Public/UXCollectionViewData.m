@@ -1,9 +1,9 @@
 #import <OpenUXKit/UXCollectionViewData.h>
 #import <OpenUXKit/UXCollectionView.h>
 #import <OpenUXKit/UXCollectionViewLayout.h>
-#import <OpenUXKit/UXCollectionViewLayout+Internal.h>
+#import "UXCollectionViewLayout+Internal.h"
 #import <OpenUXKit/UXCollectionViewLayoutAttributes.h>
-#import <OpenUXKit/UXCollectionViewLayoutAttributes+Internal.h>
+#import "UXCollectionViewLayoutAttributes+Internal.h"
 
 @interface NSObject (UXCollectionViewDataSPI)
 - (id)dataSource;

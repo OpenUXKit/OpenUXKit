@@ -1,4 +1,4 @@
-#import <OpenUXKit/UXNavigationItem+Internal.h>
+#import "UXNavigationItem+Internal.h"
 
 @implementation UXNavigationItem
 

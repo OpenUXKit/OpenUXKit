@@ -1,8 +1,8 @@
 #ifndef UXKitPrivateUtilites_h
 #define UXKitPrivateUtilites_h
 
-#import <OpenUXKit/EXTScope.h>
-#import <OpenUXKit/EXTKeyPathCoding.h>
+#import "EXTScope.h"
+#import "EXTKeyPathCoding.h"
 
 #define SUPPRESS_PERFORM_SELECTOR_LEAK_WARNING(code)                        \
     _Pragma("clang diagnostic push")                                        \

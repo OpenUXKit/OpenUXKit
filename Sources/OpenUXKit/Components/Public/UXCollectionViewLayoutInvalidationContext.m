@@ -1,5 +1,5 @@
-#import <OpenUXKit/UXCollectionViewLayoutInvalidationContext+Internal.h>
-#import <OpenUXKit/UXKitPrivateUtilites.h>
+#import "UXCollectionViewLayoutInvalidationContext+Internal.h"
+#import "UXKitPrivateUtilites.h"
 
 @interface UXCollectionViewLayoutInvalidationContext () {
     @protected

@@ -3,8 +3,8 @@
 #import <OpenUXKit/NSView+UXKit.h>
 #import <OpenUXKit/UXNavigationController.h>
 #import <OpenUXKit/UXKitDefines.h>
-#import <OpenUXKit/UXNavigationBar+Internal.h>
-#import <OpenUXKit/UXKitPrivateUtilites.h>
+#import "UXNavigationBar+Internal.h"
+#import "UXKitPrivateUtilites.h"
 
 
 
