@@ -11,7 +11,7 @@ typedef NS_ENUM(NSInteger, UXCollectionUpdateAction) {
     UXCollectionUpdateActionReload,
     UXCollectionUpdateActionMove,
     UXCollectionUpdateActionNone,
-};
+} NS_SWIFT_NAME(UXCollectionViewUpdateItem.Action);
 
 UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @interface UXCollectionViewUpdateItem : NSObject

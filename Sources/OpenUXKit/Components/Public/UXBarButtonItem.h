@@ -10,7 +10,7 @@ typedef NS_ENUM(NSInteger, UXBarButtonItemStyle) {
     UXBarButtonItemStylePlain,
     UXBarButtonItemStyleBordered,
     UXBarButtonItemStyleDone,
-};
+} NS_SWIFT_NAME(UXBarButtonItem.Style);
 
 typedef NS_ENUM(NSInteger, UXBarButtonSystemItem) {
     UXBarButtonSystemItemNone = -1,
@@ -39,7 +39,7 @@ typedef NS_ENUM(NSInteger, UXBarButtonSystemItem) {
     UXBarButtonSystemItemRedo,
     UXBarButtonSystemItemPageCurl,
     UXBarButtonSystemItemClose
-};
+} NS_SWIFT_NAME(UXBarButtonItem.SystemItem);
 
 UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @interface UXBarButtonItem : UXBarItem <UXKitAppearance>

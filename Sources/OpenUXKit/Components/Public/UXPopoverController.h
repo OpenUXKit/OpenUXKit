@@ -11,7 +11,7 @@ typedef NS_OPTIONS(NSUInteger, UXPopoverArrowDirection) {
     UXPopoverArrowDirectionRight = 1UL << 3,
     UXPopoverArrowDirectionAny = UXPopoverArrowDirectionUp | UXPopoverArrowDirectionDown | UXPopoverArrowDirectionLeft | UXPopoverArrowDirectionRight,
     UXPopoverArrowDirectionUnknown = NSUIntegerMax
-};
+} NS_SWIFT_NAME(UXPopoverController.ArrowDirection);
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
@@ -26,8 +26,8 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @interface UXPopoverController : UXViewController <NSPopoverDelegate>
 
 @property (nonatomic, weak, nullable) id <UXPopoverControllerDelegate> delegate;
-@property (nonatomic, copy) NSArray *passthroughViews;
-@property (nonatomic, strong) UXViewController *contentViewController;
+@property (nonatomic, copy, nullable) NSArray<NSView *> *passthroughViews;
+@property (nonatomic, strong, nullable) UXViewController *contentViewController;
 @property (nonatomic) CGSize popoverContentSize;
 @property (nonatomic) NSPopoverBehavior popoverBehavior;
 @property (nonatomic, readonly, getter = isPopoverVisible) BOOL popoverVisible;

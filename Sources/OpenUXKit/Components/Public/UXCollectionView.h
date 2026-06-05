@@ -16,7 +16,7 @@ typedef NS_OPTIONS(NSUInteger, UXCollectionViewScrollPosition) {
     UXCollectionViewScrollPositionLeft                 = 1 << 3,
     UXCollectionViewScrollPositionCenteredHorizontally = 1 << 4,
     UXCollectionViewScrollPositionRight                = 1 << 5,
-};
+} NS_SWIFT_NAME(UXCollectionView.ScrollPosition);
 
 UXKIT_EXTERN NSString *const UXCollectionElementKindCell;
 
