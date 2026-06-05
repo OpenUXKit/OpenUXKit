@@ -232,7 +232,11 @@ forSupplementaryViewOfKind:@"UXCollectionViewElementKindSectionHeader"
 }
 
 - (__kindof UXTableViewCell *)dequeueReusableCellWithIdentifier:(NSString *)identifier forIndexPath:(NSIndexPath *)indexPath {
-    return [self dequeueReusableCellWithReuseIdentifier:identifier forIndexPath:indexPath];
+    return (__kindof UXTableViewCell *)[super dequeueReusableCellWithReuseIdentifier:identifier forIndexPath:indexPath];
+}
+
+- (__kindof UXTableViewCell *)dequeueReusableCellWithReuseIdentifier:(NSString *)identifier forIndexPath:(NSIndexPath *)indexPath {
+    return (__kindof UXTableViewCell *)[super dequeueReusableCellWithReuseIdentifier:identifier forIndexPath:indexPath];
 }
 
 - (void)registerClass:(Class)viewClass forHeaderFooterViewReuseIdentifier:(NSString *)identifier {
@@ -294,7 +298,7 @@ forSupplementaryViewOfKind:@"UXCollectionViewElementKindSectionHeader"
 }
 
 - (CGSize)sizeThatFits:(CGSize)size {
-    NSCollectionViewLayout *layout = self.collectionViewLayout;
+    UXCollectionViewLayout *layout = self.collectionViewLayout;
     [layout invalidateLayout];
     [layout prepareLayout];
     CGSize content = layout.collectionViewContentSize;

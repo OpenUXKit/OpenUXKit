@@ -1,7 +1,7 @@
 #import <OpenUXKit/UXCollectionReusableView.h>
 #import <OpenUXKit/UXCollectionView.h>
 #import <OpenUXKit/UXCollectionViewLayoutAttributes.h>
-#import <OpenUXKit/UXCollectionViewLayoutAttributes+Internal.h>
+#import "UXCollectionViewLayoutAttributes+Internal.h"
 #import <QuartzCore/QuartzCore.h>
 
 @interface NSObject (UXCollectionReusableViewSPI)
@@ -15,8 +15,8 @@
     NSString *_reuseIdentifier;
     __weak UXCollectionView *_collectionView;
     struct {
-        int32_t updateAnimationCount : 5;
-        int32_t wasDequeued : 1;
+        uint32_t updateAnimationCount : 5;
+        uint32_t wasDequeued : 1;
     } _reusableViewFlags;
     BOOL _isFloatingPinned;
 }

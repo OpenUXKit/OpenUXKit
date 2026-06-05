@@ -1,30 +1,30 @@
 #import <OpenUXKit/_UXAccessoryBarContainer.h>
-#import <OpenUXKit/_UXContainerView.h>
-#import <OpenUXKit/_UXNavigationRequest.h>
+#import "_UXContainerView.h"
+#import "_UXNavigationRequest.h"
 #import <OpenUXKit/_UXViewControllerOneToOneTransitionContext.h>
 #import <OpenUXKit/_UXViewControllerTransitionCoordinator.h>
-#import <OpenUXKit/_UXWindowState.h>
+#import "_UXWindowState.h"
 #import <OpenUXKit/NSResponder+UXKit.h>
 #import <OpenUXKit/NSView+UXKit.h>
 #import <OpenUXKit/NSWindow+UXKit.h>
-#import <OpenUXKit/UXBackButton.h>
-#import <OpenUXKit/UXBar+Internal.h>
-#import <OpenUXKit/UXBarButtonItem+Internal.h>
+#import "UXBackButton.h"
+#import "UXBar+Internal.h"
+#import "UXBarButtonItem+Internal.h"
 #import <OpenUXKit/UXIdentityTransitionController.h>
-#import <OpenUXKit/UXKitPrivateUtilites.h>
-#import <OpenUXKit/UXNavigationBar+Internal.h>
-#import <OpenUXKit/UXNavigationController+Internal.h>
-#import <OpenUXKit/UXNavigationItem+Internal.h>
+#import "UXKitPrivateUtilites.h"
+#import "UXNavigationBar+Internal.h"
+#import "UXNavigationController+Internal.h"
+#import "UXNavigationItem+Internal.h"
 #import <OpenUXKit/UXParallaxTransitionController.h>
 #import <OpenUXKit/UXSlideTransitionController.h>
 #import <OpenUXKit/UXSubtoolbar.h>
-#import <OpenUXKit/UXToolbar+Internal.h>
+#import "UXToolbar+Internal.h"
 #import <OpenUXKit/UXTransitionController.h>
-#import <OpenUXKit/UXView+Internal.h>
-#import <OpenUXKit/UXViewController+Internal.h>
+#import "UXView+Internal.h"
+#import "UXViewController+Internal.h"
 #import <OpenUXKit/UXViewControllerTransitionCoordinator.h>
 #import <OpenUXKit/UXViewControllerTransitioning.h>
-#import <OpenUXKit/UXWindowController+Internal.h>
+#import "UXWindowController+Internal.h"
 #import <OpenUXKit/UXZoomingCrossfadeTransitionController.h>
 
 void *UXToolbarItemsObservationContext = &UXToolbarItemsObservationContext;
@@ -1220,7 +1220,7 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
                 if (operation == UXNavigationControllerOperationPush) {
                     [innerToViewController willMoveToParentViewController:nil];
                     removeFromSuperview(innerToViewController.view);
-                    [strongSelf _addConstraintsForContainedView:innerFromViewController.uxView leftInset:[innerContext initialFrameForViewController:innerFromViewController.uxView].origin.x];
+                    [strongSelf _addConstraintsForContainedView:innerFromViewController.uxView leftInset:[innerContext initialFrameForViewController:innerFromViewController].origin.x];
                     [innerToViewController removeFromParentViewController];
                     [strongSelf->_targetViewControllers removeLastObject];
                     [strongSelf->_currentViewControllers removeLastObject];

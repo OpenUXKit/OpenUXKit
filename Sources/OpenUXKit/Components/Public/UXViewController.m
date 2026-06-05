@@ -2,7 +2,7 @@
 #import <OpenUXKit/NSResponder+UXKit.h>
 #import <OpenUXKit/NSView+UXKit.h>
 #import <OpenUXKit/UXLayoutSupport.h>
-#import <OpenUXKit/UXNavigationController+Internal.h>
+#import "UXNavigationController+Internal.h"
 #import <OpenUXKit/UXNavigationController.h>
 #import <OpenUXKit/UXNavigationDestination.h>
 #import <OpenUXKit/UXNavigationItem.h>
@@ -12,12 +12,12 @@
 #import <OpenUXKit/UXTabBarItem.h>
 #import <OpenUXKit/UXTabBarItem.h>
 #import <OpenUXKit/UXTabBarItemSegment.h>
-#import <OpenUXKit/UXView+Internal.h>
-#import <OpenUXKit/UXViewController+Internal.h>
+#import "UXView+Internal.h"
+#import "UXViewController+Internal.h"
 #import <OpenUXKit/UXViewControllerTransitionCoordinator.h>
 #import <OpenUXKit/UXWindowController.h>
 #import <QuartzCore/QuartzCore.h>
-#import <OpenUXKit/UXKitPrivateUtilites.h>
+#import "UXKitPrivateUtilites.h"
 
 @implementation UXViewController
 
@@ -496,6 +496,10 @@ static void *kSafeAreaInsetsObserverContext = &kSafeAreaInsetsObserverContext;
     [self setEditing:editing];
 }
 
+- (void)setIsEditing:(BOOL)isEditing {
+    _isEditing = isEditing;
+}
+
 - (void)dismissViewControllerAnimated:(BOOL)animated completion:(void (^)(void))completion {}
 
 - (void)presentViewController:(UXViewController *)viewController animated:(BOOL)animated completion:(void (^)(void))completion {}
@@ -864,10 +868,6 @@ static void *kSafeAreaInsetsObserverContext = &kSafeAreaInsetsObserverContext;
 
 - (void)setInspectorViewController:(UXViewController *)inspectorViewController {
     objc_setAssociatedObject(self, @selector(inspectorViewController), inspectorViewController, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (void)setIsEditing:(BOOL)isEditing {
-    _isEditing = isEditing;
 }
 
 - (BOOL)canProvideViewControllersForNavigationDestination:(id<UXNavigationDestination>)navigationDestination {

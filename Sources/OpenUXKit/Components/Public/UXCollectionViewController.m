@@ -30,7 +30,11 @@
 }
 
 - (UXCollectionView *)collectionView {
-    [self loadViewIfNeeded];
+    if (@available(macOS 14.0, *)) {
+        [self loadViewIfNeeded];
+    } else {
+        (void)self.view;
+    }
     return _collectionView;
 }
 

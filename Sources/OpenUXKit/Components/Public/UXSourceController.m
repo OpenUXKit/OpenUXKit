@@ -1,27 +1,27 @@
 #import <OpenUXKit/UXSourceController.h>
-#import <OpenUXKit/_UXDetailViewController.h>
-#import <OpenUXKit/_UXInspectorViewController.h>
+#import "_UXDetailViewController.h"
+#import "_UXInspectorViewController.h"
 #import <OpenUXKit/_UXViewControllerOneToOneTransitionContext.h>
 #import <OpenUXKit/_UXViewControllerTransitionContext.h>
 #import <OpenUXKit/_UXViewControllerTransitionCoordinator.h>
-#import <OpenUXKit/_UXLayoutSpacer.h>
+#import "_UXLayoutSpacer.h"
 #import <OpenUXKit/NSResponder+UXKit.h>
 #import <OpenUXKit/NSWindow+UXKit.h>
-#import <OpenUXKit/UXKitPrivateUtilites.h>
-#import <OpenUXKit/UXNavigationBar+Internal.h>
-#import <OpenUXKit/UXNavigationController+Internal.h>
-#import <OpenUXKit/UXNavigationItem+Internal.h>
+#import "UXKitPrivateUtilites.h"
+#import "UXNavigationBar+Internal.h"
+#import "UXNavigationController+Internal.h"
+#import "UXNavigationItem+Internal.h"
 #import <OpenUXKit/UXSourceList.h>
 #import <OpenUXKit/UXTransitionController.h>
 #import <OpenUXKit/UXView.h>
-#import <OpenUXKit/UXViewController+Internal.h>
+#import "UXViewController+Internal.h"
 #import <OpenUXKit/UXViewControllerTransitionCoordinator.h>
 #import <OpenUXKit/UXViewControllerTransitioning.h>
-#import <OpenUXKit/UXWindowController+Internal.h>
-#import <OpenUXKit/UXView+Internal.h>
+#import "UXWindowController+Internal.h"
+#import "UXView+Internal.h"
 #import <OpenUXKit/UXNavigationDestination.h>
 #import <OpenUXKit/UXDestinationAuxiliaryStore.h>
-#import <OpenUXKit/EXTScope.h>
+#import "EXTScope.h"
 #import <objc/message.h>
 
 static void *kFirstResponderObserverContext = &kFirstResponderObserverContext;
@@ -94,7 +94,9 @@ static BOOL UXSourceControllerShouldForceSelectionForNavigationDestination(id<UX
             ((void (*)(id, SEL, id))objc_msgSend)(_detailSplitViewItemTopAccessoryViewController, setPreferredScrollEdgeEffectStyleSelector, softStyle);
         }
         _detailSplitViewItemTopAccessoryViewController.view = [[NSView alloc] initWithFrame:NSMakeRect(0.0, 0.0, 500.0, 32.0)];
-        _detailSplitViewItem.automaticallyAdjustsSafeAreaInsets = YES;
+        if (@available(macOS 26.0, *)) {
+            _detailSplitViewItem.automaticallyAdjustsSafeAreaInsets = YES;
+        }
         _detailSplitViewItem.minimumThickness = 550.0;
         [self addSplitViewItem:_detailSplitViewItem];
 
@@ -168,7 +170,7 @@ static BOOL UXSourceControllerShouldForceSelectionForNavigationDestination(id<UX
             self.sidebarSplitViewItem.minimumThickness = _sourceListViewController.sourceListMinimumWidth;
             self.sidebarSplitViewItem.maximumThickness = _sourceListViewController.sourceListMaximumWidth;
             [self insertSplitViewItem:self.sidebarSplitViewItem atIndex:0];
-            [_sourceListViewController didMoveToParentViewController:self];
+            [_sourceListViewController didMoveToParentViewController:(UXViewController *)self];
             [self.sidebarSplitViewItem addObserver:self forKeyPath:@"collapsed" options:0 context:kCollapsedObserverContext];
             NSView *sourceListView = _sourceListViewController.view;
             CGRect frame = sourceListView.frame;
@@ -359,7 +361,9 @@ static BOOL UXSourceControllerShouldForceSelectionForNavigationDestination(id<UX
     if (hasParent && barsHidden) {
         [self.detailSplitViewItemTopAccessoryViewController removeFromParentViewController];
     } else if (!barsHidden && !hasParent) {
-        [self.detailSplitViewItem addTopAlignedAccessoryViewController:self.detailSplitViewItemTopAccessoryViewController];
+        if (@available(macOS 26.0, *)) {
+            [self.detailSplitViewItem addTopAlignedAccessoryViewController:(NSSplitViewItemAccessoryViewController *)self.detailSplitViewItemTopAccessoryViewController];
+        }
     }
 
     self.detailSplitViewItemTopAccessoryViewController.view = selectedNavigationController.detachedBarsContainer;
@@ -1145,7 +1149,7 @@ static BOOL UXSourceControllerShouldForceSelectionForNavigationDestination(id<UX
 }
 
 - (CGRect)splitView:(NSSplitView *)splitView effectiveRect:(CGRect)proposedEffectiveRect forDrawnRect:(CGRect)drawnRect ofDividerAtIndex:(NSInteger)dividerIndex {
-    CGRect effectiveRect = proposedEffectiveRect;
+    CGRect effectiveRect = [super splitView:splitView effectiveRect:proposedEffectiveRect forDrawnRect:drawnRect ofDividerAtIndex:dividerIndex];
 
     if (dividerIndex == 1) {
         return CGRectZero;

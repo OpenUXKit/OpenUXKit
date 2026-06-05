@@ -145,14 +145,14 @@
 }
 
 - (NSString *)accessibilityActionDescription:(NSString *)action {
-    if ([action isEqualToString:NSAccessibilityScrollToVisibleAction]) {
+    if ([action isEqualToString:@"AXScrollToVisible"]) {
         return NSAccessibilityActionDescription(action);
     }
     return nil;
 }
 
 - (void)accessibilityPerformAction:(NSString *)action {
-    if ([action isEqualToString:NSAccessibilityScrollToVisibleAction]) {
+    if ([action isEqualToString:@"AXScrollToVisible"]) {
         [self accessibilityPerformScrollToVisible];
     }
 }

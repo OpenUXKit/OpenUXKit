@@ -16,7 +16,7 @@
     if (style == UXTableViewStyleGrouped) {
         NSLog(@"%s: UXTableViewStyleGrouped is not supported", __PRETTY_FUNCTION__);
     }
-    return [self initWithCollectionViewLayout:nil];
+    return [self initWithTableLayout:nil];
 }
 
 - (instancetype)initWithTableLayout:(UXTableLayout *)layout {

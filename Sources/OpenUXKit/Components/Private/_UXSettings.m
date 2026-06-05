@@ -1,7 +1,7 @@
 #import <AppKit/AppKit.h>
 #import <objc/runtime.h>
 #import <os/log.h>
-#import <OpenUXKit/_UXSettings.h>
+#import "_UXSettings.h"
 
 @interface _UXSettings () {
     NSHashTable<NSObject *> *_keyObservers;
@@ -45,7 +45,8 @@
     if (!data) {
         return nil;
     }
-    NSDictionary *dict = [NSKeyedUnarchiver unarchiveTopLevelObjectWithData:data error:error];
+    NSSet *allowedClasses = [NSSet setWithObjects:[NSDictionary class], [NSArray class], [NSString class], [NSNumber class], [NSData class], [NSDate class], [NSNull class], nil];
+    NSDictionary *dict = [NSKeyedUnarchiver unarchivedObjectOfClasses:allowedClasses fromData:data error:error];
     if (![dict isKindOfClass:[NSDictionary class]]) {
         return nil;
     }
@@ -293,7 +294,8 @@
     if (!data) {
         return NO;
     }
-    NSDictionary *dictionary = [NSKeyedUnarchiver unarchiveTopLevelObjectWithData:data error:error];
+    NSSet *allowedClasses = [NSSet setWithObjects:[NSDictionary class], [NSArray class], [NSString class], [NSNumber class], [NSData class], [NSDate class], [NSNull class], nil];
+    NSDictionary *dictionary = [NSKeyedUnarchiver unarchivedObjectOfClasses:allowedClasses fromData:data error:error];
     if (![dictionary isKindOfClass:[NSDictionary class]]) {
         return NO;
     }

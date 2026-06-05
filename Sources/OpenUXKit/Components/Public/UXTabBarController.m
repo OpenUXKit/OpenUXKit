@@ -1,20 +1,20 @@
-#import <OpenUXKit/UXTabBarController+Internal.h>
+#import "UXTabBarController+Internal.h"
 #import <OpenUXKit/UXSourceController.h>
 #import <OpenUXKit/NSResponder+UXKit.h>
 #import <OpenUXKit/UXTabBarItem.h>
 #import <OpenUXKit/UXTabBarItemSegment.h>
-#import <OpenUXKit/UXNavigationController+Internal.h>
-#import <OpenUXKit/UXNavigationItem+Internal.h>
-#import <OpenUXKit/UXViewController+Internal.h>
+#import "UXNavigationController+Internal.h"
+#import "UXNavigationItem+Internal.h"
+#import "UXViewController+Internal.h"
 #import <OpenUXKit/UXViewControllerTransitionCoordinator.h>
 #import <OpenUXKit/UXViewControllerTransitioning.h>
 #import <OpenUXKit/UXTransitionController.h>
 #import <OpenUXKit/UXView.h>
-#import <OpenUXKit/UXKitPrivateUtilites.h>
+#import "UXKitPrivateUtilites.h"
 #import <OpenUXKit/_UXViewControllerOneToOneTransitionContext.h>
 #import <OpenUXKit/_UXViewControllerTransitionContext.h>
 #import <OpenUXKit/_UXViewControllerTransitionCoordinator.h>
-#import <OpenUXKit/EXTScope.h>
+#import "EXTScope.h"
 
 static void *kTabBarItemObservationContext = &kTabBarItemObservationContext;
 static void *kItemSegmentEnabledObservationContext = &kItemSegmentEnabledObservationContext;
@@ -307,7 +307,9 @@ static void *kToolbarPropertiesObservationContext = &kToolbarPropertiesObservati
     [self.popUpButton selectItemAtIndex:index];
     self.toolbarItemGroup.enabled = enabled;
     self.toolbarItemGroup.selectedIndex = index;
-    self.toolbarItemGroup.hidden = self.tabBarHidden;
+    if (@available(macOS 15.0, *)) {
+        self.toolbarItemGroup.hidden = self.tabBarHidden;
+    }
 }
 
 - (void)_recalculateSegmentedControlWidth {
@@ -461,7 +463,11 @@ static void *kToolbarPropertiesObservationContext = &kToolbarPropertiesObservati
 
     _transitionController = [transitionControllerClass new];
     _transitionController.operation = operation;
-    [self loadViewIfNeeded];
+    if (@available(macOS 14.0, *)) {
+        [self loadViewIfNeeded];
+    } else {
+        (void)self.view;
+    }
 
     _UXViewControllerOneToOneTransitionContext *transitionContext = [_UXViewControllerOneToOneTransitionContext new];
     transitionContext.containerView = self.uxView;

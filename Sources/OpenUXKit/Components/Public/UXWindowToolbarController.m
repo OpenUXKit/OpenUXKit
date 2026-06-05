@@ -1,10 +1,10 @@
 #import <OpenUXKit/UXWindowToolbarController.h>
 #import <OpenUXKit/UXNavigationItem.h>
-#import <OpenUXKit/UXNavigationItem+Internal.h>
+#import "UXNavigationItem+Internal.h"
 #import <OpenUXKit/UXNavigationController.h>
-#import <OpenUXKit/UXNavigationController+Internal.h>
+#import "UXNavigationController+Internal.h"
 #import <OpenUXKit/UXBarButtonItem.h>
-#import <OpenUXKit/UXBarButtonItem+Internal.h>
+#import "UXBarButtonItem+Internal.h"
 
 static NSString *const UXWindowToolbarCenteredItemIdentifier = @"UXWindowToolbarCenteredItem";
 static void *UXProgressNavigationItemHiddenObserverContext = &UXProgressNavigationItemHiddenObserverContext;
@@ -69,7 +69,16 @@ static void *UXProgressNavigationItemHiddenObserverContext = &UXProgressNavigati
         NSToolbar *toolbar = [self toolbar];
         NSString *identifier = [(UXBarButtonItem *)object identifier];
         if (hidden) {
-            [toolbar removeItemWithItemIdentifier:identifier];
+            if (@available(macOS 15.0, *)) {
+                [toolbar removeItemWithItemIdentifier:identifier];
+            } else {
+                NSInteger index = [toolbar.items indexOfObjectPassingTest:^BOOL(NSToolbarItem *item, NSUInteger idx, BOOL *stop) {
+                    return [item.itemIdentifier isEqualToString:identifier];
+                }];
+                if (index != NSNotFound) {
+                    [toolbar removeItemAtIndex:index];
+                }
+            }
         } else {
             [toolbar insertItemWithItemIdentifier:identifier atIndex:1];
         }
@@ -112,8 +121,12 @@ static void *UXProgressNavigationItemHiddenObserverContext = &UXProgressNavigati
     }
     toolbarItem.visibilityPriority = (NSInteger)barButtonItem.visibilityPriority;
     toolbarItem.navigational = barButtonItem.isNavigational;
-    toolbarItem.backgroundTintColor = barButtonItem.backgroundColor;
-    toolbarItem.hidden = barButtonItem.isHidden;
+    if (@available(macOS 26.0, *)) {
+        toolbarItem.backgroundTintColor = barButtonItem.backgroundColor;
+    }
+    if (@available(macOS 15.0, *)) {
+        toolbarItem.hidden = barButtonItem.isHidden;
+    }
     if (!toolbarItem.view.isHidden) {
         toolbarItem.label = barButtonItem.label;
         toolbarItem.paletteLabel = barButtonItem.label;

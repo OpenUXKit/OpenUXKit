@@ -1,5 +1,5 @@
-#import <OpenUXKit/UXImageView+Internal.h>
-#import <OpenUXKit/_UXResizableImage.h>
+#import "UXImageView+Internal.h"
+#import "_UXResizableImage.h"
 
 @interface CALayer (PrivateSPI)
 @property (nonatomic, copy) NSString *contentsScaling;
@@ -236,7 +236,7 @@
     return self.image.size;
 }
 
-- (double)_maximumEDRForDynamicRange:(NSImageDynamicRange)dynamicRange {
+- (double)_maximumEDRForDynamicRange:(NSImageDynamicRange)dynamicRange API_AVAILABLE(macos(14.0)) {
     switch (dynamicRange) {
         case NSImageDynamicRangeUnspecified:
             return 1.0;

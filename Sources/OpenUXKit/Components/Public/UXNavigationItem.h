@@ -33,7 +33,10 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 - (void)setRightBarButtonItem:(nullable UXBarButtonItem *)item animated:(BOOL)animated NS_SWIFT_NAME(setRightBarButtonItem(_:animated:));
 - (void)setRightBarButtonItems:(nullable NSArray<UXBarButtonItem *> *)items animated:(BOOL)animated NS_SWIFT_NAME(setRightBarButtonItems(_:animated:));
 
-@property (nonatomic, copy, nullable) NSString *identifier;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wproperty-attribute-mismatch"
+@property (nonatomic, copy, nullable) NSUserInterfaceItemIdentifier identifier;
+#pragma clang diagnostic pop
 
 @end
 

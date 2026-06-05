@@ -20,8 +20,8 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @property (nonatomic, copy, readonly, nullable) NSArray *accessibilityVisibleChildren;
 
 - (nullable id)_dequeueSectionWithIndex:(NSUInteger)index;
-- (void)_trimSectionCacheToVisibleSections:(nullable NSArray *)visibleSections;
-- (nullable NSArray *)_visibleSections;
+- (void)_trimSectionCacheToVisibleSections:(nullable NSIndexSet *)visibleSections;
+- (nullable NSIndexSet *)_visibleSections;
 - (void)_dumpVisibleChildren;
 
 - (void)accessibilityPrepareLayout;
