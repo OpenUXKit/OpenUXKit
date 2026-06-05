@@ -765,4 +765,39 @@ typedef NS_OPTIONS(uint16_t, UXFlowLayoutGridFlags) {
     [_deletedSectionFootersAttributesDict removeAllObjects];
 }
 
+#pragma mark - Private frame helpers
+
+- (CGRect)_frameForHeaderInSection:(NSInteger)section {
+    [self _fetchItemsInfo];
+    if (section < 0 || section >= (NSInteger)_data.sections.count) {
+        return CGRectZero;
+    }
+    _UXFlowLayoutSection *layoutSection = _data.sections[section];
+    return CGRectOffset(layoutSection.headerFrame, layoutSection.frame.origin.x, layoutSection.frame.origin.y);
+}
+
+- (CGRect)_frameForFooterInSection:(NSInteger)section {
+    [self _fetchItemsInfo];
+    if (section < 0 || section >= (NSInteger)_data.sections.count) {
+        return CGRectZero;
+    }
+    _UXFlowLayoutSection *layoutSection = _data.sections[section];
+    return CGRectOffset(layoutSection.footerFrame, layoutSection.frame.origin.x, layoutSection.frame.origin.y);
+}
+
+- (CGRect)_frameForItemAtSection:(NSIndexPath *)indexPath {
+    return [_data frameForItemAtIndexPath:indexPath];
+}
+
+- (NSArray<UXCollectionViewLayoutAttributes *> *)_layoutAttributesForItemsInRect:(CGRect)rect {
+    NSArray<UXCollectionViewLayoutAttributes *> *all = [self layoutAttributesForElementsInRect:rect];
+    NSMutableArray<UXCollectionViewLayoutAttributes *> *items = [NSMutableArray array];
+    for (UXCollectionViewLayoutAttributes *attributes in all) {
+        if ([attributes _isCell]) {
+            [items addObject:attributes];
+        }
+    }
+    return items;
+}
+
 @end

@@ -66,8 +66,22 @@
 
 @synthesize layoutAccessibility = _layoutAccessibility;
 @synthesize accessibilityChildren = _accessibilityChildren;
-@synthesize accessibilityIdentifier = _accessibilityIdentifier;
-@synthesize accessibilityLabel = _accessibilityLabel;
+
+- (NSString *)accessibilityIdentifier {
+    return _accessibilityIdentifier;
+}
+
+- (void)setAccessibilityIdentifier:(NSString *)accessibilityIdentifier {
+    _accessibilityIdentifier = [accessibilityIdentifier copy];
+}
+
+- (NSString *)accessibilityLabel {
+    return _accessibilityLabel;
+}
+
+- (void)setAccessibilityLabel:(NSString *)accessibilityLabel {
+    _accessibilityLabel = [accessibilityLabel copy];
+}
 
 + (Class)layoutAttributesClass {
     return [UXCollectionViewLayoutAttributes class];
@@ -339,7 +353,7 @@
     }
 
     id collectionViewData = [(id)collectionView _collectionViewData];
-    NSArray<UXCollectionViewLayoutAttributes *> *comingOnScreen = [collectionViewData layoutAttributesForElementsInRect:[(id)collectionView documentContentRect]];
+    NSArray<UXCollectionViewLayoutAttributes *> *comingOnScreen = (NSArray<UXCollectionViewLayoutAttributes *> *)[collectionViewData layoutAttributesForElementsInRect:[(id)collectionView documentContentRect]];
     for (UXCollectionViewLayoutAttributes *attributes in comingOnScreen) {
         UXCollectionViewLayoutAttributes *copy = [attributes copy];
         if (!copy) {
@@ -435,7 +449,7 @@
             attributes = nil;
         } else {
             id source = (_transitioningFromLayout && !_inTransitionFromTransitionLayout) ? _transitioningFromLayout : self;
-            attributes = [source layoutAttributesForItemAtIndexPath:itemIndexPath];
+            attributes = (UXCollectionViewLayoutAttributes *)[source layoutAttributesForItemAtIndexPath:itemIndexPath];
         }
     }
     if ((![(id)collectionView _currentUpdate] || [_insertedSectionsSet containsIndex:[itemIndexPath section]]) && !_transitioningFromLayout) {
@@ -468,7 +482,7 @@
     if (!attributes) {
         if ([elementIndexPath length] == 1 || [elementIndexPath section] < [collectionView numberOfSections]) {
             id source = (_transitioningFromLayout && !_inTransitionFromTransitionLayout) ? _transitioningFromLayout : self;
-            attributes = [source layoutAttributesForSupplementaryViewOfKind:elementKind atIndexPath:elementIndexPath];
+            attributes = (UXCollectionViewLayoutAttributes *)[source layoutAttributesForSupplementaryViewOfKind:elementKind atIndexPath:elementIndexPath];
         } else {
             attributes = nil;
         }
@@ -515,7 +529,7 @@
     if (!attributes) {
         if ([decorationIndexPath length] == 1 || [decorationIndexPath section] < [collectionView numberOfSections]) {
             id source = (_transitioningFromLayout && !_inTransitionFromTransitionLayout) ? _transitioningFromLayout : self;
-            attributes = [source layoutAttributesForDecorationViewOfKind:elementKind atIndexPath:decorationIndexPath];
+            attributes = (UXCollectionViewLayoutAttributes *)[source layoutAttributesForDecorationViewOfKind:elementKind atIndexPath:decorationIndexPath];
         } else {
             attributes = nil;
         }
@@ -762,6 +776,102 @@
 
 - (id)snapshottedLayoutAttributeForItemAtIndexPath:(NSIndexPath *)indexPath {
     return nil;
+}
+
+#pragma mark - Transition animation private
+
+- (void)_animateView:(UXCollectionReusableView *)view
+          withAction:(NSInteger)action
+fromLayoutAttributes:(UXCollectionViewLayoutAttributes *)fromAttributes
+  toLayoutAttributes:(UXCollectionViewLayoutAttributes *)toAttributes
+          fromLayout:(UXCollectionViewLayout *)fromLayout
+withCompletionHandler:(void (^)(BOOL finished))completion {
+    if (!view) {
+        if (completion) {
+            completion(NO);
+        }
+        return;
+    }
+    if (fromAttributes) {
+        [(id)view _setLayoutAttributes:fromAttributes];
+    }
+    UXCollectionViewLayoutAttributes *target = toAttributes ?: fromAttributes;
+    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+        context.duration = 0.25;
+        context.allowsImplicitAnimation = YES;
+        [(id)view _setLayoutAttributes:target];
+    } completionHandler:^{
+        if (completion) {
+            completion(YES);
+        }
+    }];
+}
+
+- (void)_prepareToAnimateFromCollectionViewItems:(NSArray *)fromItems
+                                 atContentOffset:(CGPoint)fromContentOffset
+                                         toItems:(NSArray *)toItems
+                                 atContentOffset:(CGPoint)toContentOffset {
+    // Capture starting positions for cross-layout interpolation. Subclasses may override
+    // to populate per-view animation bookkeeping; the base path keeps the current
+    // attributes dictionaries intact.
+    (void)fromItems;
+    (void)fromContentOffset;
+    (void)toItems;
+    (void)toContentOffset;
+}
+
+- (CGPoint)transitionContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset
+                                          keyItemIndexPath:(NSIndexPath *)keyItemIndexPath {
+    if (!keyItemIndexPath) {
+        return proposedContentOffset;
+    }
+    UXCollectionViewLayoutAttributes *attributes = [self layoutAttributesForItemAtIndexPath:keyItemIndexPath];
+    if (!attributes) {
+        return proposedContentOffset;
+    }
+    CGRect frame = attributes.frame;
+    CGFloat clampedY = CGRectGetMinY(frame);
+    CGFloat clampedX = CGRectGetMinX(frame);
+    return CGPointMake(clampedX, clampedY);
+}
+
+- (CGPoint)updatesContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset {
+    CGSize contentSize = [self collectionViewContentSize];
+    CGFloat maxX = MAX(0.0, contentSize.width);
+    CGFloat maxY = MAX(0.0, contentSize.height);
+    CGFloat clampedX = MIN(MAX(0.0, proposedContentOffset.x), maxX);
+    CGFloat clampedY = MIN(MAX(0.0, proposedContentOffset.y), maxY);
+    return CGPointMake(clampedX, clampedY);
+}
+
+- (NSCollectionViewDropOperation)dropPositionForPoint:(CGPoint)point {
+    UXCollectionView *collectionView = _collectionView;
+    NSIndexPath *indexPath = [collectionView indexPathForItemAtPoint:point];
+    if (!indexPath) {
+        return NSCollectionViewDropBefore;
+    }
+    UXCollectionViewLayoutAttributes *attributes = [self layoutAttributesForItemAtIndexPath:indexPath];
+    if (!attributes) {
+        return NSCollectionViewDropBefore;
+    }
+    CGRect frame = attributes.frame;
+    CGFloat centerY = CGRectGetMidY(frame);
+    return (point.y >= centerY) ? NSCollectionViewDropOn : NSCollectionViewDropBefore;
+}
+
+- (NSIndexPath *)proposedDropIndexPathForDraggingPoint:(CGPoint)point {
+    UXCollectionView *collectionView = _collectionView;
+    NSIndexPath *indexPath = [collectionView indexPathForItemAtPoint:point];
+    if (indexPath) {
+        return indexPath;
+    }
+    NSInteger sectionCount = [collectionView numberOfSections];
+    if (sectionCount == 0) {
+        return [NSIndexPath indexPathForItem:0 inSection:0];
+    }
+    NSInteger lastSection = sectionCount - 1;
+    NSInteger itemCount = [collectionView numberOfItemsInSection:lastSection];
+    return [NSIndexPath indexPathForItem:itemCount inSection:lastSection];
 }
 
 #pragma mark - Accessibility

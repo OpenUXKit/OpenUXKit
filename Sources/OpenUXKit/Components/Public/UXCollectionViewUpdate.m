@@ -340,8 +340,8 @@ buildNewMap:
 
     for (NSString *elementKind in allKinds) {
         id layout = [(id)_collectionView collectionViewLayout];
-        NSArray<NSIndexPath *> *deletedSupplementary = [layout indexPathsToDeleteForSupplementaryViewOfKind:elementKind];
-        NSArray<NSIndexPath *> *deletedDecoration = [layout indexPathsToDeleteForDecorationViewOfKind:elementKind];
+        NSArray<NSIndexPath *> *deletedSupplementary = (NSArray<NSIndexPath *> *)[layout indexPathsToDeleteForSupplementaryViewOfKind:elementKind];
+        NSArray<NSIndexPath *> *deletedDecoration = (NSArray<NSIndexPath *> *)[layout indexPathsToDeleteForDecorationViewOfKind:elementKind];
         NSArray<NSIndexPath *> *deletedAll = deletedSupplementary ? [deletedSupplementary arrayByAddingObjectsFromArray:deletedDecoration] : deletedDecoration;
         for (NSIndexPath *indexPath in deletedAll) {
             NSMutableDictionary *targetDict = ([indexPath length] == 1) ? _deletedSupplementaryTopLevelIndexesDict : [_deletedSupplementaryIndexesSectionArray objectAtIndexedSubscript:[indexPath section]];
@@ -353,8 +353,8 @@ buildNewMap:
             [indexes addIndex:([indexPath length] == 1) ? [indexPath indexAtPosition:0] : [indexPath item]];
         }
 
-        NSArray<NSIndexPath *> *insertedSupplementary = [layout indexPathsToInsertForSupplementaryViewOfKind:elementKind];
-        NSArray<NSIndexPath *> *insertedDecoration = [layout indexPathsToInsertForDecorationViewOfKind:elementKind];
+        NSArray<NSIndexPath *> *insertedSupplementary = (NSArray<NSIndexPath *> *)[layout indexPathsToInsertForSupplementaryViewOfKind:elementKind];
+        NSArray<NSIndexPath *> *insertedDecoration = (NSArray<NSIndexPath *> *)[layout indexPathsToInsertForDecorationViewOfKind:elementKind];
         NSArray<NSIndexPath *> *insertedAll = insertedSupplementary ? [insertedSupplementary arrayByAddingObjectsFromArray:insertedDecoration] : insertedDecoration;
         for (NSIndexPath *indexPath in insertedAll) {
             NSMutableDictionary *targetDict = ([indexPath length] == 1) ? _insertedSupplementaryTopLevelIndexesDict : [_insertedSupplementaryIndexesSectionArray objectAtIndexedSubscript:[indexPath section]];

@@ -479,6 +479,47 @@ typedef NS_OPTIONS(uint8_t, UXCollectionViewDataFlags) {
     [_screenPageMap removeAllObjects];
 }
 
+- (void)_loadEverything {
+    [self _prepareToLoadData];
+    NSInteger sections = [self numberOfSections];
+    for (NSInteger section = 0; section < sections; section++) {
+        NSInteger itemCount = [self numberOfItemsInSection:section];
+        for (NSInteger item = 0; item < itemCount; item++) {
+            NSIndexPath *indexPath = [NSIndexPath indexPathForItem:item inSection:section];
+            (void)[self layoutAttributesForItemAtIndexPath:indexPath];
+        }
+    }
+}
+
+- (NSValue *)_screenPageForPoint:(CGPoint)point {
+    [self _validateContentSize];
+    UXCollectionView *collectionView = _collectionView;
+    CGFloat pageWidth = collectionView.documentVisibleRect.size.width;
+    CGFloat pageHeight = collectionView.documentVisibleRect.size.height;
+    if (pageWidth <= 0.0) pageWidth = _contentSize.width;
+    if (pageHeight <= 0.0) pageHeight = _contentSize.height;
+    NSInteger pageX = (pageWidth > 0.0) ? (NSInteger)floor(point.x / pageWidth) : 0;
+    NSInteger pageY = (pageHeight > 0.0) ? (NSInteger)floor(point.y / pageHeight) : 0;
+    NSValue *key = [NSValue valueWithBytes:(NSInteger[]){pageX, pageY} objCType:@encode(NSInteger[2])];
+    NSValue *cached = [_screenPageMap objectForKey:key];
+    if (cached) {
+        return cached;
+    }
+    NSValue *value = [NSValue valueWithPoint:NSMakePoint(pageX, pageY)];
+    [_screenPageMap setObject:value forKey:key];
+    return value;
+}
+
+- (NSIndexPath *)_setupMutableIndexPath:(NSIndexPath *)indexPath {
+    if (!indexPath) {
+        return nil;
+    }
+    NSUInteger length = indexPath.length;
+    NSUInteger indexes[length];
+    [indexPath getIndexes:indexes];
+    return [NSIndexPath indexPathWithIndexes:indexes length:length];
+}
+
 - (void)invalidateSupplementaryViews:(NSSet<NSString *> *)kinds {
     if (!_invalidatedSupplementaryViews) {
         _invalidatedSupplementaryViews = [NSMutableDictionary dictionary];

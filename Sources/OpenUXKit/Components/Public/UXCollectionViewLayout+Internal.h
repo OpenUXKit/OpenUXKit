@@ -29,6 +29,27 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 - (BOOL)_isValidSection:(NSInteger)section item:(NSInteger)item;
 - (BOOL)_selectableItemAtIndexPath:(NSIndexPath *)indexPath;
 
+#pragma mark - Layout transition animation
+
+- (void)_animateView:(UXCollectionReusableView *)view
+          withAction:(NSInteger)action
+fromLayoutAttributes:(nullable UXCollectionViewLayoutAttributes *)fromAttributes
+  toLayoutAttributes:(nullable UXCollectionViewLayoutAttributes *)toAttributes
+          fromLayout:(nullable UXCollectionViewLayout *)fromLayout
+withCompletionHandler:(nullable void (^)(BOOL finished))completion;
+
+- (void)_prepareToAnimateFromCollectionViewItems:(NSArray *)fromItems
+                                 atContentOffset:(CGPoint)fromContentOffset
+                                         toItems:(NSArray *)toItems
+                                 atContentOffset:(CGPoint)toContentOffset;
+
+- (CGPoint)transitionContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset
+                                          keyItemIndexPath:(nullable NSIndexPath *)keyItemIndexPath;
+- (CGPoint)updatesContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset;
+
+- (NSCollectionViewDropOperation)dropPositionForPoint:(CGPoint)point;
+- (nullable NSIndexPath *)proposedDropIndexPathForDraggingPoint:(CGPoint)point;
+
 @end
 
 NS_HEADER_AUDIT_END(nullability, sendability)
