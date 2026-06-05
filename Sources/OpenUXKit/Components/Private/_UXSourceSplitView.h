@@ -82,7 +82,7 @@ UXKIT_PRIVATE NS_SWIFT_UI_ACTOR
 - (void)didChangeCollapsed;
 - (void)handlePanGestureRecognizer:(NSPanGestureRecognizer *)panGestureRecognizer;
 - (void)setTransientlyUncollapsed:(BOOL)transientlyUncollapsed animated:(BOOL)animated;
-- (void)toggleSidebar:(id)sender;
+- (void)toggleSidebar:(nullable id)sender;
 - (void)updateConstraintsForDividerAndMain;
 
 @end

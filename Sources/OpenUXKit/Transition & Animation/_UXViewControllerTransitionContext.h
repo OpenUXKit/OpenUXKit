@@ -33,15 +33,15 @@ typedef void (^_UXViewControllerTransitionContextInteractiveUpdateHandler)(BOOL,
 @property (nonatomic) BOOL transitionIsInFlight;
 
 - (void)_enableInteractionForDisabledViews;
-- (void)_disableInteractionForViews:(id)views;
+- (void)_disableInteractionForViews:(nullable NSArray<UXView *> *)views;
 - (void)__runAlongsideAnimations;
 - (void)_interactivityDidChange:(BOOL)interactivityDidChange;
 - (void)_runAlongsideCompletions;
 - (void)_setTransitionIsCompleting:(BOOL)transitionIsCompleting;
 - (BOOL)_transitionIsCompleting;
 - (BOOL)transitionWasCancelled;
-- (CGRect)finalFrameForViewController:(id)viewController;
-- (CGRect)initialFrameForViewController:(id)viewController;
+- (CGRect)finalFrameForViewController:(UXViewController *)viewController;
+- (CGRect)initialFrameForViewController:(UXViewController *)viewController;
 - (nullable UXViewController *)viewControllerForKey:(NSString *)key;
 - (void)completeTransition:(BOOL)completeTransition;
 - (void)cancelInteractiveTransition;

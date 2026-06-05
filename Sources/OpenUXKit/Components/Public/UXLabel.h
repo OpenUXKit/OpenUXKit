@@ -7,8 +7,8 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @interface UXLabel : UXView <NSAccessibilityStaticText>
 
-@property (nonatomic, copy) NSString *text;
-@property (nonatomic, copy) NSAttributedString *attributedText;
+@property (nonatomic, copy, nullable) NSString *text;
+@property (nonatomic, copy, nullable) NSAttributedString *attributedText;
 @property (nonatomic, strong, nullable) NSFont *font;
 @property (nonatomic, strong, nullable) NSColor *textColor;
 @property (nonatomic, strong, nullable) NSColor *shadowColor;

@@ -7,7 +7,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-NS_ASSUME_NONNULL_BEGIN
+NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 @interface NSView (PrivateSPI)
 @property (nonatomic, setter=_setSemanticContext:) NSInteger _semanticContext;
@@ -17,4 +17,4 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)_endLiveResize;
 @end
 
-NS_ASSUME_NONNULL_END
+NS_HEADER_AUDIT_END(nullability, sendability)

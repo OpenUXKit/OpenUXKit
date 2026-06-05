@@ -2,6 +2,8 @@
 #import <OpenUXKit/_UXContainerView.h>
 #import <OpenUXKit/UXKitDefines.h>
 
+NS_HEADER_AUDIT_BEGIN(nullability, sendability)
+
 NS_SWIFT_UI_ACTOR
 @protocol NSSplitViewItemSeparatorTrackingAdapter <NSObject>
 
@@ -22,3 +24,5 @@ UXKIT_PRIVATE NS_SWIFT_UI_ACTOR
 @property (readonly) BOOL isTrailingSidebar;
 
 @end
+
+NS_HEADER_AUDIT_END(nullability, sendability)

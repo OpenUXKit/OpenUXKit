@@ -1,14 +1,18 @@
 #import <OpenUXKit/UXNavigationItem.h>
 
-NS_ASSUME_NONNULL_BEGIN
+NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 @interface UXNavigationItem () {
     NSArray *_leftBarButtonItems;
     NSArray *_rightBarButtonItems;
     NSTextField *_internalTitleView;
+    NSTextField *_internalTitleLabel;
+    NSTextField *_internalSubtitleLabel;
 }
 
 @property (nonatomic, readonly, nullable) NSTextField *internalTitleView;
+@property (nonatomic, readonly, nullable) NSTextField *internalTitleLabel;
+@property (nonatomic, readonly, nullable) NSTextField *internalSubtitleLabel;
 @property (nonatomic, strong, nullable) NSView *condensedTitleView;
 @property (nonatomic) BOOL leftItemsSupplementBackButton;
 @property (nonatomic) BOOL hidesAlternateTitleView;
@@ -21,4 +25,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-NS_ASSUME_NONNULL_END
+NS_HEADER_AUDIT_END(nullability, sendability)

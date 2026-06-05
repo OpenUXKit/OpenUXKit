@@ -117,7 +117,7 @@
 - (void)_enableInteractionForDisabledViews {
 }
 
-- (void)_disableInteractionForViews:(id)views {
+- (void)_disableInteractionForViews:(NSArray<UXView *> *)views {
 }
 
 - (void)_interactivityDidChange:(BOOL)interactivityDidChange {
@@ -143,11 +143,11 @@
     return _transitionContextFlags.transitionIsCompleting;
 }
 
-- (CGRect)finalFrameForViewController:(id)viewController {
+- (CGRect)finalFrameForViewController:(UXViewController *)viewController {
     return CGRectZero;
 }
 
-- (CGRect)initialFrameForViewController:(id)viewController {
+- (CGRect)initialFrameForViewController:(UXViewController *)viewController {
     return CGRectZero;
 }
 

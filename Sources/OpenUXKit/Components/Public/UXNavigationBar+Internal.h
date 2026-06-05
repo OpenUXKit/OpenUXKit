@@ -1,6 +1,6 @@
 #import <OpenUXKit/UXNavigationBar.h>
 
-NS_ASSUME_NONNULL_BEGIN
+NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 @interface UXNavigationBar () {
     BOOL _needsRecalculateWindowKeyViewLoop;
@@ -17,12 +17,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL alternateTitleEnabled;
 @property (nonatomic) BOOL recalculatingWindowKeyViewLoop;
 @property (nonatomic) NSEdgeInsets edgeInsets;
-@property (nonatomic, strong) NSView *alternateCondensedTitleView;
-@property (nonatomic, strong) NSView *alternateTitleView;
+@property (nonatomic, strong, nullable) NSView *alternateCondensedTitleView;
+@property (nonatomic, strong, nullable) NSView *alternateTitleView;
 @property (nonatomic, strong, nullable) UXNavigationItem *transitioningItem;
-@property (nonatomic, strong) _UXNavigationItemContainerView *topItemContainer;
+@property (nonatomic, strong, nullable) _UXNavigationItemContainerView *topItemContainer;
 @property (nonatomic, strong) NSMutableArray<UXNavigationItem *> *internalItems;
-@property (nonatomic, strong) NSImage *backIndicatorImage;
+@property (nonatomic, strong, nullable) NSImage *backIndicatorImage;
 @property (nonatomic, weak, nullable) NSView *titleCenteringTrackedView;
 
 - (void)setNeedsRecalcuateWindowKeyViewLoop;
@@ -43,4 +43,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-NS_ASSUME_NONNULL_END
+NS_HEADER_AUDIT_END(nullability, sendability)

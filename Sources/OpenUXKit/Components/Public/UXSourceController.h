@@ -37,12 +37,12 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @property (nonatomic, strong, nullable) UXViewController<UXSourceList> *sourceListViewController;
 @property (nonatomic, copy, nullable) NSString *sourceListAutosaveName;
 @property (nonatomic, readonly) BOOL wantsInspectorCollapsed;
-@property (nonatomic, readonly) NSArray *rootViewControllers;
+@property (nonatomic, readonly) NSArray<__kindof UXViewController *> *rootViewControllers;
 @property (nonatomic, readonly, nullable) UXNavigationController *selectedNavigationController;
 @property (nonatomic, readonly, nullable) id<UXNavigationDestination> currentNavigationDestination;
 @property (nonatomic, readonly) BOOL isNavigating;
 
-- (nullable id)navigationController;
+- (nullable UXNavigationController *)navigationController;
 - (void)presentViewController:(UXViewController *)viewController animated:(BOOL)animated completion:(nullable UXCompletionHandler)completion;
 - (void)dismissViewControllerAnimated:(BOOL)animated completion:(nullable UXCompletionHandler)completion;
 
@@ -87,9 +87,9 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 - (void)_removeDestination:(id<UXNavigationDestination>)destination animated:(BOOL)animated completion:(nullable UXParameterCompletionHandler)completion;
 - (void)_setSelectedViewController:(nullable UXViewController *)selectedViewController animated:(BOOL)animated sender:(nullable id)sender;
 - (void)_didChangeSelectedViewControllerFromSender:(nullable id)sender;
-- (id)_contextForTransitionOperation:(NSInteger)operation fromViewController:(nullable UXViewController *)fromViewController toViewController:(nullable UXViewController *)toViewController transition:(NSUInteger)transition;
-- (void)_beginTransitionWithContext:(id)context operation:(NSInteger)operation;
-- (void)_prepareViewController:(nullable UXViewController *)viewController forAnimationInContext:(id)context completion:(nullable UXCompletionHandler)completion;
+- (_UXViewControllerOneToOneTransitionContext *)_contextForTransitionOperation:(NSInteger)operation fromViewController:(nullable UXViewController *)fromViewController toViewController:(nullable UXViewController *)toViewController transition:(NSUInteger)transition;
+- (void)_beginTransitionWithContext:(_UXViewControllerOneToOneTransitionContext *)context operation:(NSInteger)operation;
+- (void)_prepareViewController:(nullable UXViewController *)viewController forAnimationInContext:(_UXViewControllerOneToOneTransitionContext *)context completion:(nullable UXCompletionHandler)completion;
 - (void)_setupDelegateForNavigationController:(UXNavigationController *)navigationController operation:(UXNavigationControllerOperation)operation fromViewController:(nullable UXViewController *)fromViewController toViewController:(nullable UXViewController *)toViewController;
 - (void)_updateInspectorViewController;
 - (void)_updateDetailSplitViewItemAccessories;

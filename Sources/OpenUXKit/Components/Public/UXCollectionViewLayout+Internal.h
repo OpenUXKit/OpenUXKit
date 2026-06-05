@@ -6,6 +6,10 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 @interface UXCollectionViewLayout ()
 
+- (NSInteger)dropPositionForPoint:(CGPoint)point withIndexPaths:(NSArray<NSIndexPath *> *)indexPaths movedToIndexPath:(nullable NSIndexPath *)indexPath;
+- (nullable NSArray<UXCollectionViewLayoutAttributes *> *)layoutAttributesForElementsInRect:(CGRect)rect withIndexPaths:(NSArray<NSIndexPath *> *)indexPaths exchangedWithIndexPaths:(NSArray<NSIndexPath *> *)exchangedIndexPaths;
+- (nullable NSArray<UXCollectionViewLayoutAttributes *> *)layoutAttributesForElementsInRect:(CGRect)rect withIndexPaths:(NSArray<NSIndexPath *> *)indexPaths movedToIndexPath:(NSIndexPath *)indexPath atPoint:(CGPoint)point;
+
 @property (nonatomic, readonly, nullable) UXCollectionViewLayoutAccessibility *layoutAccessibility;
 @property (nonatomic, readonly, nullable) NSArray *accessibilityChildren;
 

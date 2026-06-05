@@ -7,10 +7,10 @@
 typedef void (^UXCompletionHandler)(void);
 typedef void (^UXParameterCompletionHandler)(BOOL);
 
-NS_ASSUME_NONNULL_BEGIN
+NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 UXKIT_EXTERN NSString * UXLocalizedString(NSString *key);
 
-NS_ASSUME_NONNULL_END
+NS_HEADER_AUDIT_END(nullability, sendability)
 
 #endif /* UXBase_h */

@@ -40,7 +40,7 @@ NS_SWIFT_UI_ACTOR
 - (void)_reuseSupplementaryView:(UXCollectionReusableView *)view;
 - (NSInteger)_numberOfReusedViewsForIdentifier:(NSString *)identifier;
 - (NSInteger)_maxNumberOfReusedViews;
-- (id)_dequeueReusableViewOfKind:(NSString *)kind withIdentifier:(NSString *)identifier forIndexPath:(NSIndexPath *)indexPath viewCategory:(NSUInteger)viewCategory;
+- (__kindof UXCollectionReusableView *)_dequeueReusableViewOfKind:(NSString *)kind withIdentifier:(NSString *)identifier forIndexPath:(NSIndexPath *)indexPath viewCategory:(NSUInteger)viewCategory;
 
 #pragma mark - Layout attribute queries
 
@@ -48,8 +48,8 @@ NS_SWIFT_UI_ACTOR
 
 #pragma mark - Cell preparation pipeline
 
-- (id)_createPreparedCellForItemAtIndexPath:(NSIndexPath *)indexPath withLayoutAttributes:(UXCollectionViewLayoutAttributes *)layoutAttributes applyAttributes:(BOOL)applyAttributes;
-- (id)_createPreparedSupplementaryViewForElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath withLayoutAttributes:(UXCollectionViewLayoutAttributes *)layoutAttributes applyAttributes:(BOOL)applyAttributes;
+- (nullable __kindof UXCollectionViewCell *)_createPreparedCellForItemAtIndexPath:(NSIndexPath *)indexPath withLayoutAttributes:(UXCollectionViewLayoutAttributes *)layoutAttributes applyAttributes:(BOOL)applyAttributes;
+- (nullable __kindof UXCollectionReusableView *)_createPreparedSupplementaryViewForElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath withLayoutAttributes:(UXCollectionViewLayoutAttributes *)layoutAttributes applyAttributes:(BOOL)applyAttributes;
 - (void)_updateCellsInRect:(CGRect)rect createIfNecessary:(BOOL)createIfNecessary;
 - (void)_updateVisibleCellsNow:(BOOL)now;
 - (void)_notifyWillDisplayCellIfNeeded:(UXCollectionViewCell *)cell forIndexPath:(NSIndexPath *)indexPath;
@@ -73,7 +73,7 @@ NS_SWIFT_UI_ACTOR
 - (nullable NSIndexPath *)_indexPathOfSelectableItemHitByEvent:(NSEvent *)event;
 - (nullable NSIndexPath *)_indexPathForSupplementaryElementOfKind:(NSString *)kind hitByEvent:(NSEvent *)event;
 - (nullable NSIndexPath *)_indexPathForView:(NSView *)view ofType:(NSUInteger)type;
-- (nullable id)_validateHitTest:(nullable NSView *)view;
+- (nullable NSView *)_validateHitTest:(nullable NSView *)view;
 
 #pragma mark - Scrolling helpers
 
@@ -86,9 +86,9 @@ NS_SWIFT_UI_ACTOR
 
 #pragma mark - Visibility helpers
 
-- (nullable id)_visibleSupplementaryViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath;
-- (nullable id)_visibleSupplementaryViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath isDecorationView:(BOOL)isDecorationView;
-- (nullable id)_visibleDecorationViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath;
+- (nullable __kindof UXCollectionReusableView *)_visibleSupplementaryViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath;
+- (nullable __kindof UXCollectionReusableView *)_visibleSupplementaryViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath isDecorationView:(BOOL)isDecorationView;
+- (nullable __kindof UXCollectionReusableView *)_visibleDecorationViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath;
 - (NSArray<__kindof UXCollectionReusableView *> *)_visibleSupplementaryViewsOfKind:(NSString *)kind;
 - (NSArray<__kindof UXCollectionReusableView *> *)_supplementaryViewsIncludingOverdrawArea:(BOOL)overdrawArea identifier:(NSString *)identifier;
 - (NSArray<NSIndexPath *> *)_indexPathsForVisibleSupplementaryViewsOfKind:(NSString *)kind;

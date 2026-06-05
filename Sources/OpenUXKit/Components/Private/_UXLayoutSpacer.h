@@ -2,10 +2,12 @@
 #import <OpenUXKit/UXKitDefines.h>
 #import <OpenUXKit/UXLayoutSupport.h>
 
+NS_HEADER_AUDIT_BEGIN(nullability, sendability)
+
 UXKIT_PRIVATE NS_SWIFT_UI_ACTOR
 @interface _UXLayoutSpacer : NSLayoutGuide <UXLayoutSupport>
 
-@property (nonatomic, copy) void(^lengthUpdateBlock)(void);
+@property (nonatomic, copy, nullable) void(^lengthUpdateBlock)(void);
 @property (nonatomic) BOOL horizontal;
 
 + (instancetype)_horizontalLayoutSpacer;
@@ -15,3 +17,5 @@ UXKIT_PRIVATE NS_SWIFT_UI_ACTOR
 - (void)_setUpCounterDimensionConstraint;
 
 @end
+
+NS_HEADER_AUDIT_END(nullability, sendability)

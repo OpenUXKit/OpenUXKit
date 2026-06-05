@@ -1,6 +1,6 @@
 #import <OpenUXKit/UXBarButtonItem.h>
 
-NS_ASSUME_NONNULL_BEGIN
+NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 @interface UXBarButtonItem ()
 {
@@ -25,9 +25,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) UXViewController *contentViewController;
 @property (nonatomic, strong) NSLayoutAnchor *baselineAnchor;
 
-- (nullable id)_viewOfClass:(Class)cls;
+- (nullable __kindof NSView *)_viewOfClass:(Class)cls;
 - (CGFloat)preferredSpacingToItem:(UXBarItem *)item proposedSpacing:(CGFloat)spacing;
 
 @end
 
-NS_ASSUME_NONNULL_END
+NS_HEADER_AUDIT_END(nullability, sendability)

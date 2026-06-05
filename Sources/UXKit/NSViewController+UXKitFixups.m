@@ -14,7 +14,7 @@
     return nil;
 }
 
-- (id)_ancestorViewControllerOfClass:(Class)cls {
+- (__kindof NSViewController *)_ancestorViewControllerOfClass:(Class)cls {
     return nil;
 }
 

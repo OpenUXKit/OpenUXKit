@@ -7,7 +7,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-NS_ASSUME_NONNULL_BEGIN
+NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 @protocol NSSplitViewItemSeparatorTrackingAdapter;
 
@@ -20,4 +20,4 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)_hasActiveAppearanceIgnoringKeyFocus;
 @end
 
-NS_ASSUME_NONNULL_END
+NS_HEADER_AUDIT_END(nullability, sendability)

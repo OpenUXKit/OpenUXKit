@@ -1,6 +1,6 @@
 #import <OpenUXKit/UXImageView.h>
 
-NS_ASSUME_NONNULL_BEGIN
+NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 @interface UXImageView ()
 {
@@ -18,4 +18,4 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)_setContentStretchInPixels:(CGRect)pixels forContentSize:(CGSize)contentSize shouldTile:(BOOL)shouldTile;
 @end
 
-NS_ASSUME_NONNULL_END
+NS_HEADER_AUDIT_END(nullability, sendability)

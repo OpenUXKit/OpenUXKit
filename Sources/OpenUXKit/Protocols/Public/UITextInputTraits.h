@@ -1,5 +1,7 @@
 #import <AppKit/AppKit.h>
 
+NS_HEADER_AUDIT_BEGIN(nullability, sendability)
+
 @protocol UITextInputTraits <NSObject>
 
 @optional
@@ -14,3 +16,5 @@
 @property (nonatomic) NSInteger autocapitalizationType;
 
 @end
+
+NS_HEADER_AUDIT_END(nullability, sendability)

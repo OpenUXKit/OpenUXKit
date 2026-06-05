@@ -2,6 +2,8 @@
 
 @class NSColor;
 
+NS_HEADER_AUDIT_BEGIN(nullability, sendability)
+
 typedef NS_ENUM(NSInteger, UXTintAdjustmentMode) {
     UXTintAdjustmentModeAutomatic,
     UXTintAdjustmentModeNormal,
@@ -13,3 +15,5 @@ typedef NS_ENUM(NSInteger, UXTintAdjustmentMode) {
 @property (nonatomic, strong, nullable) NSColor *tintColor;
 - (void)tintColorDidChange;
 @end
+
+NS_HEADER_AUDIT_END(nullability, sendability)
