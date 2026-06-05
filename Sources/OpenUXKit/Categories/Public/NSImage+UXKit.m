@@ -1,5 +1,5 @@
 #import <OpenUXKit/NSImage+UXKit.h>
-#import <OpenUXKit/_UXResizableImage.h>
+#import "_UXResizableImage.h"
 
 @implementation NSImage (UXKit)
 
