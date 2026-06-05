@@ -520,6 +520,14 @@ typedef NS_OPTIONS(uint8_t, UXCollectionViewDataFlags) {
     return [NSIndexPath indexPathWithIndexes:indexes length:length];
 }
 
+- (void)_setupMutableIndexPath:(NSIndexPath * _Nullable * _Nullable)indexPathOut forGlobalItemIndex:(NSInteger)globalItemIndex {
+    if (!indexPathOut) {
+        return;
+    }
+    NSIndexPath *indexPath = [self indexPathForItemAtGlobalIndex:globalItemIndex];
+    *indexPathOut = [self _setupMutableIndexPath:indexPath];
+}
+
 - (void)invalidateSupplementaryViews:(NSSet<NSString *> *)kinds {
     if (!_invalidatedSupplementaryViews) {
         _invalidatedSupplementaryViews = [NSMutableDictionary dictionary];

@@ -410,7 +410,7 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
 
 #pragma mark - Dequeue
 
-- (id)_dequeueReusableViewOfKind:(NSString *)kind withIdentifier:(NSString *)identifier forIndexPath:(NSIndexPath *)indexPath viewCategory:(NSUInteger)viewCategory {
+- (__kindof UXCollectionReusableView *)_dequeueReusableViewOfKind:(NSString *)kind withIdentifier:(NSString *)identifier forIndexPath:(NSIndexPath *)indexPath viewCategory:(NSUInteger)viewCategory {
     NSMutableDictionary *reuseQueues = (viewCategory == 1) ? _cellReuseQueues : _supplementaryViewReuseQueues;
     NSString *reuseKey = (viewCategory == 1) ? identifier : [[self class] _reuseKeyForSupplementaryViewOfKind:kind withReuseIdentifier:identifier];
 
@@ -515,7 +515,7 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
 
 #pragma mark - Cell preparation pipeline
 
-- (id)_createPreparedCellForItemAtIndexPath:(NSIndexPath *)indexPath withLayoutAttributes:(UXCollectionViewLayoutAttributes *)layoutAttributes applyAttributes:(BOOL)applyAttributes {
+- (__kindof UXCollectionViewCell *)_createPreparedCellForItemAtIndexPath:(NSIndexPath *)indexPath withLayoutAttributes:(UXCollectionViewLayoutAttributes *)layoutAttributes applyAttributes:(BOOL)applyAttributes {
     if (![self.dataSource respondsToSelector:@selector(collectionView:cellForItemAtIndexPath:)]) {
         return nil;
     }
@@ -535,7 +535,7 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
     return cell;
 }
 
-- (id)_createPreparedSupplementaryViewForElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath withLayoutAttributes:(UXCollectionViewLayoutAttributes *)layoutAttributes applyAttributes:(BOOL)applyAttributes {
+- (__kindof UXCollectionReusableView *)_createPreparedSupplementaryViewForElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath withLayoutAttributes:(UXCollectionViewLayoutAttributes *)layoutAttributes applyAttributes:(BOOL)applyAttributes {
     if (![self.dataSource respondsToSelector:@selector(collectionView:viewForSupplementaryElementOfKind:atIndexPath:)]) {
         return nil;
     }
@@ -777,18 +777,18 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
     return _allVisibleViewsDict[key];
 }
 
-- (id)_visibleSupplementaryViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
+- (__kindof UXCollectionReusableView *)_visibleSupplementaryViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
     return [self _visibleSupplementaryViewOfKind:kind atIndexPath:indexPath isDecorationView:NO];
 }
 
-- (id)_visibleSupplementaryViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath isDecorationView:(BOOL)isDecorationView {
+- (__kindof UXCollectionReusableView *)_visibleSupplementaryViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath isDecorationView:(BOOL)isDecorationView {
     _UXCollectionViewItemKey *key = isDecorationView
         ? [_UXCollectionViewItemKey collectionItemKeyForDecorationViewOfKind:kind andIndexPath:indexPath]
         : [_UXCollectionViewItemKey collectionItemKeyForSupplementaryViewOfKind:kind andIndexPath:indexPath];
     return _allVisibleViewsDict[key];
 }
 
-- (id)_visibleDecorationViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
+- (__kindof UXCollectionReusableView *)_visibleDecorationViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
     return [self _visibleSupplementaryViewOfKind:kind atIndexPath:indexPath isDecorationView:YES];
 }
 
@@ -877,7 +877,7 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
     return [self indexPathForItemAtPoint:pointInDocument];
 }
 
-- (id)_validateHitTest:(NSView *)view {
+- (NSView *)_validateHitTest:(NSView *)view {
     if (!view) {
         return nil;
     }

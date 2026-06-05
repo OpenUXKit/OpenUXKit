@@ -38,6 +38,10 @@ UXKIT_PRIVATE NS_SWIFT_UI_ACTOR
 - (void)updateDraggingItemsForDrag:(nullable id<NSDraggingInfo>)draggingInfo;
 - (BOOL)wantsPeriodicDraggingUpdates;
 
+- (void)_createdDraggingSession:(NSDraggingSession *)session forItemsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths;
+- (void)_finishRearrangingForLocation:(CGPoint)location shouldComplete:(BOOL)shouldComplete;
+- (void)_moveItemsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths toIndexPaths:(NSArray<NSIndexPath *> *)toIndexPaths;
+
 @end
 
 NS_HEADER_AUDIT_END(nullability, sendability)

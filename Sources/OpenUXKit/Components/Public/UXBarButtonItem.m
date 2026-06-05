@@ -84,7 +84,7 @@
 
 
 
-- (id)_viewOfClass:(Class)cls {
+- (__kindof NSView *)_viewOfClass:(Class)cls {
     NSView *customView = _customView;
     if (!customView) {
         customView = __view;
@@ -367,6 +367,21 @@ if (button) {\
 
 - (CGFloat)preferredSpacingToItem:(UXBarItem *)item proposedSpacing:(CGFloat)spacing {
     return spacing;
+}
+
+- (NSString *)description {
+    id target = self.target;
+    SEL action = self.action;
+    NSString *targetDescription = nil;
+    NSString *actionDescription = nil;
+    if (target) {
+        targetDescription = [NSString stringWithFormat:@"<%@: %p", [target class], target];
+    }
+    if (action) {
+        actionDescription = NSStringFromSelector(action);
+    }
+    return [NSString stringWithFormat:@"<%@: %p; identifier = %@, target = %@, action = %@>",
+            NSStringFromClass(self.class), self, self.identifier, targetDescription, actionDescription];
 }
 
 @end

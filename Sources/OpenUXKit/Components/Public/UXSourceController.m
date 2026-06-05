@@ -17,7 +17,7 @@
 #import <OpenUXKit/UXViewController+Internal.h>
 #import <OpenUXKit/UXViewControllerTransitionCoordinator.h>
 #import <OpenUXKit/UXViewControllerTransitioning.h>
-#import <OpenUXKit/UXWindowController.h>
+#import <OpenUXKit/UXWindowController+Internal.h>
 #import <OpenUXKit/UXView+Internal.h>
 #import <OpenUXKit/UXNavigationDestination.h>
 #import <OpenUXKit/UXDestinationAuxiliaryStore.h>
@@ -830,7 +830,7 @@ static BOOL UXSourceControllerShouldForceSelectionForNavigationDestination(id<UX
     }
 }
 
-- (id)_contextForTransitionOperation:(NSInteger)operation fromViewController:(UXViewController *)fromViewController toViewController:(UXViewController *)toViewController transition:(NSUInteger)transition {
+- (_UXViewControllerOneToOneTransitionContext *)_contextForTransitionOperation:(NSInteger)operation fromViewController:(UXViewController *)fromViewController toViewController:(UXViewController *)toViewController transition:(NSUInteger)transition {
     NSUInteger effectiveTransition = transition;
 
     if (fromViewController && toViewController) {
@@ -967,7 +967,7 @@ static BOOL UXSourceControllerShouldForceSelectionForNavigationDestination(id<UX
     }];
 }
 
-- (void)_prepareViewController:(UXViewController *)viewController forAnimationInContext:(id)context completion:(UXCompletionHandler)completion {
+- (void)_prepareViewController:(UXViewController *)viewController forAnimationInContext:(_UXViewControllerOneToOneTransitionContext *)context completion:(UXCompletionHandler)completion {
     if (viewController) {
         [viewController _prepareForAnimationInContext:context completion:completion];
     } else if (completion) {
@@ -1156,7 +1156,7 @@ static BOOL UXSourceControllerShouldForceSelectionForNavigationDestination(id<UX
 
 #pragma mark - Hooks
 
-- (id)navigationController {
+- (UXNavigationController *)navigationController {
     return nil;
 }
 
@@ -1185,6 +1185,23 @@ static BOOL UXSourceControllerShouldForceSelectionForNavigationDestination(id<UX
 }
 
 - (void)windowDidRecalculateKeyViewLoop {
+}
+
+- (BOOL)isWindowInFullScreen {
+    return self.detailViewController.isWindowInFullScreen;
+}
+
+- (BOOL)isWindowConsideredInFullScreen {
+    return self.detailViewController.isWindowConsideredInFullScreen;
+}
+
+- (void)willMoveToParentViewController:(UXViewController *)parent {
+}
+
+- (void)didMoveToParentViewController:(UXViewController *)parent {
+}
+
+- (void)contentRepresentingViewControllerDidChange {
 }
 
 - (void)windowWillRecalculateKeyViewLoop {

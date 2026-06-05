@@ -28,6 +28,9 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
     BOOL _transitioningIntoFullScreen;
     BOOL _transitioningOutOfFullScreen;
     BOOL _isEditing;
+    __weak NSView *_observedView;
+    NSEdgeInsets _additionalToolbarInsets;
+    CGFloat _preferredScopeBarBaselineOffsetFromBottom;
 }
 
 @property (nonatomic, readonly, getter = isWindowInFullScreen) BOOL windowInFullScreen;
@@ -43,19 +46,23 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 @property (nonatomic) CGFloat preferredToolbarBaselineOffsetFromBottom;
 @property (nonatomic) CGFloat preferredSubtoolbarHeight;
 @property (nonatomic) CGFloat preferredScopeBarHeight;
+@property (nonatomic) CGFloat preferredScopeBarBaselineOffsetFromBottom;
 @property (nonatomic) UXBarPosition preferredSubtoolbarPosition;
 @property (nonatomic) CGFloat preferredSubtoolbarBaselineOffsetFromBottom;
+@property (nonatomic) NSEdgeInsets additionalToolbarInsets;
 @property (nonatomic) CGRect preferredInitialFrame;
+@property (nonatomic, weak, nullable) NSView *observedView;
 @property (nonatomic, readonly, nullable) NSResponder *preferredFirstResponder;
 
 - (void)didUpdateLayoutGuides;
 - (void)_animateView:(UXView *)view fromFrame:(CGRect)fromFrame toFrame:(CGRect)toFrame;
 - (void)_setupLayoutGuidesForView:(UXView *)view;
+- (void)_setupAdditionSafeAreaInsetsForView:(NSView *)view;
 - (BOOL)_requiresWindowForTransitionPreparation;
-- (id)_ancestorViewControllerOfClass:(Class)cls;
+- (nullable __kindof NSViewController *)_ancestorViewControllerOfClass:(Class)cls;
 - (CGRect)_defaultInitialFrame;
 - (void)_loadViewIfNotLoaded;
-- (void)_prepareForAnimationInContext:(id)context completion:(void (^)(void))completion;
+- (void)_prepareForAnimationInContext:(id)context completion:(nullable void (^)(void))completion;
 - (void)_startObservingFullScreenNotifications;
 - (void)_stopObservingFullScreenNotifications;
 - (void)_willEnterFullScreenNotification:(NSNotification *)notification;
@@ -73,6 +80,8 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 - (void)updateFirstResponderIfNeeded;
 - (void)windowDidRecalculateKeyViewLoop;
 - (void)windowWillRecalculateKeyViewLoop;
+- (void)viewSafeAreaInsetsDidChange;
+- (void)setIsEditing:(BOOL)isEditing;
 - (CGSize)preferredContentSizeCappedToSize:(CGSize)size;
 - (void)contentRepresentingViewControllerDidChange;
 @end
@@ -92,7 +101,7 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 @interface UXViewController (UXViewControllerTransitioning)
 
-- (void)prepareForTransitionWithContext:(id)context completion:(void (^)(void))completion;
+- (void)prepareForTransitionWithContext:(id)context completion:(nullable void (^)(void))completion;
 
 @end
 
@@ -102,7 +111,7 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 @property (nonatomic, getter = isTransitory) BOOL transitory;
 @property (nonatomic) BOOL hidesSourceListWhenPushed;
 @property (nonatomic) BOOL hidesInspectorWhenPushed;
-@property (nonatomic, readonly, nullable) UXViewController *inspectorViewController;
+@property (nonatomic, strong, nullable) UXViewController *inspectorViewController;
 @property (nonatomic, readonly, nullable) id <UXNavigationDestination> navigationDestination;
 
 - (void)updateForEqualNavigationDestination:(id<UXNavigationDestination>)navigationDestination;

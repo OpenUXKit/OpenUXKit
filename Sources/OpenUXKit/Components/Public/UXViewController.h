@@ -68,6 +68,7 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @property (nonatomic, strong, nullable) NSArray<__kindof UXBarButtonItem *> *subtoolbarItems;
 @property (nonatomic, strong, nullable) NSArray<__kindof UXBarButtonItem *> *scopeBarItems;
 @property (nonatomic, strong, readonly, nullable) UXNavigationItem *navigationItem;
+@property (nonatomic, strong, readonly, nullable) UXNavigationItem *navigationItemIfLoaded;
 @property (nonatomic, strong, readonly, nullable) UXNavigationController *navigationController;
 @property (nonatomic, strong, nullable) UXViewController *accessoryViewController;
 @property (nonatomic, strong, nullable) NSArray<__kindof UXBarButtonItem *> *accessoryBarItems;

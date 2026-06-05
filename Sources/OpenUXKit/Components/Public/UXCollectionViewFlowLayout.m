@@ -800,4 +800,22 @@ typedef NS_OPTIONS(uint16_t, UXFlowLayoutGridFlags) {
     return items;
 }
 
+#pragma mark - Frame helpers (data-aware)
+
+- (CGRect)_frameForHeaderInSection:(NSInteger)section usingData:(id)data {
+    UXCollectionViewLayoutAttributes *attributes = [self layoutAttributesForHeaderInSection:section];
+    return attributes ? attributes.frame : CGRectZero;
+}
+
+- (CGRect)_frameForFooterInSection:(NSInteger)section usingData:(id)data {
+    UXCollectionViewLayoutAttributes *attributes = [self layoutAttributesForFooterInSection:section];
+    return attributes ? attributes.frame : CGRectZero;
+}
+
+- (CGRect)_frameForItemAtSection:(NSInteger)section andRow:(NSInteger)row usingData:(id)data {
+    NSIndexPath *indexPath = [NSIndexPath indexPathForItem:row inSection:section];
+    UXCollectionViewLayoutAttributes *attributes = [self layoutAttributesForItemAtIndexPath:indexPath];
+    return attributes ? attributes.frame : CGRectZero;
+}
+
 @end

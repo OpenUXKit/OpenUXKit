@@ -24,7 +24,7 @@
 #import <OpenUXKit/UXViewController+Internal.h>
 #import <OpenUXKit/UXViewControllerTransitionCoordinator.h>
 #import <OpenUXKit/UXViewControllerTransitioning.h>
-#import <OpenUXKit/UXWindowController.h>
+#import <OpenUXKit/UXWindowController+Internal.h>
 #import <OpenUXKit/UXZoomingCrossfadeTransitionController.h>
 
 void *UXToolbarItemsObservationContext = &UXToolbarItemsObservationContext;
@@ -1586,7 +1586,7 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
     containedView.frame = frame;
 }
 
-- (void)_prepareViewController:(UXViewController *)viewController forAnimationInContext:(id)context completion:(void (^)(void))completion {
+- (void)_prepareViewController:(UXViewController *)viewController forAnimationInContext:(_UXViewControllerOneToOneTransitionContext *)context completion:(void (^)(void))completion {
     if (viewController) {
         [viewController _prepareForAnimationInContext:context completion:completion];
     } else {
@@ -2545,6 +2545,19 @@ static BOOL _allowToolbarCustomization = NO;
 
         previousViewController = viewController;
     }
+}
+
+@end
+
+@implementation UXNavigationController (Compatibility)
+
+- (NSArray<__kindof UXViewController *> *)px_popToViewControllerPrecedingViewController:(UXViewController *)viewController animated:(BOOL)animated {
+    NSArray<UXViewController *> *viewControllers = self.viewControllers;
+    NSUInteger index = [viewControllers indexOfObjectIdenticalTo:viewController];
+    if (index == 0 || index == NSNotFound) {
+        return nil;
+    }
+    return [self popToViewController:viewControllers[index - 1] animated:animated];
 }
 
 @end

@@ -654,4 +654,15 @@ typedef NS_ENUM(NSInteger, UXRearrangingInitiationMode) {
     return nil;
 }
 
+#pragma mark - SPI hooks
+
+- (void)_createdDraggingSession:(NSDraggingSession *)session forItemsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths {
+}
+
+- (void)_finishRearrangingForLocation:(CGPoint)location shouldComplete:(BOOL)shouldComplete {
+}
+
+- (void)_moveItemsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths toIndexPaths:(NSArray<NSIndexPath *> *)toIndexPaths {
+}
+
 @end

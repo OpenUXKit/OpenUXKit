@@ -900,4 +900,18 @@ withCompletionHandler:(void (^)(BOOL finished))completion {
     _accessibilityRoleDescription = accessibilityRoleDescription;
 }
 
+#pragma mark - Rearranging helpers
+
+- (NSInteger)dropPositionForPoint:(CGPoint)point withIndexPaths:(NSArray<NSIndexPath *> *)indexPaths movedToIndexPath:(NSIndexPath *)indexPath {
+    return 0;
+}
+
+- (NSArray<UXCollectionViewLayoutAttributes *> *)layoutAttributesForElementsInRect:(CGRect)rect withIndexPaths:(NSArray<NSIndexPath *> *)indexPaths exchangedWithIndexPaths:(NSArray<NSIndexPath *> *)exchangedIndexPaths {
+    return [self layoutAttributesForElementsInRect:rect];
+}
+
+- (NSArray<UXCollectionViewLayoutAttributes *> *)layoutAttributesForElementsInRect:(CGRect)rect withIndexPaths:(NSArray<NSIndexPath *> *)indexPaths movedToIndexPath:(NSIndexPath *)indexPath atPoint:(CGPoint)point {
+    return [self layoutAttributesForElementsInRect:rect];
+}
+
 @end

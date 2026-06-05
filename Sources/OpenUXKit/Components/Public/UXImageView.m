@@ -236,5 +236,18 @@
     return self.image.size;
 }
 
+- (double)_maximumEDRForDynamicRange:(NSImageDynamicRange)dynamicRange {
+    switch (dynamicRange) {
+        case NSImageDynamicRangeUnspecified:
+            return 1.0;
+        case NSImageDynamicRangeStandard:
+            return 1.0;
+        case NSImageDynamicRangeConstrainedHigh:
+            return 1.6;
+        case NSImageDynamicRangeHigh:
+            return self.window.screen.maximumExtendedDynamicRangeColorComponentValue ?: 1.0;
+    }
+    return 1.0;
+}
 
 @end

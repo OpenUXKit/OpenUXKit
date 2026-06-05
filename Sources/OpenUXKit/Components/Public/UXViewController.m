@@ -276,7 +276,7 @@
     return NSEdgeInsetsMake(0, 0, 0, 0);
 }
 
-- (id)_ancestorViewControllerOfClass:(Class)class {
+- (__kindof NSViewController *)_ancestorViewControllerOfClass:(Class)class {
     NSViewController *parentViewController = self.parentViewController;
 
     if ([parentViewController isKindOfClass:class]) {
@@ -355,6 +355,83 @@
 
 - (void)_prepareForAnimationInContext:(id)context completion:(void (^)(void))completion {
     [self prepareForTransitionWithContext:context completion:completion];
+}
+
+static void *kSafeAreaInsetsObserverContext = &kSafeAreaInsetsObserverContext;
+
+- (NSView *)observedView {
+    return _observedView;
+}
+
+- (void)setObservedView:(NSView *)observedView {
+    if (_observedView == observedView) {
+        return;
+    }
+    [_observedView removeObserver:self forKeyPath:@"safeAreaInsets" context:kSafeAreaInsetsObserverContext];
+    _observedView = observedView;
+    [observedView addObserver:self
+                   forKeyPath:@"safeAreaInsets"
+                      options:0
+                      context:kSafeAreaInsetsObserverContext];
+}
+
+- (NSEdgeInsets)additionalToolbarInsets {
+    return _additionalToolbarInsets;
+}
+
+- (void)setAdditionalToolbarInsets:(NSEdgeInsets)additionalToolbarInsets {
+    if (NSEdgeInsetsEqual(_additionalToolbarInsets, additionalToolbarInsets)) {
+        return;
+    }
+    _additionalToolbarInsets = additionalToolbarInsets;
+    NSView *view = self.viewIfLoaded;
+    if (view) {
+        [self _setupAdditionSafeAreaInsetsForView:view];
+    }
+}
+
+- (CGFloat)preferredScopeBarBaselineOffsetFromBottom {
+    return _preferredScopeBarBaselineOffsetFromBottom;
+}
+
+- (void)setPreferredScopeBarBaselineOffsetFromBottom:(CGFloat)preferredScopeBarBaselineOffsetFromBottom {
+    _preferredScopeBarBaselineOffsetFromBottom = preferredScopeBarBaselineOffsetFromBottom;
+}
+
+- (void)_setupAdditionSafeAreaInsetsForView:(NSView *)view {
+    view.additionalSafeAreaInsets = self.additionalToolbarInsets;
+}
+
+- (void)viewSafeAreaInsetsDidChange {
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey, id> *)change context:(void *)context {
+    if (context == kSafeAreaInsetsObserverContext) {
+        [self viewSafeAreaInsetsDidChange];
+    } else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
+}
+
+- (void)removeFromParentViewController {
+    [super removeFromParentViewController];
+}
+
+- (NSString *)description {
+    NSView *view = self.viewIfLoaded;
+    NSString *viewDescription;
+    if (view) {
+        viewDescription = [NSString stringWithFormat:@"view = <%@: %p; frame = %@>",
+                           NSStringFromClass(view.class), view, NSStringFromRect(view.frame)];
+    } else {
+        viewDescription = @"(view not loaded)";
+    }
+    return [NSString stringWithFormat:@"<%@: %p; title = %@, %@>",
+            NSStringFromClass(self.class), self, self.title, viewDescription];
+}
+
+- (void)dealloc {
+    self.observedView = nil;
 }
 
 - (UXBarPosition)preferredToolbarPosition {
@@ -577,6 +654,10 @@
 
 @implementation UXViewController (UXNavigationControllerItem)
 
+- (UXNavigationItem *)navigationItemIfLoaded {
+    return [self valueForKey:@"_navigationItem"];
+}
+
 - (void)setHidesBottomBarWhenPushed:(BOOL)hidesBottomBarWhenPushed {
     _hidesBottomBarWhenPushed = hidesBottomBarWhenPushed;
 }
@@ -778,7 +859,15 @@
 }
 
 - (UXViewController *)inspectorViewController {
-    return nil;
+    return objc_getAssociatedObject(self, @selector(inspectorViewController));
+}
+
+- (void)setInspectorViewController:(UXViewController *)inspectorViewController {
+    objc_setAssociatedObject(self, @selector(inspectorViewController), inspectorViewController, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (void)setIsEditing:(BOOL)isEditing {
+    _isEditing = isEditing;
 }
 
 - (BOOL)canProvideViewControllersForNavigationDestination:(id<UXNavigationDestination>)navigationDestination {

@@ -2,6 +2,4 @@
 
 @implementation UXPopover
 
-
-
 @end

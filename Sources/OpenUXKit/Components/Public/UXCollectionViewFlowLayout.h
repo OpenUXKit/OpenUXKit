@@ -2,10 +2,23 @@
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
+@class UXCollectionView, UXCollectionViewFlowLayout;
+
 typedef NS_ENUM(NSInteger, UXCollectionViewScrollDirection) {
     UXCollectionViewScrollDirectionVertical = 0,
     UXCollectionViewScrollDirectionHorizontal = 1,
-};
+} NS_SWIFT_NAME(UXCollectionView.ScrollDirection);
+
+NS_SWIFT_UI_ACTOR
+@protocol UXCollectionViewDelegateFlowLayout <NSObject>
+@optional
+- (CGSize)collectionView:(UXCollectionView *)collectionView layout:(UXCollectionViewLayout *)layout sizeForItemAtIndexPath:(NSIndexPath *)indexPath;
+- (NSEdgeInsets)collectionView:(UXCollectionView *)collectionView layout:(UXCollectionViewLayout *)layout insetForSectionAtIndex:(NSInteger)section;
+- (CGFloat)collectionView:(UXCollectionView *)collectionView layout:(UXCollectionViewLayout *)layout minimumLineSpacingForSectionAtIndex:(NSInteger)section;
+- (CGFloat)collectionView:(UXCollectionView *)collectionView layout:(UXCollectionViewLayout *)layout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section;
+- (CGSize)collectionView:(UXCollectionView *)collectionView layout:(UXCollectionViewLayout *)layout referenceSizeForHeaderInSection:(NSInteger)section;
+- (CGSize)collectionView:(UXCollectionView *)collectionView layout:(UXCollectionViewLayout *)layout referenceSizeForFooterInSection:(NSInteger)section;
+@end
 
 UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @interface UXCollectionViewFlowLayout : UXCollectionViewLayout

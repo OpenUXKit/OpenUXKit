@@ -1,6 +1,6 @@
 #import <OpenUXKit/UXNavigationController.h>
 
-NS_ASSUME_NONNULL_BEGIN
+NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 UXKIT_EXTERN void *UXToolbarItemsObservationContext;
 UXKIT_EXTERN void *UXSubtoolbarItemsObservationContext;
@@ -45,9 +45,10 @@ typedef struct {
     UXNavigationControllerDelegateFlags _delegateFlags;    // 64 = 0x40
     BOOL _isPerformingToolbarsChanges;    // 68 = 0x44
     UXNavigationControllerToolbarsNeedUpdateFlags _toolbarsNeedUpdateFlags;    // 69 = 0x45
-    NSArray *_toolbarDefaultItemIdentifiers;
-    NSArray *_toolbarAllowedItemIdentifiers;
 }
+@property (nonatomic, copy, nullable) NSArray<NSToolbarItemIdentifier> *toolbarDefaultItemIdentifiers;
+@property (nonatomic, copy, nullable) NSArray<NSToolbarItemIdentifier> *toolbarAllowedItemIdentifiers;
+@property (nonatomic, copy, nullable) NSDictionary<NSToolbarItemIdentifier, NSToolbarItem *> *toolbarItemByIdentifier;
 @property (nonatomic, class) BOOL useIndividualNSToolbarItems;
 @property (nonatomic, class) BOOL useNSSearchToolbarItem;
 @property (nonatomic, class) BOOL allowToolbarCustomization;
@@ -101,29 +102,29 @@ typedef struct {
 + (NSSet<NSString *> *)keyPathsForValuesAffectingPreferredContentSize;
 - (void)_endObservingCurrentTopViewController;
 - (void)_beginObservingCurrentTopViewController;
-- (UXBarButtonItem *)_backItemWithTitle:(NSString *)title target:(id)target action:(SEL)action;
+- (UXBarButtonItem *)_backItemWithTitle:(NSString *)title target:(nullable id)target action:(nullable SEL)action;
 - (void)_addBackBarItemFromNavigationItem:(UXNavigationItem *)fromNavigationItem toNavigationItem:(UXNavigationItem *)toNavigationItem;
 - (void)_setupLayoutGuidesForViewController:(UXViewController *)viewController;
-- (id)_customInteractionControllerForAnimationController:(id<UXViewControllerAnimatedTransitioning>)animationController transition:(NSUInteger)transition;
-- (id)_customAnimationControllerForOperation:(UXNavigationControllerOperation)operation fromViewController:(UXViewController *)fromViewController toViewController:(UXViewController *)toViewController transition:(NSUInteger)transition;
-- (id)_contextForTransitionOperation:(UXNavigationControllerOperation)operation fromViewController:(UXViewController *)fromViewController toViewController:(UXViewController *)toViewController transition:(NSUInteger)transition;
+- (nullable id<UXViewControllerInteractiveTransitioning>)_customInteractionControllerForAnimationController:(id<UXViewControllerAnimatedTransitioning>)animationController transition:(NSUInteger)transition;
+- (nullable id<UXViewControllerAnimatedTransitioning>)_customAnimationControllerForOperation:(UXNavigationControllerOperation)operation fromViewController:(UXViewController *)fromViewController toViewController:(UXViewController *)toViewController transition:(NSUInteger)transition;
+- (_UXViewControllerOneToOneTransitionContext *)_contextForTransitionOperation:(UXNavigationControllerOperation)operation fromViewController:(nullable UXViewController *)fromViewController toViewController:(nullable UXViewController *)toViewController transition:(NSUInteger)transition;
 - (void)_handleInteractiveUpdateWithEvent:(NSEvent *)event;
-- (void)_beginTransitionWithContext:(id)context operation:(UXNavigationControllerOperation)operation;
+- (void)_beginTransitionWithContext:(_UXViewControllerOneToOneTransitionContext *)context operation:(UXNavigationControllerOperation)operation;
 - (void)_removeConstraintsForContainedView:(UXView *)containedView;
 - (void)_addConstraintsForContainedView:(UXView *)containedView leftInset:(CGFloat)leftInset;
-- (void)_prepareViewController:(nullable UXViewController *)viewController forAnimationInContext:(id)context completion:(void (^)(void))completion;
+- (void)_prepareViewController:(nullable UXViewController *)viewController forAnimationInContext:(_UXViewControllerOneToOneTransitionContext *)context completion:(void (^)(void))completion;
 - (void)_setViewControllers:(NSArray<UXViewController *> *)viewControllers animated:(BOOL)animated;
-- (NSArray *)_popToViewController:(UXViewController *)viewController transition:(NSUInteger)transition;
+- (nullable NSArray<__kindof UXViewController *> *)_popToViewController:(UXViewController *)viewController transition:(NSUInteger)transition;
 - (void)_pushViewController:(UXViewController *)viewController transition:(NSUInteger)transition;
-- (NSArray *)_dequeueNavigationRequest;
-- (id)_performOrEnqueueNavigationRequest:(_UXNavigationRequest *)navigationRequest;
+- (nullable NSArray<__kindof UXViewController *> *)_dequeueNavigationRequest;
+- (nullable NSArray<__kindof UXViewController *> *)_performOrEnqueueNavigationRequest:(_UXNavigationRequest *)navigationRequest;
 - (BOOL)_hasNoNavigationRequests;
 - (void)_removeAllNavigationRequests;
-- (id)_checkinPopNavigationRequest:(_UXNavigationRequest *)navigationRequest;
+- (nullable NSArray<__kindof UXViewController *> *)_checkinPopNavigationRequest:(_UXNavigationRequest *)navigationRequest;
 - (void)_checkinPushNavigationRequest:(_UXNavigationRequest *)navigationRequest;
 - (void)_checkinSetNavigationRequest:(_UXNavigationRequest *)navigationRequest;
-- (NSArray *)_performNavigationRequest:(_UXNavigationRequest *)navigationRequest;
-- (void)__back:(id)sender;
+- (nullable NSArray<__kindof UXViewController *> *)_performNavigationRequest:(_UXNavigationRequest *)navigationRequest;
+- (void)__back:(nullable id)sender;
 - (void)_updateToolbarAppearanceUsingTopViewController:(UXViewController *)topViewController animated:(BOOL)animated duration:(NSTimeInterval)duration;
 - (void)_updateToolbarVisibilityUsingTopViewController:(UXViewController *)topViewController animated:(BOOL)animated duration:(NSTimeInterval)duration animateSubtree:(BOOL)animateSubtree;
 - (void)_updateToolbarsPositionsUsingTopViewController:(UXViewController *)topViewController;
@@ -164,4 +165,4 @@ typedef struct {
 @property (nonatomic, readonly, nullable) UXViewController *inspectorViewController;
 @end
 
-NS_ASSUME_NONNULL_END
+NS_HEADER_AUDIT_END(nullability, sendability)

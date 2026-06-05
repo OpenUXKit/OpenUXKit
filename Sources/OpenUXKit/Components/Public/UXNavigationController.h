@@ -50,6 +50,12 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 
 @end
 
+@interface UXNavigationController (Compatibility)
+
+- (nullable NSArray<__kindof UXViewController *> *)px_popToViewControllerPrecedingViewController:(UXViewController *)viewController animated:(BOOL)animated;
+
+@end
+
 NS_SWIFT_UI_ACTOR
 @protocol UXNavigationControllerDelegate <NSObject>
 

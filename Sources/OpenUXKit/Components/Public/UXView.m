@@ -418,13 +418,44 @@ void commonInit(UXView *view) {
     return [self.viewControllerProxy menuForEvent:event];
 }
 
-//- (NSArray *)accessibilityChildren {
-//    if (self.accessibilityChildrenHidden) {
-//        return nil;
-//    } else {
-//        return [super accessibilityChildren];
-//    }
-//}
+- (NSArray *)accessibilityChildren {
+    if (self.accessibilityChildrenHidden) {
+        return nil;
+    }
+    return [super accessibilityChildren];
+}
+
+- (BOOL)accessibilityChildrenHidden {
+    return _accessibilityChildrenHidden;
+}
+
+- (void)setAccessibilityChildrenHidden:(BOOL)accessibilityChildrenHidden {
+    _accessibilityChildrenHidden = accessibilityChildrenHidden;
+}
+
+- (BOOL)isOpaque {
+    return _opaque;
+}
+
+- (void)setOpaque:(BOOL)opaque {
+    _opaque = opaque;
+}
+
+- (NSEdgeInsets)safeAreaInsets {
+    NSEdgeInsets insets = [super safeAreaInsets];
+    if (self.wantsSafeAreaInsetsFrozen) {
+        return _frozenSafeAreaInsets;
+    }
+    return insets;
+}
+
+- (NSEdgeInsets)frozenSafeAreaInsets {
+    return _frozenSafeAreaInsets;
+}
+
+- (void)setFrozenSafeAreaInsets:(NSEdgeInsets)frozenSafeAreaInsets {
+    _frozenSafeAreaInsets = frozenSafeAreaInsets;
+}
 
 
 
@@ -442,6 +473,50 @@ void commonInit(UXView *view) {
     return [objc_getAssociatedObject(self, @selector(wantsSafeAreaInsetsFrozen)) boolValue];
 }
 
+#pragma mark - Debug description
 
+- (id)_superDescription {
+    return [super description];
+}
+
+- (id)_autoresizingDescription {
+    NSAutoresizingMaskOptions mask = self.autoresizingMask;
+    NSMutableArray<NSString *> *parts = [NSMutableArray array];
+    if (mask & NSViewMinXMargin)   [parts addObject:@"LM"];
+    if (mask & NSViewWidthSizable) [parts addObject:@"W"];
+    if (mask & NSViewMaxXMargin)   [parts addObject:@"RM"];
+    if (mask & NSViewMinYMargin)   [parts addObject:@"TM"];
+    if (mask & NSViewHeightSizable) [parts addObject:@"H"];
+    if (mask & NSViewMaxYMargin)   [parts addObject:@"BM"];
+    return parts.count ? [parts componentsJoinedByString:@"+"] : @"NONE";
+}
+
+- (id)_infoForWindow {
+    NSWindow *window = self.window;
+    if (!window) {
+        return @"<no window>";
+    }
+    return [NSString stringWithFormat:@"<%@: %p; frame = %@>",
+            NSStringFromClass(window.class), window, NSStringFromRect(window.frame)];
+}
+
+- (id)_infoWithParents {
+    NSMutableArray<NSString *> *chain = [NSMutableArray array];
+    NSView *view = self;
+    while (view) {
+        [chain addObject:[NSString stringWithFormat:@"<%@: %p>", NSStringFromClass(view.class), view]];
+        view = view.superview;
+    }
+    return [chain componentsJoinedByString:@" -> "];
+}
+
+- (id)_infoWithChildren {
+    NSMutableString *info = [NSMutableString stringWithFormat:@"<%@: %p>",
+                             NSStringFromClass(self.class), self];
+    for (NSView *subview in self.subviews) {
+        [info appendFormat:@"\n  <%@: %p>", NSStringFromClass(subview.class), subview];
+    }
+    return info;
+}
 
 @end
