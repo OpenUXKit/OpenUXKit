@@ -1,5 +1,6 @@
 #import <OpenUXKit/UXTableLayout.h>
 #import <OpenUXKit/UXCollectionView.h>
+#import <OpenUXKit/UXCollectionViewFlowLayout.h>
 
 @interface UXTableLayout () {
     BOOL _floatingHeadersDisabled;
@@ -15,6 +16,16 @@
 @synthesize floatingHeadersDisabled = _floatingHeadersDisabled;
 @synthesize showsSectionHeaderForSingleSection = _showsSectionHeaderForSingleSection;
 @synthesize showsSectionFooterForSingleSection = _showsSectionFooterForSingleSection;
+@synthesize layoutAttributesArray = _layoutAttributesArray;
+@synthesize headerAttributesByIndexPath = _headerAttributesByIndexPath;
+
+- (id)delegateFlowLayout {
+    id delegate = self.collectionView.delegate;
+    if ([delegate conformsToProtocol:@protocol(UXCollectionViewDelegateFlowLayout)]) {
+        return delegate;
+    }
+    return nil;
+}
 
 - (instancetype)init {
     self = [super init];
