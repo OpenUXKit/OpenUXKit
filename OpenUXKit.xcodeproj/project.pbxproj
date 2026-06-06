@@ -14,8 +14,6 @@
 		E9000000000000000000A002 /* Exceptions for "Sources/OpenUXKit" folder in "OpenUXKit" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				include/OpenUXKit/symbollink.sh,
-				PrivateHeaders/OpenUXKit/symbollink.sh,
 			);
 			publicHeaders = (
 				Commons/Public/UXBase.h,
@@ -336,6 +334,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Sources/OpenUXKit/PrivateHeaders/OpenUXKit";
 			};
 			name = Debug;
 		};
@@ -369,6 +368,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Sources/OpenUXKit/PrivateHeaders/OpenUXKit";
 			};
 			name = Release;
 		};

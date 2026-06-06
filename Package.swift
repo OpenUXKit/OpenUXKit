@@ -37,8 +37,10 @@ let package = Package(
             name: "OpenUXKit",
             cSettings: [
                 .headerSearchPath("PrivateHeaders"),
+                .headerSearchPath("PrivateHeaders/OpenUXKit"),
                 .headerSearchPath("Components/Private"),
                 .headerSearchPath("Categories/Private"),
+                .headerSearchPath("Protocols/Private"),
                 .headerSearchPath("Commons/Private"),
                 .headerSearchPath("Misc/Private"),
             ]
