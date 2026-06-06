@@ -1,11 +1,16 @@
 #import "UXBarButtonItem+Internal.h"
-#import <OpenUXKit/UXView.h>
+#import "UXView.h"
 #import "_UXButton.h"
-#import <OpenUXKit/UXLabel.h>
-#import <OpenUXKit/NSView+UXKit.h>
-#import <OpenUXKit/UXViewController.h>
-#import <OpenUXKit/UXKitDefines.h>
+#import "UXLabel.h"
+#import "NSView+UXKit.h"
+#import "UXViewController.h"
+#import "UXKitDefines.h"
 #import "UXKitPrivateUtilites.h"
+
+const UXBarButtonItemVisibilityPriority UXBarButtonItemVisibilityPriorityStandard = 0.0f;
+const UXBarButtonItemVisibilityPriority UXBarButtonItemVisibilityPriorityLow = -1000.0f;
+const UXBarButtonItemVisibilityPriority UXBarButtonItemVisibilityPriorityHigh = 1000.0f;
+const UXBarButtonItemVisibilityPriority UXBarButtonItemVisibilityPriorityUser = 2000.0f;
 
 @implementation UXBarButtonItem
 @synthesize tintColor;

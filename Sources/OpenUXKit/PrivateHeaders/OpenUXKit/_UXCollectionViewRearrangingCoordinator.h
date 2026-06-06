@@ -1,0 +1,1 @@
+../../Components/Private/_UXCollectionViewRearrangingCoordinator.h

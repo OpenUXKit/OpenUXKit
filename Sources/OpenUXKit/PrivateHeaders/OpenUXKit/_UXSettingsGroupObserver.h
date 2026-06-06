@@ -1,1 +1,1 @@
-../../Protocols/Public/_UXSettingsGroupObserver.h
+../../Protocols/Private/_UXSettingsGroupObserver.h

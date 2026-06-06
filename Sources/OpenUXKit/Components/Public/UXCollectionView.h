@@ -46,16 +46,6 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @property (nonatomic, strong, nullable) NSIndexPath *lastRightClickedIndexPath;
 @property (nonatomic, copy, nullable) void (^scrollingRequest)(void);
 
-#pragma mark - Rearranging
-
-@property (nonatomic, getter=isRearranging_, readonly) BOOL rearranging_;
-@property (nonatomic) BOOL rearrangingEnabled_;
-@property (nonatomic) BOOL rearrangingAllowAutoscroll_;
-@property (nonatomic) BOOL rearrangingExternalDropEnabled_;
-@property (nonatomic) NSInteger rearrangingInitiationMode_;
-@property (nonatomic) BOOL rearrangingContinuouslyUpdateInsideCells_;
-@property (nonatomic) CGFloat rearrangingPreviewDelay_;
-
 #pragma mark - Reload
 
 - (void)reloadData;
@@ -178,10 +168,6 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 
 - (NSInteger)allowedDropPositionsForItemsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths movedToIndexPath:(NSIndexPath *)indexPath;
 - (NSUInteger)dragOperationForItemsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths movedOntoItemAtIndexPath:(NSIndexPath *)indexPath;
-
-#pragma mark - Rearranging
-
-- (void)rearrangingCoordinatorReloadLayout_;
 
 #pragma mark - Accessibility
 

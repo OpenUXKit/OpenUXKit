@@ -1,4 +1,4 @@
-#import <OpenUXKit/UXLabel.h>
+#import "UXLabel.h"
 #import "UXLabel+Internal.h"
 
 @implementation UXLabel
@@ -53,11 +53,11 @@
     [NSLayoutConstraint activateConstraints:activateConstraints];
 }
 
-- (void)setLineBreakMode:(NSUInteger)lineBreakMode {
+- (void)setLineBreakMode:(NSLineBreakMode)lineBreakMode {
     _concreteTextField.lineBreakMode = lineBreakMode;
 }
 
-- (void)setTextAlignment:(NSInteger)textAlignment {
+- (void)setTextAlignment:(NSTextAlignment)textAlignment {
     _concreteTextField.alignment = textAlignment;
 }
 
@@ -163,11 +163,11 @@
     _concreteTextField.usesSingleLineMode = numberOfLines == 1;
 }
 
-- (NSInteger)textAlignment {
+- (NSTextAlignment)textAlignment {
     return _concreteTextField.alignment;
 }
 
-- (NSUInteger)lineBreakMode {
+- (NSLineBreakMode)lineBreakMode {
     return _concreteTextField.lineBreakMode;
 }
 

@@ -1,4 +1,4 @@
-#import <OpenUXKit/UXCollectionView.h>
+#import "UXCollectionView.h"
 
 @class UXCollectionViewData, UXCollectionViewUpdate, UXCollectionViewLayoutInvalidationContext, UXCollectionViewIndexPathsSet, UXCollectionViewMutableIndexPathsSet, _UXCollectionViewRearrangingCoordinator;
 
@@ -110,8 +110,17 @@ NS_SWIFT_UI_ACTOR
 - (BOOL)_highlightColorDependsOnWindowState;
 - (BOOL)_selectionBorderShouldUsePrimaryColor;
 
-#pragma mark - Rearranging coordinator
+#pragma mark - Rearranging
 
+@property (nonatomic, readonly) BOOL isRearranging_;
+@property (nonatomic) BOOL rearrangingEnabled_;
+@property (nonatomic) BOOL rearrangingAllowAutoscroll_;
+@property (nonatomic) BOOL rearrangingExternalDropEnabled_;
+@property (nonatomic) NSInteger rearrangingInitiationMode_;
+@property (nonatomic) BOOL rearrangingContinuouslyUpdateInsideCells_;
+@property (nonatomic) CGFloat rearrangingPreviewDelay_;
+
+- (void)rearrangingCoordinatorReloadLayout_;
 - (nullable _UXCollectionViewRearrangingCoordinator *)_rearrangingCoordinator;
 
 #pragma mark - Batch updates

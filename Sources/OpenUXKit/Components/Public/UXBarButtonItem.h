@@ -12,6 +12,15 @@ typedef NS_ENUM(NSInteger, UXBarButtonItemStyle) {
     UXBarButtonItemStyleDone,
 } NS_SWIFT_NAME(UXBarButtonItem.Style);
 
+typedef NSString *UXBarButtonItemIdentifier NS_TYPED_EXTENSIBLE_ENUM NS_SWIFT_NAME(UXBarButtonItem.Identifier);
+
+typedef float UXBarButtonItemVisibilityPriority NS_TYPED_EXTENSIBLE_ENUM NS_SWIFT_NAME(UXBarButtonItem.VisibilityPriority);
+
+UXKIT_EXTERN const UXBarButtonItemVisibilityPriority UXBarButtonItemVisibilityPriorityStandard;
+UXKIT_EXTERN const UXBarButtonItemVisibilityPriority UXBarButtonItemVisibilityPriorityLow;
+UXKIT_EXTERN const UXBarButtonItemVisibilityPriority UXBarButtonItemVisibilityPriorityHigh;
+UXKIT_EXTERN const UXBarButtonItemVisibilityPriority UXBarButtonItemVisibilityPriorityUser;
+
 typedef NS_ENUM(NSInteger, UXBarButtonSystemItem) {
     UXBarButtonSystemItemNone = -1,
     UXBarButtonSystemItemDone,
@@ -45,7 +54,7 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @interface UXBarButtonItem : UXBarItem <UXKitAppearance>
 
 @property (nonatomic, copy, nullable) NSString *label;
-@property (nonatomic, copy, nullable) NSString *identifier;
+@property (nonatomic, copy, nullable) UXBarButtonItemIdentifier identifier;
 @property (nonatomic, strong, nullable) __kindof NSView *customView;
 @property (nonatomic) CGFloat width;
 @property (nonatomic) UXBarButtonItemStyle style;
@@ -57,7 +66,7 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @property (nonatomic, weak, nullable) id target;
 @property (nonatomic, nullable) SEL action;
 @property (nonatomic, copy, nullable) NSColor *backgroundColor;
-@property (nonatomic) float visibilityPriority;
+@property (nonatomic) UXBarButtonItemVisibilityPriority visibilityPriority;
 @property (nonatomic, weak, nullable) NSToolbarItem *toolbarItem;
 @property (nonatomic, getter=isNavigational) BOOL navigational;
 @property (nonatomic, strong, nullable) NSMenu *menu;

@@ -1,1 +1,1 @@
-../../Components/Public/UXCollectionViewLayoutAccessibility.h
+../../Components/Private/UXCollectionViewLayoutAccessibility.h

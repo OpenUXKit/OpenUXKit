@@ -1,1 +1,1 @@
-../../Components/Public/UXCollectionViewFilePromiseProvider.h
+../../Components/Private/UXCollectionViewFilePromiseProvider.h

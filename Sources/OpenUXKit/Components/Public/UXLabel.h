@@ -19,8 +19,8 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @property (nonatomic) BOOL centerVertically;
 @property (nonatomic, getter = isHighlighted) BOOL highlighted;
 @property (nonatomic) CGFloat preferredMaxLayoutWidth;
-@property (nonatomic) NSInteger textAlignment;
-@property (nonatomic) NSUInteger lineBreakMode;
+@property (nonatomic) NSTextAlignment textAlignment;
+@property (nonatomic) NSLineBreakMode lineBreakMode;
 
 - (CGRect)textRectForBounds:(CGRect)bounds limitedToNumberOfLines:(NSInteger)numberOfLines;
 - (__kindof NSCell *)textFieldCell;

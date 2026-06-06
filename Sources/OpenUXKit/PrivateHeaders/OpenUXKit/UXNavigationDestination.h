@@ -1,1 +1,1 @@
-../../Protocols/Public/UXNavigationDestination.h
+../../Protocols/Private/UXNavigationDestination.h

@@ -1,1 +1,1 @@
-../../Components/Public/UXCollectionClipView.h
+../../Components/Private/UXCollectionClipView.h

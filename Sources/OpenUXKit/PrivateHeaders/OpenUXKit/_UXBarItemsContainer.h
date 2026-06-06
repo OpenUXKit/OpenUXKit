@@ -1,1 +1,1 @@
-../../Protocols/Public/_UXBarItemsContainer.h
+../../Protocols/Private/_UXBarItemsContainer.h

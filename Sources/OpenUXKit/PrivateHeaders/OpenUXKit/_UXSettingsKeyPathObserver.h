@@ -1,1 +1,1 @@
-../../Protocols/Public/_UXSettingsKeyPathObserver.h
+../../Protocols/Private/_UXSettingsKeyPathObserver.h
