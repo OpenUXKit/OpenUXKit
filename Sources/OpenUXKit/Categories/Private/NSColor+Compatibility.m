@@ -1,4 +1,4 @@
-#import <OpenUXKit/NSColor+Compatibility.h>
+#import "NSColor+Compatibility.h"
 
 @implementation NSColor (Compatibility)
 

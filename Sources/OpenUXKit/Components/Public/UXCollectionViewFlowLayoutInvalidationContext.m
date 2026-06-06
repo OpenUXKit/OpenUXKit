@@ -1,4 +1,4 @@
-#import <OpenUXKit/UXCollectionViewFlowLayoutInvalidationContext.h>
+#import "UXCollectionViewFlowLayoutInvalidationContext.h"
 #import "UXCollectionViewFlowLayoutInvalidationContext+Internal.h"
 
 @implementation UXCollectionViewFlowLayoutInvalidationContext

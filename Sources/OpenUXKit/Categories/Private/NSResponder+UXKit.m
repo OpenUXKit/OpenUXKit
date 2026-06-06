@@ -1,4 +1,4 @@
-#import <OpenUXKit/NSResponder+UXKit.h>
+#import "NSResponder+UXKit.h"
 
 
 @implementation NSResponder (UXKit)

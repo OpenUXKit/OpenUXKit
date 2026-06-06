@@ -5,7 +5,7 @@
 //  Created by JH on 2024/4/7.
 //
 
-#import <OpenUXKit/NSView+UXKit.h>
+#import "NSView+UXKit.h"
 #import <objc/runtime.h>
 
 @implementation NSView (UXKit)

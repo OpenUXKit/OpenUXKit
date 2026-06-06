@@ -5,7 +5,7 @@
 #import "_UXSourceSplitViewSpringLoadingView.h"
 #import "NSView+PrivateSPI.h"
 #import "NSWindow+PrivateSPI.h"
-#import <OpenUXKit/NSWindow+UXKit.h>
+#import "NSWindow+UXKit.h"
 #import "UXKitPrivateUtilites.h"
 
 

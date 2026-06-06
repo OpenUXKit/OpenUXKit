@@ -1,4 +1,4 @@
-#import <OpenUXKit/NSVisualEffectView+Compatibility.h>
+#import "NSVisualEffectView+Compatibility.h"
 
 @implementation NSVisualEffectView (Compatibility)
 

@@ -1,5 +1,5 @@
 #import "_UXCollectionViewSectionItemIndexes.h"
-#import <OpenUXKit/NSIndexPath+UXCollectionViewAdditions.h>
+#import "NSIndexPath+UXCollectionViewAdditions.h"
 #import "UXKitPrivateUtilites.h"
 
 @interface _UXCollectionViewSectionItemIndexes () {

@@ -5,7 +5,7 @@
 //  Created by JH on 2024/4/15.
 //
 
-#import <OpenUXKit/UXViewController.h>
+#import "UXViewController.h"
 #import "_UXLayoutSpacer.h"
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)

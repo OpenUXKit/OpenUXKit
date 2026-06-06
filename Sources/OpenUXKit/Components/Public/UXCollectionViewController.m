@@ -1,7 +1,7 @@
-#import <OpenUXKit/UXCollectionViewController.h>
+#import "UXCollectionViewController.h"
 #import "UXCollectionViewController+Internal.h"
-#import <OpenUXKit/UXCollectionView.h>
-#import <OpenUXKit/UXCollectionViewLayout.h>
+#import "UXCollectionView.h"
+#import "UXCollectionViewLayout.h"
 
 @interface UXCollectionView (UXCollectionViewControllerSPI)
 - (void)setScrollViewDelegate:(nullable id)delegate;

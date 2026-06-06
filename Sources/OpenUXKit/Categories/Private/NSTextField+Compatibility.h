@@ -1,5 +1,5 @@
 #import <AppKit/AppKit.h>
-#import <OpenUXKit/UITextInputTraits.h>
+#import "UITextInputTraits.h"
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 

@@ -1,6 +1,6 @@
-#import <OpenUXKit/UXTableLayout.h>
-#import <OpenUXKit/UXCollectionView.h>
-#import <OpenUXKit/UXCollectionViewFlowLayout.h>
+#import "UXTableLayout.h"
+#import "UXCollectionView.h"
+#import "UXCollectionViewFlowLayout.h"
 
 @interface UXTableLayout () {
     BOOL _floatingHeadersDisabled;

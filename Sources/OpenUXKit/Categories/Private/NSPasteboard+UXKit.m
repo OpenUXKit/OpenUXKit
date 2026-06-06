@@ -1,4 +1,4 @@
-#import <OpenUXKit/NSPasteboard+UXKit.h>
+#import "NSPasteboard+UXKit.h"
 #import <objc/runtime.h>
 
 static const char kUXSourceIdentifierAssociationKey;

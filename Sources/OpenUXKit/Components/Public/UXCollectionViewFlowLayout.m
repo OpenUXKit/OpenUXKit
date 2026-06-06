@@ -1,9 +1,9 @@
-#import <OpenUXKit/UXCollectionViewFlowLayout.h>
+#import "UXCollectionViewFlowLayout.h"
 #import "UXCollectionViewFlowLayout+Internal.h"
-#import <OpenUXKit/UXCollectionViewFlowLayoutInvalidationContext.h>
-#import <OpenUXKit/UXCollectionViewLayoutAttributes.h>
+#import "UXCollectionViewFlowLayoutInvalidationContext.h"
+#import "UXCollectionViewLayoutAttributes.h"
 #import "UXCollectionViewLayoutAttributes+Internal.h"
-#import <OpenUXKit/UXCollectionView.h>
+#import "UXCollectionView.h"
 #import "_UXFlowLayoutInfo.h"
 #import "_UXFlowLayoutSection.h"
 #import "_UXFlowLayoutRow.h"

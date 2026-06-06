@@ -1,9 +1,9 @@
-#import <OpenUXKit/UXWindowToolbarController.h>
-#import <OpenUXKit/UXNavigationItem.h>
+#import "UXWindowToolbarController.h"
+#import "UXNavigationItem.h"
 #import "UXNavigationItem+Internal.h"
-#import <OpenUXKit/UXNavigationController.h>
+#import "UXNavigationController.h"
 #import "UXNavigationController+Internal.h"
-#import <OpenUXKit/UXBarButtonItem.h>
+#import "UXBarButtonItem.h"
 #import "UXBarButtonItem+Internal.h"
 
 static NSString *const UXWindowToolbarCenteredItemIdentifier = @"UXWindowToolbarCenteredItem";

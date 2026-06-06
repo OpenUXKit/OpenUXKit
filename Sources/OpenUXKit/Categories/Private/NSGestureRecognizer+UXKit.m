@@ -1,4 +1,4 @@
-#import <OpenUXKit/NSGestureRecognizer+UXKit.h>
+#import "NSGestureRecognizer+UXKit.h"
 #import <objc/runtime.h>
 
 @interface NSGestureRecognizer (UXKitSPI)

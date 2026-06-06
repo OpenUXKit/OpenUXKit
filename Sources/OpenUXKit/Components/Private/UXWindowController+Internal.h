@@ -1,4 +1,4 @@
-#import <OpenUXKit/UXWindowController.h>
+#import "UXWindowController.h"
 #import "_UXAccessoryBarContainer.h"
 
 @class UXNavigationItem, UXToolbar, UXWindowToolbarController;

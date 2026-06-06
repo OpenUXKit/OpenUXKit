@@ -1,4 +1,4 @@
-#import <OpenUXKit/NSMenuItem+Compatibility.h>
+#import "NSMenuItem+Compatibility.h"
 
 @implementation NSMenuItem (Compatibility)
 

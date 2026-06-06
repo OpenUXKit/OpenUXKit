@@ -1,31 +1,31 @@
 #import "_UXAccessoryBarContainer.h"
 #import "_UXContainerView.h"
 #import "_UXNavigationRequest.h"
-#import <OpenUXKit/_UXViewControllerOneToOneTransitionContext.h>
-#import <OpenUXKit/_UXViewControllerTransitionCoordinator.h>
+#import "_UXViewControllerOneToOneTransitionContext.h"
+#import "_UXViewControllerTransitionCoordinator.h"
 #import "_UXWindowState.h"
-#import <OpenUXKit/NSResponder+UXKit.h>
-#import <OpenUXKit/NSView+UXKit.h>
-#import <OpenUXKit/NSWindow+UXKit.h>
+#import "NSResponder+UXKit.h"
+#import "NSView+UXKit.h"
+#import "NSWindow+UXKit.h"
 #import "UXBackButton.h"
 #import "UXBar+Internal.h"
 #import "UXBarButtonItem+Internal.h"
-#import <OpenUXKit/UXIdentityTransitionController.h>
+#import "UXIdentityTransitionController.h"
 #import "UXKitPrivateUtilites.h"
 #import "UXNavigationBar+Internal.h"
 #import "UXNavigationController+Internal.h"
 #import "UXNavigationItem+Internal.h"
-#import <OpenUXKit/UXParallaxTransitionController.h>
-#import <OpenUXKit/UXSlideTransitionController.h>
-#import <OpenUXKit/UXSubtoolbar.h>
+#import "UXParallaxTransitionController.h"
+#import "UXSlideTransitionController.h"
+#import "UXSubtoolbar.h"
 #import "UXToolbar+Internal.h"
-#import <OpenUXKit/UXTransitionController.h>
+#import "UXTransitionController.h"
 #import "UXView+Internal.h"
 #import "UXViewController+Internal.h"
-#import <OpenUXKit/UXViewControllerTransitionCoordinator.h>
-#import <OpenUXKit/UXViewControllerTransitioning.h>
+#import "UXViewControllerTransitionCoordinator.h"
+#import "UXViewControllerTransitioning.h"
 #import "UXWindowController+Internal.h"
-#import <OpenUXKit/UXZoomingCrossfadeTransitionController.h>
+#import "UXZoomingCrossfadeTransitionController.h"
 
 void *UXToolbarItemsObservationContext = &UXToolbarItemsObservationContext;
 void *UXSubtoolbarItemsObservationContext = &UXSubtoolbarItemsObservationContext;

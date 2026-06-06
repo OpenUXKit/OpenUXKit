@@ -1,7 +1,7 @@
 #import "_UXFlowLayoutInfo.h"
 #import "_UXFlowLayoutSection.h"
 #import "_UXFlowLayoutItem.h"
-#import <OpenUXKit/NSIndexPath+UXCollectionViewAdditions.h>
+#import "NSIndexPath+UXCollectionViewAdditions.h"
 #import "UXKitPrivateUtilites.h"
 
 @interface _UXFlowLayoutInfo () {

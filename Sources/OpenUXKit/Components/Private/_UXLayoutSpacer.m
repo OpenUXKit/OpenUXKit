@@ -1,5 +1,5 @@
 #import "_UXLayoutSpacer.h"
-#import <OpenUXKit/UXKitDefines.h>
+#import "UXKitDefines.h"
 #import "UXKitPrivateUtilites.h"
 
 @interface _UXLayoutSpacer () {

@@ -1,7 +1,7 @@
 #import <AppKit/AppKit.h>
 #import "_UXBarItemsContainer.h"
-#import <OpenUXKit/UXView.h>
-#import <OpenUXKit/UXKitDefines.h>
+#import "UXView.h"
+#import "UXKitDefines.h"
 
 @class UXImageView, UXNavigationBar, UXNavigationItem;
 

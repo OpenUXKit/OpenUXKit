@@ -1,8 +1,8 @@
-#import <OpenUXKit/NSWindow+UXKit.h>
+#import "NSWindow+UXKit.h"
 #import <objc/runtime.h>
-#import <OpenUXKit/NSView+UXKit.h>
-#import <OpenUXKit/UXNavigationController.h>
-#import <OpenUXKit/UXKitDefines.h>
+#import "NSView+UXKit.h"
+#import "UXNavigationController.h"
+#import "UXKitDefines.h"
 #import "UXNavigationBar+Internal.h"
 #import "UXKitPrivateUtilites.h"
 

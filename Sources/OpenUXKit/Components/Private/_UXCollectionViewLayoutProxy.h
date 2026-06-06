@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
-#import <OpenUXKit/UXKitDefines.h>
-#import <OpenUXKit/UXCollectionViewLayoutProxyDelegate.h>
+#import "UXKitDefines.h"
+#import "UXCollectionViewLayoutProxyDelegate.h"
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 

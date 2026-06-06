@@ -1,5 +1,5 @@
-#import <OpenUXKit/UXTableViewHeaderFooterView.h>
-#import <OpenUXKit/UXLabel.h>
+#import "UXTableViewHeaderFooterView.h"
+#import "UXLabel.h"
 
 @interface UXTableViewHeaderFooterView () {
     NSString *_text;

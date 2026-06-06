@@ -1,4 +1,4 @@
-#import <OpenUXKit/UXCollectionReusableView.h>
+#import "UXCollectionReusableView.h"
 
 @class UXLabel;
 

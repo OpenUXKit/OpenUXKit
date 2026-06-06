@@ -1,4 +1,4 @@
-#import <OpenUXKit/NSTextView+Compatibility.h>
+#import "NSTextView+Compatibility.h"
 
 @implementation NSTextView (Compatibility)
 

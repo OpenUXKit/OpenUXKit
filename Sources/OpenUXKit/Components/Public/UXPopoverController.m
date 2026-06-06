@@ -1,10 +1,10 @@
-#import <OpenUXKit/UXBarButtonItem.h>
-#import <OpenUXKit/UXKitDefines.h>
+#import "UXBarButtonItem.h"
+#import "UXKitDefines.h"
 #import "UXKitPrivateUtilites.h"
-#import <OpenUXKit/UXPopover.h>
-#import <OpenUXKit/UXPopoverController.h>
-#import <OpenUXKit/UXView.h>
-#import <OpenUXKit/UXViewController.h>
+#import "UXPopover.h"
+#import "UXPopoverController.h"
+#import "UXView.h"
+#import "UXViewController.h"
 
 @interface UXPopoverController () {
     UXPopover *_popover;

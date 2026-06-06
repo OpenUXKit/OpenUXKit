@@ -1,7 +1,7 @@
 #import <AppKit/AppKit.h>
 #import "_UXBarItemsContainer.h"
-#import <OpenUXKit/UXKitDefines.h>
-#import <OpenUXKit/UXView.h>
+#import "UXKitDefines.h"
+#import "UXView.h"
 
 @class UXToolbar, UXBarButtonItem;
 

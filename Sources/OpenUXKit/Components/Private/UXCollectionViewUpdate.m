@@ -1,9 +1,9 @@
 #import "UXCollectionViewUpdate+Internal.h"
 #import "UXCollectionViewUpdateItem+Internal.h"
-#import <OpenUXKit/UXCollectionViewUpdateGap.h>
-#import <OpenUXKit/UXCollectionViewLayoutAttributes.h>
-#import <OpenUXKit/UXCollectionViewData.h>
-#import <OpenUXKit/NSIndexPath+UXCollectionViewAdditions.h>
+#import "UXCollectionViewUpdateGap.h"
+#import "UXCollectionViewLayoutAttributes.h"
+#import "UXCollectionViewData.h"
+#import "NSIndexPath+UXCollectionViewAdditions.h"
 #import "UXKitPrivateUtilites.h"
 
 // SPI on UXCollectionView / UXCollectionViewData owned by other targets.

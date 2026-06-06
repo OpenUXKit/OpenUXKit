@@ -1,4 +1,4 @@
-#import <OpenUXKit/UXCollectionViewCell.h>
+#import "UXCollectionViewCell.h"
 
 @class UXLabel, UXImageView, NSColor, UXView, _UXButton;
 

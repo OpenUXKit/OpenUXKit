@@ -1,4 +1,4 @@
-#import <OpenUXKit/UXCollectionViewUpdateGap.h>
+#import "UXCollectionViewUpdateGap.h"
 #import "UXCollectionViewUpdateItem+Internal.h"
 #import "UXKitPrivateUtilites.h"
 

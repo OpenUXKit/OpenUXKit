@@ -1,4 +1,4 @@
-#import <OpenUXKit/NSBezierPath+Compatibility.h>
+#import "NSBezierPath+Compatibility.h"
 
 @implementation NSBezierPath (Compatibility)
 

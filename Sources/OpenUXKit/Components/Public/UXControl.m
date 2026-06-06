@@ -1,4 +1,4 @@
-#import <OpenUXKit/UXControl.h>
+#import "UXControl.h"
 #import "UXControl+Internal.h"
 
 @implementation UXControl

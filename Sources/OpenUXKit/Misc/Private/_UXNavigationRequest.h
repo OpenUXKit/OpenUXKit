@@ -1,5 +1,5 @@
 #import <AppKit/AppKit.h>
-#import <OpenUXKit/UXNavigationController.h>
+#import "UXNavigationController.h"
 
 @class UXViewController;
 

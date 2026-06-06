@@ -1,5 +1,5 @@
 #import "UXCollectionViewIndexPathsSet+Internal.h"
-#import <OpenUXKit/UXCollectionViewMutableIndexPathsSet.h>
+#import "UXCollectionViewMutableIndexPathsSet.h"
 #import "_UXCollectionViewSectionItemIndexes.h"
 #import "UXKitPrivateUtilites.h"
 

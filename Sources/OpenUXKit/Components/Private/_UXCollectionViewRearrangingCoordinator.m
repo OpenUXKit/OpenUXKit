@@ -1,13 +1,13 @@
 #import "_UXCollectionViewRearrangingCoordinator.h"
 #import "_UXCollectionViewLayoutProxy.h"
-#import <OpenUXKit/UXCollectionView.h>
+#import "UXCollectionView.h"
 #import "UXCollectionView+Internal.h"
-#import <OpenUXKit/UXCollectionViewCell.h>
-#import <OpenUXKit/UXCollectionViewLayout.h>
-#import <OpenUXKit/UXCollectionViewLayoutAttributes.h>
-#import <OpenUXKit/UXCollectionViewPanGestureRecognizer.h>
-#import <OpenUXKit/UXCollectionViewDataSource_Rearranging.h>
-#import <OpenUXKit/UXCollectionViewDelegate_Rearranging.h>
+#import "UXCollectionViewCell.h"
+#import "UXCollectionViewLayout.h"
+#import "UXCollectionViewLayoutAttributes.h"
+#import "UXCollectionViewPanGestureRecognizer.h"
+#import "UXCollectionViewDataSource_Rearranging.h"
+#import "UXCollectionViewDelegate_Rearranging.h"
 
 typedef NS_ENUM(NSInteger, UXRearrangingInitiationMode) {
     UXRearrangingInitiationModeImmediate = 0,

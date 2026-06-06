@@ -1,4 +1,4 @@
-#import <OpenUXKit/UXViewAnimationContext.h>
+#import "UXViewAnimationContext.h"
 #import <math.h>
 
 static void parametersOfSpringAnimation(

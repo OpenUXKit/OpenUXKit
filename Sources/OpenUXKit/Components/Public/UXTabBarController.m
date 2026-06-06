@@ -1,19 +1,19 @@
 #import "UXTabBarController+Internal.h"
-#import <OpenUXKit/UXSourceController.h>
-#import <OpenUXKit/NSResponder+UXKit.h>
-#import <OpenUXKit/UXTabBarItem.h>
-#import <OpenUXKit/UXTabBarItemSegment.h>
+#import "UXSourceController.h"
+#import "NSResponder+UXKit.h"
+#import "UXTabBarItem.h"
+#import "UXTabBarItemSegment.h"
 #import "UXNavigationController+Internal.h"
 #import "UXNavigationItem+Internal.h"
 #import "UXViewController+Internal.h"
-#import <OpenUXKit/UXViewControllerTransitionCoordinator.h>
-#import <OpenUXKit/UXViewControllerTransitioning.h>
-#import <OpenUXKit/UXTransitionController.h>
-#import <OpenUXKit/UXView.h>
+#import "UXViewControllerTransitionCoordinator.h"
+#import "UXViewControllerTransitioning.h"
+#import "UXTransitionController.h"
+#import "UXView.h"
 #import "UXKitPrivateUtilites.h"
-#import <OpenUXKit/_UXViewControllerOneToOneTransitionContext.h>
-#import <OpenUXKit/_UXViewControllerTransitionContext.h>
-#import <OpenUXKit/_UXViewControllerTransitionCoordinator.h>
+#import "_UXViewControllerOneToOneTransitionContext.h"
+#import "_UXViewControllerTransitionContext.h"
+#import "_UXViewControllerTransitionCoordinator.h"
 #import "EXTScope.h"
 
 static void *kTabBarItemObservationContext = &kTabBarItemObservationContext;

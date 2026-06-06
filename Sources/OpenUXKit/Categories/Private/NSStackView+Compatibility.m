@@ -1,4 +1,4 @@
-#import <OpenUXKit/NSStackView+Compatibility.h>
+#import "NSStackView+Compatibility.h"
 
 @implementation NSStackView (Compatibility)
 

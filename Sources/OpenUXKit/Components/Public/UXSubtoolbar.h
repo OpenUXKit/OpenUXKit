@@ -1,6 +1,6 @@
 #import <AppKit/AppKit.h>
-#import <OpenUXKit/UXToolbar.h>
-#import <OpenUXKit/UXKitDefines.h>
+#import "UXToolbar.h"
+#import "UXKitDefines.h"
 
 @class NSLayoutConstraint;
 

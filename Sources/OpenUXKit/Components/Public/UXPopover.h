@@ -1,5 +1,5 @@
 #import <AppKit/NSPopover.h>
-#import <OpenUXKit/UXKitDefines.h>
+#import "UXKitDefines.h"
 
 @class UXPopoverController;
 

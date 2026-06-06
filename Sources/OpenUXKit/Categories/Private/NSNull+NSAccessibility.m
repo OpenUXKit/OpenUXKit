@@ -1,4 +1,4 @@
-#import <OpenUXKit/NSNull+NSAccessibility.h>
+#import "NSNull+NSAccessibility.h"
 
 @implementation NSNull (NSAccessibility)
 

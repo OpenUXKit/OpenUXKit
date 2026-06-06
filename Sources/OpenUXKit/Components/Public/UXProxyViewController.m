@@ -1,5 +1,5 @@
-#import <OpenUXKit/UXProxyViewController.h>
-#import <OpenUXKit/UXView.h>
+#import "UXProxyViewController.h"
+#import "UXView.h"
 
 @interface UXProxyViewController () {
     UXView *_proxyView;

@@ -1,8 +1,8 @@
-#import <OpenUXKit/UXSlideTransitionController.h>
-#import <OpenUXKit/UXNavigationController.h>
-#import <OpenUXKit/UXView.h>
-#import <OpenUXKit/UXViewControllerTransitioning.h>
-#import <OpenUXKit/_UXViewControllerOneToOneTransitionContext.h>
+#import "UXSlideTransitionController.h"
+#import "UXNavigationController.h"
+#import "UXView.h"
+#import "UXViewControllerTransitioning.h"
+#import "_UXViewControllerOneToOneTransitionContext.h"
 #import "UXKitPrivateUtilites.h"
 #import <QuartzCore/QuartzCore.h>
 

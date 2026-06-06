@@ -1,4 +1,4 @@
-#import <OpenUXKit/UXToolbar.h>
+#import "UXToolbar.h"
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 

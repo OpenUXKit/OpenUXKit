@@ -1,4 +1,4 @@
-#import <OpenUXKit/UXCollectionViewAnimationContext.h>
+#import "UXCollectionViewAnimationContext.h"
 
 @interface UXCollectionViewAnimationContext () {
     NSArray<UXCollectionViewAnimation *> *_viewAnimations;

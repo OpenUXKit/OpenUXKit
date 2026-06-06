@@ -1,4 +1,4 @@
-#import <OpenUXKit/NSEvent+UXCollectionViewAdditions.h>
+#import "NSEvent+UXCollectionViewAdditions.h"
 
 @implementation NSEvent (UXCollectionViewAdditions)
 

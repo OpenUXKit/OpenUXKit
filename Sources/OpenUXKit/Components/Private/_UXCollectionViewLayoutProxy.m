@@ -1,5 +1,5 @@
 #import "_UXCollectionViewLayoutProxy.h"
-#import <OpenUXKit/UXCollectionViewLayout.h>
+#import "UXCollectionViewLayout.h"
 #import <objc/runtime.h>
 
 @interface _UXCollectionViewLayoutProxy () {

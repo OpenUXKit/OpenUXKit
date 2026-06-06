@@ -1,4 +1,4 @@
-#import <OpenUXKit/UXCollectionViewCell.h>
+#import "UXCollectionViewCell.h"
 #import "UXCollectionViewCell+Internal.h"
 #import <QuartzCore/QuartzCore.h>
 

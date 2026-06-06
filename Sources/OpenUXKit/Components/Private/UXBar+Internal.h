@@ -1,5 +1,5 @@
-#import <OpenUXKit/UXBar.h>
-#import <OpenUXKit/UXBase.h>
+#import "UXBar.h"
+#import "UXBase.h"
 #import <QuartzCore/QuartzCore.h>
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)

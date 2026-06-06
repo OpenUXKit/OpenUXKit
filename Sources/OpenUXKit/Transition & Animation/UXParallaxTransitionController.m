@@ -1,12 +1,12 @@
-#import <OpenUXKit/UXParallaxTransitionController.h>
-#import <OpenUXKit/UXNavigationController.h>
+#import "UXParallaxTransitionController.h"
+#import "UXNavigationController.h"
 #import "UXNavigationController+Internal.h"
-#import <OpenUXKit/UXView.h>
-#import <OpenUXKit/NSView+UXKit.h>
-#import <OpenUXKit/UXViewControllerTransitioning.h>
-#import <OpenUXKit/_UXViewControllerOneToOneTransitionContext.h>
+#import "UXView.h"
+#import "NSView+UXKit.h"
+#import "UXViewControllerTransitioning.h"
+#import "_UXViewControllerOneToOneTransitionContext.h"
 #import <QuartzCore/QuartzCore.h>
-#import <OpenUXKit/UXKitDefines.h>
+#import "UXKitDefines.h"
 #import "UXKitPrivateUtilites.h"
 
 @interface UXParallaxTransitionController ()

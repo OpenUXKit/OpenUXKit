@@ -1,4 +1,4 @@
-#import <OpenUXKit/UXTabBarItemSegment.h>
+#import "UXTabBarItemSegment.h"
 #import "UXTabBarItemSegment+Internal.h"
 
 @implementation UXTabBarItemSegment

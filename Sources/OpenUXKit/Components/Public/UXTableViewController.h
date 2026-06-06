@@ -1,5 +1,5 @@
-#import <OpenUXKit/UXCollectionViewController.h>
-#import <OpenUXKit/UXTableView.h>
+#import "UXCollectionViewController.h"
+#import "UXTableView.h"
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 

@@ -1,5 +1,5 @@
 #import "_UXNavigationRequest.h"
-#import <OpenUXKit/UXViewController.h>
+#import "UXViewController.h"
 
 @interface _UXNavigationRequest () {
     NSMutableArray *_addedViewControllers;

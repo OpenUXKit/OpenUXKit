@@ -1,5 +1,5 @@
 #import "UXCollectionViewUpdateItem+Internal.h"
-#import <OpenUXKit/NSIndexPath+UXCollectionViewAdditions.h>
+#import "NSIndexPath+UXCollectionViewAdditions.h"
 #import "UXKitPrivateUtilites.h"
 
 @interface UXCollectionViewUpdateItem () {

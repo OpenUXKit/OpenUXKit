@@ -1,7 +1,7 @@
 #import "_UXNavigationItemContainerView.h"
-#import <OpenUXKit/NSView+UXKit.h>
+#import "NSView+UXKit.h"
 #import "UXBar+Internal.h"
-#import <OpenUXKit/UXKitDefines.h>
+#import "UXKitDefines.h"
 #import "UXNavigationBar+Internal.h"
 #import "UXNavigationItem+Internal.h"
 #import "UXKitPrivateUtilites.h"

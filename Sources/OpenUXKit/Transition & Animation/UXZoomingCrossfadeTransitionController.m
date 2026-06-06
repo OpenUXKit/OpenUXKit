@@ -1,7 +1,7 @@
-#import <OpenUXKit/UXZoomingCrossfadeTransitionController.h>
-#import <OpenUXKit/UXView.h>
-#import <OpenUXKit/UXViewControllerTransitioning.h>
-#import <OpenUXKit/_UXViewControllerOneToOneTransitionContext.h>
+#import "UXZoomingCrossfadeTransitionController.h"
+#import "UXView.h"
+#import "UXViewControllerTransitioning.h"
+#import "_UXViewControllerOneToOneTransitionContext.h"
 #import "UXKitPrivateUtilites.h"
 #import <QuartzCore/QuartzCore.h>
 

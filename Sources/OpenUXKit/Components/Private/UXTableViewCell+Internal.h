@@ -1,4 +1,4 @@
-#import <OpenUXKit/UXTableViewCell.h>
+#import "UXTableViewCell.h"
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 

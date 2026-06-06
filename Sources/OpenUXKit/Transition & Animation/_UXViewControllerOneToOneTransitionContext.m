@@ -1,5 +1,5 @@
-#import <OpenUXKit/_UXViewControllerOneToOneTransitionContext.h>
-#import <OpenUXKit/UXViewController.h>
+#import "_UXViewControllerOneToOneTransitionContext.h"
+#import "UXViewController.h"
 
 @interface _UXViewControllerOneToOneTransitionContext ()
 @end

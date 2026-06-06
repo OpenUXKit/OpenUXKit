@@ -1,5 +1,5 @@
 #import <AppKit/AppKit.h>
-#import <OpenUXKit/UXKitAppearance.h>
+#import "UXKitAppearance.h"
 
 @class NSColor, NSString;
 

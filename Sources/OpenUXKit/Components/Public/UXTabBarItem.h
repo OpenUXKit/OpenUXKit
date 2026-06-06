@@ -1,5 +1,5 @@
-#import <OpenUXKit/UXBarItem.h>
-#import <OpenUXKit/UXKitDefines.h>
+#import "UXBarItem.h"
+#import "UXKitDefines.h"
 
 @class UXTabBarItemSegment;
 

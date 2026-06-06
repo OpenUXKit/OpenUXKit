@@ -1,5 +1,5 @@
-#import <OpenUXKit/UXCollectionView.h>
-#import <OpenUXKit/_UXCollectionViewOverdraw.h>
+#import "UXCollectionView.h"
+#import "_UXCollectionViewOverdraw.h"
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 

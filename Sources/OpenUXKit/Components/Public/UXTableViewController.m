@@ -1,6 +1,6 @@
-#import <OpenUXKit/UXTableViewController.h>
-#import <OpenUXKit/UXTableLayout.h>
-#import <OpenUXKit/UXLayoutSupport.h>
+#import "UXTableViewController.h"
+#import "UXTableLayout.h"
+#import "UXLayoutSupport.h"
 
 @implementation UXTableViewController
 

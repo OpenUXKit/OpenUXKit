@@ -1,4 +1,4 @@
-#import <OpenUXKit/UXTabBarItemSegment.h>
+#import "UXTabBarItemSegment.h"
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 

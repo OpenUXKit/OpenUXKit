@@ -1,6 +1,6 @@
-#import <OpenUXKit/UXKitDefines.h>
-#import <OpenUXKit/UXTabBarControllerDelegate.h>
-#import <OpenUXKit/UXViewController.h>
+#import "UXKitDefines.h"
+#import "UXTabBarControllerDelegate.h"
+#import "UXViewController.h"
 
 @class UXTransitionController, UXViewController;
 @protocol UXTabBarControllerDelegate;

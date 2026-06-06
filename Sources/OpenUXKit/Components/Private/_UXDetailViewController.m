@@ -1,7 +1,7 @@
 #import "_UXDetailViewController.h"
-#import <OpenUXKit/UXSourceController.h>
+#import "UXSourceController.h"
 #import "UXViewController+Internal.h"
-#import <OpenUXKit/UXViewControllerTransitionCoordinator.h>
+#import "UXViewControllerTransitionCoordinator.h"
 
 @implementation _UXDetailViewController {
     CGFloat _previousViewWidth;

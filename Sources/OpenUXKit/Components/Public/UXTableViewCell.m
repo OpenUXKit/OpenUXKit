@@ -1,7 +1,7 @@
 #import "UXTableViewCell+Internal.h"
-#import <OpenUXKit/UXLabel.h>
-#import <OpenUXKit/UXImageView.h>
-#import <OpenUXKit/UXView.h>
+#import "UXLabel.h"
+#import "UXImageView.h"
+#import "UXView.h"
 #import "_UXButton.h"
 
 @interface UXTableViewCell () {

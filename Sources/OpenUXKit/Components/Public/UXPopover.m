@@ -1,4 +1,4 @@
-#import <OpenUXKit/UXPopover.h>
+#import "UXPopover.h"
 
 @implementation UXPopover
 

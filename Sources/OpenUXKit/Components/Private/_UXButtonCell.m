@@ -1,5 +1,5 @@
 #import "_UXButtonCell.h"
-#import <OpenUXKit/UXKitDefines.h>
+#import "UXKitDefines.h"
 #import <CoreGraphics/CoreGraphics.h>
 
 @implementation _UXButtonCell

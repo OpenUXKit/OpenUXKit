@@ -1,4 +1,4 @@
-#import <OpenUXKit/UXCollectionViewController.h>
+#import "UXCollectionViewController.h"
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 

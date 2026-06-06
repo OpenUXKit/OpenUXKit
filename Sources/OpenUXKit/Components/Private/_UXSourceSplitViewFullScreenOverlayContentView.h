@@ -1,6 +1,6 @@
 #import <AppKit/AppKit.h>
-#import <OpenUXKit/UXKitDefines.h>
-#import <OpenUXKit/UXKitDefines.h>
+#import "UXKitDefines.h"
+#import "UXKitDefines.h"
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 

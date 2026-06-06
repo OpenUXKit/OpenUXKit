@@ -1,4 +1,4 @@
-#import <OpenUXKit/UXCollectionViewPanGestureRecognizer.h>
+#import "UXCollectionViewPanGestureRecognizer.h"
 
 @interface NSGestureRecognizer (UXCollectionViewPanGestureRecognizerPrivateSPI)
 - (void)setState:(NSGestureRecognizerState)state;

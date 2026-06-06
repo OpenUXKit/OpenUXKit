@@ -6,7 +6,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <OpenUXKit/UXViewControllerTransitioning.h>
+#import "UXViewControllerTransitioning.h"
 
 UXTransitionContextViewControllerKey const UXTransitionContextFromViewControllerKey = @"UXTransitionContextFromViewController";
 UXTransitionContextViewControllerKey const UXTransitionContextToViewControllerKey = @"UXTransitionContextToViewController";

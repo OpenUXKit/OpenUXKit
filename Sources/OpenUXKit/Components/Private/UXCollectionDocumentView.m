@@ -1,5 +1,5 @@
-#import <OpenUXKit/UXCollectionDocumentView.h>
-#import <OpenUXKit/UXCollectionView.h>
+#import "UXCollectionDocumentView.h"
+#import "UXCollectionView.h"
 
 @interface NSObject (UXCollectionDocumentViewSPI)
 - (void)_prepareCellsForOverdraw:(CGRect)rect;

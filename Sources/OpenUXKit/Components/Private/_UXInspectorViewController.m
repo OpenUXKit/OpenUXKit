@@ -1,5 +1,5 @@
 #import "_UXInspectorViewController.h"
-#import <OpenUXKit/UXView.h>
+#import "UXView.h"
 
 @implementation _UXInspectorViewController
 

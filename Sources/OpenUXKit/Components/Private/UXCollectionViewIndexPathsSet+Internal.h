@@ -1,4 +1,4 @@
-#import <OpenUXKit/UXCollectionViewIndexPathsSet.h>
+#import "UXCollectionViewIndexPathsSet.h"
 
 @class _UXCollectionViewSectionItemIndexes;
 

@@ -1,5 +1,5 @@
-#import <OpenUXKit/UXBase.h>
-#import <OpenUXKit/UXTabBarController.h>
+#import "UXBase.h"
+#import "UXTabBarController.h"
 
 @class NSLayoutConstraint, NSMapTable, NSPopUpButton, NSSegmentedControl, NSToolbarItemGroup;
 @class UXNavigationItem, UXTabBarItemSegment, _UXViewControllerOneToOneTransitionContext;

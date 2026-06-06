@@ -1,8 +1,8 @@
 #import "_UXToolbarItemsContainer.h"
 #import "UXBar+Internal.h"
 #import "UXBarButtonItem+Internal.h"
-#import <OpenUXKit/UXImageView.h>
-#import <OpenUXKit/UXToolbar.h>
+#import "UXImageView.h"
+#import "UXToolbar.h"
 
 @interface _UXToolbarItemsContainer () {
     NSMutableArray *__addedConstraints;

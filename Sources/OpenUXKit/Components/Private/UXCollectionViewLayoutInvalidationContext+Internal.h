@@ -1,4 +1,4 @@
-#import <OpenUXKit/UXCollectionViewLayoutInvalidationContext.h>
+#import "UXCollectionViewLayoutInvalidationContext.h"
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 

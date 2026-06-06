@@ -1,4 +1,4 @@
-#import <OpenUXKit/NSScreen+Compatibility.h>
+#import "NSScreen+Compatibility.h"
 
 @implementation NSScreen (Compatibility)
 

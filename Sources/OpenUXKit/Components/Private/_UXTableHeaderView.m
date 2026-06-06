@@ -1,6 +1,6 @@
 #import "_UXTableHeaderView.h"
-#import <OpenUXKit/UXLabel.h>
-#import <OpenUXKit/UXView.h>
+#import "UXLabel.h"
+#import "UXView.h"
 #import "UXView+Internal.h"
 
 @interface _UXTableHeaderView () {

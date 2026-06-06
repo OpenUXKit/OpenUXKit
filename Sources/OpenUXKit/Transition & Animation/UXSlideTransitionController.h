@@ -1,4 +1,4 @@
-#import <OpenUXKit/UXTransitionController.h>
+#import "UXTransitionController.h"
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 

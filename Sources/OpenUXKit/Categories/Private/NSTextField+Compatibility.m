@@ -1,4 +1,4 @@
-#import <OpenUXKit/NSTextField+Compatibility.h>
+#import "NSTextField+Compatibility.h"
 
 @implementation NSTextField (Compatibility)
 

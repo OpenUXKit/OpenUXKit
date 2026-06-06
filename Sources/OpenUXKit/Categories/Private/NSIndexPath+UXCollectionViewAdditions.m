@@ -1,4 +1,4 @@
-#import <OpenUXKit/NSIndexPath+UXCollectionViewAdditions.h>
+#import "NSIndexPath+UXCollectionViewAdditions.h"
 
 @implementation NSIndexPath (UXCollectionViewAdditions)
 

@@ -1,8 +1,8 @@
-#import <OpenUXKit/UXIdentityTransitionController.h>
-#import <OpenUXKit/UXViewControllerTransitioning.h>
-#import <OpenUXKit/_UXViewControllerTransitionContext.h>
-#import <OpenUXKit/UXViewController.h>
-#import <OpenUXKit/UXView.h>
+#import "UXIdentityTransitionController.h"
+#import "UXViewControllerTransitioning.h"
+#import "_UXViewControllerTransitionContext.h"
+#import "UXViewController.h"
+#import "UXView.h"
 
 @interface UXIdentityTransitionController ()
 

@@ -1,5 +1,5 @@
 #import "_UXButton.h"
-#import <OpenUXKit/NSView+UXKit.h>
+#import "NSView+UXKit.h"
 #import "_UXButtonCell.h"
 
 

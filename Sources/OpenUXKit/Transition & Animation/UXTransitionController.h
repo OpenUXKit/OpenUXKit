@@ -1,6 +1,6 @@
 #import <AppKit/AppKit.h>
-#import <OpenUXKit/UXViewControllerTransitioning.h>
-#import <OpenUXKit/UXNavigationController.h>
+#import "UXViewControllerTransitioning.h"
+#import "UXNavigationController.h"
 
 @class _UXViewControllerTransitionContext, UXNavigationController, UXViewController;
 

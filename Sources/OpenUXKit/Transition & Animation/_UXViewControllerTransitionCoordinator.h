@@ -1,5 +1,5 @@
 #import <AppKit/AppKit.h>
-#import <OpenUXKit/UXViewControllerTransitionCoordinator.h>
+#import "UXViewControllerTransitionCoordinator.h"
 
 @class _UXViewControllerTransitionContext;
 

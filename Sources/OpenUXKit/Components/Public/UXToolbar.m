@@ -1,7 +1,7 @@
 #import "_UXBarItemsContainer.h"
 #import "_UXToolbarItemsContainer.h"
 #import "UXBar+Internal.h"
-#import <OpenUXKit/UXKitDefines.h>
+#import "UXKitDefines.h"
 #import "UXToolbar+Internal.h"
 
 @implementation UXToolbar

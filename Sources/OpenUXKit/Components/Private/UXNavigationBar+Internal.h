@@ -1,4 +1,4 @@
-#import <OpenUXKit/UXNavigationBar.h>
+#import "UXNavigationBar.h"
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 

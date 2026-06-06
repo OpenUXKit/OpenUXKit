@@ -1,7 +1,7 @@
 #import <AppKit/AppKit.h>
-#import <OpenUXKit/UXViewControllerTransitioning.h>
-#import <OpenUXKit/UXBase.h>
-#import <OpenUXKit/UXKitDefines.h>
+#import "UXViewControllerTransitioning.h"
+#import "UXBase.h"
+#import "UXKitDefines.h"
 
 @class UXView, _UXViewControllerTransitionCoordinator, _UXViewControllerTransitionContext, _UXViewControllerOneToOneTransitionContext;
 @protocol UXViewControllerAnimatedTransitioning, UXViewControllerInteractiveTransitioning;

@@ -1,11 +1,11 @@
 #import <objc/runtime.h>
-#import <OpenUXKit/UXTableView.h>
-#import <OpenUXKit/UXTableLayout.h>
-#import <OpenUXKit/UXTableViewHeaderFooterView.h>
-#import <OpenUXKit/UXCollectionDocumentView.h>
-#import <OpenUXKit/UXCollectionViewDataSource.h>
-#import <OpenUXKit/UXCollectionViewDelegate.h>
-#import <OpenUXKit/UXCollectionViewFlowLayout.h>
+#import "UXTableView.h"
+#import "UXTableLayout.h"
+#import "UXTableViewHeaderFooterView.h"
+#import "UXCollectionDocumentView.h"
+#import "UXCollectionViewDataSource.h"
+#import "UXCollectionViewDelegate.h"
+#import "UXCollectionViewFlowLayout.h"
 
 static NSString *const UXTableHeaderViewReuseIdentifier = @"table_header_view_id";
 

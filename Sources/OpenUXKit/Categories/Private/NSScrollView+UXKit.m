@@ -1,4 +1,4 @@
-#import <OpenUXKit/NSScrollView+UXKit.h>
+#import "NSScrollView+UXKit.h"
 
 @interface NSScrollView (UXKitSPI)
 - (nullable id)delegate;

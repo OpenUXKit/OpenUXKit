@@ -1,4 +1,4 @@
-#import <OpenUXKit/NSControl+Compatibility.h>
+#import "NSControl+Compatibility.h"
 
 @implementation NSControl (Compatibility)
 

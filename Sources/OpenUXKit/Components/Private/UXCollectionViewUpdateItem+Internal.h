@@ -1,4 +1,4 @@
-#import <OpenUXKit/UXCollectionViewUpdateItem.h>
+#import "UXCollectionViewUpdateItem.h"
 
 @class UXCollectionViewUpdateGap;
 

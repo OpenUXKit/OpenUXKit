@@ -1,4 +1,4 @@
-#import <OpenUXKit/UXSubtoolbar.h>
+#import "UXSubtoolbar.h"
 #import "UXBar+Internal.h"
 
 @interface UXSubtoolbar ()

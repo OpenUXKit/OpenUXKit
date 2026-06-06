@@ -1,4 +1,4 @@
-#import <OpenUXKit/NSViewController+UXViewController.h>
+#import "NSViewController+UXViewController.h"
 
 
 @implementation NSViewController (UXViewController)

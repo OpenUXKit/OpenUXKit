@@ -1,4 +1,4 @@
-#import <OpenUXKit/NSObject+UXCollectionView.h>
+#import "NSObject+UXCollectionView.h"
 #import <QuartzCore/QuartzCore.h>
 
 @implementation NSObject (UXCollectionView)

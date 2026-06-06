@@ -1,4 +1,4 @@
-#import <OpenUXKit/NSProgressIndicator+Compatibility.h>
+#import "NSProgressIndicator+Compatibility.h"
 
 @implementation NSProgressIndicator (Compatibility)
 

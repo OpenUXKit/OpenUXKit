@@ -1,8 +1,8 @@
-#import <OpenUXKit/_UXViewControllerTransitionContext.h>
-#import <OpenUXKit/_UXViewControllerTransitionCoordinator.h>
-#import <OpenUXKit/UXKitDefines.h>
+#import "_UXViewControllerTransitionContext.h"
+#import "_UXViewControllerTransitionCoordinator.h"
+#import "UXKitDefines.h"
 #import "UXKitPrivateUtilites.h"
-#import <OpenUXKit/UXViewControllerTransitioning.h>
+#import "UXViewControllerTransitioning.h"
 
 @interface _UXViewControllerTransitionContext () {
     CGFloat _previousPercentComplete;

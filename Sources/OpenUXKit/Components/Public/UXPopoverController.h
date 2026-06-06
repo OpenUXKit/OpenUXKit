@@ -1,6 +1,6 @@
 #import <AppKit/AppKit.h>
-#import <OpenUXKit/UXViewController.h>
-#import <OpenUXKit/UXKitDefines.h>
+#import "UXViewController.h"
+#import "UXKitDefines.h"
 
 @class UXBarButtonItem, UXView;
 
