@@ -7,6 +7,7 @@
 #import <OpenUXKit/UXCollectionView.h>
 #import <OpenUXKit/UXCollectionViewData.h>
 #import <OpenUXKit/UXCollectionReusableView.h>
+#import "UXCollectionReusableView+Internal.h"
 #import "_UXCollectionViewItemKey.h"
 #import <OpenUXKit/NSIndexPath+UXCollectionViewAdditions.h>
 #import "UXKitPrivateUtilites.h"

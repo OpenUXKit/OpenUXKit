@@ -1,1 +1,1 @@
-../../Components/Public/UXCollectionViewAnimation.h
+../../Components/Private/UXCollectionViewAnimation.h

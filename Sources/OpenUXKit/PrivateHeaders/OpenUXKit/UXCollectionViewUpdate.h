@@ -1,1 +1,1 @@
-../../Components/Public/UXCollectionViewUpdate.h
+../../Components/Private/UXCollectionViewUpdate.h

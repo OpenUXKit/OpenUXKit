@@ -63,7 +63,6 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @property (nonatomic, strong, nullable) NSMenu *menu;
 @property (nonatomic, getter=isHidden) BOOL hidden;
 @property (nonatomic, readonly) BOOL isSystemItem;
-@property (nonatomic, readonly, nullable) NSView *_view;
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 - (instancetype)initWithStyle:(UXBarButtonItemStyle)style target:(nullable id)target action:(nullable SEL)action NS_DESIGNATED_INITIALIZER;
 - (instancetype)initWithContentViewController:(UXViewController *)contentViewController;

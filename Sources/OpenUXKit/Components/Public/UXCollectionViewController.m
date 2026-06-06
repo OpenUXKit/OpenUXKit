@@ -1,16 +1,11 @@
 #import <OpenUXKit/UXCollectionViewController.h>
+#import "UXCollectionViewController+Internal.h"
 #import <OpenUXKit/UXCollectionView.h>
 #import <OpenUXKit/UXCollectionViewLayout.h>
 
 @interface UXCollectionView (UXCollectionViewControllerSPI)
 - (void)setScrollViewDelegate:(nullable id)delegate;
 - (void)setOverdrawEnabled:(BOOL)overdrawEnabled;
-@end
-
-@interface UXCollectionViewController () {
-    UXCollectionViewLayout *_layout;
-    UXCollectionView *_collectionView;
-}
 @end
 
 @implementation UXCollectionViewController

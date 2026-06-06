@@ -1,13 +1,6 @@
 #import <OpenUXKit/UXCollectionViewCell.h>
+#import "UXCollectionViewCell+Internal.h"
 #import <QuartzCore/QuartzCore.h>
-
-@interface UXCollectionViewCell () {
-    NSView *_contentView;
-    BOOL _selected;
-    BOOL _highlighted;
-    BOOL _selectionBorderShouldUsePrimaryColor;
-}
-@end
 
 @implementation UXCollectionViewCell
 

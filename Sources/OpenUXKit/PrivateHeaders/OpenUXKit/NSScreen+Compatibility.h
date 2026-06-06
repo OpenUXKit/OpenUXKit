@@ -1,1 +1,1 @@
-../../Categories/Public/NSScreen+Compatibility.h
+../../Categories/Private/NSScreen+Compatibility.h

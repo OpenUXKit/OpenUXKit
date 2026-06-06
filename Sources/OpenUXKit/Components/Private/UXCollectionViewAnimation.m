@@ -1,16 +1,9 @@
 #import <OpenUXKit/UXCollectionViewAnimation.h>
 #import <OpenUXKit/UXCollectionViewLayoutAttributes.h>
 #import <OpenUXKit/UXCollectionReusableView.h>
+#import "UXCollectionReusableView+Internal.h"
 #import "UXKitPrivateUtilites.h"
 #import <QuartzCore/QuartzCore.h>
-
-// Private SPI implemented by UXCollectionReusableView (owned by the view layer).
-@interface UXCollectionReusableView (UXCollectionViewAnimationSPI)
-- (nullable UXCollectionViewLayoutAttributes *)_layoutAttributes;
-- (void)_setLayoutAttributes:(nullable UXCollectionViewLayoutAttributes *)layoutAttributes;
-- (void)_setBaseLayoutAttributes:(nullable UXCollectionViewLayoutAttributes *)layoutAttributes;
-- (void)applyLayoutAttributes:(nullable UXCollectionViewLayoutAttributes *)layoutAttributes;
-@end
 
 @interface UXCollectionViewAnimation () {
     __strong id _view;

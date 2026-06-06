@@ -1,1 +1,1 @@
-../../Components/Public/UXCollectionViewAnimationContext.h
+../../Components/Private/UXCollectionViewAnimationContext.h

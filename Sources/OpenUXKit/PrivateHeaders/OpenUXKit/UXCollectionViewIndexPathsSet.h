@@ -1,1 +1,1 @@
-../../Components/Public/UXCollectionViewIndexPathsSet.h
+../../Components/Private/UXCollectionViewIndexPathsSet.h

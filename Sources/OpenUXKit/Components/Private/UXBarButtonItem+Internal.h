@@ -24,6 +24,7 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 @property (nonatomic, readonly) UXBarButtonSystemItem systemItem;
 @property (nonatomic, readonly) UXViewController *contentViewController;
 @property (nonatomic, strong) NSLayoutAnchor *baselineAnchor;
+@property (nonatomic, readonly, nullable) NSView *_view;
 
 - (nullable __kindof NSView *)_viewOfClass:(Class)cls;
 - (CGFloat)preferredSpacingToItem:(UXBarItem *)item proposedSpacing:(CGFloat)spacing;

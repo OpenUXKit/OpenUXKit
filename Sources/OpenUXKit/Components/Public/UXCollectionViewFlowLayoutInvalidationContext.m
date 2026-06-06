@@ -1,12 +1,5 @@
 #import <OpenUXKit/UXCollectionViewFlowLayoutInvalidationContext.h>
-
-@interface UXCollectionViewFlowLayoutInvalidationContext () {
-    struct {
-        unsigned int invalidateDelegateMetrics : 1;
-        unsigned int invalidateAttributes : 1;
-    } _flowLayoutInvalidationFlags;
-}
-@end
+#import "UXCollectionViewFlowLayoutInvalidationContext+Internal.h"
 
 @implementation UXCollectionViewFlowLayoutInvalidationContext
 

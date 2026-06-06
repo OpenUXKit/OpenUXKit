@@ -5,7 +5,7 @@
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
-@class UXCollectionViewLayout, UXCollectionViewLayoutAttributes, UXCollectionReusableView, UXCollectionViewCell, UXCollectionViewData, UXCollectionViewUpdate, UXCollectionDocumentView, UXCollectionViewIndexPathsSet, UXCollectionViewMutableIndexPathsSet;
+@class UXCollectionViewLayout, UXCollectionViewLayoutAttributes, UXCollectionReusableView, UXCollectionViewCell;
 @protocol UXCollectionViewAccessibilityDelegate;
 
 typedef NS_OPTIONS(NSUInteger, UXCollectionViewScrollPosition) {

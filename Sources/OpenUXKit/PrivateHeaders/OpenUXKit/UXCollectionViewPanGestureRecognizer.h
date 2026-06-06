@@ -1,1 +1,1 @@
-../../Components/Public/UXCollectionViewPanGestureRecognizer.h
+../../Components/Private/UXCollectionViewPanGestureRecognizer.h

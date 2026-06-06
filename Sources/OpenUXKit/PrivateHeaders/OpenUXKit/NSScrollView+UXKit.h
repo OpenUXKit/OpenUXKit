@@ -1,1 +1,1 @@
-../../Categories/Public/NSScrollView+UXKit.h
+../../Categories/Private/NSScrollView+UXKit.h

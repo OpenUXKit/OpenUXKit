@@ -1,1 +1,1 @@
-../../Categories/Public/NSGestureRecognizer+UXKit.h
+../../Categories/Private/NSGestureRecognizer+UXKit.h

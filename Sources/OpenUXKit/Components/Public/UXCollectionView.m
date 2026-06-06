@@ -1,5 +1,6 @@
 #import <OpenUXKit/UXCollectionView.h>
 #import "UXCollectionView+Internal.h"
+#import "UXCollectionReusableView+Internal.h"
 #import <OpenUXKit/UXCollectionViewCell.h>
 #import <OpenUXKit/UXCollectionReusableView.h>
 #import <OpenUXKit/UXCollectionViewLayout.h>
@@ -1871,6 +1872,14 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
     if (!_doneFirstLayout) {
         [self reloadData];
         _doneFirstLayout = YES;
+    }
+}
+
+- (void)setNeedsLayout {
+    if (self.layoutSubviewsOnSetNeedsLayout) {
+        [self layoutSubviews];
+    } else {
+        [self setNeedsLayout:YES];
     }
 }
 

@@ -1,1 +1,1 @@
-../../Protocols/Public/UXCollectionViewLayoutProxyDelegate.h
+../../Protocols/Private/UXCollectionViewLayoutProxyDelegate.h

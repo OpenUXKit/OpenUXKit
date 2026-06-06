@@ -1,15 +1,5 @@
 #import <OpenUXKit/UXControl.h>
-
-@interface UXControl () {
-    BOOL _highlighted;
-    BOOL _selected;
-    BOOL _enabled;
-    BOOL _ignoresMultiClick;
-    BOOL _sendsActionOnMouseDown;
-    __weak id _target;
-    SEL _action;
-}
-@end
+#import "UXControl+Internal.h"
 
 @implementation UXControl
 

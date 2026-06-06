@@ -1,1 +1,1 @@
-../../Categories/Public/NSMenuItem+Compatibility.h
+../../Categories/Private/NSMenuItem+Compatibility.h

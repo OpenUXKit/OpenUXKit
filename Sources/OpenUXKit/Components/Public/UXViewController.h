@@ -44,6 +44,8 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @property (nonatomic, readonly) id<UXLayoutSupport> topLayoutGuide;
 @property (nonatomic, readonly) id<UXLayoutSupport> bottomLayoutGuide;
 @property (nonatomic, strong, readonly, nullable) NSView *viewIfLoaded;
+@property (nonatomic, readonly) BOOL prefersSidebarAndToolbarHiddenInFullscreenWindowMode;
+@property (nonatomic, readonly) BOOL delegatesSidebarAndToolbarFullscreenVisibilityManagement;
 
 - (void)invalidateIntrinsicLayoutInsets;
 - (NSEdgeInsets)intrinsicLayoutInsets;

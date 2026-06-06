@@ -1,5 +1,5 @@
 #import <AppKit/AppKit.h>
-#import <OpenUXKit/_UXBarItemsContainer.h>
+#import "_UXBarItemsContainer.h"
 #import <OpenUXKit/UXKitDefines.h>
 #import <OpenUXKit/UXView.h>
 

@@ -1,1 +1,1 @@
-../../Categories/Public/NSTextView+Compatibility.h
+../../Categories/Private/NSTextView+Compatibility.h

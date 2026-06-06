@@ -1,1 +1,1 @@
-../../Categories/Public/NSWindow+UXKit.h
+../../Categories/Private/NSWindow+UXKit.h

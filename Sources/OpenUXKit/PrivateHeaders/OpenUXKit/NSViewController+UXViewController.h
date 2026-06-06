@@ -1,1 +1,1 @@
-../../Categories/Public/NSViewController+UXViewController.h
+../../Categories/Private/NSViewController+UXViewController.h

@@ -1,1 +1,1 @@
-../../Categories/Public/NSTextField+Compatibility.h
+../../Categories/Private/NSTextField+Compatibility.h

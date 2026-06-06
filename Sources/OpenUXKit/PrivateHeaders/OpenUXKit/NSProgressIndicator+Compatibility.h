@@ -1,1 +1,1 @@
-../../Categories/Public/NSProgressIndicator+Compatibility.h
+../../Categories/Private/NSProgressIndicator+Compatibility.h

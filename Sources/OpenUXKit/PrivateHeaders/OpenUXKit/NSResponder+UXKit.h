@@ -1,1 +1,1 @@
-../../Categories/Public/NSResponder+UXKit.h
+../../Categories/Private/NSResponder+UXKit.h

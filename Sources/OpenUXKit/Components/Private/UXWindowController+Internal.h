@@ -1,4 +1,5 @@
 #import <OpenUXKit/UXWindowController.h>
+#import "_UXAccessoryBarContainer.h"
 
 @class UXNavigationItem, UXToolbar, UXWindowToolbarController;
 
@@ -7,7 +8,7 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 UXKIT_EXTERN void *UXWindowControllerContentLayoutRectContext;
 UXKIT_EXTERN void *UXWindowControllerToolbarNavigationItemContext;
 
-@interface UXWindowController () {
+@interface UXWindowController () <_UXAccessoryBarContainer> {
     UXToolbar *_currentAccessoryToolbar;
     UXWindowToolbarController *_toolbarController;
     UXNavigationItem *_toolbarNavigationItem;

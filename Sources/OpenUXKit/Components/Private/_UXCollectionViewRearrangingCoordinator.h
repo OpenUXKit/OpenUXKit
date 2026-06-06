@@ -5,6 +5,7 @@
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 @class UXCollectionView, UXCollectionViewCell, UXCollectionViewLayout, _UXCollectionViewLayoutProxy;
+@protocol UXCollectionViewDataSource_Rearranging, UXCollectionViewDelegate_Rearranging;
 
 UXKIT_PRIVATE NS_SWIFT_UI_ACTOR
 @interface _UXCollectionViewRearrangingCoordinator : NSObject <UXCollectionViewLayoutProxyDelegate, NSGestureRecognizerDelegate, NSDraggingSource, NSDraggingDestination>
@@ -12,6 +13,8 @@ UXKIT_PRIVATE NS_SWIFT_UI_ACTOR
 @property (nonatomic, weak, readonly, nullable) UXCollectionView *collectionView;
 @property (nonatomic, readonly, nullable) UXCollectionViewLayout *collectionViewLayout;
 @property (nonatomic, readonly, nullable) _UXCollectionViewLayoutProxy *layoutProxy;
+@property (nonatomic, readonly, nullable) id<UXCollectionViewDataSource_Rearranging> dataSource;
+@property (nonatomic, readonly, nullable) id<UXCollectionViewDelegate_Rearranging> delegate;
 
 @property (nonatomic) BOOL enabled;
 @property (nonatomic, readonly) BOOL isRearranging;

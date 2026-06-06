@@ -1,1 +1,1 @@
-../../Categories/Public/NSView+UXKit.h
+../../Categories/Private/NSView+UXKit.h

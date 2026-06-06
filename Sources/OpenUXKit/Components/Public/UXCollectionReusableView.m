@@ -1,4 +1,5 @@
 #import <OpenUXKit/UXCollectionReusableView.h>
+#import "UXCollectionReusableView+Internal.h"
 #import <OpenUXKit/UXCollectionView.h>
 #import <OpenUXKit/UXCollectionViewLayoutAttributes.h>
 #import "UXCollectionViewLayoutAttributes+Internal.h"
@@ -20,6 +21,13 @@
     } _reusableViewFlags;
     BOOL _isFloatingPinned;
 }
+
+- (nullable CGImageRef)_snapshot:(BOOL)flipped CF_RETURNS_RETAINED;
+- (nullable NSIndexPath *)_accessibilityIndexPath;
+- (nullable NSString *)_accessibilityDefaultRole;
+- (nullable id)_dynamicAccessibilityParent;
+- (nullable id)_layoutSectionAccessibility;
+
 @end
 
 @implementation UXCollectionReusableView

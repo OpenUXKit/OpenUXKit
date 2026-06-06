@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <OpenUXKit/UXBarItem.h>
+#import "UXBarItem+Internal.h"
 
 @implementation UXBarItem
 

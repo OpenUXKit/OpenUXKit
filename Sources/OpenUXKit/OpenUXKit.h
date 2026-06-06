@@ -22,35 +22,24 @@ FOUNDATION_EXPORT const unsigned char OpenUXKitVersionString[];
 #import <OpenUXKit/UXNavigationItem.h>
 #import <OpenUXKit/UXLabel.h>
 #import <OpenUXKit/UXImageView.h>
+#import <OpenUXKit/UXControl.h>
+#import <OpenUXKit/UXTabBarItemSegment.h>
 
 // CollectionView
 #import <OpenUXKit/UXCollectionViewLayoutAttributes.h>
 #import <OpenUXKit/UXCollectionViewUpdateItem.h>
-#import <OpenUXKit/UXCollectionViewUpdateGap.h>
-#import <OpenUXKit/UXCollectionViewIndexPathsSet.h>
-#import <OpenUXKit/UXCollectionViewMutableIndexPathsSet.h>
 #import <OpenUXKit/UXCollectionViewLayoutInvalidationContext.h>
 #import <OpenUXKit/UXCollectionViewFlowLayoutInvalidationContext.h>
 #import <OpenUXKit/UXCollectionViewLayout.h>
 #import <OpenUXKit/UXCollectionViewFlowLayout.h>
-#import <OpenUXKit/UXCollectionViewUpdate.h>
-#import <OpenUXKit/UXCollectionViewAnimation.h>
-#import <OpenUXKit/UXCollectionViewAnimationContext.h>
 #import <OpenUXKit/UXCollectionView.h>
 #import <OpenUXKit/UXCollectionViewCell.h>
 #import <OpenUXKit/UXCollectionReusableView.h>
 #import <OpenUXKit/UXCollectionViewController.h>
-#import <OpenUXKit/UXCollectionDocumentView.h>
 
 // CollectionView Protocols
 #import <OpenUXKit/UXCollectionViewDataSource.h>
 #import <OpenUXKit/UXCollectionViewDelegate.h>
-#import <OpenUXKit/UXCollectionViewLayoutProxyDelegate.h>
-
-// Categories (CollectionView)
-#import <OpenUXKit/NSIndexPath+UXCollectionViewAdditions.h>
-#import <OpenUXKit/NSEvent+UXCollectionViewAdditions.h>
-#import <OpenUXKit/NSObject+UXCollectionView.h>
 
 // Protocols
 #import <OpenUXKit/UXKitAppearance.h>
@@ -58,6 +47,8 @@ FOUNDATION_EXPORT const unsigned char OpenUXKitVersionString[];
 #import <OpenUXKit/UXViewControllerTransitioning.h>
 #import <OpenUXKit/UXBarCommon.h>
 #import <OpenUXKit/UXLayoutSupport.h>
+#import <OpenUXKit/UXTabBarControllerDelegate.h>
+#import <OpenUXKit/UXViewControllerProtocol.h>
 
 
 // Categories

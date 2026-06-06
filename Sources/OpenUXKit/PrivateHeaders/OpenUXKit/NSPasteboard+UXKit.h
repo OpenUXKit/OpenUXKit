@@ -1,1 +1,1 @@
-../../Categories/Public/NSPasteboard+UXKit.h
+../../Categories/Private/NSPasteboard+UXKit.h

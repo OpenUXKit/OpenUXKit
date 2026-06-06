@@ -1,5 +1,5 @@
 #import "UXBar+Internal.h"
-#import <OpenUXKit/_UXBarItemsContainer.h>
+#import "_UXBarItemsContainer.h"
 #import "_UXSinglePixelLine.h"
 
 @implementation UXBar

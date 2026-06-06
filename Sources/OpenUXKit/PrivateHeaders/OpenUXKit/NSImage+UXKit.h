@@ -1,1 +1,1 @@
-../../Categories/Public/NSImage+UXKit.h
+../../Categories/Private/NSImage+UXKit.h
