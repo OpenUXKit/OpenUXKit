@@ -6,9 +6,9 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 @class NSIndexPath;
 
 typedef NS_ENUM(NSUInteger, UXCollectionElementCategory) {
-    UXCollectionElementCategoryCell,
-    UXCollectionElementCategorySupplementaryView,
-    UXCollectionElementCategoryDecorationView,
+    UXCollectionElementCategoryCell = 0,
+    UXCollectionElementCategorySupplementaryView = 1,
+    UXCollectionElementCategoryDecorationView = 2,
 } NS_SWIFT_NAME(UXCollectionView.ElementCategory);
 
 UXKIT_EXTERN NS_SWIFT_UI_ACTOR

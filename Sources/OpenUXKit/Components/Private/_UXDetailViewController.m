@@ -1,5 +1,6 @@
 #import "_UXDetailViewController.h"
 #import "UXSourceController.h"
+#import "UXSourceController+Internal.h"
 #import "UXViewController+Internal.h"
 #import "UXViewControllerTransitionCoordinator.h"
 

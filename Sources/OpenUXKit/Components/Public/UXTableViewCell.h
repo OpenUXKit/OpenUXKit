@@ -1,14 +1,14 @@
 #import "UXCollectionViewCell.h"
 
-@class UXLabel, UXImageView, NSColor, UXView, _UXButton;
+@class UXLabel, UXImageView, NSColor, UXView;
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 typedef NS_ENUM(NSInteger, UXTableViewCellStyle) {
-    UXTableViewCellStyleDefault = 0,
-    UXTableViewCellStyleValue1,
-    UXTableViewCellStyleValue2,
-    UXTableViewCellStyleSubtitle,
+    UXTableViewCellStyleDefault  = 0,
+    UXTableViewCellStyleValue1   = 1,
+    UXTableViewCellStyleValue2   = 2,
+    UXTableViewCellStyleSubtitle = 3,
 } NS_SWIFT_NAME(UXTableViewCell.CellStyle);
 
 typedef NS_ENUM(NSInteger, UXTableViewCellEditingStyle) {
@@ -18,18 +18,18 @@ typedef NS_ENUM(NSInteger, UXTableViewCellEditingStyle) {
 } NS_SWIFT_NAME(UXTableViewCell.EditingStyle);
 
 typedef NS_ENUM(NSInteger, UXTableViewCellAccessoryType) {
-    UXTableViewCellAccessoryNone = 0,
-    UXTableViewCellAccessoryDisclosureIndicator,
-    UXTableViewCellAccessoryDetailDisclosureButton,
-    UXTableViewCellAccessoryCheckmark,
-    UXTableViewCellAccessoryDetailButton,
+    UXTableViewCellAccessoryNone                   = 0,
+    UXTableViewCellAccessoryDisclosureIndicator    = 1,
+    UXTableViewCellAccessoryDetailDisclosureButton = 2,
+    UXTableViewCellAccessoryCheckmark              = 3,
+    UXTableViewCellAccessoryDetailButton           = 4,
 } NS_SWIFT_NAME(UXTableViewCell.AccessoryType);
 
 typedef NS_ENUM(NSInteger, UXTableViewCellSelectionStyle) {
-    UXTableViewCellSelectionStyleNone = 0,
-    UXTableViewCellSelectionStyleBlue,
-    UXTableViewCellSelectionStyleGray,
-    UXTableViewCellSelectionStyleDefault,
+    UXTableViewCellSelectionStyleNone    = 0,
+    UXTableViewCellSelectionStyleBlue    = 1,
+    UXTableViewCellSelectionStyleGray    = 2,
+    UXTableViewCellSelectionStyleDefault = 3,
 } NS_SWIFT_NAME(UXTableViewCell.SelectionStyle);
 
 UXKIT_EXTERN NS_SWIFT_UI_ACTOR
@@ -46,7 +46,6 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @property (nonatomic, strong, nullable) UXView *selectedBackgroundView;
 @property (nonatomic, readonly, nullable) UXView *defaultSelectedBackgroundView;
 @property (nonatomic, readonly, nullable) UXView *internalHighlightedBackgroundView;
-@property (nonatomic, readonly, nullable) _UXButton *internalAccessoryView;
 @property (nonatomic, readonly, nullable) UXView *upperSpace;
 @property (nonatomic, readonly, nullable) UXView *lowerSpace;
 

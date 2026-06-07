@@ -1,4 +1,5 @@
 #import "UXTableLayout.h"
+#import "UXTableLayout+Internal.h"
 #import "UXCollectionView.h"
 #import "UXCollectionViewFlowLayout.h"
 

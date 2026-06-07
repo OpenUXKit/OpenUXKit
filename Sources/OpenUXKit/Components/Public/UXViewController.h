@@ -14,17 +14,17 @@ typedef NS_OPTIONS(NSUInteger, UXRectEdge) {
 };
 
 typedef NS_ENUM(NSInteger, UXModalPresentationStyle) {
-    UXModalPresentationFullScreen = 0,
-    UXModalPresentationPageSheet,
-    UXModalPresentationFormSheet,
-    UXModalPresentationCurrentContext,
-    UXModalPresentationCustom,
-    UXModalPresentationOverFullScreen,
-    UXModalPresentationOverCurrentContext,
-    UXModalPresentationPopover,
-    UXModalPresentationBlurOverFullScreen,
-    UXModalPresentationNone      = -1,
-    UXModalPresentationAutomatic = -2,
+    UXModalPresentationFullScreen          = 0,
+    UXModalPresentationPageSheet           = 1,
+    UXModalPresentationFormSheet           = 2,
+    UXModalPresentationCurrentContext      = 3,
+    UXModalPresentationCustom              = 4,
+    UXModalPresentationOverFullScreen      = 5,
+    UXModalPresentationOverCurrentContext  = 6,
+    UXModalPresentationPopover             = 7,
+    UXModalPresentationBlurOverFullScreen  = 8,
+    UXModalPresentationNone                = -1,
+    UXModalPresentationAutomatic           = -2,
 };
 
 @class UXNavigationController, UXNavigationItem, UXSourceController, UXTabBarController, UXTabBarItem, UXView, UXWindowController, UXTabBarItemSegment, UXPopoverController, UXBarButtonItem;

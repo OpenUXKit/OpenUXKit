@@ -1,1 +1,1 @@
-../../Components/Public/UXWindowToolbarController.h
+../../Components/Private/UXWindowToolbarController.h

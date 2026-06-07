@@ -11,26 +11,26 @@ typedef NS_ENUM(NSInteger, UXTableViewStyle) {
 } NS_SWIFT_NAME(UXTableView.Style);
 
 typedef NS_ENUM(NSInteger, UXTableViewScrollPosition) {
-    UXTableViewScrollPositionNone = 0,
-    UXTableViewScrollPositionTop,
-    UXTableViewScrollPositionMiddle,
-    UXTableViewScrollPositionBottom,
+    UXTableViewScrollPositionNone   = 0,
+    UXTableViewScrollPositionTop    = 1,
+    UXTableViewScrollPositionMiddle = 2,
+    UXTableViewScrollPositionBottom = 3,
 } NS_SWIFT_NAME(UXTableView.ScrollPosition);
 
 typedef NS_ENUM(NSInteger, UXTableViewRowAnimation) {
-    UXTableViewRowAnimationFade,
-    UXTableViewRowAnimationRight,
-    UXTableViewRowAnimationLeft,
-    UXTableViewRowAnimationTop,
-    UXTableViewRowAnimationBottom,
-    UXTableViewRowAnimationNone,
-    UXTableViewRowAnimationMiddle,
+    UXTableViewRowAnimationFade      = 0,
+    UXTableViewRowAnimationRight     = 1,
+    UXTableViewRowAnimationLeft      = 2,
+    UXTableViewRowAnimationTop       = 3,
+    UXTableViewRowAnimationBottom    = 4,
+    UXTableViewRowAnimationNone      = 5,
+    UXTableViewRowAnimationMiddle    = 6,
     UXTableViewRowAnimationAutomatic = 100,
 } NS_SWIFT_NAME(UXTableView.RowAnimation);
 
 typedef NS_ENUM(NSInteger, UXTableViewCellSeparatorStyle) {
-    UXTableViewCellSeparatorStyleNone = 0,
-    UXTableViewCellSeparatorStyleSingleLine,
+    UXTableViewCellSeparatorStyleNone       = 0,
+    UXTableViewCellSeparatorStyleSingleLine = 1,
 } NS_SWIFT_NAME(UXTableViewCell.SeparatorStyle);
 
 NS_SWIFT_UI_ACTOR
@@ -76,7 +76,6 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @property (nonatomic) CGFloat alpha;
 @property (nonatomic, getter=isUserInteractionEnabled) BOOL userInteractionEnabled;
 @property (nonatomic) BOOL overdrawEnabled;
-@property (nonatomic, setter=_setFloatingHeadersDisabled:) BOOL _floatingHeadersDisabled;
 
 - (NSInteger)numberOfRowsInSection:(NSInteger)section;
 - (nullable UXTableViewCell *)cellForRowAtIndexPath:(NSIndexPath *)indexPath;

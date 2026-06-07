@@ -1,4 +1,5 @@
 #import "UXTableViewController.h"
+#import "UXTableViewController+Internal.h"
 #import "UXTableLayout.h"
 #import "UXLayoutSupport.h"
 

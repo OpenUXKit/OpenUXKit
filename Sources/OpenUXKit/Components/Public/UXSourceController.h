@@ -7,21 +7,17 @@
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
-@class UXNavigationController, UXTransitionController, UXView, UXViewController, _UXDetailViewController, _UXInspectorViewController, _UXViewControllerOneToOneTransitionContext;
+@class UXNavigationController, UXTransitionController, UXView, UXViewController;
 @protocol UXNavigationControllerDelegate, UXNavigationDestination, UXSourceList;
 
 UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @interface UXSourceController : NSSplitViewController <UXNavigationControllerDelegate, UXViewController>
-
-+ (Class)_defaultTransitionControllerClass;
 
 @property (nonatomic, weak, nullable) NSWindow *observedWindow;
 @property (nonatomic, strong, nullable) UXNavigationController *observedNavigationController;
 @property (nonatomic, strong, nullable) UXViewController *selectedViewController;
 @property (nonatomic, strong, nullable) UXViewController *selectedNavigationTopViewController;
 @property (nonatomic, strong, nullable) NSArray *selectedNavigationViewConstraints;
-@property (nonatomic, readonly) _UXDetailViewController *detailViewController;
-@property (nonatomic, readonly) _UXInspectorViewController *inspectorViewController;
 @property (nonatomic, readonly) NSSplitViewItem *sidebarSplitViewItem;
 @property (nonatomic, readonly) NSSplitViewItem *detailSplitViewItem;
 @property (nonatomic, readonly) NSSplitViewItem *inspectorSplitViewItem;
@@ -75,35 +71,6 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 - (void)didUpdateLayoutGuides;
 
 - (void)viewController:(UXViewController *)viewController changedSourceListCollapsed:(BOOL)changedSourceListCollapsed;
-- (void)_didChangeToolbarVisibilityForNavigationController:(UXNavigationController *)navigationController;
-
-// Internal hooks / transition plumbing (kept on the public interface to match UXKit's layout).
-- (void)_addRootViewController:(UXViewController *)rootViewController;
-- (void)_removeRootViewController:(UXViewController *)rootViewController;
-- (void)_configureManagedNavigationController:(UXNavigationController *)navigationController;
-- (void)_prepareTransitionToRootViewController:(UXViewController *)rootViewController;
-- (nullable UXViewController *)_rootViewControllerForNavigationDestination:(id<UXNavigationDestination>)navigationDestination;
-- (void)_navigateToDestination:(id<UXNavigationDestination>)destination animated:(BOOL)animated completion:(nullable UXParameterCompletionHandler)completion;
-- (void)_removeDestination:(id<UXNavigationDestination>)destination animated:(BOOL)animated completion:(nullable UXParameterCompletionHandler)completion;
-- (void)_setSelectedViewController:(nullable UXViewController *)selectedViewController animated:(BOOL)animated sender:(nullable id)sender;
-- (void)_didChangeSelectedViewControllerFromSender:(nullable id)sender;
-- (_UXViewControllerOneToOneTransitionContext *)_contextForTransitionOperation:(NSInteger)operation fromViewController:(nullable UXViewController *)fromViewController toViewController:(nullable UXViewController *)toViewController transition:(NSUInteger)transition;
-- (void)_beginTransitionWithContext:(_UXViewControllerOneToOneTransitionContext *)context operation:(NSInteger)operation;
-- (void)_prepareViewController:(nullable UXViewController *)viewController forAnimationInContext:(_UXViewControllerOneToOneTransitionContext *)context completion:(nullable UXCompletionHandler)completion;
-- (void)_setupDelegateForNavigationController:(UXNavigationController *)navigationController operation:(UXNavigationControllerOperation)operation fromViewController:(nullable UXViewController *)fromViewController toViewController:(nullable UXViewController *)toViewController;
-- (void)_updateInspectorViewController;
-- (void)_updateDetailSplitViewItemAccessories;
-- (void)_updateSplitViewAutosaveName;
-- (void)_setWantsSourceListCollapsed:(BOOL)wantsSourceListCollapsed;
-- (void)_setWantsInspectorCollapsed:(BOOL)wantsInspectorCollapsed;
-- (void)_setWantsSourceListCollapsed:(BOOL)wantsSourceListCollapsed wantsInspectorCollapsed:(BOOL)wantsInspectorCollapsed animated:(BOOL)animated completion:(nullable UXCompletionHandler)completion;
-- (void)_didChangeCollapsed;
-- (CGFloat)_preferredSourceListWidth;
-- (void)_setLeadingContentInset:(CGFloat)leadingContentInset;
-- (CGFloat)_leadingContentInsetForWantsCollapsed:(BOOL)wantsCollapsed;
-- (BOOL)_wantsSourceListCollapsedForViewController:(UXViewController *)viewController;
-- (BOOL)_wantsInspectorCollapsedForViewController:(UXViewController *)viewController;
-- (void)_detailViewWidthDidChange;
 
 @end
 

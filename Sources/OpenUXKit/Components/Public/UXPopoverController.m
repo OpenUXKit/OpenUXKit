@@ -3,6 +3,7 @@
 #import "UXKitPrivateUtilites.h"
 #import "UXPopover.h"
 #import "UXPopoverController.h"
+#import "UXPopoverController+Internal.h"
 #import "UXView.h"
 #import "UXViewController.h"
 

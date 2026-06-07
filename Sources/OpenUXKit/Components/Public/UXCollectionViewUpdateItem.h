@@ -6,11 +6,11 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 @class NSIndexPath;
 
 typedef NS_ENUM(NSInteger, UXCollectionUpdateAction) {
-    UXCollectionUpdateActionInsert,
-    UXCollectionUpdateActionDelete,
-    UXCollectionUpdateActionReload,
-    UXCollectionUpdateActionMove,
-    UXCollectionUpdateActionNone,
+    UXCollectionUpdateActionInsert = 0,
+    UXCollectionUpdateActionDelete = 1,
+    UXCollectionUpdateActionReload = 2,
+    UXCollectionUpdateActionMove = 3,
+    UXCollectionUpdateActionNone = 4,
 } NS_SWIFT_NAME(UXCollectionViewUpdateItem.Action);
 
 UXKIT_EXTERN NS_SWIFT_UI_ACTOR

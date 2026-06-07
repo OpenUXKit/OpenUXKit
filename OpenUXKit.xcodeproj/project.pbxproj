@@ -13,8 +13,6 @@
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
 		E9000000000000000000A002 /* Exceptions for "Sources/OpenUXKit" folder in "OpenUXKit" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-			);
 			publicHeaders = (
 				Commons/Public/UXBase.h,
 				Commons/Public/UXKitDefines.h,

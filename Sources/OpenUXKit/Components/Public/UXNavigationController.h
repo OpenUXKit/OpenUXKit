@@ -8,9 +8,9 @@
 @protocol UXViewControllerAnimatedTransitioning, UXViewControllerInteractiveTransitioning, UXNavigationControllerDelegate;
 
 typedef NS_ENUM(NSInteger, UXNavigationControllerOperation) {
-    UXNavigationControllerOperationNone,
-    UXNavigationControllerOperationPush,
-    UXNavigationControllerOperationPop,
+    UXNavigationControllerOperationNone = 0,
+    UXNavigationControllerOperationPush = 1,
+    UXNavigationControllerOperationPop  = 2,
 } NS_SWIFT_NAME(UXNavigationController.Operation);
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)

@@ -39,7 +39,6 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 - (void)presentPopoverFromBarButtonItem:(UXBarButtonItem *)item permittedArrowDirections:(UXPopoverArrowDirection)arrowDirections animated:(BOOL)animated;
 - (void)presentPopoverFromRect:(CGRect)rect inView:(UXView *)view preferredEdge:(NSRectEdge)preferredEdge;
 - (void)setPopoverContentSize:(CGSize)size animated:(BOOL)animated;
-- (void)_updateContentSize;
 @end
 
 

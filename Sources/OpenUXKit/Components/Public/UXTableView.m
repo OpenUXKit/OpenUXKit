@@ -1,5 +1,6 @@
 #import <objc/runtime.h>
 #import "UXTableView.h"
+#import "UXTableView+Internal.h"
 #import "UXTableLayout.h"
 #import "UXTableViewHeaderFooterView.h"
 #import "UXCollectionDocumentView.h"

@@ -1,4 +1,5 @@
 #import "UXSourceController.h"
+#import "UXSourceController+Internal.h"
 #import "_UXDetailViewController.h"
 #import "_UXInspectorViewController.h"
 #import "_UXViewControllerOneToOneTransitionContext.h"
@@ -55,8 +56,6 @@ static BOOL UXSourceControllerShouldForceSelectionForNavigationDestination(id<UX
     id<UXLayoutSupport> _bottomLayoutGuide;
 }
 
-@property (nonatomic, strong, readwrite) _UXDetailViewController *detailViewController;
-@property (nonatomic, strong, readwrite) _UXInspectorViewController *inspectorViewController;
 @property (nonatomic, strong, readwrite) NSSplitViewItem *sidebarSplitViewItem;
 @property (nonatomic, strong, readwrite) NSSplitViewItem *detailSplitViewItem;
 @property (nonatomic, strong, readwrite) NSSplitViewItem *inspectorSplitViewItem;

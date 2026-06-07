@@ -2,6 +2,8 @@
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
+@class _UXNavigationItemContainerView;
+
 @interface UXNavigationBar () {
     BOOL _needsRecalculateWindowKeyViewLoop;
     BOOL _recalculatingKeyViewLoop;

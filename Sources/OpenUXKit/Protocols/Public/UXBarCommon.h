@@ -3,10 +3,10 @@
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 typedef NS_ENUM(NSInteger, UXBarMetrics) {
-    UXBarMetricsDefault,
-    UXBarMetricsCompact,
+    UXBarMetricsDefault       = 0,
+    UXBarMetricsCompact       = 1,
     UXBarMetricsDefaultPrompt = 101, // Applicable only in bars with the prompt property, such as UXNavigationBar and UXSearchBar
-    UXBarMetricsCompactPrompt,
+    UXBarMetricsCompactPrompt = 102,
 };
 
 typedef NS_ENUM(NSInteger, UXBarPosition) {

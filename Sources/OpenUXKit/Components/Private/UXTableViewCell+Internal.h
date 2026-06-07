@@ -2,7 +2,11 @@
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
+@class _UXButton;
+
 @interface UXTableViewCell ()
+
+@property (nonatomic, readonly, nullable) _UXButton *internalAccessoryView;
 
 @property (nonatomic, strong, nullable) NSMutableArray *_addedConstraints;
 

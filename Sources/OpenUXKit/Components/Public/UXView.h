@@ -4,15 +4,15 @@
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 typedef NS_ENUM(NSInteger, UXUserInterfaceLayoutDirection) {
-    UXUserInterfaceLayoutDirectionLeftToRight,
-    UXUserInterfaceLayoutDirectionRightToLeft,
+    UXUserInterfaceLayoutDirectionLeftToRight = 0,
+    UXUserInterfaceLayoutDirectionRightToLeft = 1,
 };
 
 typedef NS_ENUM(NSInteger, UXViewAnimationCurve) {
-    UXViewAnimationCurveEaseInOut,         // slow at beginning and end
-    UXViewAnimationCurveEaseIn,            // slow at beginning
-    UXViewAnimationCurveEaseOut,           // slow at end
-    UXViewAnimationCurveLinear,
+    UXViewAnimationCurveEaseInOut = 0,     // slow at beginning and end
+    UXViewAnimationCurveEaseIn    = 1,     // slow at beginning
+    UXViewAnimationCurveEaseOut   = 2,     // slow at end
+    UXViewAnimationCurveLinear    = 3,
 } NS_SWIFT_NAME(UXView.AnimationCurve);
 
 typedef NS_OPTIONS(NSUInteger, UXViewAnimationOptions) {
@@ -47,19 +47,19 @@ typedef NS_OPTIONS(NSUInteger, UXViewAnimationOptions) {
 } NS_SWIFT_NAME(UXView.AnimationOptions);
 
 typedef NS_ENUM(NSInteger, UXViewContentMode) {
-    UXViewContentModeScaleToFill,
-    UXViewContentModeScaleAspectFit,      // contents scaled to fit with fixed aspect. remainder is transparent
-    UXViewContentModeScaleAspectFill,     // contents scaled to fill with fixed aspect. some portion of content may be clipped.
-    UXViewContentModeRedraw,              // redraw on bounds change (calls -setNeedsDisplay)
-    UXViewContentModeCenter,              // contents remain same size. positioned adjusted.
-    UXViewContentModeTop,
-    UXViewContentModeBottom,
-    UXViewContentModeLeft,
-    UXViewContentModeRight,
-    UXViewContentModeTopLeft,
-    UXViewContentModeTopRight,
-    UXViewContentModeBottomLeft,
-    UXViewContentModeBottomRight,
+    UXViewContentModeScaleToFill     = 0,
+    UXViewContentModeScaleAspectFit  = 1,  // contents scaled to fit with fixed aspect. remainder is transparent
+    UXViewContentModeScaleAspectFill = 2,  // contents scaled to fill with fixed aspect. some portion of content may be clipped.
+    UXViewContentModeRedraw          = 3,  // redraw on bounds change (calls -setNeedsDisplay)
+    UXViewContentModeCenter          = 4,  // contents remain same size. positioned adjusted.
+    UXViewContentModeTop             = 5,
+    UXViewContentModeBottom          = 6,
+    UXViewContentModeLeft            = 7,
+    UXViewContentModeRight           = 8,
+    UXViewContentModeTopLeft         = 9,
+    UXViewContentModeTopRight        = 10,
+    UXViewContentModeBottomLeft      = 11,
+    UXViewContentModeBottomRight     = 12,
 } NS_SWIFT_NAME(UXView.ContentMode);
 
 @class UXViewController, UXImageView;

@@ -3,7 +3,7 @@
 #import <OpenUXKit/UXNavigationController.h>
 #import <OpenUXKit/UXKitDefines.h>
 
-@class UXNavigationItem, _UXNavigationItemContainerView;
+@class UXNavigationItem;
 NS_SWIFT_UI_ACTOR
 @protocol UXNavigationBarDelegate <NSObject>
 @end

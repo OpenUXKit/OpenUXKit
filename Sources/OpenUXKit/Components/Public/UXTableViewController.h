@@ -15,8 +15,6 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 @property (nonatomic, readonly) UXTableView *tableView;
 @property (nonatomic, readonly, nullable) id<UXTableViewDelegate> tableViewDelegate;
 
-- (void)_updateContentInsetFromLayoutGuides;
-
 @end
 
 NS_HEADER_AUDIT_END(nullability, sendability)
