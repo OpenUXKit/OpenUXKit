@@ -13,8 +13,11 @@ NSString *const UXFlowLayoutCommonRowHorizontalAlignmentKey = @"UXFlowLayoutComm
 NSString *const UXFlowLayoutLastRowHorizontalAlignmentKey = @"UXFlowLayoutLastRowHorizontalAlignmentKey";
 NSString *const UXFlowLayoutRowVerticalAlignmentKey = @"UXFlowLayoutRowVerticalAlignmentKey";
 
-NSString *const UXCollectionElementKindSectionHeader = @"UXCollectionElementKindSectionHeader";
-NSString *const UXCollectionElementKindSectionFooter = @"UXCollectionElementKindSectionFooter";
+// Match Apple's private UXKit on the wire so a single client (e.g. a Swift
+// example app) can register/dequeue supplementary views without caring which
+// framework backs `import OpenUXKit`.
+NSString *const UXCollectionElementKindSectionHeader = @"UXCollectionViewElementKindSectionHeader";
+NSString *const UXCollectionElementKindSectionFooter = @"UXCollectionViewElementKindSectionFooter";
 
 @interface NSObject (UXCollectionViewFlowLayoutDelegate)
 - (CGSize)collectionView:(id)collectionView layout:(UXCollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath;
