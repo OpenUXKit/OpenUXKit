@@ -684,10 +684,10 @@
         <scene sceneID="R2V-B0-nI4">
             <objects>
                 <windowController id="B8D-0N-5wS" sceneMemberID="viewController">
-                    <window key="window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
+                    <window key="window" title="OpenUXKit Showcase" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-                        <rect key="contentRect" x="196" y="240" width="480" height="270"/>
+                        <rect key="contentRect" x="196" y="240" width="960" height="640"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
                         <connections>
                             <outlet property="delegate" destination="B8D-0N-5wS" id="98r-iN-zZc"/>
@@ -706,69 +706,9 @@
             <objects>
                 <viewController id="mL5-xi-gMJ" customClass="ViewController" customModule="OpenUXKit_Example_Swift" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="CZy-gg-r5I">
-                        <rect key="frame" x="0.0" y="0.0" width="828" height="469"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <subviews>
-                            <box boxType="custom" cornerRadius="4" title="Box" translatesAutoresizingMaskIntoConstraints="NO" id="WRj-Zn-LRO">
-                                <rect key="frame" x="0.0" y="100" width="828" height="369"/>
-                                <view key="contentView" id="Mg7-hX-43E">
-                                    <rect key="frame" x="1" y="1" width="826" height="367"/>
-                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                </view>
-                            </box>
-                            <stackView orientation="horizontal" alignment="centerY" spacing="30" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ss5-Aa-tbI">
-                                <rect key="frame" x="0.0" y="0.0" width="828" height="100"/>
-                                <edgeInsets key="edgeInsets" left="20" right="0.0" top="0.0" bottom="0.0"/>
-                                <middleViews>
-                                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="H9i-9X-uMX">
-                                        <rect key="frame" x="345" y="33" width="64" height="32"/>
-                                        <buttonCell key="cell" type="push" title="Push" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Wti-Mk-ETl">
-                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="system"/>
-                                        </buttonCell>
-                                        <connections>
-                                            <action selector="pushButtonAction:" target="mL5-xi-gMJ" id="J4V-fo-fK5"/>
-                                        </connections>
-                                    </button>
-                                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="DM9-b9-E2l">
-                                        <rect key="frame" x="425" y="33" width="58" height="32"/>
-                                        <buttonCell key="cell" type="push" title="Pop" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="iK3-lo-oWw">
-                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="system"/>
-                                        </buttonCell>
-                                        <connections>
-                                            <action selector="popButtonAction:" target="mL5-xi-gMJ" id="Yc5-6u-omI"/>
-                                        </connections>
-                                    </button>
-                                </middleViews>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="100" id="Tfk-eC-n3C"/>
-                                </constraints>
-                                <visibilityPriorities>
-                                    <integer value="1000"/>
-                                    <integer value="1000"/>
-                                </visibilityPriorities>
-                                <customSpacing>
-                                    <real value="3.4028234663852886e+38"/>
-                                    <real value="3.4028234663852886e+38"/>
-                                </customSpacing>
-                            </stackView>
-                        </subviews>
-                        <constraints>
-                            <constraint firstItem="Ss5-Aa-tbI" firstAttribute="top" secondItem="WRj-Zn-LRO" secondAttribute="bottom" id="G5K-iS-a2r"/>
-                            <constraint firstItem="WRj-Zn-LRO" firstAttribute="leading" secondItem="CZy-gg-r5I" secondAttribute="leading" id="XbC-kL-dsG"/>
-                            <constraint firstAttribute="trailing" secondItem="Ss5-Aa-tbI" secondAttribute="trailing" id="ZNM-jb-5Qs"/>
-                            <constraint firstAttribute="trailing" secondItem="WRj-Zn-LRO" secondAttribute="trailing" id="cdT-xq-OCI"/>
-                            <constraint firstItem="WRj-Zn-LRO" firstAttribute="top" secondItem="CZy-gg-r5I" secondAttribute="top" id="hfV-6z-vYr"/>
-                            <constraint firstAttribute="bottom" secondItem="Ss5-Aa-tbI" secondAttribute="bottom" id="jeu-ee-NgK"/>
-                            <constraint firstItem="Ss5-Aa-tbI" firstAttribute="leading" secondItem="CZy-gg-r5I" secondAttribute="leading" id="zRc-OE-R2N"/>
-                        </constraints>
+                        <rect key="frame" x="0.0" y="0.0" width="960" height="640"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     </view>
-                    <connections>
-                        <outlet property="contentBox" destination="WRj-Zn-LRO" id="ctR-Hm-KhC"/>
-                        <outlet property="popButton" destination="DM9-b9-E2l" id="xlI-K6-Yt2"/>
-                        <outlet property="pushButton" destination="H9i-9X-uMX" id="rVx-cL-2qj"/>
-                    </connections>
                 </viewController>
                 <customObject id="Gw8-2j-aO0" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>

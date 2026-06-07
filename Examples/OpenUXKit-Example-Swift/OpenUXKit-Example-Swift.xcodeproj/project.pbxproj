@@ -3,36 +3,68 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 73;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		E908A0DC2BF88261000325B2 /* Then.swift in Sources */ = {isa = PBXBuildFile; fileRef = E908A0DB2BF88261000325B2 /* Then.swift */; };
-		E908A0DD2BF88476000325B2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E93796662BF8635E00E3D47F /* Main.storyboard */; };
-		E93796612BF8635D00E3D47F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E93796602BF8635D00E3D47F /* AppDelegate.swift */; };
-		E93796632BF8635D00E3D47F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E93796622BF8635D00E3D47F /* ViewController.swift */; };
-		E93796652BF8635E00E3D47F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E93796642BF8635E00E3D47F /* Assets.xcassets */; };
-		E93796682BF8635E00E3D47F /* Base in Resources */ = {isa = PBXBuildFile; fileRef = E93796672BF8635E00E3D47F /* Base */; };
-		E9B39A782C16FA3D0062043C /* OpenUXKit in Frameworks */ = {isa = PBXBuildFile; productRef = E9B39A772C16FA3D0062043C /* OpenUXKit */; };
+		E9C876632FD5BD0300BE172B /* OpenUXKit in Frameworks */ = {isa = PBXBuildFile; productRef = E9C876622FD5BD0300BE172B /* OpenUXKit */; };
+		E9C876A02FD5BF2400BE172B /* UXKit in Frameworks */ = {isa = PBXBuildFile; productRef = E9C8769F2FD5BF2400BE172B /* UXKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		E908A0D72BF8672A000325B2 /* OpenUXKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OpenUXKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		E908A0DB2BF88261000325B2 /* Then.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Then.swift; sourceTree = "<group>"; };
 		E937965D2BF8635D00E3D47F /* OpenUXKit-Example-Swift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "OpenUXKit-Example-Swift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		E93796602BF8635D00E3D47F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		E93796622BF8635D00E3D47F /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		E93796642BF8635E00E3D47F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		E93796672BF8635E00E3D47F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		E93796692BF8635E00E3D47F /* OpenUXKit_Example_Swift.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OpenUXKit_Example_Swift.entitlements; sourceTree = "<group>"; };
+		E9C876682FD5BECD00BE172B /* UXKit-Example-Swift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "UXKit-Example-Swift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		E9C8769E2FD5BEFC00BE172B /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				AppDelegate.swift,
+				Showcase/ShowcaseBars.swift,
+				Showcase/ShowcaseBasics.swift,
+				Showcase/ShowcaseCollection.swift,
+				Showcase/ShowcaseContainers.swift,
+				Showcase/ShowcaseHome.swift,
+				Showcase/ShowcaseMisc.swift,
+				Showcase/ShowcaseSupport.swift,
+				Then.swift,
+				ViewController.swift,
+			);
+			target = E9C876672FD5BECD00BE172B /* UXKit-Example-Swift */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		E9C876932FD5BED500BE172B /* PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = E937965B2BF8635D00E3D47F /* Resources */;
+			membershipExceptions = (
+				Base.lproj/Main.storyboard,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		E9C876692FD5BECD00BE172B /* UXKit-Example-Swift */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "UXKit-Example-Swift"; sourceTree = "<group>"; };
+		E9C876852FD5BED400BE172B /* OpenUXKit-Example-Swift */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (E9C876932FD5BED500BE172B /* PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet */, E9C8769E2FD5BEFC00BE172B /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = "OpenUXKit-Example-Swift"; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		E937965A2BF8635D00E3D47F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E9B39A782C16FA3D0062043C /* OpenUXKit in Frameworks */,
+				E9C876632FD5BD0300BE172B /* OpenUXKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E9C876652FD5BECD00BE172B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E9C876A02FD5BF2400BE172B /* UXKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -50,7 +82,8 @@
 		E93796542BF8635D00E3D47F = {
 			isa = PBXGroup;
 			children = (
-				E937965F2BF8635D00E3D47F /* OpenUXKit-Example-Swift */,
+				E9C876852FD5BED400BE172B /* OpenUXKit-Example-Swift */,
+				E9C876692FD5BECD00BE172B /* UXKit-Example-Swift */,
 				E937965E2BF8635D00E3D47F /* Products */,
 				E908A0D62BF8672A000325B2 /* Frameworks */,
 			);
@@ -60,21 +93,9 @@
 			isa = PBXGroup;
 			children = (
 				E937965D2BF8635D00E3D47F /* OpenUXKit-Example-Swift.app */,
+				E9C876682FD5BECD00BE172B /* UXKit-Example-Swift.app */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		E937965F2BF8635D00E3D47F /* OpenUXKit-Example-Swift */ = {
-			isa = PBXGroup;
-			children = (
-				E93796602BF8635D00E3D47F /* AppDelegate.swift */,
-				E93796622BF8635D00E3D47F /* ViewController.swift */,
-				E908A0DB2BF88261000325B2 /* Then.swift */,
-				E93796642BF8635E00E3D47F /* Assets.xcassets */,
-				E93796662BF8635E00E3D47F /* Main.storyboard */,
-				E93796692BF8635E00E3D47F /* OpenUXKit_Example_Swift.entitlements */,
-			);
-			path = "OpenUXKit-Example-Swift";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -92,12 +113,38 @@
 			);
 			dependencies = (
 			);
+			fileSystemSynchronizedGroups = (
+				E9C876852FD5BED400BE172B /* OpenUXKit-Example-Swift */,
+			);
 			name = "OpenUXKit-Example-Swift";
 			packageProductDependencies = (
-				E9B39A772C16FA3D0062043C /* OpenUXKit */,
+				E9C876622FD5BD0300BE172B /* OpenUXKit */,
 			);
 			productName = "OpenUXKit-Example-Swift";
 			productReference = E937965D2BF8635D00E3D47F /* OpenUXKit-Example-Swift.app */;
+			productType = "com.apple.product-type.application";
+		};
+		E9C876672FD5BECD00BE172B /* UXKit-Example-Swift */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E9C876732FD5BECE00BE172B /* Build configuration list for PBXNativeTarget "UXKit-Example-Swift" */;
+			buildPhases = (
+				E9C876642FD5BECD00BE172B /* Sources */,
+				E9C876652FD5BECD00BE172B /* Frameworks */,
+				E9C876662FD5BECD00BE172B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				E9C876692FD5BECD00BE172B /* UXKit-Example-Swift */,
+			);
+			name = "UXKit-Example-Swift";
+			packageProductDependencies = (
+				E9C8769F2FD5BF2400BE172B /* UXKit */,
+			);
+			productName = "UXKit-Example-Swift";
+			productReference = E9C876682FD5BECD00BE172B /* UXKit-Example-Swift.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -107,16 +154,18 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1540;
+				LastSwiftUpdateCheck = 2650;
 				LastUpgradeCheck = 1540;
 				TargetAttributes = {
 					E937965C2BF8635D00E3D47F = {
 						CreatedOnToolsVersion = 15.4;
 					};
+					E9C876672FD5BECD00BE172B = {
+						CreatedOnToolsVersion = 26.5;
+					};
 				};
 			};
 			buildConfigurationList = E93796582BF8635D00E3D47F /* Build configuration list for PBXProject "OpenUXKit-Example-Swift" */;
-			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -124,11 +173,13 @@
 				Base,
 			);
 			mainGroup = E93796542BF8635D00E3D47F;
+			preferredProjectObjectVersion = 56;
 			productRefGroup = E937965E2BF8635D00E3D47F /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				E937965C2BF8635D00E3D47F /* OpenUXKit-Example-Swift */,
+				E9C876672FD5BECD00BE172B /* UXKit-Example-Swift */,
 			);
 		};
 /* End PBXProject section */
@@ -138,9 +189,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E908A0DD2BF88476000325B2 /* Main.storyboard in Resources */,
-				E93796652BF8635E00E3D47F /* Assets.xcassets in Resources */,
-				E93796682BF8635E00E3D47F /* Base in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E9C876662FD5BECD00BE172B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -151,24 +206,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E93796632BF8635D00E3D47F /* ViewController.swift in Sources */,
-				E908A0DC2BF88261000325B2 /* Then.swift in Sources */,
-				E93796612BF8635D00E3D47F /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E9C876642FD5BECD00BE172B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXVariantGroup section */
-		E93796662BF8635E00E3D47F /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				E93796672BF8635E00E3D47F /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		E937966A2BF8635E00E3D47F /* Debug */ = {
@@ -306,6 +354,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.JH.OpenUXKit-Example-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -331,10 +380,79 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.JH.OpenUXKit-Example-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		E9C876742FD5BECE00BE172B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D5Q73692VW;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.mxiris.UXKit-Example-Swift";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		E9C876752FD5BECE00BE172B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D5Q73692VW;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.mxiris.UXKit-Example-Swift";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
@@ -360,12 +478,25 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		E9C876732FD5BECE00BE172B /* Build configuration list for PBXNativeTarget "UXKit-Example-Swift" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E9C876742FD5BECE00BE172B /* Debug */,
+				E9C876752FD5BECE00BE172B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		E9B39A772C16FA3D0062043C /* OpenUXKit */ = {
+		E9C876622FD5BD0300BE172B /* OpenUXKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = OpenUXKit;
+		};
+		E9C8769F2FD5BF2400BE172B /* UXKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = UXKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

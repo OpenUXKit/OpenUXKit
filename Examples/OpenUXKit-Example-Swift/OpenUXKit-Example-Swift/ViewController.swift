@@ -2,101 +2,37 @@
 //  ViewController.swift
 //  OpenUXKit-Example-Swift
 //
-//  Created by JH on 2024/5/18.
+//  Thin host that wires the storyboard window to an in-code UXNavigationController.
+//  Every demo is pushed onto this navigation stack so the showcase exercises the
+//  navigation bar, toolbar, accessory bar, scope bar and back-gesture stack in one
+//  place.
 //
 
 import Cocoa
 import OpenUXKit
 
-@objc(FirstViewController)
-class FirstViewController: UXViewController {
-    deinit {
-        print("\(Self.self) is deinit")
+final class ViewController: NSViewController {
+    private lazy var rootViewController = ShowcaseHomeViewController()
+
+    private lazy var navigationController = UXNavigationController(rootViewController: rootViewController)
+
+    override func loadView() {
+        view = NSView(frame: NSRect(x: 0, y: 0, width: 960, height: 640))
+        view.autoresizingMask = [.width, .height]
     }
-}
-
-@objc(SecondViewController)
-class SecondViewController: UXViewController {
-    deinit {
-        print("\(Self.self) is deinit")
-    }
-}
-
-@objc(ThirdViewController)
-class ThirdViewController: UXViewController {
-    deinit {
-        print("\(Self.self) is deinit")
-    }
-}
-
-class ViewController: NSViewController {
-    @IBOutlet var contentBox: NSBox!
-
-    @IBOutlet var pushButton: NSButton!
-
-    @IBOutlet var popButton: NSButton!
-
-    lazy var navigationController = UXNavigationController(rootViewController: rootViewController).then {
-        $0.delegate = self
-    }
-
-    lazy var rootViewController = UXViewController().then {
-        $0.uxView.backgroundColor = .black
-    }
-
-    let firstBackgroundColor = NSColor.systemRed
-
-    let secondBackgroundColor = NSColor.systemBlue
-
-    let thirdBackgroundColor = NSColor.systemCyan
-
-    lazy var backgroundColors = [
-        firstBackgroundColor,
-        secondBackgroundColor,
-        thirdBackgroundColor,
-    ]
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        contentBox.contentView?.addSubview(navigationController.view)
-    }
 
-    override func viewWillAppear() {
-        super.viewWillAppear()
-        navigationController.view.frame = contentBox.bounds
-    }
-
-    @IBAction func pushButtonAction(_ sender: NSButton) {
-        if navigationController.viewControllers.count <= backgroundColors.count {
-            let vc = switch navigationController.viewControllers.count {
-            case 1:
-                FirstViewController()
-            case 2:
-                SecondViewController()
-            case 3:
-                ThirdViewController()
-            default:
-                UXViewController()
-            }
-            vc.uxView.backgroundColor = backgroundColors[navigationController.viewControllers.count - 1]
-            navigationController.setViewControllers([vc], animated: true)
-        }
-        checButtonEnabled()
-    }
-
-    @IBAction func popButtonAction(_ sender: NSButton) {
-        navigationController.popViewController(animated: true)
-        checButtonEnabled()
-    }
-
-    func checButtonEnabled() {
-        pushButton.isEnabled = navigationController.viewControllers.count <= backgroundColors.count
-        popButton.isEnabled = navigationController.viewControllers.count > 1
-    }
-}
-
-extension ViewController: UXNavigationControllerDelegate {
-    func navigationController(_ navigationController: UXNavigationController, willShow viewController: UXViewController) {
-        checButtonEnabled()
+        addChild(navigationController)
+        let navigationView = navigationController.view
+        navigationView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(navigationView)
+        NSLayoutConstraint.activate([
+            navigationView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            navigationView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            navigationView.topAnchor.constraint(equalTo: view.topAnchor),
+            navigationView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
     }
 }
