@@ -8,13 +8,25 @@
 //
 
 import Cocoa
+#if canImport(OpenUXKit)
 import OpenUXKit
+#elseif canImport(UXKit)
+import UXKit
+#else
+#error("")
+#endif
 
 final class ShowcaseHomeViewController: UXViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        #if canImport(OpenUXKit)
         navigationItem?.title = "OpenUXKit Showcase"
+        #elseif canImport(UXKit)
+        navigationItem?.title = "UXKit Showcase"
+        #else
+        #error("")
+        #endif
         navigationItem?.prompt = "Tap any row to push a demo"
         uxView.backgroundColor = ShowcasePalette.surface
 
@@ -101,10 +113,10 @@ final class ShowcaseDemoRow: UXControl {
     @available(*, unavailable)
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    // UXControl.mouseDown runs a synchronous nextEventMatchingMask loop that
-    // tracks the mouse until mouseUp and then sends the configured action.
-    // Override mouseDown to flash the background while super is blocked, and
-    // restore it once the loop exits.
+    /// UXControl.mouseDown runs a synchronous nextEventMatchingMask loop that
+    /// tracks the mouse until mouseUp and then sends the configured action.
+    /// Override mouseDown to flash the background while super is blocked, and
+    /// restore it once the loop exits.
     override func mouseDown(with event: NSEvent) {
         guard isEnabled else { super.mouseDown(with: event); return }
         let originalBackground = backgroundColor

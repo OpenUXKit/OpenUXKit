@@ -9,7 +9,13 @@
 //
 
 import Cocoa
+#if canImport(OpenUXKit)
 import OpenUXKit
+#elseif canImport(UXKit)
+import UXKit
+#else
+#error("")
+#endif
 
 final class ViewController: NSViewController {
     private lazy var rootViewController = ShowcaseHomeViewController()

@@ -8,7 +8,13 @@
 //
 
 import Cocoa
+#if canImport(OpenUXKit)
 import OpenUXKit
+#elseif canImport(UXKit)
+import UXKit
+#else
+#error("")
+#endif
 
 // MARK: - UXTabBarItemSegment
 
