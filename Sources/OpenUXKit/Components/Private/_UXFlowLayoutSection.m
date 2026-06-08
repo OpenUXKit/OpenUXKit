@@ -259,25 +259,24 @@ static NSString *const UXFlowLayoutLastRowHorizontalAlignmentKey = @"UXFlowLayou
             [self setFrame:CGRectMake(0.0, 0.0, [[self layoutInfo] dimension], availableDimension)];
         }
 
-        if (_fixedItemSize) {
-            return;
-        }
     }
 
     NSEdgeInsets margins = [self sectionMargins];
-    if (isHorizontal) {
-        headerExtentAlongCross = availableDimension - (margins.top + margins.bottom);
-        crossInterstice = [self verticalInterstice];
-    } else {
-        headerExtentAlongCross = dimension - (margins.left + margins.right);
-        crossInterstice = [self horizontalInterstice];
-    }
+    CGFloat availableCrossExtent;
+    CGFloat mainInterstice;
     CGFloat headerOffsetAlongMain;
     if (isHorizontal) {
+        availableCrossExtent = dimension - (margins.top + margins.bottom);
+        mainInterstice = [self verticalInterstice];
+        crossInterstice = [self horizontalInterstice];
         headerOffsetAlongMain = margins.left + _headerDimension;
     } else {
+        availableCrossExtent = dimension - (margins.left + margins.right);
+        mainInterstice = [self horizontalInterstice];
+        crossInterstice = [self verticalInterstice];
         headerOffsetAlongMain = margins.top + _headerDimension;
     }
+    headerExtentAlongCross = availableCrossExtent;
 
     if (_headerDimension > 0.0) {
         if (isHorizontal) {
@@ -289,19 +288,19 @@ static NSString *const UXFlowLayoutLastRowHorizontalAlignmentKey = @"UXFlowLayou
         _headerFrame = CGRectZero;
     }
 
-    CGFloat availableCross = isHorizontal ? availableDimension - (margins.top + margins.bottom) : dimension - (margins.left + margins.right);
+    CGFloat availableMain = availableCrossExtent;
 
     [[self rows] removeAllObjects];
     NSInteger itemCount = (NSInteger)[[self items] count];
     _UXFlowLayoutRow *currentRow = nil;
     BOOL allRowsSingleItem = YES;
-    CGFloat remainingInRow = availableCross;
+    CGFloat remainingInRow = availableMain;
     for (NSInteger itemIndex = 0; itemIndex < itemCount; itemIndex++) {
         _UXFlowLayoutItem *item = [[self items] objectAtIndex:itemIndex];
         CGRect itemFrame = [item itemFrame];
         CGFloat itemMainSize = isHorizontal ? itemFrame.size.height : itemFrame.size.width;
 
-        if (itemMainSize > availableCross) {
+        if (itemMainSize > availableMain) {
             NSLog(@"The behavior of the UICollectionViewFlowLayout is not defined because:");
             if (isHorizontal) {
                 NSLog(@"the item height must be less than the height of the UICollectionView minus the section insets top and bottom values.");
@@ -315,11 +314,11 @@ static NSString *const UXFlowLayoutLastRowHorizontalAlignmentKey = @"UXFlowLayou
             currentRow = [self addRow];
         }
 
-        CGFloat itemMainWithSpacing = crossInterstice + itemMainSize;
+        CGFloat itemMainWithSpacing = mainInterstice + itemMainSize;
         if (itemMainSize > remainingInRow) {
             [currentRow setComplete:YES];
             allRowsSingleItem = allRowsSingleItem && ([[currentRow items] count] == 1);
-            remainingInRow = availableCross - itemMainWithSpacing;
+            remainingInRow = availableMain - itemMainWithSpacing;
             [currentRow layoutRow];
             currentRow = [self addRow];
             [currentRow addItem:item];
@@ -356,7 +355,7 @@ static NSString *const UXFlowLayoutLastRowHorizontalAlignmentKey = @"UXFlowLayou
         } else {
             _footerFrame = CGRectZero;
         }
-        [self setFrame:CGRectMake(0.0, 0.0, finalMain, availableDimension)];
+        [self setFrame:CGRectMake(0.0, 0.0, finalMain, availableCrossExtent)];
     } else {
         CGFloat finalMain = totalExtent + finalMargins.bottom;
         if (footerDimension > 0.0) {
@@ -365,7 +364,7 @@ static NSString *const UXFlowLayoutLastRowHorizontalAlignmentKey = @"UXFlowLayou
         } else {
             _footerFrame = CGRectZero;
         }
-        [self setFrame:CGRectMake(0.0, 0.0, finalMain, availableDimension)];
+        [self setFrame:CGRectMake(0.0, 0.0, availableCrossExtent, finalMain)];
     }
     (void)headerExtentAlongCross;
 }

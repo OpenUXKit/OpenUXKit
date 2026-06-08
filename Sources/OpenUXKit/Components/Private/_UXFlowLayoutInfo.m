@@ -1,6 +1,7 @@
 #import "_UXFlowLayoutInfo.h"
 #import "_UXFlowLayoutSection.h"
 #import "_UXFlowLayoutItem.h"
+#import "_UXFlowLayoutRow.h"
 #import "NSIndexPath+UXCollectionViewAdditions.h"
 #import "UXKitPrivateUtilites.h"
 
@@ -55,9 +56,11 @@
 - (CGRect)frameForItemAtIndexPath:(NSIndexPath *)indexPath {
     _UXFlowLayoutSection *section = [[self sections] objectAtIndex:[indexPath section]];
     CGRect sectionFrame = [section frame];
-    CGRect itemFrame = [[[section items] objectAtIndex:[indexPath item]] itemFrame];
-    return CGRectMake(sectionFrame.origin.x + itemFrame.origin.x,
-                      sectionFrame.origin.y + itemFrame.origin.y,
+    _UXFlowLayoutItem *item = [[section items] objectAtIndex:[indexPath item]];
+    CGRect itemFrame = [item itemFrame];
+    CGRect rowFrame = [[item rowObject] rowFrame];
+    return CGRectMake(sectionFrame.origin.x + rowFrame.origin.x + itemFrame.origin.x,
+                      sectionFrame.origin.y + rowFrame.origin.y + itemFrame.origin.y,
                       itemFrame.size.width,
                       itemFrame.size.height);
 }

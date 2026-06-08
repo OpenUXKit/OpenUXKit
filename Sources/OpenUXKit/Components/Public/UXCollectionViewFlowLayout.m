@@ -364,13 +364,16 @@ typedef NS_OPTIONS(uint16_t, UXFlowLayoutGridFlags) {
                 item.itemFrame = CGRectMake(0.0, 0.0, size.width, size.height);
             }
             if (fixedSize) {
-                [section.items removeAllObjects];
                 section.itemSize = firstItemSize;
                 section.fixedItemSize = YES;
             }
         } else {
             section.fixedItemSize = YES;
             section.itemSize = _itemSize;
+            for (NSInteger itemIndex = 0; itemIndex < itemsCount; itemIndex++) {
+                _UXFlowLayoutItem *item = [section addItem];
+                item.itemFrame = CGRectMake(0.0, 0.0, _itemSize.width, _itemSize.height);
+            }
         }
 
         NSEdgeInsets margins;
@@ -507,8 +510,7 @@ typedef NS_OPTIONS(uint16_t, UXFlowLayoutGridFlags) {
     }
 
     CGRect frame = [data frameForItemAtIndexPath:indexPath];
-    UXCollectionViewLayoutAttributes *attributes = [[[[self class] layoutAttributesClass] alloc] init];
-    attributes.indexPath = indexPath;
+    UXCollectionViewLayoutAttributes *attributes = [[[self class] layoutAttributesClass] layoutAttributesForCellWithIndexPath:indexPath];
     [attributes setFrame:frame];
     return attributes;
 }

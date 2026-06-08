@@ -1,3 +1,4 @@
+#import <OpenUXKit/UXCollectionViewDelegate.h>
 #import <OpenUXKit/UXCollectionViewLayout.h>
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
@@ -10,7 +11,7 @@ typedef NS_ENUM(NSInteger, UXCollectionViewScrollDirection) {
 } NS_SWIFT_NAME(UXCollectionView.ScrollDirection);
 
 NS_SWIFT_UI_ACTOR
-@protocol UXCollectionViewDelegateFlowLayout <NSObject>
+@protocol UXCollectionViewDelegateFlowLayout <UXCollectionViewDelegate>
 @optional
 - (CGSize)collectionView:(UXCollectionView *)collectionView layout:(UXCollectionViewLayout *)layout sizeForItemAtIndexPath:(NSIndexPath *)indexPath;
 - (NSEdgeInsets)collectionView:(UXCollectionView *)collectionView layout:(UXCollectionViewLayout *)layout insetForSectionAtIndex:(NSInteger)section;
