@@ -8,7 +8,13 @@
 //
 
 import Cocoa
+#if canImport(OpenUXKit)
 import OpenUXKit
+#elseif canImport(UXKit)
+import UXKit
+#else
+#error("")
+#endif
 
 private let demoCellIdentifier = "DemoCell"
 private let demoHeaderIdentifier = "DemoHeader"
@@ -98,12 +104,7 @@ final class UXCollectionViewShowcaseViewController: UXViewController, UXCollecti
         let spacing = (self.layout.minimumInteritemSpacing) * (columns - 1)
         let inset = self.layout.sectionInset.left + self.layout.sectionInset.right
         let width = max(80, (collectionView.bounds.width - spacing - inset) / columns)
-        // Sub-pixel jitter defeats UXCollectionViewFlowLayout's "all items same
-        // size" shortcut, which empties section.items and trips an out-of-bounds
-        // access in _UXFlowLayoutInfo.frameForItemAtIndexPath:. The +0.0001 px
-        // delta is invisible but keeps each item on the variable-size path.
-        let jitter = CGFloat(indexPath.item & 1) * 0.0001
-        return NSSize(width: width + jitter, height: width)
+        return NSSize(width: width, height: width)
     }
     func collectionView(_ collectionView: UXCollectionView, layout: UXCollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> NSSize {
         NSSize(width: collectionView.bounds.width, height: 36)
@@ -211,10 +212,7 @@ final class UXCollectionViewControllerShowcaseViewController: UXCollectionViewCo
 
 extension UXCollectionViewControllerShowcaseViewController: UXCollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UXCollectionView, layout: UXCollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> NSSize {
-        // Sub-pixel jitter keeps the flow layout off the broken "all items same
-        // size" fast path (see UXCollectionViewShowcaseViewController).
-        let jitter = CGFloat(indexPath.item & 1) * 0.0001
-        return NSSize(width: collectionView.bounds.width + jitter, height: 44)
+        NSSize(width: collectionView.bounds.width, height: 44)
     }
 }
 
@@ -264,5 +262,290 @@ private final class RowCell: UXCollectionViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         isSelected = false
+    }
+}
+
+// MARK: - Horizontal scroll
+
+final class UXCollectionViewHorizontalShowcaseViewController: UXViewController, UXCollectionViewDataSource, UXCollectionViewDelegate, UXCollectionViewDelegateFlowLayout {
+    private let palette: [NSColor] = [
+        .systemRed, .systemOrange, .systemYellow, .systemGreen, .systemMint,
+        .systemTeal, .systemCyan, .systemBlue, .systemIndigo, .systemPurple,
+        .systemPink, .systemBrown, .systemGray, .systemRed, .systemOrange,
+        .systemYellow, .systemGreen, .systemTeal, .systemBlue, .systemPurple,
+    ]
+
+    private lazy var layout: UXCollectionViewFlowLayout = {
+        let layout = UXCollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.minimumLineSpacing = 16
+        layout.minimumInteritemSpacing = 8
+        layout.sectionInset = NSEdgeInsets(top: 16, left: 24, bottom: 16, right: 24)
+        layout.headerReferenceSize = NSSize(width: 60, height: 0)
+        layout.footerReferenceSize = NSSize(width: 60, height: 0)
+        return layout
+    }()
+
+    private lazy var collectionView: UXCollectionView = {
+        let collectionView = UXCollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        collectionView.allowsMultipleSelection = false
+        collectionView.register(SwatchCell.self, forCellWithReuseIdentifier: demoCellIdentifier)
+        collectionView.register(EdgeBadge.self, forSupplementaryViewOfKind: "UXCollectionViewElementKindSectionHeader", withReuseIdentifier: "EdgeHeader")
+        collectionView.register(EdgeBadge.self, forSupplementaryViewOfKind: "UXCollectionViewElementKindSectionFooter", withReuseIdentifier: "EdgeFooter")
+        return collectionView
+    }()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        navigationItem?.title = "Horizontal flow"
+        navigationItem?.prompt = "Scroll horizontally — items stack vertically per column"
+        uxView.backgroundColor = ShowcasePalette.surface
+        pinFillingUXView(collectionView, in: self)
+    }
+
+    func numberOfSections(in collectionView: UXCollectionView) -> Int { 2 }
+    func collectionView(_ collectionView: UXCollectionView, numberOfItemsInSection section: Int) -> Int {
+        section == 0 ? 12 : 8
+    }
+    func collectionView(_ collectionView: UXCollectionView, cellForItemAt indexPath: IndexPath) -> UXCollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: demoCellIdentifier, for: indexPath) as! SwatchCell
+        cell.configure(color: palette[(indexPath.section * 10 + indexPath.item) % palette.count],
+                       label: String(format: "%d-%d", indexPath.section, indexPath.item))
+        return cell
+    }
+    func collectionView(_ collectionView: UXCollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UXCollectionReusableView {
+        let identifier = kind.hasSuffix("Footer") ? "EdgeFooter" : "EdgeHeader"
+        let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: identifier, for: indexPath) as! EdgeBadge
+        view.configure(text: identifier == "EdgeHeader" ? "S\(indexPath.section)\nHEAD" : "S\(indexPath.section)\nFOOT",
+                       color: identifier == "EdgeHeader" ? ShowcasePalette.primary : ShowcasePalette.accent)
+        return view
+    }
+
+    func collectionView(_ collectionView: UXCollectionView, layout: UXCollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> NSSize {
+        let crossSpace = collectionView.bounds.height - self.layout.sectionInset.top - self.layout.sectionInset.bottom
+        let rows: CGFloat = 3
+        let gap = self.layout.minimumInteritemSpacing * (rows - 1)
+        let side = max(60, (crossSpace - gap) / rows)
+        return NSSize(width: side, height: side)
+    }
+}
+
+// MARK: - Variable-size cells
+
+final class UXCollectionViewMixedSizeShowcaseViewController: UXViewController, UXCollectionViewDataSource, UXCollectionViewDelegate, UXCollectionViewDelegateFlowLayout {
+    private struct Tile { let color: NSColor; let weight: CGFloat }
+    private let tiles: [Tile] = [
+        Tile(color: .systemRed, weight: 2),
+        Tile(color: .systemOrange, weight: 1),
+        Tile(color: .systemYellow, weight: 1),
+        Tile(color: .systemGreen, weight: 3),
+        Tile(color: .systemTeal, weight: 1),
+        Tile(color: .systemBlue, weight: 2),
+        Tile(color: .systemIndigo, weight: 1),
+        Tile(color: .systemPurple, weight: 2),
+        Tile(color: .systemPink, weight: 1),
+        Tile(color: .systemMint, weight: 3),
+        Tile(color: .systemBrown, weight: 1),
+        Tile(color: .systemCyan, weight: 2),
+        Tile(color: .systemGray, weight: 1),
+        Tile(color: .systemRed, weight: 1),
+        Tile(color: .systemBlue, weight: 1),
+    ]
+
+    private lazy var layout: UXCollectionViewFlowLayout = {
+        let layout = UXCollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.minimumLineSpacing = 12
+        layout.minimumInteritemSpacing = 12
+        layout.sectionInset = NSEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
+        return layout
+    }()
+
+    private lazy var collectionView: UXCollectionView = {
+        let collectionView = UXCollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        collectionView.register(SwatchCell.self, forCellWithReuseIdentifier: demoCellIdentifier)
+        return collectionView
+    }()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        navigationItem?.title = "Mixed sizes"
+        navigationItem?.prompt = "Different widths share a row; height tracks tallest item"
+        uxView.backgroundColor = ShowcasePalette.surface
+        pinFillingUXView(collectionView, in: self)
+    }
+
+    func collectionView(_ collectionView: UXCollectionView, numberOfItemsInSection section: Int) -> Int { tiles.count }
+    func collectionView(_ collectionView: UXCollectionView, cellForItemAt indexPath: IndexPath) -> UXCollectionViewCell {
+        let tile = tiles[indexPath.item]
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: demoCellIdentifier, for: indexPath) as! SwatchCell
+        cell.configure(color: tile.color, label: "w\(Int(tile.weight))")
+        return cell
+    }
+    func collectionView(_ collectionView: UXCollectionView, layout: UXCollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> NSSize {
+        let tile = tiles[indexPath.item]
+        let unit: CGFloat = 80
+        return NSSize(width: unit * tile.weight, height: unit + CGFloat((indexPath.item % 3) * 12))
+    }
+}
+
+// MARK: - Per-section metrics + footer
+
+final class UXCollectionViewMultiMetricsShowcaseViewController: UXViewController, UXCollectionViewDataSource, UXCollectionViewDelegate, UXCollectionViewDelegateFlowLayout {
+    private let sectionPalettes: [(title: String, colors: [NSColor], interitem: CGFloat, line: CGFloat, inset: NSEdgeInsets)] = [
+        ("Tight grid", Array(repeating: .systemBlue, count: 9), 4, 4, NSEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)),
+        ("Wide gaps", Array(repeating: .systemOrange, count: 6), 24, 24, NSEdgeInsets(top: 24, left: 32, bottom: 24, right: 32)),
+        ("Asymmetric", Array(repeating: .systemGreen, count: 7), 8, 20, NSEdgeInsets(top: 4, left: 48, bottom: 28, right: 8)),
+    ]
+
+    private lazy var layout: UXCollectionViewFlowLayout = {
+        let layout = UXCollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.itemSize = NSSize(width: 80, height: 80)
+        return layout
+    }()
+
+    private lazy var collectionView: UXCollectionView = {
+        let collectionView = UXCollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        collectionView.register(SwatchCell.self, forCellWithReuseIdentifier: demoCellIdentifier)
+        collectionView.register(EdgeBadge.self, forSupplementaryViewOfKind: "UXCollectionViewElementKindSectionHeader", withReuseIdentifier: "MetricsHeader")
+        collectionView.register(EdgeBadge.self, forSupplementaryViewOfKind: "UXCollectionViewElementKindSectionFooter", withReuseIdentifier: "MetricsFooter")
+        return collectionView
+    }()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        navigationItem?.title = "Per-section metrics"
+        navigationItem?.prompt = "Each section uses its own insets, spacings, and a footer"
+        uxView.backgroundColor = ShowcasePalette.surface
+        pinFillingUXView(collectionView, in: self)
+    }
+
+    func numberOfSections(in collectionView: UXCollectionView) -> Int { sectionPalettes.count }
+    func collectionView(_ collectionView: UXCollectionView, numberOfItemsInSection section: Int) -> Int {
+        sectionPalettes[section].colors.count
+    }
+    func collectionView(_ collectionView: UXCollectionView, cellForItemAt indexPath: IndexPath) -> UXCollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: demoCellIdentifier, for: indexPath) as! SwatchCell
+        cell.configure(color: sectionPalettes[indexPath.section].colors[indexPath.item],
+                       label: "\(indexPath.section).\(indexPath.item)")
+        return cell
+    }
+    func collectionView(_ collectionView: UXCollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UXCollectionReusableView {
+        let isFooter = kind.hasSuffix("Footer")
+        let identifier = isFooter ? "MetricsFooter" : "MetricsHeader"
+        let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: identifier, for: indexPath) as! EdgeBadge
+        let title = isFooter ? "\(sectionPalettes[indexPath.section].title) · footer" : sectionPalettes[indexPath.section].title
+        view.configure(text: title, color: isFooter ? ShowcasePalette.muted : ShowcasePalette.primary)
+        return view
+    }
+
+    func collectionView(_ collectionView: UXCollectionView, layout: UXCollectionViewLayout, insetForSectionAt section: Int) -> NSEdgeInsets {
+        sectionPalettes[section].inset
+    }
+    func collectionView(_ collectionView: UXCollectionView, layout: UXCollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        sectionPalettes[section].line
+    }
+    func collectionView(_ collectionView: UXCollectionView, layout: UXCollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        sectionPalettes[section].interitem
+    }
+    func collectionView(_ collectionView: UXCollectionView, layout: UXCollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> NSSize {
+        NSSize(width: collectionView.bounds.width, height: 32)
+    }
+    func collectionView(_ collectionView: UXCollectionView, layout: UXCollectionViewLayout, referenceSizeForFooterInSection section: Int) -> NSSize {
+        NSSize(width: collectionView.bounds.width, height: section == 1 ? 0 : 20)
+    }
+}
+
+// MARK: - Edge cases
+
+final class UXCollectionViewEdgeCasesShowcaseViewController: UXViewController, UXCollectionViewDataSource, UXCollectionViewDelegate, UXCollectionViewDelegateFlowLayout {
+    private var sectionCounts: [Int] = [3, 0, 5, 1, 0, 7]
+
+    private lazy var layout: UXCollectionViewFlowLayout = {
+        let layout = UXCollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.minimumLineSpacing = 8
+        layout.minimumInteritemSpacing = 8
+        layout.sectionInset = NSEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
+        layout.itemSize = NSSize(width: 64, height: 64)
+        layout.headerReferenceSize = NSSize(width: 0, height: 28)
+        return layout
+    }()
+
+    private lazy var collectionView: UXCollectionView = {
+        let collectionView = UXCollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        collectionView.register(SwatchCell.self, forCellWithReuseIdentifier: demoCellIdentifier)
+        collectionView.register(EdgeBadge.self, forSupplementaryViewOfKind: "UXCollectionViewElementKindSectionHeader", withReuseIdentifier: "EdgeHeader")
+        return collectionView
+    }()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        navigationItem?.title = "Edge cases"
+        navigationItem?.prompt = "Empty sections, single-item sections, default itemSize (no delegate)"
+        navigationItem?.rightBarButtonItem = UXBarButtonItem(title: "Shuffle", style: .bordered, target: self, action: #selector(shuffle))
+        uxView.backgroundColor = ShowcasePalette.surface
+        pinFillingUXView(collectionView, in: self)
+    }
+
+    @objc private func shuffle() {
+        sectionCounts.shuffle()
+        collectionView.reloadData()
+    }
+
+    func numberOfSections(in collectionView: UXCollectionView) -> Int { sectionCounts.count }
+    func collectionView(_ collectionView: UXCollectionView, numberOfItemsInSection section: Int) -> Int {
+        sectionCounts[section]
+    }
+    func collectionView(_ collectionView: UXCollectionView, cellForItemAt indexPath: IndexPath) -> UXCollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: demoCellIdentifier, for: indexPath) as! SwatchCell
+        let hues: [NSColor] = [.systemRed, .systemOrange, .systemYellow, .systemGreen, .systemBlue, .systemPurple]
+        cell.configure(color: hues[(indexPath.section + indexPath.item) % hues.count],
+                       label: "\(indexPath.section)·\(indexPath.item)")
+        return cell
+    }
+    func collectionView(_ collectionView: UXCollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UXCollectionReusableView {
+        let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "EdgeHeader", for: indexPath) as! EdgeBadge
+        view.configure(text: "Section \(indexPath.section) — \(sectionCounts[indexPath.section]) item(s)", color: ShowcasePalette.primary)
+        return view
+    }
+}
+
+// MARK: - Shared supplementary view
+
+private final class EdgeBadge: UXCollectionReusableView {
+    let label = UXLabel()
+
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+        wantsLayer = true
+        layer?.cornerRadius = 6
+        label.font = .systemFont(ofSize: 11, weight: .semibold)
+        label.textAlignment = .center
+        label.textColor = .white
+        label.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(label)
+        NSLayoutConstraint.activate([
+            label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 6),
+            label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -6),
+            label.centerYAnchor.constraint(equalTo: centerYAnchor),
+        ])
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) { fatalError() }
+
+    func configure(text: String, color: NSColor) {
+        label.text = text
+        layer?.backgroundColor = color.cgColor
     }
 }

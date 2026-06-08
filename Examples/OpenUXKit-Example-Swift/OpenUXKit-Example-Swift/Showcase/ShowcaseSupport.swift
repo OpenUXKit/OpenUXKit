@@ -8,7 +8,13 @@
 //
 
 import Cocoa
+#if canImport(OpenUXKit)
 import OpenUXKit
+#elseif canImport(UXKit)
+import UXKit
+#else
+#error("")
+#endif
 
 struct ShowcaseSection {
     let title: String
@@ -42,6 +48,10 @@ enum ShowcaseCatalog {
         ShowcaseSection(title: "Collection View", demos: [
             ShowcaseDemo(title: "UXCollectionView", subtitle: "Flow layout with headers + selection", make: UXCollectionViewShowcaseViewController.init),
             ShowcaseDemo(title: "UXCollectionViewController", subtitle: "Built-in collection view + data source", make: UXCollectionViewControllerShowcaseViewController.init),
+            ShowcaseDemo(title: "Horizontal flow", subtitle: "scrollDirection = .horizontal, header/footer per section", make: UXCollectionViewHorizontalShowcaseViewController.init),
+            ShowcaseDemo(title: "Mixed sizes", subtitle: "Truly variable item widths and heights", make: UXCollectionViewMixedSizeShowcaseViewController.init),
+            ShowcaseDemo(title: "Per-section metrics", subtitle: "Different insets, spacings, and footers per section", make: UXCollectionViewMultiMetricsShowcaseViewController.init),
+            ShowcaseDemo(title: "Edge cases", subtitle: "Empty sections, single-item rows, default itemSize", make: UXCollectionViewEdgeCasesShowcaseViewController.init),
         ]),
         ShowcaseSection(title: "Miscellaneous", demos: [
             ShowcaseDemo(title: "UXTabBarItemSegment", subtitle: "Segment model used by tab bars", make: UXTabBarItemSegmentShowcaseViewController.init),
