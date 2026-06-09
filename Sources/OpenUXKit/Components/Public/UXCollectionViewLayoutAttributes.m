@@ -19,7 +19,6 @@ static NSIndexPath *sharedNotFoundPath = nil;
     BOOL _isFloating;
     CGRect _floatingFrame;
     NSIndexPath *_indexPath;
-    NSString *_representedElementKind;
     NSString *_isCloneString;
     struct {
         unsigned int isCellKind : 1;
@@ -44,7 +43,6 @@ static NSIndexPath *sharedNotFoundPath = nil;
 @synthesize floatingFrame = _floatingFrame;
 @synthesize verticalOffsetFromFloatingPosition = _verticalOffsetFromFloatingPosition;
 @synthesize isPushing = _isPushing;
-@synthesize representedElementKind = _representedElementKind;
 
 + (instancetype)layoutAttributesForCellWithIndexPath:(NSIndexPath *)indexPath {
     UXCollectionViewLayoutAttributes *attributes = [[self alloc] init];
@@ -86,7 +84,6 @@ static NSIndexPath *sharedNotFoundPath = nil;
         _floatingFrame = CGRectZero;
         _verticalOffsetFromFloatingPosition = 0;
         _indexPath = nil;
-        _representedElementKind = nil;
         _layoutFlags.isCellKind = 0;
         _layoutFlags.isDecorationView = 0;
         _layoutFlags.isHidden = 0;
