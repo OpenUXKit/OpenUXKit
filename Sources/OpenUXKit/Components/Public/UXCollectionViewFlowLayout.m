@@ -39,6 +39,32 @@ NSString *const UXCollectionElementKindSectionFooter = @"UXCollectionViewElement
 - (void)_invalidateLayoutUsingContext:(UXCollectionViewLayoutInvalidationContext *)context;
 @end
 
+// Mirrors UXKit's static `AdjustToScale` helper at <UXKit.framework>/__block_literal_global.4418:
+// caches the main screen's backingScaleFactor in a dispatch_once and rounds CGFloat values to
+// pixel-aligned coordinates so cells line up on the device grid.  When the scale is 1.0 or has
+// not yet been resolved (no screens attached during early app launch) we fall back to a plain
+// `round`, matching the UXKit behaviour.
+static CGFloat UXFlowLayoutAdjustToScale(CGFloat value) {
+    static dispatch_once_t onceToken;
+    static CGFloat backingScale = 1.0;
+    dispatch_once(&onceToken, ^{
+        CGFloat resolvedScale = [[NSScreen mainScreen] backingScaleFactor];
+        if (resolvedScale > 0.0) {
+            backingScale = resolvedScale;
+        }
+    });
+    if (backingScale == 1.0) {
+        return round(value);
+    }
+    return round(value * backingScale) / backingScale;
+}
+
+static CGRect UXFlowLayoutAlignFrameOriginToScale(CGRect frame) {
+    frame.origin.x = UXFlowLayoutAdjustToScale(frame.origin.x);
+    frame.origin.y = UXFlowLayoutAdjustToScale(frame.origin.y);
+    return frame;
+}
+
 typedef NS_OPTIONS(uint16_t, UXFlowLayoutGridFlags) {
     UXFlowLayoutFlagDelegateSizeForItem            = 1 << 0,
     UXFlowLayoutFlagDelegateReferenceSizeForHeader = 1 << 1,
@@ -180,6 +206,9 @@ typedef NS_OPTIONS(uint16_t, UXFlowLayoutGridFlags) {
 }
 
 - (void)setItemSize:(CGSize)size {
+    if (size.width <= 0.0) {
+        [NSException raise:NSInvalidArgumentException format:@"negative or zero item sizes are not supported in the flow layout"];
+    }
     if ((_gridLayoutFlags & UXFlowLayoutFlagDelegateSizeForItem) == 0
         && !CGSizeEqualToSize(_itemSize, size)
         && [self _isOwningLayout]
@@ -192,6 +221,9 @@ typedef NS_OPTIONS(uint16_t, UXFlowLayoutGridFlags) {
 }
 
 - (void)setHeaderReferenceSize:(CGSize)size {
+    if (size.width < 0.0) {
+        [NSException raise:NSInvalidArgumentException format:@"negative sizes of headers are not supported in the flow layout"];
+    }
     if ((_gridLayoutFlags & UXFlowLayoutFlagDelegateReferenceSizeForHeader) == 0
         && !CGSizeEqualToSize(_headerReferenceSize, size)
         && [self _isOwningLayout]
@@ -204,6 +236,9 @@ typedef NS_OPTIONS(uint16_t, UXFlowLayoutGridFlags) {
 }
 
 - (void)setFooterReferenceSize:(CGSize)size {
+    if (size.width < 0.0) {
+        [NSException raise:NSInvalidArgumentException format:@"negative sizes of footers are not supported in the flow layout"];
+    }
     if ((_gridLayoutFlags & UXFlowLayoutFlagDelegateReferenceSizeForFooter) == 0
         && !CGSizeEqualToSize(_footerReferenceSize, size)
         && [self _isOwningLayout]
@@ -301,9 +336,14 @@ typedef NS_OPTIONS(uint16_t, UXFlowLayoutGridFlags) {
     [self _invalidateLayoutUsingContext:context];
 }
 
+// UXKit's -[UXCollectionViewFlowLayout(Internal) synchronizeLayout] is a deliberate stub that
+// just returns CGSizeZero (see binary at 0x1dbbf3d38).  Earlier OpenUXKit re-routed the call
+// through `_fetchItemsInfo` to keep _currentLayoutSize warm, but the real framework leaves the
+// hot-loop scheduling to UXCollectionView's main thread driver.  Match the binary so any
+// downstream consumer that probes for "is this layout still bootstrapping?" gets the same
+// answer it would from UXKit.
 - (CGSize)synchronizeLayout {
-    [self _fetchItemsInfo];
-    return _currentLayoutSize;
+    return CGSizeZero;
 }
 
 #pragma mark - Layout computation
@@ -509,8 +549,8 @@ typedef NS_OPTIONS(uint16_t, UXFlowLayoutGridFlags) {
         return nil;
     }
 
-    CGRect frame = [data frameForItemAtIndexPath:indexPath];
     UXCollectionViewLayoutAttributes *attributes = [[[self class] layoutAttributesClass] layoutAttributesForCellWithIndexPath:indexPath];
+    CGRect frame = [self _frameForItemAtSection:indexPath.section andRow:indexPath.item usingData:data];
     [attributes setFrame:frame];
     return attributes;
 }
@@ -524,17 +564,15 @@ typedef NS_OPTIONS(uint16_t, UXFlowLayoutGridFlags) {
     if ((NSUInteger)section >= data.sections.count) {
         return nil;
     }
-    _UXFlowLayoutSection *layoutSection = data.sections[section];
-    if (layoutSection.headerDimension <= 0.0) {
+    CGRect headerFrame = [self _frameForHeaderInSection:section usingData:data];
+    if (CGRectEqualToRect(headerFrame, CGRectZero)) {
         return nil;
     }
-    CGRect headerFrame = layoutSection.headerFrame;
-    CGRect sectionFrame = layoutSection.frame;
-    headerFrame = CGRectOffset(headerFrame, sectionFrame.origin.x, sectionFrame.origin.y);
 
-    UXCollectionViewLayoutAttributes *attributes = [[[[self class] layoutAttributesClass] alloc] init];
-    attributes.indexPath = [NSIndexPath indexPathForItem:0 inSection:section];
-    [attributes _setElementKind:UXCollectionElementKindSectionHeader];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForItem:0 inSection:section];
+    UXCollectionViewLayoutAttributes *attributes = [[[self class] layoutAttributesClass]
+        layoutAttributesForSupplementaryViewOfKind:UXCollectionElementKindSectionHeader
+                                     withIndexPath:indexPath];
     [attributes setFrame:headerFrame];
     return attributes;
 }
@@ -543,17 +581,15 @@ typedef NS_OPTIONS(uint16_t, UXFlowLayoutGridFlags) {
     if ((NSUInteger)section >= data.sections.count) {
         return nil;
     }
-    _UXFlowLayoutSection *layoutSection = data.sections[section];
-    if (layoutSection.footerDimension <= 0.0) {
+    CGRect footerFrame = [self _frameForFooterInSection:section usingData:data];
+    if (CGRectEqualToRect(footerFrame, CGRectZero)) {
         return nil;
     }
-    CGRect footerFrame = layoutSection.footerFrame;
-    CGRect sectionFrame = layoutSection.frame;
-    footerFrame = CGRectOffset(footerFrame, sectionFrame.origin.x, sectionFrame.origin.y);
 
-    UXCollectionViewLayoutAttributes *attributes = [[[[self class] layoutAttributesClass] alloc] init];
-    attributes.indexPath = [NSIndexPath indexPathForItem:0 inSection:section];
-    [attributes _setElementKind:UXCollectionElementKindSectionFooter];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForItem:0 inSection:section];
+    UXCollectionViewLayoutAttributes *attributes = [[[self class] layoutAttributesClass]
+        layoutAttributesForSupplementaryViewOfKind:UXCollectionElementKindSectionFooter
+                                     withIndexPath:indexPath];
     [attributes setFrame:footerFrame];
     return attributes;
 }
@@ -606,20 +642,26 @@ typedef NS_OPTIONS(uint16_t, UXFlowLayoutGridFlags) {
 }
 
 - (NSArray<NSIndexPath *> *)indexPathsForItemsInRect:(CGRect)rect usingData:(_UXFlowLayoutInfo *)data {
-    NSMutableArray<NSIndexPath *> *result = [NSMutableArray array];
-    if (!data) {
+    // Matches UXKit binary at 0x1dbbf2f98 — for each section whose rect intersects, walk
+    // `section.items` (note: this is *not* `section.itemsCount`; UXKit iterates the items
+    // array directly so fixed-size sections that cleared their item objects are skipped).
+    NSMutableArray<NSIndexPath *> *result = [NSMutableArray arrayWithCapacity:10];
+    _UXFlowLayoutInfo *layoutData = data ?: _data;
+    if (!layoutData) {
         return result;
     }
-    for (NSUInteger sectionIndex = 0; sectionIndex < data.sections.count; sectionIndex++) {
-        _UXFlowLayoutSection *section = data.sections[sectionIndex];
+    NSArray<_UXFlowLayoutSection *> *sections = layoutData.sections;
+    NSInteger sectionCount = (NSInteger)sections.count;
+    for (NSInteger sectionIndex = 0; sectionIndex < sectionCount; sectionIndex++) {
+        _UXFlowLayoutSection *section = sections[sectionIndex];
         if (!CGRectIntersectsRect(section.frame, rect)) {
             continue;
         }
-        for (NSInteger itemIndex = 0; itemIndex < section.itemsCount; itemIndex++) {
-            NSIndexPath *indexPath = [NSIndexPath indexPathForItem:itemIndex inSection:sectionIndex];
-            CGRect frame = [data frameForItemAtIndexPath:indexPath];
-            if (CGRectIntersectsRect(frame, rect)) {
-                [result addObject:indexPath];
+        NSInteger itemCount = (NSInteger)section.items.count;
+        for (NSInteger itemIndex = 0; itemIndex < itemCount; itemIndex++) {
+            CGRect itemRect = [self _frameForItemAtSection:sectionIndex andRow:itemIndex usingData:layoutData];
+            if (!CGRectIsNull(CGRectIntersection(itemRect, rect))) {
+                [result addObject:[NSIndexPath indexPathForItem:itemIndex inSection:sectionIndex]];
             }
         }
     }
@@ -631,16 +673,28 @@ typedef NS_OPTIONS(uint16_t, UXFlowLayoutGridFlags) {
     return [self indexPathsForItemsInRect:rect usingData:_data];
 }
 
+// UXKit's indexes* variants (binary at 0x1dbbf32d0 / 0x1dbbf3194) actually return an
+// NSArray<NSIndexPath *>, not an NSIndexSet, and gate on section.frame intersecting the
+// query rect *before* re-testing the absolute header/footer frame.  OpenUXKit's public
+// header was already exposing NSIndexSet long before this phase, so we keep the
+// NSIndexSet return type to preserve the public API contract but otherwise mirror the
+// "intersect section, then intersect supplementary frame" predicate from the binary.
 - (NSIndexSet *)indexesForSectionHeadersInRect:(CGRect)rect usingData:(_UXFlowLayoutInfo *)data {
     NSMutableIndexSet *indexes = [NSMutableIndexSet indexSet];
-    for (NSUInteger sectionIndex = 0; sectionIndex < data.sections.count; sectionIndex++) {
-        _UXFlowLayoutSection *section = data.sections[sectionIndex];
+    _UXFlowLayoutInfo *layoutData = data ?: _data;
+    NSArray<_UXFlowLayoutSection *> *sections = layoutData.sections;
+    NSInteger sectionCount = (NSInteger)sections.count;
+    for (NSInteger sectionIndex = 0; sectionIndex < sectionCount; sectionIndex++) {
+        _UXFlowLayoutSection *section = sections[sectionIndex];
         if (section.headerDimension <= 0.0) {
             continue;
         }
-        CGRect headerFrame = CGRectOffset(section.headerFrame, section.frame.origin.x, section.frame.origin.y);
-        if (CGRectIntersectsRect(headerFrame, rect)) {
-            [indexes addIndex:sectionIndex];
+        if (CGRectIsNull(CGRectIntersection(section.frame, rect))) {
+            continue;
+        }
+        CGRect headerFrame = [self _frameForHeaderInSection:sectionIndex usingData:layoutData];
+        if (!CGRectIsNull(CGRectIntersection(headerFrame, rect))) {
+            [indexes addIndex:(NSUInteger)sectionIndex];
         }
     }
     return indexes;
@@ -648,14 +702,20 @@ typedef NS_OPTIONS(uint16_t, UXFlowLayoutGridFlags) {
 
 - (NSIndexSet *)indexesForSectionFootersInRect:(CGRect)rect usingData:(_UXFlowLayoutInfo *)data {
     NSMutableIndexSet *indexes = [NSMutableIndexSet indexSet];
-    for (NSUInteger sectionIndex = 0; sectionIndex < data.sections.count; sectionIndex++) {
-        _UXFlowLayoutSection *section = data.sections[sectionIndex];
+    _UXFlowLayoutInfo *layoutData = data ?: _data;
+    NSArray<_UXFlowLayoutSection *> *sections = layoutData.sections;
+    NSInteger sectionCount = (NSInteger)sections.count;
+    for (NSInteger sectionIndex = 0; sectionIndex < sectionCount; sectionIndex++) {
+        _UXFlowLayoutSection *section = sections[sectionIndex];
         if (section.footerDimension <= 0.0) {
             continue;
         }
-        CGRect footerFrame = CGRectOffset(section.footerFrame, section.frame.origin.x, section.frame.origin.y);
-        if (CGRectIntersectsRect(footerFrame, rect)) {
-            [indexes addIndex:sectionIndex];
+        if (CGRectIsNull(CGRectIntersection(section.frame, rect))) {
+            continue;
+        }
+        CGRect footerFrame = [self _frameForFooterInSection:sectionIndex usingData:layoutData];
+        if (!CGRectIsNull(CGRectIntersection(footerFrame, rect))) {
+            [indexes addIndex:(NSUInteger)sectionIndex];
         }
     }
     return indexes;
@@ -670,17 +730,28 @@ typedef NS_OPTIONS(uint16_t, UXFlowLayoutGridFlags) {
 }
 
 - (NSIndexPath *)indexPathForItemAtPoint:(CGPoint)point {
-    [self _fetchItemsInfo];
-    for (NSUInteger sectionIndex = 0; sectionIndex < _data.sections.count; sectionIndex++) {
-        _UXFlowLayoutSection *section = _data.sections[sectionIndex];
+    // UXKit's indexPathForItemAtPoint: (binary at 0x1dbbf2cc0) walks three nested levels —
+    // section.frame -> row.rowFrame -> item.itemFrame — rather than flattening to a
+    // section/item loop.  Mirror that traversal so RTL/horizontal layouts that depend on
+    // row-relative hit-testing line up with the framework.  Each level's frame is stored in
+    // its parent's coordinate space; UXKit's check uses CGRectContainsPoint on the raw
+    // frame (no origin offset) which is fine because rowFrame is already absolute within
+    // the section and itemFrame is row-local but only consulted after the row hit succeeds.
+    for (_UXFlowLayoutSection *section in _data.sections) {
         if (!CGRectContainsPoint(section.frame, point)) {
             continue;
         }
-        for (NSInteger itemIndex = 0; itemIndex < section.itemsCount; itemIndex++) {
-            NSIndexPath *indexPath = [NSIndexPath indexPathForItem:itemIndex inSection:sectionIndex];
-            CGRect frame = [_data frameForItemAtIndexPath:indexPath];
-            if (CGRectContainsPoint(frame, point)) {
-                return indexPath;
+        for (_UXFlowLayoutRow *row in section.rows) {
+            if (!CGRectContainsPoint(row.rowFrame, point)) {
+                continue;
+            }
+            for (_UXFlowLayoutItem *item in row.items) {
+                if (!CGRectContainsPoint(item.itemFrame, point)) {
+                    continue;
+                }
+                NSInteger sectionIndex = [_data.sections indexOfObject:section];
+                NSInteger itemIndex = [section.items indexOfObject:item];
+                return [NSIndexPath indexPathForItem:itemIndex inSection:sectionIndex];
             }
         }
     }
@@ -763,38 +834,101 @@ typedef NS_OPTIONS(uint16_t, UXFlowLayoutGridFlags) {
 }
 
 - (void)finalizeCollectionViewUpdates {
-    [_insertedItemsAttributesDict removeAllObjects];
-    [_insertedSectionHeadersAttributesDict removeAllObjects];
-    [_insertedSectionFootersAttributesDict removeAllObjects];
-    [_deletedItemsAttributesDict removeAllObjects];
-    [_deletedSectionHeadersAttributesDict removeAllObjects];
-    [_deletedSectionFootersAttributesDict removeAllObjects];
+    // UXKit releases all six update-tracking dictionaries (see binary at 0x1dbbf3eb8); the
+    // dictionaries are lazily recreated by the update-collection pipeline on the next
+    // performBatchUpdates: call.  We mirror that "release & nil" pattern instead of
+    // removeAllObjects so allocation patterns and memory footprint stay aligned.
+    _insertedItemsAttributesDict = nil;
+    _insertedSectionHeadersAttributesDict = nil;
+    _insertedSectionFootersAttributesDict = nil;
+    _deletedItemsAttributesDict = nil;
+    _deletedSectionHeadersAttributesDict = nil;
+    _deletedSectionFootersAttributesDict = nil;
 }
 
-#pragma mark - Private frame helpers
+#pragma mark - Private frame helpers (data-aware)
 
-- (CGRect)_frameForHeaderInSection:(NSInteger)section {
-    [self _fetchItemsInfo];
-    if (section < 0 || section >= (NSInteger)_data.sections.count) {
+// UXKit's frame helpers compose the section origin with the relevant child frame and then
+// snap the origin to the screen's backing scale using `AdjustToScale.__s` (decompiled at
+// 0x1dbbf3f74 / 0x1dbbf4080 / 0x1dbbf4160).  Width/height are left untouched.  Mirror the
+// exact rounding pattern (round(value * scale) / scale, falling back to round() at 1.0)
+// so cells line up on pixel boundaries identically to the original framework.
+- (CGRect)_frameForHeaderInSection:(NSInteger)section usingData:(_UXFlowLayoutInfo *)data {
+    _UXFlowLayoutInfo *layoutData = data ?: _data;
+    if (section < 0 || section >= (NSInteger)layoutData.sections.count) {
         return CGRectZero;
     }
-    _UXFlowLayoutSection *layoutSection = _data.sections[section];
-    return CGRectOffset(layoutSection.headerFrame, layoutSection.frame.origin.x, layoutSection.frame.origin.y);
+    _UXFlowLayoutSection *layoutSection = layoutData.sections[section];
+    CGRect headerFrame = layoutSection.headerFrame;
+    CGRect sectionFrame = layoutSection.frame;
+    return UXFlowLayoutAlignFrameOriginToScale(CGRectMake(headerFrame.origin.x + sectionFrame.origin.x,
+                                                         headerFrame.origin.y + sectionFrame.origin.y,
+                                                         headerFrame.size.width,
+                                                         headerFrame.size.height));
+}
+
+- (CGRect)_frameForFooterInSection:(NSInteger)section usingData:(_UXFlowLayoutInfo *)data {
+    _UXFlowLayoutInfo *layoutData = data ?: _data;
+    if (section < 0 || section >= (NSInteger)layoutData.sections.count) {
+        return CGRectZero;
+    }
+    _UXFlowLayoutSection *layoutSection = layoutData.sections[section];
+    CGRect footerFrame = layoutSection.footerFrame;
+    CGRect sectionFrame = layoutSection.frame;
+    return UXFlowLayoutAlignFrameOriginToScale(CGRectMake(footerFrame.origin.x + sectionFrame.origin.x,
+                                                         footerFrame.origin.y + sectionFrame.origin.y,
+                                                         footerFrame.size.width,
+                                                         footerFrame.size.height));
+}
+
+// UXKit's _frameForItemAtSection:andRow:usingData: composes three origins: the section frame
+// origin, the in-row item frame origin, and the row's frame origin in the section, then
+// pixel-aligns the result (binary at 0x1dbbf4160).  The `row` parameter is misnamed in the
+// selector — UXKit actually passes a *flat item index*, looks the item up directly in
+// `section.items[row]`, then queries `item.rowObject.rowFrame` for the row offset.
+- (CGRect)_frameForItemAtSection:(NSInteger)section andRow:(NSInteger)row usingData:(_UXFlowLayoutInfo *)data {
+    _UXFlowLayoutInfo *layoutData = data ?: _data;
+    if (section < 0 || section >= (NSInteger)layoutData.sections.count) {
+        return CGRectZero;
+    }
+    _UXFlowLayoutSection *layoutSection = layoutData.sections[section];
+    if (row < 0 || row >= (NSInteger)layoutSection.items.count) {
+        return CGRectZero;
+    }
+    _UXFlowLayoutItem *item = layoutSection.items[row];
+    CGRect itemFrame = item.itemFrame;
+    CGRect rowFrame = item.rowObject.rowFrame;
+    CGRect sectionFrame = layoutSection.frame;
+    return UXFlowLayoutAlignFrameOriginToScale(CGRectMake(itemFrame.origin.x + sectionFrame.origin.x + rowFrame.origin.x,
+                                                         itemFrame.origin.y + sectionFrame.origin.y + rowFrame.origin.y,
+                                                         itemFrame.size.width,
+                                                         itemFrame.size.height));
+}
+
+// Convenience wrappers that mirror the no-data UXKit selectors; they materialise the layout
+// data lazily and then forward to the usingData: variant so we share the pixel-aligned path.
+- (CGRect)_frameForHeaderInSection:(NSInteger)section {
+    [self _fetchItemsInfo];
+    return [self _frameForHeaderInSection:section usingData:_data];
 }
 
 - (CGRect)_frameForFooterInSection:(NSInteger)section {
     [self _fetchItemsInfo];
-    if (section < 0 || section >= (NSInteger)_data.sections.count) {
-        return CGRectZero;
-    }
-    _UXFlowLayoutSection *layoutSection = _data.sections[section];
-    return CGRectOffset(layoutSection.footerFrame, layoutSection.frame.origin.x, layoutSection.frame.origin.y);
+    return [self _frameForFooterInSection:section usingData:_data];
 }
 
 - (CGRect)_frameForItemAtSection:(NSIndexPath *)indexPath {
-    return [_data frameForItemAtIndexPath:indexPath];
+    [self _fetchItemsInfo];
+    return [self _frameForItemAtSection:indexPath.section andRow:indexPath.item usingData:_data];
 }
 
+// UXKit derives _layoutAttributesForItemsInRect: from the section/row tables directly
+// (binary at 0x1dbbf18bc, the layout fast path) but for OpenUXKit we still defer to the
+// already-aligned `layoutAttributesForElementsInRect:` and filter cells.  Skipping the
+// fixed-item-size math optimisation costs a small amount of CPU at the boundary of large
+// scrolls, but the frames produced are identical and we keep the implementation focused
+// on the algorithms users can actually observe.  Revisit during P9 if profiling shows it
+// matters.
 - (NSArray<UXCollectionViewLayoutAttributes *> *)_layoutAttributesForItemsInRect:(CGRect)rect {
     NSArray<UXCollectionViewLayoutAttributes *> *all = [self layoutAttributesForElementsInRect:rect];
     NSMutableArray<UXCollectionViewLayoutAttributes *> *items = [NSMutableArray array];
@@ -804,24 +938,6 @@ typedef NS_OPTIONS(uint16_t, UXFlowLayoutGridFlags) {
         }
     }
     return items;
-}
-
-#pragma mark - Frame helpers (data-aware)
-
-- (CGRect)_frameForHeaderInSection:(NSInteger)section usingData:(id)data {
-    UXCollectionViewLayoutAttributes *attributes = [self layoutAttributesForHeaderInSection:section];
-    return attributes ? attributes.frame : CGRectZero;
-}
-
-- (CGRect)_frameForFooterInSection:(NSInteger)section usingData:(id)data {
-    UXCollectionViewLayoutAttributes *attributes = [self layoutAttributesForFooterInSection:section];
-    return attributes ? attributes.frame : CGRectZero;
-}
-
-- (CGRect)_frameForItemAtSection:(NSInteger)section andRow:(NSInteger)row usingData:(id)data {
-    NSIndexPath *indexPath = [NSIndexPath indexPathForItem:row inSection:section];
-    UXCollectionViewLayoutAttributes *attributes = [self layoutAttributesForItemAtIndexPath:indexPath];
-    return attributes ? attributes.frame : CGRectZero;
 }
 
 @end
