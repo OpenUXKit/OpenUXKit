@@ -1,32 +1,26 @@
 #import "UXCollectionReusableView.h"
 #import "UXCollectionReusableView+Internal.h"
 #import "UXCollectionView.h"
+#import "UXCollectionViewLayout.h"
+#import "UXCollectionViewLayout+Internal.h"
+#import "UXCollectionViewLayoutAccessibility.h"
+#import "UXCollectionViewLayoutSectionAccessibility.h"
 #import "UXCollectionViewLayoutAttributes.h"
 #import "UXCollectionViewLayoutAttributes+Internal.h"
 #import <QuartzCore/QuartzCore.h>
 
-@interface NSObject (UXCollectionReusableViewSPI)
-- (nullable NSIndexPath *)indexPathForCell:(id)cell;
-- (nullable NSIndexPath *)indexPathForSupplementaryView:(id)view;
-- (void)scrollToItemAtIndexPath:(NSIndexPath *)indexPath atScrollPosition:(NSUInteger)position animated:(BOOL)animated;
-@end
-
 @interface UXCollectionReusableView () {
     UXCollectionViewLayoutAttributes *_layoutAttributes;
     NSString *_reuseIdentifier;
-    __weak UXCollectionView *_collectionView;
+    // UXKit 26.4 stores a non-retaining raw pointer (plain assign, no weak
+    // registration); the owning collection view always outlives its views.
+    __unsafe_unretained UXCollectionView *_collectionView;
     struct {
         uint32_t updateAnimationCount : 5;
         uint32_t wasDequeued : 1;
     } _reusableViewFlags;
     BOOL _isFloatingPinned;
 }
-
-- (nullable CGImageRef)_snapshot:(BOOL)flipped CF_RETURNS_RETAINED;
-- (nullable NSIndexPath *)_accessibilityIndexPath;
-- (nullable NSString *)_accessibilityDefaultRole;
-- (nullable id)_dynamicAccessibilityParent;
-- (nullable id)_layoutSectionAccessibility;
 
 @end
 
@@ -69,7 +63,7 @@
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"<%@: %p reuseIdentifier:%@>", NSStringFromClass([self class]), self, _reuseIdentifier];
+    return [NSString stringWithFormat:@"<%@: %p; frame = %@, reuseIdentifier = %@>", [self class], self, NSStringFromRect(self.frame), _reuseIdentifier];
 }
 
 - (BOOL)wantsUpdateLayer {
@@ -187,27 +181,18 @@
 - (void)willTransitionFromLayout:(UXCollectionViewLayout *)layout toLayout:(UXCollectionViewLayout *)toLayout {
 }
 
-#pragma mark - Accessibility helpers
+#pragma mark - Accessibility
+
+- (id)_layoutSectionAccessibility {
+    id accessibilityParent = self.accessibilityParent;
+    if ([accessibilityParent isKindOfClass:[UXCollectionViewLayoutSectionAccessibility class]]) {
+        return accessibilityParent;
+    }
+    return nil;
+}
 
 - (NSIndexPath *)_accessibilityIndexPath {
-    UXCollectionView *collectionView = _collectionView;
-    if (!collectionView) {
-        return nil;
-    }
-    if ([self respondsToSelector:NSSelectorFromString(@"isKindOfClass:")]) {
-        // Resolve via collection view to support both cells and supplementary views.
-        NSIndexPath *fromCell = nil;
-        if ([collectionView respondsToSelector:@selector(indexPathForCell:)]) {
-            fromCell = [(id)collectionView indexPathForCell:self];
-        }
-        if (fromCell) {
-            return fromCell;
-        }
-        if ([collectionView respondsToSelector:@selector(indexPathForSupplementaryView:)]) {
-            return [(id)collectionView indexPathForSupplementaryView:self];
-        }
-    }
-    return _layoutAttributes.indexPath;
+    return [[self _collectionView] indexPathForSupplementaryView:self];
 }
 
 - (NSString *)_accessibilityDefaultRole {
@@ -215,27 +200,34 @@
 }
 
 - (id)_dynamicAccessibilityParent {
-    return _collectionView;
+    return [[[self _collectionView].collectionViewLayout layoutAccessibility] accessibilityParentForReusableView:self];
 }
 
-- (id)_layoutSectionAccessibility {
-    return nil;
+- (NSAccessibilityRole)accessibilityRole {
+    NSAccessibilityRole role = [super accessibilityRole];
+    if (!role || [role isEqualToString:NSAccessibilityUnknownRole]) {
+        role = [self _accessibilityDefaultRole];
+    }
+    return role;
+}
+
+- (id)accessibilityParent {
+    id accessibilityParent = [super accessibilityParent];
+    UXCollectionView *collectionView = [self _collectionView];
+    if (!accessibilityParent || accessibilityParent == collectionView) {
+        accessibilityParent = [self _dynamicAccessibilityParent];
+    }
+    return accessibilityParent;
 }
 
 - (BOOL)accessibilityPerformScrollToVisible {
-    UXCollectionView *collectionView = _collectionView;
-    if (!collectionView) {
-        return NO;
-    }
-    NSIndexPath *indexPath = [self _accessibilityIndexPath];
-    if (!indexPath) {
-        return NO;
-    }
-    if ([collectionView respondsToSelector:@selector(scrollToItemAtIndexPath:atScrollPosition:animated:)]) {
-        [(id)collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:0 animated:NO];
-        return YES;
-    }
-    return NO;
+    // UXKit passes raw scroll position 64 — an SPI "nearest" mode handled by
+    // -_scrollAmountForMovingRect:toScrollPosition:inDestinationRect: that
+    // scrolls only when the item is not already fully visible (P9 scope).
+    [[self _collectionView] scrollToItemAtIndexPath:[self _accessibilityIndexPath]
+                                   atScrollPosition:(UXCollectionViewScrollPosition)64
+                                           animated:YES];
+    return YES;
 }
 
 - (CGImageRef)_snapshot:(BOOL)flipped {

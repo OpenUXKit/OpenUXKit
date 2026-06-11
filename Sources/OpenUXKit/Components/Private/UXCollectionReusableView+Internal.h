@@ -18,6 +18,15 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 - (BOOL)_wasDequeued;
 - (void)_markAsDequeued;
 
+- (nullable CGImageRef)_snapshot:(BOOL)flipped CF_RETURNS_RETAINED;
+
+#pragma mark - Accessibility
+
+- (nullable NSIndexPath *)_accessibilityIndexPath;
+- (nullable NSString *)_accessibilityDefaultRole;
+- (nullable id)_dynamicAccessibilityParent;
+- (nullable id)_layoutSectionAccessibility;
+
 @end
 
 NS_HEADER_AUDIT_END(nullability, sendability)
