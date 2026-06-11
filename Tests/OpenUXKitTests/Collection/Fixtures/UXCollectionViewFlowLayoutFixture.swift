@@ -46,8 +46,13 @@ final class UXCollectionViewFlowLayoutFixture: NSObject, UXCollectionViewDataSou
     @MainActor
     func build() -> (collectionView: UXCollectionView, layout: UXCollectionViewFlowLayout) {
         let layout = UXCollectionViewFlowLayout()
-        // TODO(uxkit-align): wire scrollDirection/itemSize/spacing once UXCollectionViewFlowLayout
-        //                    exposes them via the Public API contract (see PublicAPIContract.md).
+        layout.scrollDirection = scrollDirection
+        layout.itemSize = itemSize
+        layout.sectionInset = sectionInset
+        layout.minimumLineSpacing = minimumLineSpacing
+        layout.minimumInteritemSpacing = minimumInteritemSpacing
+        layout.headerReferenceSize = headerReferenceSize
+        layout.footerReferenceSize = footerReferenceSize
         let collectionView = UXCollectionView(frame: collectionViewFrame, collectionViewLayout: layout)
         collectionView.dataSource = self
         collectionView.delegate = self

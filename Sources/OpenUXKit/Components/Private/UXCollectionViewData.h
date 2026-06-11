@@ -44,7 +44,9 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 - (void)validateLayoutInRect:(CGRect)rect;
 - (void)validateSupplementaryViews;
 - (void)invalidate:(BOOL)keepItemCounts;
-- (void)invalidateSupplementaryViews:(nullable NSSet<NSString *> *)kinds;
+// UXKit contract: kind -> array of invalidated index paths (matches
+// UXCollectionViewLayoutInvalidationContext._invalidatedSupplementaryViews).
+- (void)invalidateSupplementaryViews:(nullable NSDictionary<NSString *, NSArray<NSIndexPath *> *> *)invalidatedSupplementaryViews;
 
 @end
 

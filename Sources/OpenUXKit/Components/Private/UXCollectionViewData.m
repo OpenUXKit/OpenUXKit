@@ -1,4 +1,5 @@
 #import "UXCollectionViewData.h"
+#import "UXCollectionViewData+Internal.h"
 #import "UXCollectionView.h"
 #import "UXCollectionViewLayout.h"
 #import "UXCollectionViewLayout+Internal.h"
@@ -18,6 +19,27 @@ typedef NS_OPTIONS(uint8_t, UXCollectionViewDataFlags) {
     UXCollectionViewDataFlagLayoutPrepared    = 1 << 2,
     UXCollectionViewDataFlagLayoutLocked      = 1 << 3,
 };
+
+// UXKit pages the layout attributes cache by `__pageDimension`, a square page
+// side initialized once from the main screen height (+initialize).
+static CGFloat UXCollectionViewDataPageDimension = 1024.0;
+
+// UXKit screen page key: ~((uint16)pageY | ((uint16)pageX << 16)). The inverted
+// value can never be 0/NULL, which makes it a safe opaque NSMapTable key.
+static void *UXCollectionViewDataScreenPageKeyForPoint(CGPoint point) {
+    CGFloat pageDimension = UXCollectionViewDataPageDimension;
+    uint64_t pageX = (uint16_t)(uint32_t)(point.x / pageDimension);
+    uint64_t pageY = (uint16_t)(uint32_t)(point.y / pageDimension);
+    return (void *)(uintptr_t)~(pageY | (pageX << 16));
+}
+
+static CGRect UXCollectionViewDataScreenPageRectForKey(uintptr_t key) {
+    CGFloat pageDimension = UXCollectionViewDataPageDimension;
+    uint64_t invertedKey = ~(uint64_t)key;
+    uint16_t pageY = (uint16_t)(invertedKey & 0xFFFF);
+    uint16_t pageX = (uint16_t)((invertedKey >> 16) & 0xFFFF);
+    return CGRectMake(pageDimension * pageX, pageDimension * pageY, pageDimension, pageDimension);
+}
 
 @interface UXCollectionViewData () {
     __unsafe_unretained UXCollectionView *_collectionView;
@@ -43,6 +65,17 @@ typedef NS_OPTIONS(uint8_t, UXCollectionViewDataFlags) {
 
 @synthesize clonedLayoutAttributes = _clonedLayoutAttributes;
 
++ (void)initialize {
+    if (self == [UXCollectionViewData class]) {
+        CGFloat mainScreenHeight = CGRectGetHeight([NSScreen mainScreen].frame);
+        if (mainScreenHeight == 0.0) {
+            NSLog(@"Incorrect screen size for %@ in UXCollectionViewData", [NSScreen mainScreen]);
+            mainScreenHeight = 1024.0;
+        }
+        UXCollectionViewDataPageDimension = mainScreenHeight;
+    }
+}
+
 - (instancetype)initWithCollectionView:(UXCollectionView *)collectionView layout:(UXCollectionViewLayout *)layout {
     self = [super init];
     if (self) {
@@ -52,20 +85,22 @@ typedef NS_OPTIONS(uint8_t, UXCollectionViewDataFlags) {
         _decorationLayoutAttributes = [[NSMutableDictionary alloc] init];
         _clonedLayoutAttributes = [[NSMutableArray alloc] init];
 
-        NSPointerFunctions *keyFunctions = [NSPointerFunctions pointerFunctionsWithOptions:NSPointerFunctionsObjectPersonality | NSPointerFunctionsStrongMemory];
+        // UXKit: opaque integer keys (page keys), strong object values
+        // (NSMutableIndexSet of global item indexes per page).
+        NSPointerFunctions *keyFunctions = [NSPointerFunctions pointerFunctionsWithOptions:NSPointerFunctionsIntegerPersonality | NSPointerFunctionsOpaqueMemory];
         NSPointerFunctions *valueFunctions = [NSPointerFunctions pointerFunctionsWithOptions:NSPointerFunctionsObjectPersonality | NSPointerFunctionsStrongMemory];
         _screenPageMap = [[NSMapTable alloc] initWithKeyPointerFunctions:keyFunctions valuePointerFunctions:valueFunctions capacity:0];
 
         _lastSectionTestedForNumberOfItemsBeforeSection = NSNotFound;
-        _lastResultForNumberOfItemsBeforeSection = NSNotFound;
+        _lastResultForNumberOfItemsBeforeSection = 0;
     }
     return self;
 }
 
 - (void)dealloc {
     if (_globalItems) {
-        for (NSInteger i = 0; i < _numItems; i++) {
-            _globalItems[i] = nil;
+        for (NSInteger globalItemIndex = 0; globalItemIndex < _numItems; globalItemIndex++) {
+            _globalItems[globalItemIndex] = nil;
         }
         free(_globalItems);
     }
@@ -100,8 +135,8 @@ typedef NS_OPTIONS(uint8_t, UXCollectionViewDataFlags) {
 
 - (void)_updateItemCounts {
     if (_globalItems) {
-        for (NSInteger i = 0; i < _numItems; i++) {
-            _globalItems[i] = nil;
+        for (NSInteger globalItemIndex = 0; globalItemIndex < _numItems; globalItemIndex++) {
+            _globalItems[globalItemIndex] = nil;
         }
     }
 
@@ -138,21 +173,33 @@ typedef NS_OPTIONS(uint8_t, UXCollectionViewDataFlags) {
 
     _collectionViewDataFlags |= UXCollectionViewDataFlagItemCountsValid;
     _lastSectionTestedForNumberOfItemsBeforeSection = NSNotFound;
-    _lastResultForNumberOfItemsBeforeSection = NSNotFound;
+    _lastResultForNumberOfItemsBeforeSection = 0;
 }
 
 - (void)_validateContentSize {
     if ((_collectionViewDataFlags & UXCollectionViewDataFlagContentSizeValid) != 0) {
         return;
     }
-    NSAssert((_collectionViewDataFlags & UXCollectionViewDataFlagLayoutLocked) == 0, @"trying to load collection view layout data when layout is locked");
+    if ((_collectionViewDataFlags & UXCollectionViewDataFlagLayoutLocked) != 0) {
+        [[NSAssertionHandler currentHandler] handleFailureInMethod:_cmd
+                                                            object:self
+                                                              file:@"UXCollectionViewData.m"
+                                                        lineNumber:253
+                                                       description:@"trying to load collection view layout data when layout is locked"];
+    }
     _contentSize = [_layout collectionViewContentSize];
     _collectionViewDataFlags |= UXCollectionViewDataFlagContentSizeValid;
 }
 
 - (void)_prepareToLoadData {
     if ((_collectionViewDataFlags & UXCollectionViewDataFlagLayoutPrepared) == 0) {
-        NSAssert((_collectionViewDataFlags & UXCollectionViewDataFlagLayoutLocked) == 0, @"trying to load collection view layout data when layout is locked");
+        if ((_collectionViewDataFlags & UXCollectionViewDataFlagLayoutLocked) != 0) {
+            [[NSAssertionHandler currentHandler] handleFailureInMethod:_cmd
+                                                                object:self
+                                                                  file:@"UXCollectionViewData.m"
+                                                            lineNumber:262
+                                                           description:@"trying to load collection view layout data when layout is locked"];
+        }
         [_layout prepareLayout];
         _collectionViewDataFlags |= UXCollectionViewDataFlagLayoutPrepared;
     }
@@ -194,17 +241,18 @@ typedef NS_OPTIONS(uint8_t, UXCollectionViewDataFlags) {
         return 0;
     }
 
-    NSInteger lastSection = _lastSectionTestedForNumberOfItemsBeforeSection;
+    // NSNotFound (reset marker) is always > section, so the reset path runs.
+    NSInteger startSection = _lastSectionTestedForNumberOfItemsBeforeSection;
     NSInteger result;
-    if (lastSection != NSNotFound && lastSection <= section) {
+    if (startSection <= section) {
         result = _lastResultForNumberOfItemsBeforeSection;
     } else {
         result = 0;
-        lastSection = 0;
+        startSection = 0;
     }
 
-    for (NSInteger i = lastSection; i < section; i++) {
-        result += _sectionItemCounts[i];
+    for (NSInteger sectionIndex = startSection; sectionIndex < section; sectionIndex++) {
+        result += _sectionItemCounts[sectionIndex];
     }
 
     _lastSectionTestedForNumberOfItemsBeforeSection = section;
@@ -253,26 +301,41 @@ typedef NS_OPTIONS(uint8_t, UXCollectionViewDataFlags) {
 #pragma mark - Rect queries
 
 - (CGRect)collectionViewContentRect {
-    [self _validateContentSize];
+    [self _prepareToLoadData];
     return CGRectMake(0.0, 0.0, _contentSize.width, _contentSize.height);
 }
 
 - (CGRect)rectForItemAtIndexPath:(NSIndexPath *)indexPath {
-    return [[self layoutAttributesForItemAtIndexPath:indexPath] frame];
+    UXCollectionViewLayoutAttributes *attributes = [self layoutAttributesForItemAtIndexPath:indexPath];
+    return attributes ? attributes.frame : CGRectNull;
 }
 
 - (CGRect)rectForGlobalItemIndex:(NSInteger)globalIndex {
-    return [[self layoutAttributesForGlobalItemIndex:globalIndex] frame];
+    return [self rectForItemAtIndexPath:[self indexPathForItemAtGlobalIndex:globalIndex]];
 }
 
 - (CGRect)rectForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.length != 1 && indexPath.section >= _numSections) {
+        [[NSAssertionHandler currentHandler] handleFailureInMethod:_cmd
+                                                            object:self
+                                                              file:@"UXCollectionViewData.m"
+                                                        lineNumber:655
+                                                       description:@"request for CGRect for supplementary view of kind %@ in section %ld when there are only %ld sections in the collection view", kind, (long)indexPath.section, (long)_numSections];
+    }
     UXCollectionViewLayoutAttributes *attributes = [self layoutAttributesForSupplementaryElementOfKind:kind atIndexPath:indexPath];
-    return attributes ? attributes.frame : CGRectZero;
+    return attributes ? attributes.frame : CGRectNull;
 }
 
 - (CGRect)rectForDecorationElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.length != 1 && indexPath.section >= _numSections) {
+        [[NSAssertionHandler currentHandler] handleFailureInMethod:_cmd
+                                                            object:self
+                                                              file:@"UXCollectionViewData.m"
+                                                        lineNumber:667
+                                                       description:@"request for CGRect for decoration view of kind %@ in section %ld when there are only %ld sections in the collection view", kind, (long)indexPath.section, (long)_numSections];
+    }
     UXCollectionViewLayoutAttributes *attributes = [self layoutAttributesForDecorationViewOfKind:kind atIndexPath:indexPath];
-    return attributes ? attributes.frame : CGRectZero;
+    return attributes ? attributes.frame : CGRectNull;
 }
 
 #pragma mark - Layout attributes
@@ -283,14 +346,17 @@ typedef NS_OPTIONS(uint8_t, UXCollectionViewDataFlags) {
     if (globalIndex == NSNotFound) {
         return nil;
     }
-    UXCollectionViewLayoutAttributes *cached = _globalItems ? (__bridge UXCollectionViewLayoutAttributes *)(__bridge void *)_globalItems[globalIndex] : nil;
+    UXCollectionViewLayoutAttributes *cached = _globalItems[globalIndex];
     if (cached) {
         return cached;
     }
-    UXCollectionViewLayoutAttributes *attributes = [_layout layoutAttributesForItemAtIndexPath:indexPath];
-    if (attributes && _globalItems) {
-        [self _setLayoutAttributes:attributes atGlobalItemIndex:globalIndex];
+    UXCollectionViewLayoutAttributes *attributes;
+    if ((_collectionViewDataFlags & UXCollectionViewDataFlagLayoutLocked) != 0) {
+        attributes = [_layout initialLayoutAttributesForAppearingItemAtIndexPath:indexPath];
+    } else {
+        attributes = [_layout layoutAttributesForItemAtIndexPath:indexPath];
     }
+    [self _setLayoutAttributes:attributes atGlobalItemIndex:globalIndex];
     return attributes;
 }
 
@@ -303,39 +369,159 @@ typedef NS_OPTIONS(uint8_t, UXCollectionViewDataFlags) {
 }
 
 - (void)_setLayoutAttributes:(UXCollectionViewLayoutAttributes *)attributes atGlobalItemIndex:(NSInteger)globalIndex {
-    if (!_globalItems || globalIndex < 0 || globalIndex >= _numItems) {
+    if (globalIndex < 0 || (_numItems != 0 && globalIndex >= _numItems)) {
+        [[NSAssertionHandler currentHandler] handleFailureInMethod:_cmd
+                                                            object:self
+                                                              file:@"UXCollectionViewData.m"
+                                                        lineNumber:308
+                                                       description:@"invalid global index: %ld", (long)globalIndex];
+    }
+    if (globalIndex < 0 || globalIndex >= _numItems) {
         return;
     }
-    _globalItems[globalIndex] = attributes;
+    if (_globalItems[globalIndex] == attributes) {
+        return;
+    }
+    _globalItems[globalIndex] = [attributes copy];
+
+    // Register the global index on every screen page overlapped by the frame.
+    // The scan pattern (interior points, bottom edge per column, bottom-right
+    // corner) mirrors UXKit exactly.
+    CGFloat pageDimension = UXCollectionViewDataPageDimension;
+    CGRect frame = attributes.frame;
+    for (CGFloat scanX = CGRectGetMinX(frame); scanX <= CGRectGetMaxX(frame) - 1.0; scanX += pageDimension) {
+        for (CGFloat scanY = CGRectGetMinY(frame); scanY <= CGRectGetMaxY(frame) - 1.0; scanY += pageDimension) {
+            [[self _screenPageForPoint:CGPointMake(scanX, scanY)] addIndex:(NSUInteger)globalIndex];
+        }
+        [[self _screenPageForPoint:CGPointMake(scanX, CGRectGetMaxY(frame) - 1.0)] addIndex:(NSUInteger)globalIndex];
+    }
+    [[self _screenPageForPoint:CGPointMake(CGRectGetMaxX(frame) - 1.0, CGRectGetMaxY(frame) - 1.0)] addIndex:(NSUInteger)globalIndex];
 }
 
 - (NSArray<UXCollectionViewLayoutAttributes *> *)layoutAttributesForElementsInRect:(CGRect)rect {
-    [self _prepareToLoadData];
-    return [_layout layoutAttributesForElementsInRect:rect];
+    [self validateLayoutInRect:rect];
+
+    NSMutableArray<UXCollectionViewLayoutAttributes *> *result = [NSMutableArray array];
+
+    // Gather the global item indexes registered on every screen page touched
+    // by the query rect (deliberately overshooting one page on each axis,
+    // matching UXKit's do/while scan).
+    NSMutableIndexSet *globalIndexes = [[NSMutableIndexSet alloc] init];
+    CGFloat pageDimension = UXCollectionViewDataPageDimension;
+    CGFloat scanY = CGRectGetMinY(rect);
+    for (;;) {
+        CGFloat scanX = CGRectGetMinX(rect);
+        BOOL shouldContinueScanningX;
+        do {
+            NSIndexSet *pageIndexes = [_screenPageMap objectForKey:(__bridge id)UXCollectionViewDataScreenPageKeyForPoint(CGPointMake(scanX, scanY))];
+            if (pageIndexes) {
+                [globalIndexes addIndexes:pageIndexes];
+            }
+            shouldContinueScanningX = scanX <= CGRectGetMaxX(rect);
+            scanX += pageDimension;
+        } while (shouldContinueScanningX);
+        if (scanY > CGRectGetMaxY(rect)) {
+            break;
+        }
+        scanY += pageDimension;
+    }
+
+    for (NSUInteger globalIndex = [globalIndexes firstIndex]; globalIndex != NSNotFound; globalIndex = [globalIndexes indexGreaterThanIndex:globalIndex]) {
+        UXCollectionViewLayoutAttributes *attributes = _globalItems[globalIndex];
+        if (CGRectIntersectsRect(rect, attributes.frame)) {
+            [result addObject:attributes];
+        }
+    }
+
+    UXCollectionView *collectionView = _collectionView;
+    void (^addCachedAttributesIntersectingRect)(NSMutableDictionary *) = ^(NSMutableDictionary *attributesDict) {
+        [attributesDict enumerateKeysAndObjectsUsingBlock:^(NSString *elementKind, NSMutableDictionary *kindDict, BOOL *stopOuter) {
+            [kindDict enumerateKeysAndObjectsUsingBlock:^(NSIndexPath *indexPath, UXCollectionViewLayoutAttributes *attributes, BOOL *stopInner) {
+                CGRect effectiveFrame;
+                if (attributes.isFloating) {
+                    CGRect convertedFrame = [collectionView.documentView convertRect:attributes.floatingFrame fromView:collectionView];
+                    NSEdgeInsets contentInsets = collectionView.contentInsets;
+                    effectiveFrame = NSOffsetRect(convertedFrame, contentInsets.left, contentInsets.top);
+                } else {
+                    effectiveFrame = attributes.frame;
+                }
+                if (CGRectIntersectsRect(rect, effectiveFrame)) {
+                    [result addObject:attributes];
+                }
+            }];
+        }];
+    };
+    addCachedAttributesIntersectingRect(_supplementaryLayoutAttributes);
+    addCachedAttributesIntersectingRect(_decorationLayoutAttributes);
+
+    return [result sortedArrayUsingComparator:^NSComparisonResult(UXCollectionViewLayoutAttributes *left, UXCollectionViewLayoutAttributes *right) {
+        if (left.zIndex < right.zIndex) {
+            return NSOrderedAscending;
+        }
+        if (right.zIndex < left.zIndex) {
+            return NSOrderedDescending;
+        }
+        NSIndexPath *leftIndexPath = left.indexPath;
+        NSIndexPath *rightIndexPath = right.indexPath;
+        if (leftIndexPath.section < rightIndexPath.section) {
+            return NSOrderedAscending;
+        }
+        if (leftIndexPath.section > rightIndexPath.section) {
+            return NSOrderedDescending;
+        }
+        if (leftIndexPath.item < rightIndexPath.item) {
+            return NSOrderedAscending;
+        }
+        if (leftIndexPath.item > rightIndexPath.item) {
+            return NSOrderedDescending;
+        }
+        return NSOrderedSame;
+    }];
 }
 
 - (NSArray<UXCollectionViewLayoutAttributes *> *)layoutAttributesForElementsInSection:(NSInteger)section {
-    [self _prepareToLoadData];
     NSMutableArray<UXCollectionViewLayoutAttributes *> *result = [NSMutableArray array];
     NSInteger itemsCount = [self numberOfItemsInSection:section];
     for (NSInteger itemIndex = 0; itemIndex < itemsCount; itemIndex++) {
-        NSIndexPath *indexPath = [NSIndexPath indexPathForItem:itemIndex inSection:section];
-        UXCollectionViewLayoutAttributes *attributes = [self layoutAttributesForItemAtIndexPath:indexPath];
+        UXCollectionViewLayoutAttributes *attributes = [self layoutAttributesForItemAtIndexPath:[NSIndexPath indexPathForItem:itemIndex inSection:section]];
         if (attributes) {
             [result addObject:attributes];
         }
     }
-    [result addObjectsFromArray:[self existingSupplementaryLayoutAttributesInSection:section]];
+    void (^addCachedAttributesInSection)(NSMutableDictionary *) = ^(NSMutableDictionary *attributesDict) {
+        for (NSString *elementKind in attributesDict) {
+            NSMutableDictionary *kindDict = attributesDict[elementKind];
+            for (NSIndexPath *indexPath in kindDict) {
+                if (indexPath.length >= 2 && indexPath.section == section) {
+                    UXCollectionViewLayoutAttributes *attributes = kindDict[indexPath];
+                    if (attributes) {
+                        [result addObject:attributes];
+                    }
+                }
+            }
+        }
+    };
+    addCachedAttributesInSection(_supplementaryLayoutAttributes);
+    addCachedAttributesInSection(_decorationLayoutAttributes);
     return result;
 }
 
 - (UXCollectionViewLayoutAttributes *)layoutAttributesForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
     NSMutableDictionary *kindDict = _supplementaryLayoutAttributes[kind];
+    if (indexPath.section >= _numSections) {
+        [kindDict removeObjectForKey:indexPath];
+        return nil;
+    }
     UXCollectionViewLayoutAttributes *cached = kindDict[indexPath];
     if (cached) {
         return cached;
     }
-    UXCollectionViewLayoutAttributes *attributes = [_layout layoutAttributesForSupplementaryViewOfKind:kind atIndexPath:indexPath];
+    UXCollectionViewLayoutAttributes *attributes;
+    if ((_collectionViewDataFlags & UXCollectionViewDataFlagLayoutLocked) != 0) {
+        attributes = [_layout initialLayoutAttributesForAppearingSupplementaryElementOfKind:kind atIndexPath:indexPath];
+    } else {
+        attributes = [_layout layoutAttributesForSupplementaryViewOfKind:kind atIndexPath:indexPath];
+    }
     if (attributes) {
         if (!kindDict) {
             kindDict = [NSMutableDictionary dictionary];
@@ -352,7 +538,12 @@ typedef NS_OPTIONS(uint8_t, UXCollectionViewDataFlags) {
     if (cached) {
         return cached;
     }
-    UXCollectionViewLayoutAttributes *attributes = [_layout layoutAttributesForDecorationViewOfKind:kind atIndexPath:indexPath];
+    UXCollectionViewLayoutAttributes *attributes;
+    if ((_collectionViewDataFlags & UXCollectionViewDataFlagLayoutLocked) != 0) {
+        attributes = [_layout initialLayoutAttributesForAppearingDecorationElementOfKind:kind atIndexPath:indexPath];
+    } else {
+        attributes = [_layout layoutAttributesForDecorationViewOfKind:kind atIndexPath:indexPath];
+    }
     if (attributes) {
         if (!kindDict) {
             kindDict = [NSMutableDictionary dictionary];
@@ -368,35 +559,49 @@ typedef NS_OPTIONS(uint8_t, UXCollectionViewDataFlags) {
     for (NSMutableDictionary *kindDict in _supplementaryLayoutAttributes.objectEnumerator) {
         [result addObjectsFromArray:kindDict.allValues];
     }
+    for (NSMutableDictionary *kindDict in _decorationLayoutAttributes.objectEnumerator) {
+        [result addObjectsFromArray:kindDict.allValues];
+    }
     return result;
 }
 
 - (NSArray<UXCollectionViewLayoutAttributes *> *)existingSupplementaryLayoutAttributesWithMinimalIndexPathLength:(NSUInteger)length {
     NSMutableArray<UXCollectionViewLayoutAttributes *> *result = [NSMutableArray array];
-    for (NSMutableDictionary *kindDict in _supplementaryLayoutAttributes.objectEnumerator) {
-        [kindDict enumerateKeysAndObjectsUsingBlock:^(NSIndexPath *indexPath, UXCollectionViewLayoutAttributes *attrs, BOOL *stop) {
-            if (indexPath.length >= length) {
-                [result addObject:attrs];
+    void (^addCachedAttributesWithMinimalLength)(NSMutableDictionary *) = ^(NSMutableDictionary *attributesDict) {
+        for (NSMutableDictionary *kindDict in attributesDict.objectEnumerator) {
+            for (UXCollectionViewLayoutAttributes *attributes in kindDict.objectEnumerator) {
+                if (attributes.indexPath.length >= length) {
+                    [result addObject:attributes];
+                }
             }
-        }];
-    }
+        }
+    };
+    addCachedAttributesWithMinimalLength(_supplementaryLayoutAttributes);
+    addCachedAttributesWithMinimalLength(_decorationLayoutAttributes);
     return result;
 }
 
 - (NSArray<UXCollectionViewLayoutAttributes *> *)existingSupplementaryLayoutAttributesInSection:(NSInteger)section {
     NSMutableArray<UXCollectionViewLayoutAttributes *> *result = [NSMutableArray array];
-    for (NSMutableDictionary *kindDict in _supplementaryLayoutAttributes.objectEnumerator) {
-        [kindDict enumerateKeysAndObjectsUsingBlock:^(NSIndexPath *indexPath, UXCollectionViewLayoutAttributes *attrs, BOOL *stop) {
-            if (indexPath.length >= 2 && indexPath.section == section) {
-                [result addObject:attrs];
+    void (^addCachedAttributesInSection)(NSMutableDictionary *) = ^(NSMutableDictionary *attributesDict) {
+        for (NSMutableDictionary *kindDict in attributesDict.objectEnumerator) {
+            for (UXCollectionViewLayoutAttributes *attributes in kindDict.objectEnumerator) {
+                NSIndexPath *indexPath = attributes.indexPath;
+                if (indexPath.section == section && indexPath.length >= 2) {
+                    [result addObject:attributes];
+                }
             }
-        }];
-    }
+        }
+    };
+    addCachedAttributesInSection(_supplementaryLayoutAttributes);
+    addCachedAttributesInSection(_decorationLayoutAttributes);
     return result;
 }
 
 - (NSSet<NSString *> *)knownSupplementaryElementKinds {
-    return [NSSet setWithArray:_supplementaryLayoutAttributes.allKeys];
+    // UXKit: union of the supplementary and decoration kind keys.
+    NSSet *supplementaryKinds = [NSSet setWithArray:_supplementaryLayoutAttributes.allKeys];
+    return [supplementaryKinds setByAddingObjectsFromArray:_decorationLayoutAttributes.allKeys];
 }
 
 - (NSSet<NSString *> *)knownDecorationElementKinds {
@@ -405,59 +610,199 @@ typedef NS_OPTIONS(uint8_t, UXCollectionViewDataFlags) {
 
 #pragma mark - Validation / invalidation
 
+// Mirrors UXKit's page-aligned validation rect block: snaps origin down and
+// size up to page boundaries, then clips maxX/maxY to the content size.
+- (CGRect)_pageAlignedValidationRectForRect:(CGRect)rect {
+    [self _validateContentSize];
+    CGFloat pageDimension = UXCollectionViewDataPageDimension;
+    CGRect alignedRect = rect;
+
+    alignedRect.origin.x = pageDimension * floor(CGRectGetMinX(rect) / pageDimension);
+    alignedRect.size.width = pageDimension * ceil((rect.size.width + CGRectGetMinX(rect) - CGRectGetMinX(alignedRect)) / pageDimension);
+    if (CGRectGetMaxX(alignedRect) > _contentSize.width) {
+        alignedRect.size.width -= CGRectGetMaxX(alignedRect) - _contentSize.width;
+    }
+
+    alignedRect.origin.y = pageDimension * floor(CGRectGetMinY(rect) / pageDimension);
+    alignedRect.size.height = pageDimension * ceil((rect.size.height + CGRectGetMinY(rect) - CGRectGetMinY(alignedRect)) / pageDimension);
+    if (CGRectGetMaxY(alignedRect) > _contentSize.height) {
+        alignedRect.size.height -= CGRectGetMaxY(alignedRect) - _contentSize.height;
+    }
+    return alignedRect;
+}
+
+// Mirrors UXKit's load block: pulls the layout attributes for `rect` from the
+// layout and distributes them into the caches, then clears contentSizeIsValid.
+- (void)_loadLayoutAttributesInRect:(CGRect)rect calledFromMethod:(SEL)callingMethod {
+    if ((_collectionViewDataFlags & UXCollectionViewDataFlagLayoutLocked) != 0) {
+        [[NSAssertionHandler currentHandler] handleFailureInMethod:callingMethod
+                                                            object:self
+                                                              file:@"UXCollectionViewData.m"
+                                                        lineNumber:367
+                                                       description:@"trying to load collection view layout data when layout is locked"];
+    }
+    NSArray<UXCollectionViewLayoutAttributes *> *attributesList = [_layout layoutAttributesForElementsInRect:rect];
+    for (UXCollectionViewLayoutAttributes *attributes in attributesList) {
+        if ([attributes _isClone]) {
+            [_clonedLayoutAttributes addObject:attributes];
+            continue;
+        }
+        NSIndexPath *indexPath = attributes.indexPath;
+        if ([attributes _isCell]) {
+            if (indexPath.section >= _numSections || indexPath.item >= _sectionItemCounts[indexPath.section]) {
+                [[NSAssertionHandler currentHandler] handleFailureInMethod:callingMethod
+                                                                    object:self
+                                                                      file:@"UXCollectionViewData.m"
+                                                                lineNumber:379
+                                                               description:@"UICollectionView recieved layout attributes for a cell with an index path that does not exist: %@", indexPath];
+            }
+            NSInteger globalIndex = [self globalIndexForItemAtIndexPath:indexPath];
+            if (globalIndex != NSNotFound) {
+                [self _setLayoutAttributes:attributes atGlobalItemIndex:globalIndex];
+            }
+        } else {
+            NSMutableDictionary *attributesDict = [attributes _isDecorationView] ? _decorationLayoutAttributes : _supplementaryLayoutAttributes;
+            NSString *elementKind = [attributes _elementKind];
+            UXCollectionViewLayoutAttributes *existing = attributesDict[elementKind][indexPath];
+            if (existing) {
+                if (![existing isEqual:attributes]) {
+                    [[NSAssertionHandler currentHandler] handleFailureInMethod:callingMethod
+                                                                        object:self
+                                                                          file:@"UXCollectionViewData.m"
+                                                                    lineNumber:390
+                                                                   description:@"layout attributes for supplementary item at index path (%@) changed from %@ to %@ without invalidating the layout", indexPath, existing, attributes];
+                }
+            } else {
+                if (!elementKind) {
+                    [[NSAssertionHandler currentHandler] handleFailureInMethod:callingMethod
+                                                                        object:self
+                                                                          file:@"UXCollectionViewData.m"
+                                                                    lineNumber:393
+                                                                   description:@"%@ elementKind is nil.  This probably means you created the UXCollectionViewLayoutAttributes using +alloc/-init instead of one of the class constructors", attributes];
+                }
+                NSMutableDictionary *kindDict = attributesDict[elementKind];
+                if (!kindDict) {
+                    kindDict = [NSMutableDictionary dictionary];
+                    attributesDict[elementKind] = kindDict;
+                }
+                kindDict[indexPath] = attributes;
+            }
+        }
+    }
+    _collectionViewDataFlags &= ~UXCollectionViewDataFlagContentSizeValid;
+}
+
 - (void)validateLayoutInRect:(CGRect)rect {
     [self _prepareToLoadData];
-    if (!CGRectContainsRect(_validLayoutRect, rect)) {
-        NSArray<UXCollectionViewLayoutAttributes *> *attributes = [_layout layoutAttributesForElementsInRect:rect];
-        for (UXCollectionViewLayoutAttributes *attribute in attributes) {
-            if ([attribute _isCell]) {
-                NSInteger globalIndex = [self globalIndexForItemAtIndexPath:attribute.indexPath];
-                if (globalIndex != NSNotFound) {
-                    [self _setLayoutAttributes:attribute atGlobalItemIndex:globalIndex];
+    if (_invalidatedSupplementaryViews) {
+        [self validateSupplementaryViews];
+    }
+    [self _validateContentSize];
+
+    CGRect clippedRect = CGRectIntersection(CGRectMake(0.0, 0.0, _contentSize.width, _contentSize.height), rect);
+    if (CGRectEqualToRect(clippedRect, CGRectZero)) {
+        return;
+    }
+    if (CGRectContainsRect(_validLayoutRect, clippedRect)) {
+        return;
+    }
+
+    [_clonedLayoutAttributes removeAllObjects];
+
+    CGFloat pageDimension = UXCollectionViewDataPageDimension;
+    CGRect alignedRect = [self _pageAlignedValidationRectForRect:rect];
+
+    BOOL slidesAlongValidRect =
+        (CGRectGetWidth(rect) == CGRectGetWidth(_validLayoutRect) && CGRectGetMinX(_validLayoutRect) == CGRectGetMinX(rect)) ||
+        (CGRectGetHeight(rect) == CGRectGetHeight(_validLayoutRect) && CGRectGetMinY(_validLayoutRect) == CGRectGetMinY(rect));
+
+    if (slidesAlongValidRect) {
+        // Sliding window: only the newly exposed strip is loaded; when the
+        // window grows beyond 5 pages, the trailing page gets evicted.
+        BOOL contiguousWithValidRect;
+        if (CGRectGetMinX(_validLayoutRect) == CGRectGetMinX(rect)) {
+            if (CGRectGetMinY(_validLayoutRect) <= CGRectGetMinY(rect)) {
+                CGFloat overlap = CGRectGetMaxY(_validLayoutRect) - CGRectGetMinY(alignedRect);
+                contiguousWithValidRect = overlap >= 0.0;
+                if (contiguousWithValidRect) {
+                    alignedRect.origin.y += overlap;
+                    alignedRect.size.height -= overlap;
                 }
-            } else if ([attribute _isSupplementaryView]) {
-                NSString *kind = [attribute _elementKind];
-                if (kind) {
-                    NSMutableDictionary *kindDict = _supplementaryLayoutAttributes[kind];
-                    if (!kindDict) {
-                        kindDict = [NSMutableDictionary dictionary];
-                        _supplementaryLayoutAttributes[kind] = kindDict;
-                    }
-                    kindDict[attribute.indexPath] = attribute;
+                if (CGRectGetHeight(_validLayoutRect) > pageDimension * 5.0) {
+                    _validLayoutRect.origin.y += pageDimension;
+                    _validLayoutRect.size.height -= pageDimension;
                 }
-            } else if ([attribute _isDecorationView]) {
-                NSString *kind = [attribute _elementKind];
-                if (kind) {
-                    NSMutableDictionary *kindDict = _decorationLayoutAttributes[kind];
-                    if (!kindDict) {
-                        kindDict = [NSMutableDictionary dictionary];
-                        _decorationLayoutAttributes[kind] = kindDict;
-                    }
-                    kindDict[attribute.indexPath] = attribute;
+            } else {
+                CGFloat overlap = CGRectGetMaxY(alignedRect) - CGRectGetMinY(_validLayoutRect);
+                contiguousWithValidRect = overlap >= 0.0;
+                if (contiguousWithValidRect) {
+                    alignedRect.size.height -= overlap;
+                }
+                if (CGRectGetHeight(_validLayoutRect) > pageDimension * 5.0) {
+                    _validLayoutRect.size.height -= pageDimension;
+                }
+            }
+        } else {
+            if (CGRectGetMinX(_validLayoutRect) <= CGRectGetMinX(rect)) {
+                CGFloat overlap = CGRectGetMaxX(_validLayoutRect) - CGRectGetMinX(alignedRect);
+                contiguousWithValidRect = overlap >= 0.0;
+                if (contiguousWithValidRect) {
+                    alignedRect.origin.x += overlap;
+                    alignedRect.size.width -= overlap;
+                }
+                if (CGRectGetWidth(_validLayoutRect) > pageDimension * 5.0) {
+                    _validLayoutRect.origin.x += pageDimension;
+                    _validLayoutRect.size.width -= pageDimension;
+                }
+            } else {
+                CGFloat overlap = CGRectGetMaxX(alignedRect) - CGRectGetMinX(_validLayoutRect);
+                contiguousWithValidRect = overlap >= 0.0;
+                if (contiguousWithValidRect) {
+                    alignedRect.size.width -= overlap;
+                }
+                if (CGRectGetWidth(_validLayoutRect) > pageDimension * 5.0) {
+                    _validLayoutRect.size.width -= pageDimension;
                 }
             }
         }
-        _validLayoutRect = CGRectUnion(_validLayoutRect, rect);
+
+        CGRect reAlignedRect = [self _pageAlignedValidationRectForRect:alignedRect];
+        if (!CGRectIsEmpty(reAlignedRect)) {
+            if (contiguousWithValidRect) {
+                _validLayoutRect = CGRectUnion(_validLayoutRect, reAlignedRect);
+            } else {
+                _validLayoutRect = reAlignedRect;
+            }
+            [self _loadLayoutAttributesInRect:reAlignedRect calledFromMethod:_cmd];
+        }
+    } else {
+        _validLayoutRect = alignedRect;
+        [self _loadLayoutAttributesInRect:alignedRect calledFromMethod:_cmd];
+    }
+
+    // Drop the screen pages that fell out of the validated window. The keys
+    // are opaque integers, so the loop variable must stay unretained.
+    NSMapTable *screenPageMapCopy = [_screenPageMap copy];
+    for (__unsafe_unretained id keyObject in screenPageMapCopy) {
+        uintptr_t key = (uintptr_t)(__bridge void *)keyObject;
+        if (!CGRectIntersectsRect(UXCollectionViewDataScreenPageRectForKey(key), _validLayoutRect)) {
+            [_screenPageMap removeObjectForKey:(__bridge id)(void *)key];
+        }
     }
 }
 
 - (void)validateSupplementaryViews {
-    if (!_invalidatedSupplementaryViews) {
+    if ((_collectionViewDataFlags & UXCollectionViewDataFlagLayoutLocked) != 0) {
         return;
     }
-    [_invalidatedSupplementaryViews enumerateKeysAndObjectsUsingBlock:^(NSString *kind, NSSet *indexPaths, BOOL *stop) {
-        NSMutableDictionary *kindDict = self->_supplementaryLayoutAttributes[kind];
+    for (NSString *kind in _invalidatedSupplementaryViews) {
+        id<NSFastEnumeration> indexPaths = _invalidatedSupplementaryViews[kind];
+        NSMutableDictionary *kindDict = _supplementaryLayoutAttributes[kind];
         for (NSIndexPath *indexPath in indexPaths) {
-            UXCollectionViewLayoutAttributes *attrs = [self->_layout layoutAttributesForSupplementaryViewOfKind:kind atIndexPath:indexPath];
-            if (attrs) {
-                if (!kindDict) {
-                    kindDict = [NSMutableDictionary dictionary];
-                    self->_supplementaryLayoutAttributes[kind] = kindDict;
-                }
-                kindDict[indexPath] = attrs;
-            }
+            [kindDict removeObjectForKey:indexPath];
+            [self layoutAttributesForSupplementaryElementOfKind:kind atIndexPath:indexPath];
         }
-    }];
+    }
     _invalidatedSupplementaryViews = nil;
 }
 
@@ -481,67 +826,98 @@ typedef NS_OPTIONS(uint8_t, UXCollectionViewDataFlags) {
 
 - (void)_loadEverything {
     [self _prepareToLoadData];
-    NSInteger sections = [self numberOfSections];
-    for (NSInteger section = 0; section < sections; section++) {
-        NSInteger itemCount = [self numberOfItemsInSection:section];
-        for (NSInteger item = 0; item < itemCount; item++) {
-            NSIndexPath *indexPath = [NSIndexPath indexPathForItem:item inSection:section];
-            (void)[self layoutAttributesForItemAtIndexPath:indexPath];
+    // UXKit allocates one UIMutableIndexPath {0, 0} and mutates it in place for
+    // every iteration; OpenUXKit swaps in fresh immutable NSIndexPath objects.
+    NSIndexPath *reusableIndexPath = [NSIndexPath indexPathForItem:0 inSection:0];
+    for (NSInteger globalItemIndex = 0; globalItemIndex < _numItems; globalItemIndex++) {
+        if (_globalItems[globalItemIndex]) {
+            continue;
         }
+        if ((_collectionViewDataFlags & UXCollectionViewDataFlagLayoutLocked) != 0) {
+            [[NSAssertionHandler currentHandler] handleFailureInMethod:_cmd
+                                                                object:self
+                                                                  file:@"UXCollectionViewData.m"
+                                                            lineNumber:336
+                                                           description:@"trying to load collection view layout data when layout is locked"];
+        }
+        [self _setupMutableIndexPath:&reusableIndexPath forGlobalItemIndex:globalItemIndex];
+        [self _setLayoutAttributes:[_layout layoutAttributesForItemAtIndexPath:reusableIndexPath] atGlobalItemIndex:globalItemIndex];
     }
+    _validLayoutRect = [self collectionViewContentRect];
 }
 
-- (NSValue *)_screenPageForPoint:(CGPoint)point {
-    [self _validateContentSize];
-    UXCollectionView *collectionView = _collectionView;
-    CGFloat pageWidth = collectionView.documentVisibleRect.size.width;
-    CGFloat pageHeight = collectionView.documentVisibleRect.size.height;
-    if (pageWidth <= 0.0) pageWidth = _contentSize.width;
-    if (pageHeight <= 0.0) pageHeight = _contentSize.height;
-    NSInteger pageX = (pageWidth > 0.0) ? (NSInteger)floor(point.x / pageWidth) : 0;
-    NSInteger pageY = (pageHeight > 0.0) ? (NSInteger)floor(point.y / pageHeight) : 0;
-    NSValue *key = [NSValue valueWithBytes:(NSInteger[]){pageX, pageY} objCType:@encode(NSInteger[2])];
-    NSValue *cached = [_screenPageMap objectForKey:key];
-    if (cached) {
-        return cached;
-    }
-    NSValue *value = [NSValue valueWithPoint:NSMakePoint(pageX, pageY)];
-    [_screenPageMap setObject:value forKey:key];
-    return value;
-}
-
-- (NSIndexPath *)_setupMutableIndexPath:(NSIndexPath *)indexPath {
-    if (!indexPath) {
+- (NSMutableIndexSet *)_screenPageForPoint:(CGPoint)point {
+    CGFloat pageDimension = UXCollectionViewDataPageDimension;
+    CGRect pageRect = CGRectMake(pageDimension * floor(point.x / pageDimension),
+                                 pageDimension * floor(point.y / pageDimension),
+                                 pageDimension,
+                                 pageDimension);
+    if (!CGRectIntersectsRect(pageRect, _validLayoutRect)) {
         return nil;
     }
-    NSUInteger length = indexPath.length;
-    NSUInteger indexes[length];
-    [indexPath getIndexes:indexes];
-    return [NSIndexPath indexPathWithIndexes:indexes length:length];
+    void *key = UXCollectionViewDataScreenPageKeyForPoint(point);
+    NSMutableIndexSet *pageIndexes = [_screenPageMap objectForKey:(__bridge id)key];
+    if (!pageIndexes) {
+        pageIndexes = [[NSMutableIndexSet alloc] init];
+        [_screenPageMap setObject:pageIndexes forKey:(__bridge id)key];
+    }
+    return pageIndexes;
 }
 
-- (void)_setupMutableIndexPath:(NSIndexPath * _Nullable * _Nullable)indexPathOut forGlobalItemIndex:(NSInteger)globalItemIndex {
-    if (!indexPathOut) {
+- (void)_setupMutableIndexPath:(NSIndexPath * __strong *)indexPath forGlobalItemIndex:(NSInteger)globalItemIndex {
+    NSInteger cumulativeCount = 0;
+    for (NSInteger sectionIndex = 0; sectionIndex < _numSections; sectionIndex++) {
+        cumulativeCount += _sectionItemCounts[sectionIndex];
+        if (globalItemIndex < cumulativeCount) {
+            NSInteger itemIndex = globalItemIndex - (cumulativeCount - _sectionItemCounts[sectionIndex]);
+            *indexPath = [NSIndexPath indexPathForItem:itemIndex inSection:sectionIndex];
+            return;
+        }
+    }
+}
+
+- (void)invalidateSupplementaryViews:(NSDictionary<NSString *, NSArray<NSIndexPath *> *> *)invalidatedSupplementaryViews {
+    if ((_collectionViewDataFlags & UXCollectionViewDataFlagLayoutLocked) != 0) {
         return;
     }
-    NSIndexPath *indexPath = [self indexPathForItemAtGlobalIndex:globalItemIndex];
-    *indexPathOut = [self _setupMutableIndexPath:indexPath];
+    if (_invalidatedSupplementaryViews) {
+        [invalidatedSupplementaryViews enumerateKeysAndObjectsUsingBlock:^(NSString *kind, NSArray<NSIndexPath *> *indexPaths, BOOL *stop) {
+            NSArray<NSIndexPath *> *existing = self->_invalidatedSupplementaryViews[kind];
+            if (existing) {
+                if ([existing isEqual:indexPaths]) {
+                    return;
+                }
+                NSMutableSet *merged = [NSMutableSet setWithArray:indexPaths];
+                [merged addObjectsFromArray:existing];
+                self->_invalidatedSupplementaryViews[kind] = [merged allObjects];
+            } else {
+                self->_invalidatedSupplementaryViews[kind] = indexPaths;
+            }
+        }];
+    } else {
+        _invalidatedSupplementaryViews = [[NSMutableDictionary alloc] initWithDictionary:invalidatedSupplementaryViews];
+    }
 }
 
-- (void)invalidateSupplementaryViews:(NSSet<NSString *> *)kinds {
-    if (!_invalidatedSupplementaryViews) {
-        _invalidatedSupplementaryViews = [NSMutableDictionary dictionary];
-    }
-    for (NSString *kind in kinds) {
-        NSMutableDictionary *kindDict = _supplementaryLayoutAttributes[kind];
-        NSMutableSet *indexPaths = _invalidatedSupplementaryViews[kind];
-        if (!indexPaths) {
-            indexPaths = [NSMutableSet set];
-            _invalidatedSupplementaryViews[kind] = indexPaths;
+#pragma mark - Description
+
+- (NSString *)description {
+    NSMutableString *result = [NSMutableString string];
+    [result appendString:[super description]];
+    [result appendFormat:@" items: %@ sections: %@", @(_numItems), @(_numSections)];
+    if (_numSections >= 1) {
+        [result appendString:@" itemsCounts: {"];
+        for (NSInteger sectionIndex = 0; sectionIndex < _numSections; sectionIndex++) {
+            [result appendFormat:(sectionIndex ? @", %@" : @"%@"), @(_sectionItemCounts[sectionIndex])];
         }
-        [indexPaths addObjectsFromArray:kindDict.allKeys];
-        [kindDict removeAllObjects];
+        [result appendString:@"}"];
     }
+    [result appendFormat:@"%@%@%@%@",
+        (_collectionViewDataFlags & UXCollectionViewDataFlagContentSizeValid) ? @" contentSizeIsValid" : @"",
+        (_collectionViewDataFlags & UXCollectionViewDataFlagItemCountsValid) ? @" itemCountsAreValid" : @"",
+        (_collectionViewDataFlags & UXCollectionViewDataFlagLayoutPrepared) ? @" layoutIsPrepared" : @"",
+        (_collectionViewDataFlags & UXCollectionViewDataFlagLayoutLocked) ? @" layoutLocked" : @""];
+    return result;
 }
 
 @end
