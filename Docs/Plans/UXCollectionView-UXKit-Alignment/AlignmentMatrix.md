@@ -16,7 +16,9 @@
 
 | 总计 | ✅ 已对齐 | 🟢 形式对齐 | 🟡 部分对齐 | 🔴 缺失 | ⚪ 桥接 |
 |---|---|---|---|---|---|
-| **37** | 5 | 27 | 5 | 0 | 0 |
+| **37** | 7 | 25 | 5 | 0 | 0 |
+
+> 注：另有 4 个未导出头的 FlowLayout 隐藏内部类（`_UXFlowLayout*`，见下文专节）不计入 37，当前均为 🟡（P4 已算法对齐，保留 2 处 OpenUXKit-only 简化待 P9 评估）。
 
 **关键修订**：原 plan 假设的"`_UXFlowLayoutInfo` 4 个类需新建"**不成立**——OpenUXKit 已实现 `_UXFlowLayoutInfo / _UXFlowLayoutSection / _UXFlowLayoutRow / _UXFlowLayoutItem` 4 个类，总计 772 行实现。痛点降级为"算法实现细节对齐"。
 
@@ -36,9 +38,9 @@
 
 | UXKit 类 | OpenUXKit 文件 | 状态 | 备注 |
 |---|---|---|---|
-| `UXCollectionReusableView` | `Components/Public/UXCollectionReusableView.{h,m}` + `Private/UXCollectionReusableView+Internal.h` | 🟢 | P6 verify `_setBaseLayoutAttributes:` / `wasDequeued` 位 / `updateAnimationCount` 5 bit 位段。 |
-| `UXCollectionViewCell` | `Components/Public/UXCollectionViewCell.{h,m}` + `Private/UXCollectionViewCell+Internal.h` | 🟢 | P6 verify `_setSelected:animated:` 路径、`selectionBorderShouldUsePrimaryColor` 渲染。 |
-| `_UXCollectionSnapshotView` | `Components/Private/_UXCollectionSnapshotView.{h,m}` | 🟢 | UXKit 头文件中接口为空（仅继承）；OpenUXKit 已有占位。 |
+| `UXCollectionReusableView` | `Components/Public/UXCollectionReusableView.{h,m}` + `Private/UXCollectionReusableView+Internal.h` | ✅ | **P6 已对齐**（见 `IDA-Notes/P6-ReusableView.md`）：22 方法全部反编译比对；位段（`updateAnimationCount:5` + `wasDequeued:1`）与两阶段 `_setLayoutAttributes:`/`_setBaseLayoutAttributes:` 原已一致；修复 `description` 格式 / `_collectionView` 改 `__unsafe_unretained` / accessibility 表面（role=Group、dynamicParent 经 layoutAccessibility、scrollToVisible position 64）。5 个 legacy AX 非正式协议 override 遗留 P11。 |
+| `UXCollectionViewCell` | `Components/Public/UXCollectionViewCell.{h,m}` + `Private/UXCollectionViewCell+Internal.h` | ✅ | **P6 已对齐**：`_setSelected:animated:` / `prepareForReuse` / `resizeSubviewsWithOldSize:` 原已一致；`_commonInit` 改为 UXKit 的静态 `UXCollectionViewCellCommonInit` C 函数；ivar 顺序对齐（576/577/578）；补齐 cell accessibility 表面（CellRole / isAccessibilitySelected / setAccessibilitySelected: / accessibilityPerformPress / `_axSimulateClick:` 真实 NSEvent）。`selectionBorderShouldUsePrimaryColor` 仅为存储位，渲染由主类消费（P9）。 |
+| `_UXCollectionSnapshotView` | `Components/Private/_UXCollectionSnapshotView.{h,m}` | ✅ | **P6 已确认**：UXKit 中零方法零 ivar 的纯标记子类，OpenUXKit 空实现即 1:1；3 个创建点合同（双面动画 / batchUpdates / 动画清理）已记录在 P6 笔记 §3，P8/P9 接线。 |
 
 ---
 
