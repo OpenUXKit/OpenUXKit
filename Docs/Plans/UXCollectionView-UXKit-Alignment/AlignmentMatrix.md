@@ -16,7 +16,7 @@
 
 | 总计 | ✅ 已对齐 | 🟢 形式对齐 | 🟡 部分对齐 | 🔴 缺失 | ⚪ 桥接 |
 |---|---|---|---|---|---|
-| **37** | 7 | 25 | 5 | 0 | 0 |
+| **37** | 10 | 22 | 5 | 0 | 0 |
 
 > 注：另有 4 个未导出头的 FlowLayout 隐藏内部类（`_UXFlowLayout*`，见下文专节）不计入 37，当前均为 🟡（P4 已算法对齐，保留 2 处 OpenUXKit-only 简化待 P9 评估）。
 
@@ -30,7 +30,7 @@
 |---|---|---|---|
 | `UXCollectionViewUpdateItem` | `Components/Public/UXCollectionViewUpdateItem.{h,m}` + `Private/UXCollectionViewUpdateItem+Internal.h` | ✅ | `_action` 编码与 UXKit 一致（0=INSERT/1=DELETE/2=RELOAD/3=MOVE）；P1 阶段需 verify `compareIndexPaths:` block。 |
 | `_UXCollectionViewItemKey` | `Components/Private/_UXCollectionViewItemKey.{h,m}` | 🟢 | 已存在；P1 verify `_hash` 缓存策略与 `copyAsClone:`。 |
-| `_UXCollectionViewSectionItemIndexes` | `Components/Private/_UXCollectionViewSectionItemIndexes.{h,m}` (152 行 .m) | 🟢 | 已存在；P7 与 IndexPathsSet 一起对齐 `adjustForDeletion*` / `adjustForInsertion*` 算法。 |
+| `_UXCollectionViewSectionItemIndexes` | `Components/Private/_UXCollectionViewSectionItemIndexes.{h,m}` (152 行 .m) | ✅ | **P7 已对齐**（见 `IDA-Notes/P7-IndexPathsSet.md`）：25 个函数全部反编译比对，`adjustForDeletion*`（删除位 + `shift(item+1, -1)`；批量按 range 逆序）/ `adjustForInsertion*`（`shift(item, +1)`；批量按 range 正序）逐句一致，零代码修改。无 sorted-array 缓存。 |
 
 ---
 
@@ -89,8 +89,8 @@
 
 | UXKit 类 | OpenUXKit 文件 | 状态 | 备注 |
 |---|---|---|---|
-| `UXCollectionViewIndexPathsSet` | `Components/Private/UXCollectionViewIndexPathsSet.{h,m}` (293 行) + `+Internal.h` | 🟢 | P7 verify 双层结构（NSMutableIndexSet + NSMutableDictionary）。 |
-| `UXCollectionViewMutableIndexPathsSet` | `Components/Private/UXCollectionViewMutableIndexPathsSet.{h,m}` (213 行) | 🟢 | P7 verify `adjustForDeletionOf*` / `adjustForInsertionOf*` / `intersectIndexPathsSet:` 算法。 |
+| `UXCollectionViewIndexPathsSet` | `Components/Private/UXCollectionViewIndexPathsSet.{h,m}` (293 行) + `+Internal.h` | ✅ | **P7 已对齐**（见 `IDA-Notes/P7-IndexPathsSet.md`）：35 个函数全部反编译比对，双层结构（`_sectionIndexes` @8 + `_sectionToItemIndexesMap` @16）、空 section 清理、`copyWithZone:` 返回 self、`mutableCopyWithZone:` 经 `allIndexPaths` 重建、assertion 行号（410/564/582）全部一致，零代码修改。 |
+| `UXCollectionViewMutableIndexPathsSet` | `Components/Private/UXCollectionViewMutableIndexPathsSet.{h,m}` (213 行) | ✅ | **P7 已对齐**：25 个函数全部反编译比对；`intersectIndexPathsSet:` 实为对称差补集法（plan 假设的"先 section 求交"机制不成立，结果语义相同）；`_adjustForDeletionOfSection:` 升序搬 key + `shift(section+1, -1)`、`_adjustForInsertionOfSection:` 降序搬 key + `shift(section, +1)` 逐句一致，零代码修改。调用面合同（CommonInit / 选择 / lasso / `_updateWithItems:` 重建）见笔记 §6，P8/P9 接线。 |
 
 ---
 
