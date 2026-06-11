@@ -16,7 +16,7 @@
 
 | 总计 | ✅ 已对齐 | 🟢 形式对齐 | 🟡 部分对齐 | 🔴 缺失 | ⚪ 桥接 |
 |---|---|---|---|---|---|
-| **37** | 4 | 28 | 5 | 0 | 0 |
+| **37** | 5 | 27 | 5 | 0 | 0 |
 
 **关键修订**：原 plan 假设的"`_UXFlowLayoutInfo` 4 个类需新建"**不成立**——OpenUXKit 已实现 `_UXFlowLayoutInfo / _UXFlowLayoutSection / _UXFlowLayoutRow / _UXFlowLayoutItem` 4 个类，总计 772 行实现。痛点降级为"算法实现细节对齐"。
 
@@ -70,7 +70,7 @@
 
 | UXKit 类 | OpenUXKit 文件 | 状态 | 备注 |
 |---|---|---|---|
-| `UXCollectionViewData` | `Components/Private/UXCollectionViewData.{h,m}` (547 行) | 🟢 | **P5 验证项**：`_loadEverything` 5 步路径已 P0 反编译；OpenUXKit 当前实现细节需对齐：是否走 `UIMutableIndexPath` 复用、4 个 flag bit 含义（`contentSizeIsValid` / `itemCountsAreValid` / `layoutIsPrepared` / `layoutLocked`）。 |
+| `UXCollectionViewData` | `Components/Private/UXCollectionViewData.{h,m}` + `Private/UXCollectionViewData+Internal.h` | ✅ | **P5 已对齐**（见 `IDA-Notes/P5-Data.md`）：51 个方法全部反编译比对；补齐 `__pageDimension` screen-page 缓存子系统（`_screenPageForPoint:` / `_setLayoutAttributes:` 页注册 / `validateLayoutInRect:` 滑动窗口 + 5 页淘汰 / `layoutAttributesForElementsInRect:` 页索引聚合 + zIndex 排序）；4 个 flag bit 与 UXKit 完全一致；`UIMutableIndexPath` 以不可变 NSIndexPath 重建桥接（见笔记 §6.3）。 |
 
 ---
 
