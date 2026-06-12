@@ -200,19 +200,43 @@ void *UXScopeBarItemsObservationContext = &UXScopeBarItemsObservationContext;
         [self.view addSubview:self.navigationBar];
     }
 
-    self.toolbar.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.view addSubview:self.toolbar];
-    _subtoolbar = [[UXSubtoolbar alloc] initWithFrame:CGRectZero];
-    _subtoolbar.translatesAutoresizingMaskIntoConstraints = NO;
-    _subtoolbar.hidden = _subtoolbarHidden;
-    _subtoolbar.delegate = self;
-    [self.view addSubview:_subtoolbar positioned:NSWindowBelow relativeTo:self.toolbar];
-    _toolbarExtendedBackgroundView = [[UXView alloc] init];
-    _toolbarExtendedBackgroundView.translatesAutoresizingMaskIntoConstraints = NO;
-    _toolbarExtendedBackgroundView.hidden = YES;
-    _toolbarExtendedBackgroundView.wantsLayer = YES;
-    [_toolbarExtendedBackgroundView setBackgroundColor:NSColor.controlBackgroundColor];
-    [self.view addSubview:_toolbarExtendedBackgroundView];
+    UXToolbar *toolbar = self.toolbar;
+    UXToolbar *subtoolbar = self.subtoolbar;
+    UXToolbar *scopeBar = self.scopeBar;
+
+    if (self.areToolbarsDetached) {
+        NSView *detachedBarsContainer = self.detachedBarsContainer;
+        [detachedBarsContainer addSubview:toolbar];
+        [detachedBarsContainer addSubview:subtoolbar positioned:NSWindowBelow relativeTo:toolbar];
+        [detachedBarsContainer addSubview:scopeBar positioned:NSWindowBelow relativeTo:toolbar];
+
+        self.detachedSubtoolbarTopConstraint = [subtoolbar.topAnchor constraintEqualToAnchor:detachedBarsContainer.topAnchor];
+        self.detachedScopeBarTopConstraint = [scopeBar.topAnchor constraintEqualToAnchor:detachedBarsContainer.topAnchor];
+        self.detachedBarsContainerHeightConstraint = [detachedBarsContainer.heightAnchor constraintEqualToConstant:0.0];
+
+        [NSLayoutConstraint activateConstraints:@[
+            [toolbar.topAnchor constraintEqualToAnchor:detachedBarsContainer.topAnchor],
+            [toolbar.leadingAnchor constraintEqualToAnchor:detachedBarsContainer.leadingAnchor],
+            [toolbar.trailingAnchor constraintEqualToAnchor:detachedBarsContainer.trailingAnchor],
+            self.detachedSubtoolbarTopConstraint,
+            [subtoolbar.leadingAnchor constraintEqualToAnchor:detachedBarsContainer.leadingAnchor],
+            [subtoolbar.trailingAnchor constraintEqualToAnchor:detachedBarsContainer.trailingAnchor],
+            self.detachedScopeBarTopConstraint,
+            [scopeBar.leadingAnchor constraintEqualToAnchor:detachedBarsContainer.leadingAnchor],
+            [scopeBar.trailingAnchor constraintEqualToAnchor:detachedBarsContainer.trailingAnchor],
+            self.detachedBarsContainerHeightConstraint,
+        ]];
+    } else {
+        [self.view addSubview:toolbar];
+        [self.view addSubview:subtoolbar positioned:NSWindowBelow relativeTo:toolbar];
+        [self.view addSubview:scopeBar positioned:NSWindowBelow relativeTo:toolbar];
+        _toolbarExtendedBackgroundView = [[UXView alloc] init];
+        _toolbarExtendedBackgroundView.translatesAutoresizingMaskIntoConstraints = NO;
+        _toolbarExtendedBackgroundView.hidden = YES;
+        _toolbarExtendedBackgroundView.wantsLayer = YES;
+        [_toolbarExtendedBackgroundView setBackgroundColor:NSColor.controlBackgroundColor];
+        [self.view addSubview:_toolbarExtendedBackgroundView];
+    }
 }
 
 - (UXToolbar *)toolbar {
@@ -232,6 +256,20 @@ void *UXScopeBarItemsObservationContext = &UXScopeBarItemsObservationContext;
     }
 
     return _toolbar;
+}
+
+- (UXToolbar *)subtoolbar {
+    if (_subtoolbar == nil) {
+        _subtoolbar = [[UXSubtoolbar alloc] initWithFrame:CGRectZero];
+        _subtoolbar.delegate = self;
+        _subtoolbar.hidden = _subtoolbarHidden;
+        _subtoolbar.accessibilityIdentifier = @"UXNavigationControllerSubtoolbar";
+        _subtoolbar.accessibilityRoleDescription = UXLocalizedString(@"UXNavigationControllerToolbarAXRoleDescription");
+        _subtoolbar.accessibilityLabel = UXLocalizedString(@"UXNavigationControllerToolbarAXLabel");
+        _subtoolbar.translatesAutoresizingMaskIntoConstraints = NO;
+    }
+
+    return _subtoolbar;
 }
 
 - (UXBarPosition)positionForBar:(id<UXBarPositioning>)bar {
@@ -502,29 +540,36 @@ void *UXScopeBarItemsObservationContext = &UXScopeBarItemsObservationContext;
         self.navigationBarConstraints = [layoutConstraints arrayByAddingObject:self.navigationBarTopConstraint];
     }
 
-    self.toolbarVerticalConstraint = [self _verticalToolbarLayoutConstraint];
-    [self.addedConstraints addObject:self.toolbarVerticalConstraint];
-    self.toolbarLeadingConstraint = [_toolbar.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:__leadingContentInset];
-    [self.addedConstraints addObject:self.toolbarLeadingConstraint];
     [self.addedConstraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[containerView]|" options:NSLayoutFormatDirectionLeadingToTrailing metrics:nil views:views]];
-    [self.addedConstraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[toolbar]|" options:NSLayoutFormatDirectionLeadingToTrailing metrics:nil views:views]];
-    NSLayoutConstraint *layoutConstraint = nil;
 
-    if (__fullScreenMode) {
-        layoutConstraint = [self.toolbarExtendedBackgroundView.bottomAnchor constraintEqualToAnchor:self.toolbar.topAnchor];
-    } else {
-        layoutConstraint = [self.toolbarExtendedBackgroundView.heightAnchor constraintEqualToConstant:self.navigationBar.height];
+    if (!self.areToolbarsDetached) {
+        self.toolbarVerticalConstraint = [self _verticalToolbarLayoutConstraint];
+        [self.addedConstraints addObject:self.toolbarVerticalConstraint];
+        self.toolbarLeadingConstraint = [_toolbar.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:__leadingContentInset];
+        [self.addedConstraints addObject:self.toolbarLeadingConstraint];
+        [self.addedConstraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[toolbar]|" options:NSLayoutFormatDirectionLeadingToTrailing metrics:nil views:views]];
+        self.scopeBarVerticalConstraint = [self.scopeBar.topAnchor constraintEqualToAnchor:self.toolbar.topAnchor constant:self._scopeBarVerticalOffset];
+        [self.addedConstraints addObject:self.scopeBarVerticalConstraint];
+        NSLayoutConstraint *layoutConstraint = nil;
+
+        if (__fullScreenMode) {
+            layoutConstraint = [self.toolbarExtendedBackgroundView.bottomAnchor constraintEqualToAnchor:self.toolbar.topAnchor];
+        } else {
+            layoutConstraint = [self.toolbarExtendedBackgroundView.heightAnchor constraintEqualToConstant:self.navigationBar.height];
+        }
+
+        [self.addedConstraints addObjectsFromArray:@[
+             [self.toolbarExtendedBackgroundView.leftAnchor constraintEqualToAnchor:self.toolbar.leftAnchor],
+             [self.toolbarExtendedBackgroundView.rightAnchor constraintEqualToAnchor:self.toolbar.rightAnchor],
+             [self.toolbarExtendedBackgroundView.topAnchor constraintLessThanOrEqualToAnchor:_containerView.topAnchor],
+             layoutConstraint,
+             [self.toolbar.bottomAnchor constraintEqualToAnchor:self.subtoolbar.topAnchor],
+             [self.toolbar.leftAnchor constraintEqualToAnchor:self.subtoolbar.leftAnchor],
+             [self.toolbar.rightAnchor constraintEqualToAnchor:self.subtoolbar.rightAnchor],
+             [self.toolbar.leftAnchor constraintEqualToAnchor:self.scopeBar.leftAnchor],
+             [self.toolbar.rightAnchor constraintEqualToAnchor:self.scopeBar.rightAnchor],
+        ]];
     }
-
-    [self.addedConstraints addObjectsFromArray:@[
-         [self.toolbarExtendedBackgroundView.leftAnchor constraintEqualToAnchor:self.toolbar.leftAnchor],
-         [self.toolbarExtendedBackgroundView.rightAnchor constraintEqualToAnchor:self.toolbar.rightAnchor],
-         [self.toolbarExtendedBackgroundView.topAnchor constraintLessThanOrEqualToAnchor:_containerView.topAnchor],
-         layoutConstraint,
-         [self.toolbar.bottomAnchor constraintEqualToAnchor:self.subtoolbar.topAnchor],
-         [self.toolbar.leftAnchor constraintEqualToAnchor:self.subtoolbar.leftAnchor],
-         [self.toolbar.rightAnchor constraintEqualToAnchor:self.subtoolbar.rightAnchor],
-    ]];
     [self.view addConstraints:self.addedConstraints];
     [super updateViewConstraints];
 }
@@ -1691,91 +1736,136 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
 }
 
 - (void)_updateToolbarAppearanceUsingTopViewController:(UXViewController *)topViewController animated:(BOOL)animated duration:(NSTimeInterval)duration {
-    CGFloat preferredToolbarHeight = topViewController.preferredToolbarHeight;
-    CGFloat toolbarHeight = self.toolbar.height;
-    BOOL invalidPreferredToolbarHeight = NO;
+    UXToolbar *toolbar = self.toolbar;
+    UXToolbar *subtoolbar = self.subtoolbar;
+    UXToolbar *scopeBar = self.scopeBar;
 
-    if (preferredToolbarHeight <= 0.0 || preferredToolbarHeight == toolbarHeight) {
-        invalidPreferredToolbarHeight = YES;
-    } else {
-        invalidPreferredToolbarHeight = NO;
-        self.toolbar.height = preferredToolbarHeight;
+    BOOL toolbarHeightChanged = NO;
+    CGFloat preferredToolbarHeight = topViewController.preferredToolbarHeight;
+
+    if (preferredToolbarHeight > 0.0 && preferredToolbarHeight != toolbar.height) {
+        toolbar.height = preferredToolbarHeight;
+        toolbarHeightChanged = YES;
     }
 
     if (topViewController.preferredToolbarBaselineOffsetFromBottom > 0.0) {
-        self.toolbar.baselineOffsetFromBottom = topViewController.preferredToolbarBaselineOffsetFromBottom;
+        toolbar.baselineOffsetFromBottom = topViewController.preferredToolbarBaselineOffsetFromBottom;
     }
 
-    if (topViewController.preferredSubtoolbarHeight > 0.0) {
-        self.subtoolbar.height = topViewController.preferredSubtoolbarHeight;
+    CGFloat preferredSubtoolbarHeight = topViewController.preferredSubtoolbarHeight;
+
+    if (preferredSubtoolbarHeight > 0.0 && preferredSubtoolbarHeight != subtoolbar.height) {
+        subtoolbar.height = preferredSubtoolbarHeight;
     }
 
     if (topViewController.preferredSubtoolbarBaselineOffsetFromBottom > 0.0) {
-        self.subtoolbar.baselineOffsetFromBottom = topViewController.preferredSubtoolbarBaselineOffsetFromBottom;
+        subtoolbar.baselineOffsetFromBottom = topViewController.preferredSubtoolbarBaselineOffsetFromBottom;
+    }
+
+    if (topViewController.preferredScopeBarHeight > 0.0) {
+        scopeBar.height = topViewController.preferredScopeBarHeight;
+    }
+
+    if (topViewController.preferredScopeBarBaselineOffsetFromBottom > 0.0) {
+        scopeBar.baselineOffsetFromBottom = topViewController.preferredScopeBarBaselineOffsetFromBottom;
     }
 
     NSEdgeInsets layoutMargins = topViewController.navigationItem.layoutMargins;
-    self.toolbar.layoutMargins = layoutMargins;
-    self.subtoolbar.layoutMargins = layoutMargins;
-    NSInteger preferredToolbarStyle = topViewController.preferredToolbarStyle;
+    toolbar.layoutMargins = layoutMargins;
+    subtoolbar.layoutMargins = layoutMargins;
+    scopeBar.layoutMargins = layoutMargins;
+
+    // macOS 26 (Solarium / liquid glass) toolbar appearance: the bars are rendered with a
+    // header-view blur material instead of a drawn border. The unified blur path is shared by
+    // toolbar style 1 and the detached-bars layout; style 2 installs per-bar visual effect views.
+    NSEdgeInsets decorationInsets = NSEdgeInsetsZero;
     NSColor *backgroundColor = nil;
-    NSColor *toolbarBorderColor = nil;
-    NSColor *subtoolbarBorderColor = nil;
-    BOOL subtoolbarBlurEnabled = NO;
+    BOOL barsBlurEnabled = NO;
+    BOOL skipColorUpdate = NO;
+    BOOL toolbarsDetached = self.areToolbarsDetached;
 
-    if (preferredToolbarStyle) {
-        NSEdgeInsets preferredToolbarDecorationInsets = topViewController.preferredToolbarDecorationInsets;
-
-        if (preferredToolbarStyle == 1) {
-            [self.toolbarVisualEffectsView removeFromSuperview];
-            [self.subtoolbarVisualEffectsView removeFromSuperview];
-            self.toolbar.blurEnabled = YES;
-            self.toolbar.blurMaterial = NSVisualEffectMaterialHeaderView;
-            toolbarBorderColor = [NSColor colorWithSRGBRed:0.0 green:0.0 blue:0.0 alpha:0.15];
-            backgroundColor = [NSColor clearColor];
-            subtoolbarBlurEnabled = YES;
-        } else {
-            if (preferredToolbarStyle == 2) {
-                if (!self.toolbarVisualEffectsView.superview) {
-                    CGRect toolbarBounds = self.toolbar.bounds;
-                    self.toolbarVisualEffectsView.frame = toolbarBounds;
-                    [self.toolbar addSubview:self.toolbarVisualEffectsView positioned:NSWindowBelow relativeTo:nil];
-                }
-
-                if (!self.subtoolbarVisualEffectsView.superview) {
-                    self.subtoolbarVisualEffectsView.frame = self.subtoolbar.bounds;
-                    [self.subtoolbar addSubview:self.subtoolbarVisualEffectsView positioned:NSWindowBelow relativeTo:nil];
-                }
-
-                backgroundColor = NSColor.clearColor;
-                subtoolbarBorderColor = NSColor.quaternaryLabelColor;
-            }
-
-            self.toolbar.blurEnabled = NO;
-            subtoolbarBlurEnabled = NO;
-        }
-
-        [self.toolbar setBackgroundColor:backgroundColor];
-        self.toolbar.borderColor = toolbarBorderColor;
-        self.toolbar.bordered = toolbarBorderColor != nil;
-        self.toolbar.decorationInsets = preferredToolbarDecorationInsets;
-        self.subtoolbar.blurEnabled = subtoolbarBlurEnabled;
-        [self.subtoolbar setBackgroundColor:backgroundColor];
-        self.subtoolbar.borderColor = subtoolbarBorderColor;
-        self.subtoolbar.bordered = subtoolbarBorderColor != nil;
-        self.subtoolbar.decorationInsets = preferredToolbarDecorationInsets;
-        self.toolbarExtendedBackgroundView.hidden = subtoolbarBlurEnabled;
-    } else {
-        self.toolbarExtendedBackgroundView.hidden = YES;
+    if (toolbarsDetached) {
+        decorationInsets = topViewController.preferredToolbarDecorationInsets;
+        backgroundColor = NSColor.clearColor;
         [self.toolbarVisualEffectsView removeFromSuperview];
         [self.subtoolbarVisualEffectsView removeFromSuperview];
+        [self.scopeBarVisualEffectsView removeFromSuperview];
+        toolbar.blurEnabled = NO;
+        barsBlurEnabled = NO;
+    } else {
+        NSInteger preferredToolbarStyle = topViewController.preferredToolbarStyle;
+
+        if (preferredToolbarStyle == 0) {
+            self.toolbarExtendedBackgroundView.hidden = YES;
+            [self.toolbarVisualEffectsView removeFromSuperview];
+            [self.subtoolbarVisualEffectsView removeFromSuperview];
+            [self.scopeBarVisualEffectsView removeFromSuperview];
+            skipColorUpdate = YES;
+        } else {
+            decorationInsets = topViewController.preferredToolbarDecorationInsets;
+
+            if (preferredToolbarStyle != 1) {
+                if (preferredToolbarStyle == 2) {
+                    if (!self.toolbarVisualEffectsView.superview) {
+                        self.toolbarVisualEffectsView.frame = toolbar.bounds;
+                        [toolbar addSubview:self.toolbarVisualEffectsView positioned:NSWindowBelow relativeTo:nil];
+                    }
+
+                    if (!self.subtoolbarVisualEffectsView.superview) {
+                        self.subtoolbarVisualEffectsView.frame = subtoolbar.bounds;
+                        [subtoolbar addSubview:self.subtoolbarVisualEffectsView positioned:NSWindowBelow relativeTo:nil];
+                    }
+
+                    if (!self.scopeBarVisualEffectsView.superview) {
+                        self.scopeBarVisualEffectsView.frame = scopeBar.bounds;
+                        [scopeBar addSubview:self.scopeBarVisualEffectsView positioned:NSWindowBelow relativeTo:nil];
+                    }
+
+                    backgroundColor = NSColor.clearColor;
+                } else {
+                    backgroundColor = nil;
+                }
+
+                toolbar.blurEnabled = NO;
+                barsBlurEnabled = NO;
+            } else {
+                backgroundColor = NSColor.clearColor;
+                [self.toolbarVisualEffectsView removeFromSuperview];
+                [self.subtoolbarVisualEffectsView removeFromSuperview];
+                [self.scopeBarVisualEffectsView removeFromSuperview];
+                toolbar.blurEnabled = YES;
+                toolbar.blurMaterial = NSVisualEffectMaterialHeaderView;
+                subtoolbar.blurMaterial = NSVisualEffectMaterialHeaderView;
+                scopeBar.blurMaterial = NSVisualEffectMaterialHeaderView;
+                barsBlurEnabled = YES;
+            }
+        }
     }
 
-    if (!(invalidPreferredToolbarHeight || !animated)) {
+    if (!skipColorUpdate) {
+        [toolbar setBackgroundColor:backgroundColor];
+        toolbar.borderColor = nil;
+        toolbar.bordered = NO;
+        toolbar.decorationInsets = decorationInsets;
+        subtoolbar.blurEnabled = barsBlurEnabled;
+        [subtoolbar setBackgroundColor:backgroundColor];
+        subtoolbar.borderColor = nil;
+        subtoolbar.bordered = NO;
+        subtoolbar.decorationInsets = decorationInsets;
+        scopeBar.blurEnabled = barsBlurEnabled;
+        [scopeBar setBackgroundColor:backgroundColor];
+        scopeBar.borderColor = nil;
+        scopeBar.bordered = NO;
+        scopeBar.decorationInsets = decorationInsets;
+        self.toolbarExtendedBackgroundView.hidden = barsBlurEnabled;
+    }
+
+    if (animated && toolbarHeightChanged) {
         [UXView animateWithDuration:duration
                          animations:^{
-            [self.toolbar layoutSubtreeIfNeeded];
-            [self.subtoolbar layoutSubtreeIfNeeded];
+            [toolbar layoutSubtreeIfNeeded];
+            [subtoolbar layoutSubtreeIfNeeded];
+            [scopeBar layoutSubtreeIfNeeded];
         }];
     }
 }
@@ -2319,9 +2409,22 @@ Class _transitionControllerClassForTransition(NSUInteger transition) {
         _scopeBar.delegate = self;
         _scopeBar.hidden = _scopeBarHidden;
         _scopeBar.accessibilityIdentifier = @"UXNavigationControllerScopeBar";
+        _scopeBar.accessibilityRoleDescription = UXLocalizedString(@"UXNavigationControllerToolbarAXRoleDescription");
+        _scopeBar.accessibilityLabel = UXLocalizedString(@"UXNavigationControllerScopeAXLabel");
         _scopeBar.translatesAutoresizingMaskIntoConstraints = NO;
     }
     return _scopeBar;
+}
+
+- (NSVisualEffectView *)scopeBarVisualEffectsView {
+    if (_scopeBarVisualEffectsView == nil) {
+        _scopeBarVisualEffectsView = [[NSVisualEffectView alloc] initWithFrame:self.scopeBar.bounds];
+        _scopeBarVisualEffectsView.blendingMode = NSVisualEffectBlendingModeWithinWindow;
+        _scopeBarVisualEffectsView.material = NSVisualEffectMaterialContentBackground;
+        _scopeBarVisualEffectsView.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+    }
+
+    return _scopeBarVisualEffectsView;
 }
 
 - (NSView *)detachedBarsContainer {
