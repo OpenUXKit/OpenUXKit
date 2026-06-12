@@ -594,6 +594,69 @@ clipViewBoundsDidChange: (0x1dbbddc8c)
 setContentSize getter：UXKit 无 contentSize getter 方法（导出头确认）。
 ```
 
+### 2.7 Selection 算法（P9b/M5，全部反编译）
+
+UXKit 的选区核心是**集合代数**，与 OpenUXKit 原先的 add/remove 循环根本不同。
+
+```
+_selectItemsInIndexPathsSet:set byExtendingSelection:extend animated:animated
+    scrollingKeyItem:keyItem toPosition:position notifyDelegate:notify (0x1dbbe31c8)
+ ├─ old = [_indexPathsForSelectedItems@1184 copy]
+ ├─ 构造 requested：
+ │    !set || !allowsSelection → 空集
+ │    else: requested = [set mutableCopy]
+ │      flags bit6(0x40) shouldSelect → 逐项 ![delegate shouldSelect] 则 remove
+ │      extend → [requested addIndexPathsSet:old]
+ │      !allowsMultipleSelection && requested.count>=2 → 折叠成 1：
+ │        survivor = (keyItem && requested.contains(keyItem)) ? keyItem : requested.firstIndexPath
+ │        removeAll；survivor 非 nil → add
+ ├─ added = requested - old；removed = old - requested
+ │    flags bit7(0x80) shouldDeselect → removed 中 ![delegate shouldDeselect] 则从 removed 移除
+ ├─ working = [_indexPathsForSelectedItems mutableCopy]；-removed +added
+ ├─ working 空 && !allowsEmptySelection：
+ │    requested 空 → return NO；first=_firstSelectableItemIndexPath，nil→return NO
+ │    removed.contains(first) ? removed.remove : added.add；working.add；requested.add
+ ├─ added+removed == 0 → return NO
+ ├─ notify：bits 10|11(0xC00) → addedArray/removedArray 物化；bit10(0x400) willAdd → assert 1392 + delegate willAdd
+ ├─ commit：_indexPathsForSelectedItems = working；assert 1399 (requested == 实际)
+ ├─ 仅可见 cell：[_dictionaryOfIndexPathsAndContentCells] 中 added/removed 命中者 [cell _setSelected:added.contains animated:]
+ ├─ notify did：bit9(0x200) didDeselect / bit8(0x100) didSelect / bit11(0x800) didAdd(assert 1427)
+ ├─ keyItem && position → scrollTo
+ └─ [[_layout layoutAccessibility] accessibilityPostNotification:NSAccessibilitySelectedCellsChangedNotification]；return YES
+
+_deselectItemsAtIndexPaths: (0x1dbbe2a94)  ← 实为"选中补集"
+ ├─ toDeselect = a3（IndexPathsSet）经 shouldDeselect 过滤；空 → return NO
+ ├─ surviving = _indexPathsForSelectedItems - toDeselect
+ │    空 && !allowsEmptySelection：fallback = (a3.lastIndexPath ∈ toDeselect) ? a3.lastIndexPath : _firstSelectableItemIndexPath（nil→return NO）
+ │      anchor=fallback；surviving.add(fallback)；assert 1615
+ ├─ anchor && !surviving.contains(anchor) → anchor = surviving.firstIndexPath
+ └─ [self _selectItemsInIndexPathsSet:surviving extend:NO …]；成功 → _lastSelectionAnchorIndexPath@1248=anchor + AX
+
+_toggleSelectionStateOfItemAtIndexPath: (0x1dbbe299c)
+ └─ 已选 → _deselectItems(@[ip])，成功且 anchor==ip → anchor=_keyItemForSet(selection)
+    未选 → _selectItemsInIndexPathsSet:single extend:YES keyItem:ip position:64；成功 → anchor=ip
+
+_selectRangeOfItemsFromIndexPath: (0x1dbbe307c)
+ ├─ range = [_layout indexPathsForItemRangeSelectionFrom:to:]；keyItem = scroll ? _keyItemForArray(range) : nil
+ ├─ [self _selectItemsInIndexPathsSet:range extend:extend keyItem:keyItem …]
+ └─ candidate：从 range-去from 逆向取 _keyItemForArray，找到首个仍在选区内的项作为新 anchor 候选
+
+_deselectAllAnimated: (0x1dbbe300c)  → anchor=nil + _selectItemsInIndexPathsSet:nil extend:NO
+_selectAllItems: (0x1dbbe272c)  → bit12(byte1761&0x10) sectionsForSelectAllAction 钩子 ?: 全 section；逐 item 选；成功 → anchor=_keyItemForSet
+_performItemSelectionForMouseEvent: (0x1dbbd3494)  → 重置 keyboard-range 三件套；painting 起始（无 shift/cmd 时 _isPaintingSelectionRunning=YES）；
+    已选→cmd/continuous 走 deselect、否则 anchor=ip；未选→shift 走 _selectRange、cmd/continuous 走 toggle、否则 select(extend:NO keyItem:ip)
+_performItemSelectionForKey: (0x1dbbd207c)  → 箭头键 0xF700-0xF703，经 _layout indexPathOfItemAbove/Below/Before/After: + userInterfaceLayoutDirection（RTL 翻转左右）；
+    shift → 与 keyboardRangePreviouslySelected(@1712) 合并 _selectRange；非 shift → 单选 + 清三件套
+
+## 2.8 dequeue/reuse 管线（P9b/M6，已反编译，记录待 P9c 精炼）
+
+- reuse 队列实为 **NSMutableDictionary→NSMutableSet**（非 OpenUXKit 现 NSMutableArray），`_reuseCell:`/`_reuseSupplementaryView:` 用 `anyObject`/`removeObject:` 出队。
+- purge 阈值**动态**：`count < ceil(frameW·frameH·8 / max(_minReusedViewSize.w·.h, 1)) + 1`；`_minReusedViewSize@1488` 在每次 reuse 时取 `min(当前, view.frame.size)` 收缩（初值 {1024,1024}，`_invalidateLayoutWithContext:` 重置）。超阈值或类不匹配 → `removeFromSuperview`；入队时 `setHidden:YES` + `_setLayoutAttributes:nil`。
+- `_createPreparedCellForItemAtIndexPath:`：assert dataSource 非空(2242)/cell 非空(2250)/有 reuseIdentifier(2251)/`_wasDequeued`(2252)；apply 时 `performWithoutAnimation:{ _setLayoutAttributes + _addControlled:YES }`；尾部 `_notifyWillDisplayCellIfNeeded:`。**不恢复 selected 状态**（UXKit 依赖 dataSource；OpenUXKit 保留自有的 selected 恢复，更稳）。
+- `_createPreparedSupplementaryViewForElementOfKind:`：decoration 走 `_dequeueReusableViewOfKind:…viewCategory:3` → 失败回退 `[_layout _decorationViewForLayoutAttributes:]`；supplementary 经 bit25(dataSourceViewForSupplementaryElement) gate。
+- `_dequeueReusableViewOfKind:`：set 命中 → `anyObject`+`prepareForReuse`+`removeObject`；未命中 → nib（`instantiateWithOwner:`，assert 3709/3710）或 class（`initWithFrame:attrs.frame`），assert 3719；尾部 `performWithoutAnimation:{apply attrs}` + `_markAsDequeued`。
+- 结论：OpenUXKit 现 array+固定阈值实现**正确性等价**，差异为容量策略与数据结构，列为 P9c 精炼项（非痛点，当前行为正确）。
+
 ## 3. 本阶段代码修复汇总（P9a：batchUpdates + 可见视图管线）
 
 | # | 文件 | 修复 | 性质 |
@@ -615,6 +678,20 @@ setContentSize getter：UXKit 无 contentSize getter 方法（导出头确认）
 
 潜伏 bug 详解（#14）：`-[UXCollectionViewLayout init]` 通过 `[self _commonInit]` 动态派发初始化，FlowLayout 覆写了 `_commonInit` 却未调 super，导致基类的 `_insertedSectionsSet` / `_deletedSectionsSet` 等永远为 nil。P9 之前 `_updateWithItems:` 退化为 reloadData，`prepareForCollectionViewUpdates:` 从未以真实管线执行；P9 接通后，`for (section = [nilSet firstIndex]; section != NSNotFound; section = [nilSet indexGreaterThanIndex:section])` 因 nil 消息返回 0（≠ NSNotFound）陷入 `section==0` 死循环（`sample` 定位到 `existingSupplementaryLayoutAttributesInSection:`，`fprintf` 确认 set 为 `(null)`）。修复后 batchUpdates 全链贯通。
 
+## 3b. P9b 代码修复汇总（Selection 集合代数）
+
+| # | 文件 | 修复 | 性质 |
+|---|---|---|---|
+| 1 | `UXCollectionView.m` `_selectItemsInIndexPathsSet:…` | 整方法重写为 §2.7 集合代数：allowsSelection gate、shouldSelect/shouldDeselect 过滤、单选折叠、空选区保护、added/removed diff、仅可见 cell `_setSelected:animated:`、will/did 通知顺序与 4 个委托 bit、AX 通知 | **核心重写**：原实现为简单 add/remove 循环，无折叠/无 should 过滤/无空选区保护，是 Selection 痛点根源 |
+| 2 | `UXCollectionView.m` `_deselectItemsAtIndexPaths:` | 重写为"选中补集"：surviving = 现选区 - toDeselect（含空选区 fallback + anchor 维护），统一经 `_selectItemsInIndexPathsSet:` | 行为对齐 |
+| 3 | `UXCollectionView.m` `_toggleSelectionStateOfItemAtIndexPath:` / `_selectRangeOfItemsFromIndexPath:` / `_deselectAllAnimated:` / `_selectAllItems:` | 按 §2.7 重写（anchor 维护、keyItem position 64、candidate 逆向扫描、sectionsForSelectAllAction 钩子） | 行为对齐 |
+| 4 | `UXCollectionView.m` SPI category | 声明 `_setSelected:animated:`（cell）/`accessibilityPostNotification:`（layoutAccessibility）/`sectionsForSelectAllActionInCollectionView:`（delegate）；新增 `_postSelectionAccessibilityNotification` 守卫式 helper | 桥接 |
+
+P9b 实现妥协（记录在案）：
+- `_performItemSelectionForMouseEvent:` / `_performItemSelectionForKey:` / lasso / painting **事件路由保留 OpenUXKit 现状**（它们调用上面已修正的核心方法，diff/通知/空选区逻辑自动获益）。UXKit 的鼠标 4 分支（cmd/continuous deselect、shift range、plain select，含 painting 内联进 mouseDown）与键盘 RTL 翻转细节见 §2.7，列为 P9c。
+- M6 dequeue/reuse 的 set+动态阈值差异（§2.8）正确性等价，列为 P9c 精炼。
+- M7 layout transition 链（`setCollectionViewLayout:animated:`、`_UXCollectionSnapshotView` snapshot 路径、`UpdateGap.beginningRect/endingRect` 写入点、`Animation.addCompletionHandler:` 的 BOOL 签名）本轮未做——无 showcase 走动画式 layout transition，影响面最低，列为 P9c。
+
 实现妥协（记录在案）：
 - `UXCollectionViewAnimation.addCompletionHandler:` 仍为 `void(^)(void)`（UXKit 为 `void(^)(BOOL)`）；主类 completion 里以 `@YES` 调 `_updateAnimationDidStop:` —— P9b 待办
 - assert 文本 1:1，行号为 OpenUXKit 自然行号（无法照抄 UXKit 行号）
@@ -623,6 +700,8 @@ setContentSize getter：UXKit 无 contentSize getter 方法（导出头确认）
 - `dealloc` 中 NSObject cancelPreviousPerformRequests 未加（UXKit 未验证）
 
 ## 4. 测试
+
+`Tests/OpenUXKitTests/Collection/SelectionAlgorithmTests.swift` stub 转正（6 个 L2 集成测试，P9b）：单选替换、单选折叠（多请求→1）、多选 extend、deselect 清可见 cell、空选区禁用保护、shouldSelect 委托否决。**红绿验证**：临时禁用单选折叠分支，`test_singleSelection_collapsesMultiRequestToOne` 即从 1 选区变 3 选区而失败。
 
 `Tests/OpenUXKitTests/Collection/PerformBatchUpdatesTests.swift` stub 转正（8 个 L2 集成测试）：
 NSWindow 寄宿（满足 `_visible`）+ 手动 `layout()` 驱动首次布局；断言 `visibleCells`/`indexPathsForVisibleItems` 在变更调用返回后立即反映新模型（dict 在动画组内同步重建），completion 经 expectation 异步等待。
