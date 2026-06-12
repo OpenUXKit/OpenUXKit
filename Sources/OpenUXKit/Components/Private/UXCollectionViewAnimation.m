@@ -153,7 +153,7 @@
             context.duration = duration;
             CAMediaTimingFunction *timingFunction = context.timingFunction;
             if (!timingFunction) {
-                timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionDefault];
+                timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
             }
             context.timingFunction = timingFunction;
 

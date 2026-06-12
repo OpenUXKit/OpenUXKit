@@ -417,12 +417,12 @@ buildNewMap:
         return NO;
     }
     NSComparisonResult comparison = [firstItem compareIndexPaths:secondItem];
-    UXCollectionViewUpdateItem *lowerItem = (comparison == NSOrderedDescending) ? secondItem : firstItem;
-    UXCollectionViewUpdateItem *upperItem = (comparison == NSOrderedDescending) ? firstItem : secondItem;
+    UXCollectionViewUpdateItem *lowerItem = (comparison == NSOrderedAscending) ? firstItem : secondItem;
+    UXCollectionViewUpdateItem *upperItem = (comparison == NSOrderedAscending) ? secondItem : firstItem;
     UXCollectionViewData *data = ([firstItem _action] == UXCollectionUpdateActionInsert) ? _newModel : _oldModel;
-    CGRect upperFrame = [self _frameForUpdateItem:upperItem usingData:data];
     CGRect lowerFrame = [self _frameForUpdateItem:lowerItem usingData:data];
-    return CGRectGetMaxY(upperFrame) == CGRectGetMinY(lowerFrame);
+    CGRect upperFrame = [self _frameForUpdateItem:upperItem usingData:data];
+    return CGRectGetMaxY(lowerFrame) == CGRectGetMinY(upperFrame);
 }
 
 - (void)_computeGaps {
@@ -443,7 +443,6 @@ buildNewMap:
             if (currentGap && sawInsert && [self _updateItem:updateItem isContiguousWith:[[currentGap insertItems] lastObject]]) {
                 [currentGap setLastUpdateItem:updateItem];
                 [currentGap addUpdateItem:updateItem];
-                sawInsert = YES;
             } else {
                 BOOL merged = NO;
                 for (UXCollectionViewUpdateGap *gap in _gaps) {
@@ -454,7 +453,7 @@ buildNewMap:
                     NSIndexPath *adjustedIndexPath = [self _adjustedIndexPathForGapMergeUsingIndexPath:[updateItem _indexPath]];
                     NSComparisonResult compareFirst = [adjustedIndexPath compare:[[gap firstUpdateItem] _indexPath]];
                     NSComparisonResult compareLast = [adjustedIndexPath compare:[[gap lastUpdateItem] _indexPath]];
-                    if (compareFirst <= NSOrderedSame && (compareLast + 1) < 2) {
+                    if (compareFirst != NSOrderedAscending && compareLast != NSOrderedDescending) {
                         [gap addUpdateItem:updateItem];
                         sawInsert = YES;
                         merged = YES;
