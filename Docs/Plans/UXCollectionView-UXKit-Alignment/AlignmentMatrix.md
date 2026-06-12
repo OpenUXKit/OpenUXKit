@@ -175,27 +175,37 @@
 - ✅ T3 .claude/plans/ 脚手架
 - ✅ T4 37 类对照矩阵（本文档）
 - ✅ T5 9 个核心方法反编译笔记
-- ⬜ T6 Tests 脚手架（下一步）
+- ✅ T6 Tests 脚手架（`Tests/OpenUXKitTests/Collection/` 6 个 swift 文件 + FlowLayout fixture，30 用例）
 - ⬜ T7 Showcase 视觉基线（需用户手动操作）
 - ✅ T8 公开 API 合同（13 符号）
 
 ---
 
-## 下一步（按 phase 实际工作量重排序）
+## Phase 完成总览（截至 P11 + P9d 事件路由）
 
-| Phase | 工作量（修订） | 关键产物 |
-|---|---|---|
-| **T6（P0 收尾）** | 0.5 天 | Tests/OpenUXKitTests/Collection/ 下 6 个 swift stub 文件 + 1 个 fixture |
-| **P1** | 0.5 天 | UpdateItem `compareIndexPaths:` block 对照 + `_UXCollectionViewItemKey._hash` verify |
-| **P2** | 0.5 天 | LayoutAttributes 22 ivar matrix + InvalidationContext 单例聚合 |
-| **P3** | 1 天 | Layout 基类 13 ivar verify |
-| **P4** | **1 周（重点）** | `_UXFlowLayout*` 4 类算法 1:1 对齐 + FlowLayout 9 个 `_gridLayoutFlags` bit 处理 |
-| **P5** | 0.5 周 | Data `_loadEverything` UIMutableIndexPath 桥接策略 |
-| **P6** | 0.5 天 | ReusableView `_setBaseLayoutAttributes:` |
-| **P7** | 0.5 周 | IndexPathsSet adjust* 算法 |
-| **P8** | 0.5 周 | Animation handlers + 验证 2 个 contiguous block |
-| **P9** | **2 周（最大块）** | UXCollectionView 主类 2571 行 + 5 视图层次类 + Selection 4 路 + flag 矩阵 |
-| **P10** | 1 周 | Rearranging Coordinator 80 方法 |
-| **P11** | ✅ 完成 | Accessibility 2 类已对齐（见 `IDA-Notes/P11-Accessibility.md`，~20 处分歧修正） |
+> 状态：✅ 反编译逐方法验证 ｜ 🟡 部分对齐（主体已对齐，有记录在案的余量）｜ 🟢 形式对齐（接口对应，未逐方法 verify）
 
-**总计修订**：约 **7-8 周**（原估 12 周），主要因为接口形式已对齐，工作集中在算法对齐而非新建。
+| Phase | 子系统 | 状态 | 关键产物 / 余量 |
+|---|---|---|---|
+| **P0** | 脚手架 | ✅ | 矩阵 + 9 反编译笔记 + Tests 脚手架（30 用例）+ API 合同；T7 视觉基线待用户手动 |
+| **P1** | S1a 叶子 token | ✅ | UpdateItem `_action`/compare、SectionItemIndexes（P7 一并）；ItemKey `_hash` 形式对齐 |
+| **P2** | S2 LayoutAttributes/InvCtx | 🟢 | 接口/ivar 对应，`_isEquivalentTo:`/`_isTransitionVisibleTo:` 未逐句 verify |
+| **P3** | S2 Layout 基类 | 🟢 | 13 ivar + transition 双阶段形式对齐 |
+| **P4** | S2 FlowLayout + `_UXFlowLayout*` 4 类 | 🟡 | 算法已对齐，保留 2 处 OpenUXKit-only 简化 |
+| **P5** | S3a Data 缓存 | ✅ | `IDA-Notes/P5-Data.md`，51 方法 + screen-page 缓存 |
+| **P6** | S1b ReusableView/Cell/Snapshot | ✅ | `IDA-Notes/P6-ReusableView.md` |
+| **P7** | S4 IndexPathsSet（+ SectionItemIndexes） | ✅ | `IDA-Notes/P7-IndexPathsSet.md`，60 方法 |
+| **P8** | S3b Update/Gap + S5 Animation | ✅ | `IDA-Notes/P8-UpdateAnimation.md`，`_computeGaps` 两处方向性 bug 修复 |
+| **P9** | S8 主类 | 🟡 | P9a/b/c（batchUpdates / 可见视图 / Selection 集合代数 / reuse 池 / scroll）+ **P9d 事件路由**（§7）已对齐；**余量**：动画跨布局 transition（§7.3 spec，无 showcase 触发，未移植） |
+| **P10** | S6 Rearranging | 🟡 | P10a 状态机已反编译；**余量 P10b**：NSDraggingSession 完整重写（需交互拖放验证） |
+| **P11** | S7 Accessibility | ✅ | `IDA-Notes/P11-Accessibility.md`，2 类 52 方法、~20 处分歧修正 |
+
+**当前覆盖**：12 个 phase 中 **P0/P1/P5/P6/P7/P8/P11 完全反编译验证**，P4/P9/P10 主体对齐留明确余量，P2/P3 形式对齐。
+
+### 剩余工作（均需我无法自主提供的验证条件）
+
+1. **P9d 动画跨布局 transition** — 全链已反编译为 spec（`P9-MainClass.md` §7.3）；无 showcase 触发点，移植后需自建 layout-swap 用例间接验证。
+2. **P10b Rearranging NSDragging 重写** — 状态机 P10a 已备；需交互拖放手测。
+3. **reuse-pool 专项集成测试** — 池本身 P9c 已对齐；集成测试涉 scroll/timing 模拟，易 flaky。
+4. **P2/P3 逐方法 verify、P4 两处简化收口** — 形式已对齐，深度 verify 为可选加固。
+5. **T7 Showcase 视觉基线** — 需用户手动录屏/截图。
