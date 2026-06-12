@@ -641,43 +641,74 @@
 }
 
 - (void)_performItemSelectionForMouseEvent:(NSEvent *)event onCell:(UXCollectionViewCell *)cell atIndexPath:(NSIndexPath *)indexPath {
+    // A fresh mouse selection invalidates any in-progress keyboard range selection.
+    _keyboardRangeSelectionFirstSelectedItem = nil;
+    _keyboardRangeSelectionLastSelectedItem = nil;
+    _keyboardRangeSelectionPreviouslySelectedItems = nil;
+
     NSEventModifierFlags modifiers = event.modifierFlags;
     BOOL commandPressed = (modifiers & NSEventModifierFlagCommand) != 0;
     BOOL shiftPressed = (modifiers & NSEventModifierFlagShift) != 0;
-    BOOL extendingModifierPressed = commandPressed || shiftPressed;
+
+    // Arm painting selection on an unmodified click when it is enabled.
+    if (_allowsPaintingSelection && !commandPressed && !shiftPressed) {
+        _isPaintingSelectionRunning = YES;
+    }
 
     if (cell.selected) {
-        BOOL allowDeselect = commandPressed || _allowsContinuousSelection;
-        if (allowDeselect) {
-            [self _deselectItemsAtIndexPaths:@[indexPath] animated:YES notifyDelegate:YES];
+        if (commandPressed || _allowsContinuousSelection) {
+            if ([self _deselectItemsAtIndexPaths:@[indexPath] animated:YES notifyDelegate:YES]) {
+                [self _postSelectionAccessibilityNotification];
+            }
+        } else {
+            _lastSelectionAnchorIndexPath = indexPath;
         }
         return;
     }
-    if (![self selectableItemAtIndexPath:indexPath]) {
+
+    if (!shiftPressed) {
+        BOOL changed;
+        if (commandPressed || _allowsContinuousSelection) {
+            changed = [self _toggleSelectionStateOfItemAtIndexPath:indexPath animated:YES notifyDelegate:YES];
+        } else {
+            UXCollectionViewIndexPathsSet *set = [UXCollectionViewIndexPathsSet indexPathsSetWithIndexPath:indexPath];
+            changed = [self _selectItemsInIndexPathsSet:set
+                                   byExtendingSelection:NO
+                                               animated:YES
+                                       scrollingKeyItem:indexPath
+                                             toPosition:UXCollectionViewScrollPositionNone
+                                         notifyDelegate:YES];
+        }
+        if (!changed) {
+            return;
+        }
+        // Anchor on the clicked item, or on the selection's key item if the click
+        // did not end up selecting it (single-selection collapse).
+        NSIndexPath *anchorIndexPath = indexPath;
+        if (![_indexPathsForSelectedItems containsIndexPath:indexPath]) {
+            anchorIndexPath = [self _keyItemIndexPathForItemIndexPathsSet:_indexPathsForSelectedItems];
+        }
+        _lastSelectionAnchorIndexPath = anchorIndexPath;
+        [self _postSelectionAccessibilityNotification];
         return;
     }
 
-    if (shiftPressed && _allowsMultipleSelection && _lastSelectionAnchorIndexPath) {
-        NSIndexPath *anchor = _lastSelectionAnchorIndexPath;
-        [self _selectRangeOfItemsFromIndexPath:anchor
-                                   toIndexPath:indexPath
-                          byExtendingSelection:commandPressed
-                                      animated:YES
-                                        scroll:NO
-                                    toPosition:UXCollectionViewScrollPositionNone
-                                notifyDelegate:YES
-                  candidateLastSelectedItemIndexPath:NULL];
-        return;
+    // Shift held: range selection from the anchor (or the clicked item if none).
+    NSIndexPath *fromIndexPath = _lastSelectionAnchorIndexPath ?: indexPath;
+    NSIndexPath *candidateLastSelectedItem = nil;
+    BOOL changed = [self _selectRangeOfItemsFromIndexPath:fromIndexPath
+                                              toIndexPath:indexPath
+                                     byExtendingSelection:YES
+                                                 animated:YES
+                                                   scroll:YES
+                                               toPosition:UXCollectionViewScrollPositionNone
+                                           notifyDelegate:YES
+                              candidateLastSelectedItemIndexPath:&candidateLastSelectedItem];
+    NSIndexPath *resolvedCandidate = _lastSelectionAnchorIndexPath ? candidateLastSelectedItem : indexPath;
+    if (changed && resolvedCandidate) {
+        _lastSelectionAnchorIndexPath = resolvedCandidate;
+        [self _postSelectionAccessibilityNotification];
     }
-
-    BOOL extend = extendingModifierPressed && _allowsMultipleSelection;
-    UXCollectionViewIndexPathsSet *set = [UXCollectionViewIndexPathsSet indexPathsSetWithIndexPath:indexPath];
-    [self _selectItemsInIndexPathsSet:set
-                  byExtendingSelection:extend
-                              animated:YES
-                       scrollingKeyItem:nil
-                            toPosition:UXCollectionViewScrollPositionNone
-                        notifyDelegate:YES];
 }
 
 - (BOOL)_performItemSelectionForKey:(uint16_t)key withModifiers:(NSUInteger)modifiers {
@@ -685,95 +716,95 @@
         return NO;
     }
     BOOL shiftHeld = (modifiers & NSEventModifierFlagShift) != 0;
-    BOOL rangeMode = shiftHeld && _allowsMultipleSelection;
-
-    NSIndexPath *anchorIndexPath = _keyboardRangeSelectionLastSelectedItem ?: [_indexPathsForSelectedItems lastIndexPath];
-    NSIndexPath *targetIndexPath = nil;
-    switch (key) {
-        case NSUpArrowFunctionKey:
-        case NSLeftArrowFunctionKey:
-            targetIndexPath = [self _indexPathByMovingFromIndexPath:anchorIndexPath delta:-1 fallback:[self _firstSelectableItemIndexPath]];
-            break;
-        case NSDownArrowFunctionKey:
-        case NSRightArrowFunctionKey:
-            targetIndexPath = [self _indexPathByMovingFromIndexPath:anchorIndexPath delta:1 fallback:[self _firstSelectableItemIndexPath]];
-            break;
-        case NSHomeFunctionKey:
-            targetIndexPath = [self _firstSelectableItemIndexPath];
-            break;
-        case NSEndFunctionKey:
-            targetIndexPath = [self _lastSelectableItemIndexPath];
-            break;
-        default:
-            return NO;
-    }
-    if (!targetIndexPath) {
-        return NO;
-    }
-
-    if (rangeMode) {
-        if (!_keyboardRangeSelectionFirstSelectedItem) {
-            _keyboardRangeSelectionFirstSelectedItem = anchorIndexPath ?: targetIndexPath;
-            _keyboardRangeSelectionPreviouslySelectedItems = [[UXCollectionViewIndexPathsSet alloc] initWithIndexPathsSet:_indexPathsForSelectedItems];
+    if (shiftHeld) {
+        if (!_keyboardRangeSelectionPreviouslySelectedItems) {
+            _keyboardRangeSelectionPreviouslySelectedItems = [_indexPathsForSelectedItems copy];
         }
+        _keyboardRangeSelectionFirstSelectedItem = _lastSelectionAnchorIndexPath;
+        _keyboardRangeSelectionLastSelectedItem = _lastSelectionAnchorIndexPath;
+    }
+
+    NSIndexPath *targetIndexPath = nil;
+    if (_keyboardRangeSelectionFirstSelectedItem) {
+        // Range already underway: navigate from the cursor by layout geometry,
+        // skipping non-selectable items until one is found or we run off an edge.
+        if ((key & 0xFFFC) != 0xF700) {
+            return NO;
+        }
+        BOOL rightToLeft = self.userInterfaceLayoutDirection == NSUserInterfaceLayoutDirectionRightToLeft;
+        NSIndexPath *cursor = _keyboardRangeSelectionLastSelectedItem;
+        while (YES) {
+            NSIndexPath *next = nil;
+            switch (key) {
+                case NSUpArrowFunctionKey:
+                    next = [_layout indexPathOfItemAbove:cursor];
+                    break;
+                case NSLeftArrowFunctionKey:
+                    next = rightToLeft ? [_layout indexPathOfItemAfter:cursor] : [_layout indexPathOfItemBefore:cursor];
+                    break;
+                case NSRightArrowFunctionKey:
+                    next = rightToLeft ? [_layout indexPathOfItemBefore:cursor] : [_layout indexPathOfItemAfter:cursor];
+                    break;
+                default:
+                    next = [_layout indexPathOfItemBelow:cursor];
+                    break;
+            }
+            cursor = next;
+            if (!next) {
+                return YES;
+            }
+            if ([self selectableItemAtIndexPath:next]) {
+                targetIndexPath = next;
+                break;
+            }
+        }
+    } else {
+        // No range underway: an arrow key enters the list from the matching edge.
+        if (key == NSUpArrowFunctionKey || key == NSLeftArrowFunctionKey) {
+            targetIndexPath = [_layout lastSelectableItemIndexPath];
+        } else if (key == NSDownArrowFunctionKey || key == NSRightArrowFunctionKey) {
+            targetIndexPath = [_layout firstSelectableItemIndexPath];
+        } else {
+            return NO;
+        }
+        _keyboardRangeSelectionFirstSelectedItem = targetIndexPath;
         _keyboardRangeSelectionLastSelectedItem = targetIndexPath;
+        if (!targetIndexPath) {
+            return YES;
+        }
+    }
+
+    if (shiftHeld) {
         NSArray<NSIndexPath *> *range = [_layout indexPathsForItemRangeSelectionFrom:_keyboardRangeSelectionFirstSelectedItem
                                                                                   to:targetIndexPath];
-        UXCollectionViewMutableIndexPathsSet *combined = [[UXCollectionViewMutableIndexPathsSet alloc] init];
-        [combined addIndexPathsSet:_keyboardRangeSelectionPreviouslySelectedItems];
-        for (NSIndexPath *indexPath in range) {
-            [combined addIndexPath:indexPath];
+        UXCollectionViewMutableIndexPathsSet *combined = [_keyboardRangeSelectionPreviouslySelectedItems mutableCopy];
+        [combined addIndexPaths:range];
+        if (![self _selectItemsInIndexPathsSet:combined
+                          byExtendingSelection:NO
+                                      animated:NO
+                              scrollingKeyItem:targetIndexPath
+                                    toPosition:(UXCollectionViewScrollPosition)64
+                                notifyDelegate:YES]) {
+            return YES;
         }
-        [self _selectItemsInIndexPathsSet:combined
-                     byExtendingSelection:NO
-                                 animated:NO
-                          scrollingKeyItem:targetIndexPath
-                                toPosition:UXCollectionViewScrollPositionNone
-                            notifyDelegate:YES];
+        _keyboardRangeSelectionLastSelectedItem = targetIndexPath;
     } else {
+        UXCollectionViewIndexPathsSet *set = [UXCollectionViewIndexPathsSet indexPathsSetWithIndexPath:targetIndexPath];
+        if (![self _selectItemsInIndexPathsSet:set
+                          byExtendingSelection:NO
+                                      animated:NO
+                              scrollingKeyItem:targetIndexPath
+                                    toPosition:(UXCollectionViewScrollPosition)64
+                                notifyDelegate:YES]) {
+            return YES;
+        }
+        _keyboardRangeSelectionPreviouslySelectedItems = nil;
         _keyboardRangeSelectionFirstSelectedItem = nil;
         _keyboardRangeSelectionLastSelectedItem = nil;
-        _keyboardRangeSelectionPreviouslySelectedItems = nil;
-        UXCollectionViewIndexPathsSet *set = [UXCollectionViewIndexPathsSet indexPathsSetWithIndexPath:targetIndexPath];
-        [self _selectItemsInIndexPathsSet:set
-                     byExtendingSelection:NO
-                                 animated:NO
-                          scrollingKeyItem:targetIndexPath
-                                toPosition:UXCollectionViewScrollPositionNone
-                            notifyDelegate:YES];
+        _lastSelectionAnchorIndexPath = targetIndexPath;
     }
+    [self _postSelectionAccessibilityNotification];
     return YES;
-}
-
-- (NSIndexPath *)_indexPathByMovingFromIndexPath:(NSIndexPath *)indexPath delta:(NSInteger)delta fallback:(NSIndexPath *)fallback {
-    if (!indexPath) {
-        return fallback;
-    }
-    NSInteger section = indexPath.section;
-    NSInteger item = indexPath.item + delta;
-    NSInteger sectionCount = [self numberOfSections];
-    while (section >= 0 && section < sectionCount) {
-        NSInteger itemCount = [self numberOfItemsInSection:section];
-        if (item < 0) {
-            section--;
-            if (section < 0) {
-                return nil;
-            }
-            item = [self numberOfItemsInSection:section] - 1;
-            continue;
-        }
-        if (item >= itemCount) {
-            section++;
-            item = 0;
-            continue;
-        }
-        NSIndexPath *candidate = [NSIndexPath indexPathForItem:item inSection:section];
-        if ([self selectableItemAtIndexPath:candidate]) {
-            return candidate;
-        }
-        item += (delta >= 0) ? 1 : -1;
-    }
-    return nil;
 }
 
 @end

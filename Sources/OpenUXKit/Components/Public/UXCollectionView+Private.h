@@ -220,7 +220,6 @@ NS_ASSUME_NONNULL_BEGIN
                     enableCustomAnimations:(BOOL)enableCustomAnimations
                       customAnimationsType:(NSUInteger)customAnimationsType;
 - (void)_postSelectionAccessibilityNotification;
-- (nullable NSIndexPath *)_indexPathByMovingFromIndexPath:(nullable NSIndexPath *)indexPath delta:(NSInteger)delta fallback:(nullable NSIndexPath *)fallback;
 
 @end
 
