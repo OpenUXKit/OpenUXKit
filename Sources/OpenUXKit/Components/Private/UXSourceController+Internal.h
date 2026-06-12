@@ -1,14 +1,44 @@
+#import <AppKit/AppKit.h>
 #import "UXSourceController.h"
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
-@class UXNavigationController, UXViewController, _UXDetailViewController, _UXInspectorViewController, _UXViewControllerOneToOneTransitionContext;
-@protocol UXNavigationDestination;
+@class UXNavigationController, UXViewController, UXTransitionController, _UXDetailViewController, _UXInspectorViewController, _UXViewControllerOneToOneTransitionContext;
+@protocol UXNavigationDestination, UXNavigationControllerDelegate, UXLayoutSupport, UXSourceList;
 
-@interface UXSourceController ()
+// Returns -[NSObject _UXSolariumEnabled] equivalent (os_feature_enabled(SwiftUI, Solarium)).
+UXKIT_EXTERN BOOL UXSourceControllerSolariumEnabled(void);
+UXKIT_EXTERN BOOL UXSourceControllerShouldForceSelectionForNavigationDestination(id<UXNavigationDestination> destination);
+
+@interface UXSourceController () <NSSplitViewDelegate> {
+    BOOL _needsToSetInitialSourceListWidth;
+    BOOL _wantsSourceListCollapsed;
+    BOOL _isTogglingSidebar;
+    BOOL _hasAddedInspector;
+    BOOL _isTransitioning;
+    _UXViewControllerOneToOneTransitionContext *_transitionCtx;
+    UXTransitionController *_transitionController;
+    NSMapTable<UXViewController *, UXNavigationController *> *_navigationControllerByRootViewController;
+    NSMapTable *_transitionControllerClassByToViewControllerClass;
+    NSOperationQueue *_viewControllerOperations;
+    BOOL _navigatingToDestination;
+    id<UXNavigationControllerDelegate> _currentNavigationDelegate;
+    id<UXLayoutSupport> _topLayoutGuide;
+    id<UXLayoutSupport> _bottomLayoutGuide;
+    UXViewController *_selectedViewController;
+    UXViewController<UXSourceList> *_sourceListViewController;
+    NSArray *_rootViewControllers;
+}
 
 @property (nonatomic, strong, readwrite, nullable) _UXDetailViewController *detailViewController;
 @property (nonatomic, strong, readwrite, nullable) _UXInspectorViewController *inspectorViewController;
+@property (nonatomic, strong, readwrite) NSSplitViewItem *sidebarSplitViewItem;
+@property (nonatomic, strong, readwrite) NSSplitViewItem *detailSplitViewItem;
+@property (nonatomic, strong, readwrite) NSSplitViewItem *inspectorSplitViewItem;
+@property (nonatomic, strong, readwrite) NSTitlebarAccessoryViewController *detailSplitViewItemTopAccessoryViewController;
+@property (nonatomic, strong, readwrite) NSSearchToolbarItem *searchToolbarItem;
+@property (nonatomic, readwrite) BOOL wantsSourceListHidden;
+@property (nonatomic, copy, readwrite) NSArray *rootViewControllers;
 
 + (Class)_defaultTransitionControllerClass;
 

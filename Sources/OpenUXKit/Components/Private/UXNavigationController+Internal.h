@@ -13,6 +13,10 @@ UXKIT_EXTERN void *UXScopeBarItemsObservationContext;
 @protocol UXNavigationControllerDelegate, _UXAccessoryBarContainer, UXViewControllerAnimatedTransitioning;
 
 Class _transitionControllerClassForTransition(NSUInteger transition);
+UXKIT_EXTERN NSArray *_toolbarItemsForViewController(UXViewController *viewController);
+UXKIT_EXTERN NSArray *_subtoolbarItemsForViewController(UXViewController *viewController);
+UXKIT_EXTERN NSArray *_scopeBarItemsForViewController(UXViewController *viewController);
+UXKIT_EXTERN NSArray *_accessoryBarItemsForViewController(UXViewController *viewController);
 
 typedef struct {
     unsigned int willShowViewController:1;
@@ -45,6 +49,26 @@ typedef struct {
     UXNavigationControllerDelegateFlags _delegateFlags;    // 64 = 0x40
     BOOL _isPerformingToolbarsChanges;    // 68 = 0x44
     UXNavigationControllerToolbarsNeedUpdateFlags _toolbarsNeedUpdateFlags;    // 69 = 0x45
+    // Backing ivars for synthesized properties accessed directly across subsystem categories.
+    BOOL _navigationBarHidden;
+    BOOL _toolbarHidden;
+    BOOL _subtoolbarHidden;
+    BOOL _scopeBarHidden;
+    BOOL _isTransitioning;
+    BOOL _isInteractive;
+    BOOL __fullScreenMode;
+    UXBarPosition __toolbarPosition;
+    UXBarPosition __subtoolbarPosition;
+    NSUInteger __defaultPushTransition;
+    NSUInteger __defaultPopTransition;
+    CGFloat __leadingContentInset;
+    UXTransitionController *_defaultTransitionController;
+    UXViewController *_observedViewController;
+    NSGestureRecognizer *_interactivePopGestureRecognizer;
+    NSLayoutConstraint *_topViewControllerLeftConstraint;
+    NSArray *_topViewControllerOtherConstraints;
+    _UXContainerView *_containerView;
+    UXView *_toolbarExtendedBackgroundView;
 }
 @property (nonatomic, copy, nullable) NSArray<NSToolbarItemIdentifier> *toolbarDefaultItemIdentifiers;
 @property (nonatomic, copy, nullable) NSArray<NSToolbarItemIdentifier> *toolbarAllowedItemIdentifiers;
