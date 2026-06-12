@@ -657,6 +657,36 @@ _performItemSelectionForKey: (0x1dbbd207c)  → 箭头键 0xF700-0xF703，经 _l
 - `_dequeueReusableViewOfKind:`：set 命中 → `anyObject`+`prepareForReuse`+`removeObject`；未命中 → nib（`instantiateWithOwner:`，assert 3709/3710）或 class（`initWithFrame:attrs.frame`），assert 3719；尾部 `performWithoutAnimation:{apply attrs}` + `_markAsDequeued`。
 - 结论：OpenUXKit 现 array+固定阈值实现**正确性等价**，差异为容量策略与数据结构，列为 P9c 精炼项（非痛点，当前行为正确）。
 
+## 2.9 layout transition 链 + scroll-wheel + Animation completion（P9c/M8,M10）
+
+**`_setCollectionViewLayout:animated:isInteractive:completion:` (0x1dbbdac28, 0x930)**：
+```
+ if (layout == _layout) return
+ ctx = [[layout.class invalidationContextClass] new]；_setInvalidateEverything:YES + _setInvalidateDataSourceCounts:YES
+ [layout _invalidateLayoutUsingContext:ctx]
+ // 快路径：!_visible || !(flags bit38 doneFirstLayout)
+ ├─ [layout _setCollectionView:self]；[_layout _setCollectionView:nil]；_layout=layout
+ ├─ _collectionViewData = new Data；_setNeedsVisibleCellsUpdate:YES,YES；completion(YES)
+ // 动画路径（visible && doneFirstLayout && animated）—— 大子系统：
+ ├─ newData = new Data + _prepareToLoadData
+ ├─ [oldLayout _prepareForTransitionToLayout:newLayout]；[newLayout _prepareForTransitionFromLayout:oldLayout]
+ ├─ flags |= bit32 updatingLayout
+ ├─ 选区 keys ∩ 屏上 keys → 找 anchor（count==1 用它，否则取新布局下中心距视口中心最近的 cell key）
+ ├─ 由 anchor 新 frame 算 target offset（CGRectContainsRect/Intersection 钳制）→ transitionContentOffsetForProposedContentOffset:keyItemIndexPath: → targetContentOffset: → delegate bit20
+ ├─ block_435：遍历 allVisibleViewsDict 用新布局 attrs 更新每个 view（_animateView 风格）
+ ├─ ++_layoutTransitionAnimationCount@1544
+ └─ animated ? runAnimationGroup:block_461 completion:block_465 : 同步 block_440+block_2 + 清 bit32
+```
+**OpenUXKit 现状**：非动画快路径已对齐（invalidate 新布局 → swap with `_setCollectionView:` 顺序 → 新 Data → `_setNeedsVisibleCellsUpdate:` → completion；不再 reloadData，cell 跨布局保留并重定位、选区保留）。**动画式跨布局 transition 主链（`_prepareForTransition*` + anchor 追踪 + `_animateView:`）未移植 → P9d**（无 showcase 走动画式 layout 切换，影响最低）。
+
+**`setBeginningRect:`/`setEndingRect:` (UpdateGap, 0x1dbc08084/0x1dbc0806c)**：xref **仅 ObjC method-list 数据引用，零代码调用点**——UXKit 内部从不写这两个 rect。P8/P9 悬案就此关闭：纯外部 API，OpenUXKit 无需接线。
+
+**`UXCollectionViewAnimation` completion 签名**：`start` (0x1dbbd0f7c) 的 completion block（0x1dbbd1650）与 block_invoke（0x1dbbd1274）均以**零参数** `(void(^)(void))()` 调用 `_completionHandlers`，BOOL 经 `AnimationContext.completionHandler` 流转。**OpenUXKit `addCompletionHandler:` 的 `void(^)(void)` 本就正确，P9b 的"改 BOOL"是误判，撤销。**
+
+**`scrollWheel:` (0x1dbbde540)**：`_involvesScrollWheel@1576 = YES` 后 `[super scrollWheel:]`——`_involvesScrollWheel` **唯一写入点**。P9a 已接好 `clipViewBoundsDidChange:` 的滚轮减速/静默检测，此前因无写入点而不激活；P9c 补上后激活。
+
+**`_willStartScrolling:` (0x1dbbde49c)**：`[NSObject cancelPreviousPerformRequestsWithTarget:self selector:_didEndScrolling: object:self]` → 未滚动时重置 `_decelerating`/`_lastScrollingDistance`/`_lastScrollingTime` → bit0 delegate willBegin → `_scrolling=YES`。OpenUXKit 已对齐。
+
 ## 3. 本阶段代码修复汇总（P9a：batchUpdates + 可见视图管线）
 
 | # | 文件 | 修复 | 性质 |
@@ -690,7 +720,20 @@ _performItemSelectionForKey: (0x1dbbd207c)  → 箭头键 0xF700-0xF703，经 _l
 P9b 实现妥协（记录在案）：
 - `_performItemSelectionForMouseEvent:` / `_performItemSelectionForKey:` / lasso / painting **事件路由保留 OpenUXKit 现状**（它们调用上面已修正的核心方法，diff/通知/空选区逻辑自动获益）。UXKit 的鼠标 4 分支（cmd/continuous deselect、shift range、plain select，含 painting 内联进 mouseDown）与键盘 RTL 翻转细节见 §2.7，列为 P9c。
 - M6 dequeue/reuse 的 set+动态阈值差异（§2.8）正确性等价，列为 P9c 精炼。
-- M7 layout transition 链（`setCollectionViewLayout:animated:`、`_UXCollectionSnapshotView` snapshot 路径、`UpdateGap.beginningRect/endingRect` 写入点、`Animation.addCompletionHandler:` 的 BOOL 签名）本轮未做——无 showcase 走动画式 layout transition，影响面最低，列为 P9c。
+
+## 3c. P9c 代码修复汇总（dequeue set 化 + scroll-wheel + transition 快路径）
+
+| # | 文件 | 修复 | 性质 |
+|---|---|---|---|
+| 1 | `UXCollectionView.m` reuse 队列 | `_cellReuseQueues`/`_supplementaryViewReuseQueues` 改 NSMutableArray→**NSMutableSet**；`_dequeueReusableViewOfKind:` 用 `anyObject`/`removeObject:`；新增 `_reuseQueueCapacityForViewSize:`（动态阈值 `ceil(frameW·frameH·8/max(minReusedW·minReusedH,1))+1`）+ `_recycleView:intoQueue:registeredClass:`（容量/重复/类匹配三判 → 入队 setHidden:YES+清 attrs，否则 removeFromSuperview）；`_maxNumberOfReusedViews` 用同公式；`_minReusedViewSize` 初值 {1024,1024} | 结构对齐（§2.8） |
+| 2 | `UXCollectionView.m` `_reuseSupplementaryView:` | didEndDisplaying supplementary 委托回调用 bit18 缓存 | 行为对齐 |
+| 3 | `UXCollectionView.m` `scrollWheel:`（新增）+ `_willStartScrolling:` | `_involvesScrollWheel=YES`（唯一写入点，激活滚轮减速/静默检测）；`_willStartScrolling:` 加 cancelPreviousPerform + 减速状态重置 + bit0 缓存 | 缺失功能 |
+| 4 | `UXCollectionView.m` `_setCollectionViewLayout:animated:isInteractive:completion:` | 非动画快路径对齐 UXKit（invalidate 新布局 → `_setCollectionView:` swap 顺序 → 新 Data → `_setNeedsVisibleCellsUpdate:`；删 reloadData，cell 跨布局保留+选区保留） | 行为对齐 |
+
+P9c 实现妥协（记录在案）：
+- 动画式跨布局 transition 主链（§2.9）未移植 → **P9d**（无 showcase 触发，影响最低）。
+- mouse/keyboard 事件路由 4 分支细化仍为 OpenUXKit 现状（调用已对齐的选区核心）→ P9d。
+- reuse-pool 复用的端到端测试需注册型 cell fixture（现 fixture 直接 `UXCollectionViewCell()` 不走 dequeue）；本轮以 30/30 非回归 + delete 回收路径覆盖，专项测试列 P9d。
 
 实现妥协（记录在案）：
 - `UXCollectionViewAnimation.addCompletionHandler:` 仍为 `void(^)(void)`（UXKit 为 `void(^)(BOOL)`）；主类 completion 里以 `@YES` 调 `_updateAnimationDidStop:` —— P9b 待办
