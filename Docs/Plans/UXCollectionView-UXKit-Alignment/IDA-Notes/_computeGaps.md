@@ -117,5 +117,5 @@
 
 - [x] P8：反编译 `block_invoke (0x1dbc08a70)` 验证 contiguous 判定细节 → **发现 OpenUXKit MaxY/MinY 方向 bug，已修复**（见 `P8-UpdateAnimation.md` §2.2）
 - [x] P8：反编译 `block_invoke.87 (0x1dbc08b30)` 验证 indexPath 调整细节 → 一致，零修改
-- [ ] P9：反编译 UXCollectionView 主类，确认 `_computeSupplementaryUpdates` / `_deletedSupplementaryIndexesSectionArray` 在哪里被触发
+- [x] P9：反编译 UXCollectionView 主类，确认 `_computeSupplementaryUpdates` / `_deletedSupplementaryIndexesSectionArray` 在哪里被触发 → **`_computeSupplementaryUpdates` 唯一触发点 = `-[UXCollectionView _updateWithItems:]`（`_prepareLayoutForUpdates` 之后）；`_deletedSupplementaryIndexesSectionArray` 消费点 = `_viewAnimationsForCurrentUpdate` 段 5 的 deleted 判定**（见 `P9-MainClass.md` §2.1/§2.3）
 - [x] P8：编写 `UpdateGapAlgorithmTests` 覆盖 3 种 gap 合并模式（红绿验证两处 bug 修复）

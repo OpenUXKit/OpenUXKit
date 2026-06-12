@@ -99,7 +99,7 @@
 | UXKit 类 | OpenUXKit 文件 | 状态 | 备注 |
 |---|---|---|---|
 | `UXCollectionViewAnimation` | `Components/Private/UXCollectionViewAnimation.{h,m}` | ✅ | **P8 已对齐**（见 `IDA-Notes/P8-UpdateAnimation.md`）：13 个函数全部反编译比对；ivar 布局 @8-@72 与 4-bit 位段（含 UXKit 原始拼写 `deleteAterAnimation`）一致；3 处 assertion 行号（403/479/489）一致；修复默认 timingFunction（Default → **Linear**）。`deleteAfterAnimation` / `rasterize*` flag 仅存储，消费在主类（P9 接线）。 |
-| `UXCollectionViewAnimationContext` | `Components/Private/UXCollectionViewAnimationContext.{h,m}` | ✅ | **P8 已对齐**：纯数据袋（3 ivar @8/@16/@24），`initWithCompletionHandler:` 仅 copy 写入，零代码修改。`viewAnimations` / `animationCount` 由主类 `_setupCellAnimations` 驱动（P9）。 |
+| `UXCollectionViewAnimationContext` | `Components/Private/UXCollectionViewAnimationContext.{h,m}` | ✅ | **P8 已对齐，P9a 修正**：纯数据袋（3 ivar @8/@16/@24）。P9a 把 `completionHandler` 签名修正为 `void(^)(BOOL finished)`（消费侧 `_updateAnimationDidStop:` 以 finished 调用，P8 时无消费者信息）；`viewAnimations` 组装点确认为 `_updateWithItems:` 的零时长嵌套动画组（P9 笔记 §2.1）。 |
 
 ---
 
@@ -126,10 +126,10 @@
 
 | UXKit 类 | OpenUXKit 文件 | 状态 | 备注 |
 |---|---|---|---|
-| `UXCollectionView` | `Components/Public/UXCollectionView.{h,m}` (2571 行) + `Private/UXCollectionView+Internal.h` | 🟡 | **P9 最大块**：`performBatchUpdates:` 9 步、Selection 算法 4 路分支、`_updateVisibleCellsNow:` 核心循环、`_collectionViewFlags` 45+ bit 位段。 |
-| `UXCollectionViewController` | `Components/Public/UXCollectionViewController.{h,m}` + `Private/UXCollectionViewController+Internal.h` | 🟢 | P9 末班车，10 行级 verify。 |
-| `_UXCollectionView` | `Components/Private/_UXCollectionView.{h,m}` (18 行 .m) | 🟡 | UXKit 仅有 `_UXCollectionViewOverdraw` 协议实现；OpenUXKit 当前为空壳，P9 补齐。 |
-| `UXCollectionDocumentView` | `Components/Private/UXCollectionDocumentView.{h,m}` | 🟢 | P9 verify `collectionView` weak back-ref。 |
+| `UXCollectionView` | `Components/Public/UXCollectionView.{h,m}` (~3000 行) + `Private/UXCollectionView+Internal.h` | 🟡 | **P9a 已对齐 batchUpdates + 可见视图管线**（见 `IDA-Notes/P9-MainClass.md`）：45-bit `_collectionViewFlags` 位段 + 26 个 delegate/dataSource respondsTo 缓存、batchUpdates 全链（`_setupCellAnimations` 准备 / `_endItemAnimations` 9 步 / `_updateWithItems:` 粘合 / `_viewAnimationsForCurrentUpdate` 6 段 / `_updateAnimationDidStop:` 收尾）、可见视图管线（`_updateCellsInRect:` 差集+回收策略+fade 路径、`layoutSubviews`、`reloadData` 延迟重建、懒 `_arrayForUpdateAction:`）、几何/滚动粘合（`setContentSize:` 驱动 document frame、`documentContentRect`、`_visibleBounds`、`clipViewBoundsDidChange:` 速度/减速检测、`_addControlled:` z 序 + floating header）按 26.4 反编译重写。**P9b 余量**：Selection 4 分支、layout transition 链、`_createPrepared*`/`_reuse*`/dequeue 反编译、`_involvesScrollWheel` 写入点。 |
+| `UXCollectionViewController` | `Components/Public/UXCollectionViewController.{h,m}` + `Private/UXCollectionViewController+Internal.h` | 🟢 | P9b 末班车，10 行级 verify。 |
+| `_UXCollectionView` | `Components/Private/_UXCollectionView.{h,m}` (18 行 .m) | 🟡 | UXKit 仅有 `_UXCollectionViewOverdraw` 协议实现；OpenUXKit 当前为空壳，P9b 补齐。 |
+| `UXCollectionDocumentView` | `Components/Private/UXCollectionDocumentView.{h,m}` | 🟢 | **P9a**：`layout` 改为空实现（UXKit 0x4 字节实测）、`prepareContentInRect:` 去 respondsTo 包装；frame 由主类 `setContentSize:` 驱动。 |
 | `_UXCollectionDocumentView` | `Components/Private/_UXCollectionDocumentView.{h,m}` (12 行 .m) | 🟡 | UXKit 含 `overdrawEnabled` ivar；OpenUXKit 当前为空壳。 |
 | `UXCollectionClipView` | `Components/Private/UXCollectionClipView.{h,m}` | 🟢 | UXKit 头无独有方法（仅继承 NSClipView）。 |
 
