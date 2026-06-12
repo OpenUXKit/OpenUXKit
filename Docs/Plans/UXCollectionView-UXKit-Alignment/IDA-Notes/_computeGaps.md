@@ -49,7 +49,9 @@
                     adjustedIndexPath = adjustIndexPathForGapMerge(item._indexPath)
                     cmpFirst = [adjustedIndexPath compare:gap.firstUpdateItem._indexPath]
                     cmpLast  = [adjustedIndexPath compare:gap.lastUpdateItem._indexPath]
-                    if (cmpFirst <= NSOrderedSame && cmpLast + 1 < 2) {
+                    // P8 修正：汇编为无符号比较 (unsigned)cmpFirst <= 1 && (unsigned)(cmpLast+1) < 2，
+                    // 即 first <= adjusted <= last（闭区间）。本笔记初版误抄为有符号 <=。
+                    if (cmpFirst != NSOrderedAscending && cmpLast != NSOrderedDescending) {
                         [gap addUpdateItem:item]
                         sawInsert = YES
                         merged = YES
@@ -113,7 +115,7 @@
 
 ## 待办（后续 phase）
 
-- [ ] P8：反编译 `block_invoke (0x1dbc08a70)` 验证 contiguous 判定细节
-- [ ] P8：反编译 `block_invoke.87 (0x1dbc08b30)` 验证 indexPath 调整细节
+- [x] P8：反编译 `block_invoke (0x1dbc08a70)` 验证 contiguous 判定细节 → **发现 OpenUXKit MaxY/MinY 方向 bug，已修复**（见 `P8-UpdateAnimation.md` §2.2）
+- [x] P8：反编译 `block_invoke.87 (0x1dbc08b30)` 验证 indexPath 调整细节 → 一致，零修改
 - [ ] P9：反编译 UXCollectionView 主类，确认 `_computeSupplementaryUpdates` / `_deletedSupplementaryIndexesSectionArray` 在哪里被触发
-- [ ] P8：编写 `UpdateGapAlgorithmTests` 覆盖 3 种 gap 合并模式
+- [x] P8：编写 `UpdateGapAlgorithmTests` 覆盖 3 种 gap 合并模式（红绿验证两处 bug 修复）

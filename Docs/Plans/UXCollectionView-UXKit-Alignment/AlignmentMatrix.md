@@ -80,8 +80,8 @@
 
 | UXKit 类 | OpenUXKit 文件 | 状态 | 备注 |
 |---|---|---|---|
-| `UXCollectionViewUpdate` | `Components/Private/UXCollectionViewUpdate.{h,m}` (522 行) + `+Internal.h` | ✅ | P0 反编译验证：`_computeSectionUpdates` / `_computeItemUpdates` / `_computeSupplementaryUpdates` / `_computeGaps` 全部算法对齐，assertion 行号/文本一致。 |
-| `UXCollectionViewUpdateGap` | `Components/Private/UXCollectionViewUpdateGap.{h,m}` | ✅ | `gapWithUpdateItem:` / `addUpdateItem:` / `isDeleteBasedGap` / `firstUpdateItem` / `lastUpdateItem` / `insertItems` 全部对齐。 |
+| `UXCollectionViewUpdate` | `Components/Private/UXCollectionViewUpdate.{h,m}` (521 行) + `+Internal.h` | ✅ | P0 反编译验证 4 个 `_compute*` 主体；**P8 复核补漏**（见 `IDA-Notes/P8-UpdateAnimation.md`）：修复 `_computeGaps` 两处方向性 bug（contiguous 几何判定 `MaxY(lower)==MinY(upper)`、insert 并入 delete-gap 的 `first<=adjusted<=last` 区间判定），`updateItemsSortedByIndexPaths` lazy 缓存 ivar @0xD8 确认。 |
+| `UXCollectionViewUpdateGap` | `Components/Private/UXCollectionViewUpdateGap.{h,m}` | ✅ | **P8 已对齐**：9 个函数全部反编译比对（ivar 布局 @8-@72、`addUpdateItem:` assertion "UXCollectionViewUpdate.m" line 57、description 格式），零代码修改。`beginningRect`/`endingRect` 写入点在主类（P9 接线）。 |
 
 ---
 
@@ -98,8 +98,8 @@
 
 | UXKit 类 | OpenUXKit 文件 | 状态 | 备注 |
 |---|---|---|---|
-| `UXCollectionViewAnimation` | `Components/Private/UXCollectionViewAnimation.{h,m}` | 🟢 | P8 verify 4 flag（animateFromCurrentPosition / deleteAfterAnimation / rasterizeAfterAnimation / resetRasterizationAfterAnimation）副作用顺序。 |
-| `UXCollectionViewAnimationContext` | `Components/Private/UXCollectionViewAnimationContext.{h,m}` | 🟢 | P8 verify viewAnimations 数组、completionHandler。 |
+| `UXCollectionViewAnimation` | `Components/Private/UXCollectionViewAnimation.{h,m}` | ✅ | **P8 已对齐**（见 `IDA-Notes/P8-UpdateAnimation.md`）：13 个函数全部反编译比对；ivar 布局 @8-@72 与 4-bit 位段（含 UXKit 原始拼写 `deleteAterAnimation`）一致；3 处 assertion 行号（403/479/489）一致；修复默认 timingFunction（Default → **Linear**）。`deleteAfterAnimation` / `rasterize*` flag 仅存储，消费在主类（P9 接线）。 |
+| `UXCollectionViewAnimationContext` | `Components/Private/UXCollectionViewAnimationContext.{h,m}` | ✅ | **P8 已对齐**：纯数据袋（3 ivar @8/@16/@24），`initWithCompletionHandler:` 仅 copy 写入，零代码修改。`viewAnimations` / `animationCount` 由主类 `_setupCellAnimations` 驱动（P9）。 |
 
 ---
 
