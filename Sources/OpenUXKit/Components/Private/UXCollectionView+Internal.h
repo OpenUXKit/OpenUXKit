@@ -60,7 +60,7 @@ NS_SWIFT_UI_ACTOR
 - (BOOL)_deselectItemsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths animated:(BOOL)animated notifyDelegate:(BOOL)notifyDelegate;
 - (void)_deselectAllAnimated:(BOOL)animated notifyDelegate:(BOOL)notifyDelegate;
 - (BOOL)_toggleSelectionStateOfItemAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated notifyDelegate:(BOOL)notifyDelegate;
-- (BOOL)_selectItemsInIndexPathsSet:(UXCollectionViewIndexPathsSet *)set byExtendingSelection:(BOOL)extend animated:(BOOL)animated scrollingKeyItem:(nullable NSIndexPath *)key toPosition:(UXCollectionViewScrollPosition)position notifyDelegate:(BOOL)notifyDelegate;
+- (BOOL)_selectItemsInIndexPathsSet:(nullable UXCollectionViewIndexPathsSet *)set byExtendingSelection:(BOOL)extend animated:(BOOL)animated scrollingKeyItem:(nullable NSIndexPath *)key toPosition:(UXCollectionViewScrollPosition)position notifyDelegate:(BOOL)notifyDelegate;
 - (BOOL)_selectRangeOfItemsFromIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath byExtendingSelection:(BOOL)extend animated:(BOOL)animated scroll:(BOOL)scroll toPosition:(UXCollectionViewScrollPosition)position notifyDelegate:(BOOL)notifyDelegate candidateLastSelectedItemIndexPath:(NSIndexPath * _Nullable * _Nullable)candidate;
 - (void)_selectAllItems:(BOOL)selectAll notifyDelegate:(BOOL)notifyDelegate;
 - (nullable NSIndexPath *)_firstSelectableItemIndexPath;
