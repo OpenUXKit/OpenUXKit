@@ -29,6 +29,20 @@ static void *kFirstResponderObserverContext = &kFirstResponderObserverContext;
 static void *kInspectorViewControllerObserverContext = &kInspectorViewControllerObserverContext;
 static void *kCollapsedObserverContext = &kCollapsedObserverContext;
 
+// Mirrors UXKit 26.4's _UXSolariumEnabled() == os_feature_enabled(SwiftUI, Solarium).
+// When the macOS 26 Solarium ("liquid glass") appearance is active, the source list floats
+// over the detail content, so the leading content inset collapses to zero.
+extern bool _os_feature_enabled_impl(const char *domain, const char *feature);
+
+static BOOL UXSourceControllerSolariumEnabled(void) {
+    static BOOL solariumEnabled = NO;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        solariumEnabled = _os_feature_enabled_impl("SwiftUI", "Solarium");
+    });
+    return solariumEnabled;
+}
+
 static BOOL UXSourceControllerShouldForceSelectionForNavigationDestination(id<UXNavigationDestination> destination) {
     id value = [destination.destinationAuxiliaryStore valueForKey:@"UXSourceControllerForceSelection" inNamespace:nil];
 
@@ -310,7 +324,7 @@ static BOOL UXSourceControllerShouldForceSelectionForNavigationDestination(id<UX
 }
 
 - (CGFloat)_leadingContentInsetForWantsCollapsed:(BOOL)wantsCollapsed {
-    if (wantsCollapsed || self.isSourceListAutoCollapsed) {
+    if (wantsCollapsed || UXSourceControllerSolariumEnabled() || self.isSourceListAutoCollapsed) {
         return 0.0;
     }
 
@@ -406,7 +420,7 @@ static BOOL UXSourceControllerShouldForceSelectionForNavigationDestination(id<UX
 
         if (!wantsSourceListCollapsed && sidebarSplitViewItem.isCollapsed && pressedMouseButtons != 1) {
             [NSRunLoop.currentRunLoop performBlock:^{
-                [sidebarSplitViewItem setCollapsed:NO];
+                [sidebarSplitViewItem setCollapsed:self.wantsSourceListCollapsed];
             }];
         }
     } else {
@@ -583,26 +597,38 @@ static BOOL UXSourceControllerShouldForceSelectionForNavigationDestination(id<UX
 
 - (void)navigateToDestination:(id<UXNavigationDestination>)destination animated:(BOOL)animated completion:(UXCompletionHandler)completion {
     [_viewControllerOperations addOperationWithBlock:^{
-        [self _navigateToDestination:destination animated:animated completion:^(BOOL finished) {
-            if (completion) {
-                completion();
-            }
-        }];
+        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self _navigateToDestination:destination animated:animated completion:^(BOOL finished) {
+                if (completion) {
+                    completion();
+                }
+
+                dispatch_semaphore_signal(semaphore);
+            }];
+        });
+        dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
     }];
 }
 
 - (void)navigateToDestination:(id<UXNavigationDestination>)destination animated:(BOOL)animated useFallbackDestinationIfNeeded:(BOOL)useFallbackDestinationIfNeeded completion:(UXCompletionHandler)completion {
     UXCompletionHandler innerCompletion = completion ?: ^{};
     [_viewControllerOperations addOperationWithBlock:^{
-        [self _navigateToDestination:destination animated:animated completion:^(BOOL finished) {
-            if (!finished && useFallbackDestinationIfNeeded) {
-                [self _navigateToDestination:self.fallbackNavigationDestination animated:animated completion:^(BOOL fallbackFinished) {
-                    innerCompletion();
-                }];
-            } else {
-                innerCompletion();
-            }
-        }];
+        dispatch_block_t completionBlock = dispatch_block_create(DISPATCH_BLOCK_INHERIT_QOS_CLASS, ^{
+            innerCompletion();
+        });
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self _navigateToDestination:destination animated:animated completion:^(BOOL finished) {
+                if (!finished && useFallbackDestinationIfNeeded) {
+                    [self _navigateToDestination:self.fallbackNavigationDestination animated:animated completion:^(BOOL fallbackFinished) {
+                        completionBlock();
+                    }];
+                } else {
+                    completionBlock();
+                }
+            }];
+        });
+        dispatch_block_wait(completionBlock, DISPATCH_TIME_FOREVER);
     }];
 }
 
@@ -684,11 +710,17 @@ static BOOL UXSourceControllerShouldForceSelectionForNavigationDestination(id<UX
 
 - (void)removeDestination:(id<UXNavigationDestination>)destination animated:(BOOL)animated completion:(UXCompletionHandler)completion {
     [_viewControllerOperations addOperationWithBlock:^{
-        [self _removeDestination:destination animated:animated completion:^(BOOL finished) {
-            if (completion) {
-                completion();
-            }
-        }];
+        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self _removeDestination:destination animated:animated completion:^(BOOL finished) {
+                if (completion) {
+                    completion();
+                }
+
+                dispatch_semaphore_signal(semaphore);
+            }];
+        });
+        dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
     }];
 }
 
@@ -1160,7 +1192,7 @@ static BOOL UXSourceControllerShouldForceSelectionForNavigationDestination(id<UX
 #pragma mark - Hooks
 
 - (UXNavigationController *)navigationController {
-    return nil;
+    return self.selectedNavigationController;
 }
 
 - (void)didChangeSelectedViewController {
