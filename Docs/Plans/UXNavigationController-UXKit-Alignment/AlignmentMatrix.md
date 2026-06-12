@@ -71,3 +71,17 @@ LABEL_35:
 
 - `swift build`、`swift build --target UXKit`（TBD shim）均 0 错误
 - `swift test` 30 个测试全绿
+
+## 文件组织（category 拆分）
+
+2563 行的单 `.m` 已按子系统拆为主文件 + 4 个 ObjC category（行为不变、公开 API 不变）：
+
+| 文件 | 行 | 子系统 |
+|---|---|---|
+| `UXNavigationController.m` | ~600 | init / 生命周期 / updateViewConstraints / property accessor / 全局 / C 函数 |
+| `+NavigationStack.m` | ~590 | push/pop/set + navigation-request 队列 + 交互 pop + 键盘/滚轮输入 |
+| `+Transitioning.m` | ~700 | 转场流水线 + top-VC 观察 + 返回按钮 + testing 钩子 |
+| `+Toolbars.m` | ~680 | toolbar/subtoolbar/scopeBar 显隐/外观/位置/约束 + KVO 分发 |
+| `+LayoutInsets.m` | ~260 | intrinsic insets / leadingContentInset / layout guides / 全屏 |
+
+拆分手法：被 category 访问的 backing ivar 在 `+Internal.h` 显式声明（property 自动合成复用同名 ivar，无 `@dynamic`、不改公开 API）；property accessor 留主文件；共享 C helper（`_toolbarItemsForViewController` 等）去 `static` + `+Internal.h` 声明；category 文件 pragma 抑制良性的 `-Wobjc-protocol-method-implementation`。

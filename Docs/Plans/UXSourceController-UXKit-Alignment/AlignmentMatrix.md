@@ -77,3 +77,17 @@ return 0.0;  // 否则
 ## 已确认一致（无需改动）的代表方法
 
 `initWithNibName:bundle:`（QoS=UserInitiated(25)、detail minThickness 550、accessory 500×32、inspector canCollapse=NO+collapsed=YES）、`viewWillAppear`/`viewDidAppear`/`viewWillDisappear`/`viewDidLoad`、`setSourceListViewController:`、`_preferredSourceListWidth`、`_setSelectedViewController:animated:sender:`（transition 103/102）、`_contextForTransitionOperation:...`、`_beginTransitionWithContext:operation:`（styleMask/collectionBehavior 临时清位 + 强制启用窗口按钮 + completionHandler 重建约束）、`_setupDelegateForNavigationController:...`、`navigationController:animationControllerForOperation:...`、`navigationController:interactionControllerForAnimationController:`、`navigationController:shouldBeginInteractivePop...`、`navigationController:willShowViewController:`（含两 block）、`navigationController:didShowViewController:`、`currentNavigationDestination`、`_addRootViewController:` / `_removeRootViewController:`、`_prepareTransitionToRootViewController:`、`_navigateToDestination:` / `_removeDestination:` 主体、`presentViewController:` / `dismissViewController:`、collapse 系列、`toggleSidebar:`、`validateUserInterfaceItem:`、`splitView:effectiveRect:...`（divider index 1 → CGRectZero）、`invalidateIntrinsicLayoutInsets`、`topLayoutGuide`/`bottomLayoutGuide`、`transitionCoordinator`、`contentRepresentingViewController`、`isNavigating`、`dealloc`/`setObservedWindow:`/`setObservedNavigationController:` 等。
+
+## 文件组织（category 拆分）
+
+1228 行的单 `.m` 已按子系统拆为主文件 + 4 个 ObjC category（行为不变、公开 API 不变）：
+
+| 文件 | 行 | 子系统 |
+|---|---|---|
+| `UXSourceController.m` | ~325 | init / 生命周期 / property accessor / 全局 / helper |
+| `+Navigation.m` | ~240 | navigate/removeDestination + destination 解析 |
+| `+RootViewControllers.m` | ~140 | selectedVC / root 管理 / 选中转场 |
+| `+Transitioning.m` | ~360 | 转场 context/begin + UXNavigationControllerDelegate + present/dismiss |
+| `+Sidebar.m` | ~320 | collapse / inspector / detail accessory / observed window / layout guides |
+
+拆分手法：原本写在 `.m` class extension 的 ivar + 私有 readwrite property 提升进 `+Internal.h`（含 NSSplitViewDelegate conformance）；property accessor 留主文件；`UXSourceControllerSolariumEnabled` / `...ShouldForceSelection...` 去 `static` + `+Internal.h` 声明；category 文件 pragma 抑制良性的 `-Wobjc-protocol-method-implementation`。property 自动合成复用显式 ivar，故无 `@dynamic`、不改公开 API。
