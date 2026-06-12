@@ -247,6 +247,7 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
     _allowsEmptySelection = YES;
     _purgingCellsThreshold = 30;
     _extraNumberOfCellsToPreloadWhenScrollingStopped = 10;
+    _minReusedViewSize = CGSizeMake(1024.0, 1024.0);
 
     [self _registerForLiveScrollNotifications];
 }
@@ -383,11 +384,23 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
         }
         return;
     }
+
+    // Invalidate the incoming layout before it goes live so its first prepare
+    // pass rebuilds from the data source.
+    UXCollectionViewLayoutInvalidationContext *invalidationContext = [[[[layout class] invalidationContextClass] alloc] init];
+    [invalidationContext _setInvalidateEverything:YES];
+    [invalidationContext _setInvalidateDataSourceCounts:YES];
+    [layout _invalidateLayoutUsingContext:invalidationContext];
+
+    // The animated cross-layout transition (UXKit's _prepareForTransitionToLayout:
+    // / _animateView: anchor-tracking path) is not yet ported; until then every
+    // request takes the non-animated swap, which UXKit itself uses whenever the
+    // view is offscreen or has not completed its first layout.
+    [layout _setCollectionView:self];
     [(id)_layout _setCollectionView:nil];
     _layout = layout;
-    [(id)_layout _setCollectionView:self];
     _collectionViewData = [[UXCollectionViewData alloc] initWithCollectionView:self layout:layout];
-    [self reloadData];
+    [self _setNeedsVisibleCellsUpdate:YES withLayoutAttributes:YES];
     if (completion) {
         completion(YES);
     }
@@ -532,11 +545,13 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
     NSMutableDictionary *reuseQueues = (viewCategory == 1) ? _cellReuseQueues : _supplementaryViewReuseQueues;
     NSString *reuseKey = (viewCategory == 1) ? identifier : [[self class] _reuseKeyForSupplementaryViewOfKind:kind withReuseIdentifier:identifier];
 
-    NSMutableArray *queue = reuseQueues[reuseKey];
+    // UXKit keeps recycled views in per-identifier NSMutableSets; any member is
+    // an equally valid candidate, so dequeue pulls anyObject.
+    NSMutableSet *queue = reuseQueues[reuseKey];
     UXCollectionReusableView *view = nil;
     if (queue.count > 0) {
-        view = [queue lastObject];
-        [queue removeLastObject];
+        view = [queue anyObject];
+        [queue removeObject:view];
     }
 
     if (!view) {
@@ -581,24 +596,44 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
     return [self _dequeueReusableViewOfKind:kind withIdentifier:identifier forIndexPath:indexPath viewCategory:2];
 }
 
+- (NSInteger)_reuseQueueCapacityForViewSize:(CGSize)viewSize {
+    // Shrink the running minimum reused-view size, then cap the recycle pool by
+    // how many such views could possibly cover eight screens (UXKit's
+    // _maxNumberOfReusedViews heuristic). A larger pool is allowed for smaller
+    // cells; a single huge cell keeps the pool tiny.
+    _minReusedViewSize.width = MIN(_minReusedViewSize.width, viewSize.width);
+    _minReusedViewSize.height = MIN(_minReusedViewSize.height, viewSize.height);
+    CGSize frameSize = self.frame.size;
+    return (NSInteger)(ceil(frameSize.width * frameSize.height * 8.0 / fmax(_minReusedViewSize.width * _minReusedViewSize.height, 1.0)) + 1.0);
+}
+
+- (void)_recycleView:(UXCollectionReusableView *)view intoQueue:(NSMutableSet *)queue registeredClass:(Class)registeredClass {
+    NSInteger capacity = [self _reuseQueueCapacityForViewSize:view.frame.size];
+    if ((NSInteger)queue.count < capacity && ![queue containsObject:view] && [view class] == registeredClass) {
+        // UXKit parks recycled views as hidden subviews rather than removing
+        // them, avoiding add/remove churn on the next dequeue.
+        [queue addObject:view];
+        view.hidden = YES;
+        [(id)view _setLayoutAttributes:nil];
+    } else {
+        [view removeFromSuperview];
+    }
+}
+
 - (void)_reuseCell:(UXCollectionViewCell *)cell {
     if (!cell) {
         return;
     }
-    [self _notifyDidEndDisplayingCellIfNeeded:cell forIndexPath:[[(id)cell _layoutAttributes] indexPath]];
     NSString *identifier = cell.reuseIdentifier;
-    if (!identifier) {
-        return;
-    }
-    NSMutableArray *queue = _cellReuseQueues[identifier];
+    NSMutableSet *queue = _cellReuseQueues[identifier];
     if (!queue) {
-        queue = [NSMutableArray array];
-        _cellReuseQueues[identifier] = queue;
+        queue = [NSMutableSet set];
+        if (identifier) {
+            _cellReuseQueues[identifier] = queue;
+        }
     }
-    if (queue.count < _purgingCellsThreshold) {
-        [queue addObject:cell];
-    }
-    [cell removeFromSuperview];
+    [self _recycleView:cell intoQueue:queue registeredClass:_cellClassDict[identifier]];
+    [self _notifyDidEndDisplayingCellIfNeeded:cell forIndexPath:[[(id)cell _layoutAttributes] indexPath]];
 }
 
 - (void)_reuseSupplementaryView:(UXCollectionReusableView *)view {
@@ -608,28 +643,29 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
     NSString *identifier = view.reuseIdentifier;
     UXCollectionViewLayoutAttributes *attributes = [(id)view _layoutAttributes];
     NSString *elementKind = [attributes _elementKind];
-    if (!identifier || !elementKind) {
-        [view removeFromSuperview];
-        return;
-    }
-    NSString *key = [[self class] _reuseKeyForSupplementaryViewOfKind:elementKind withReuseIdentifier:identifier];
-    NSMutableArray *queue = _supplementaryViewReuseQueues[key];
-    if (!queue) {
-        queue = [NSMutableArray array];
+    NSString *key = (elementKind && identifier) ? [[self class] _reuseKeyForSupplementaryViewOfKind:elementKind withReuseIdentifier:identifier] : nil;
+    NSMutableSet *queue = key ? _supplementaryViewReuseQueues[key] : nil;
+    if (key && !queue) {
+        queue = [NSMutableSet set];
         _supplementaryViewReuseQueues[key] = queue;
     }
-    if (queue.count < _purgingCellsThreshold) {
-        [queue addObject:view];
+    if (queue) {
+        [self _recycleView:view intoQueue:queue registeredClass:_supplementaryViewClassDict[key]];
+    } else {
+        [view removeFromSuperview];
     }
-    [view removeFromSuperview];
+    if (_collectionViewFlags.delegateDidEndDisplayingSupplementaryViewForElementOfKindAtIndexPath && elementKind) {
+        [self.delegate collectionView:self didEndDisplayingSupplementaryView:view forElementOfKind:elementKind atIndexPath:attributes.indexPath];
+    }
 }
 
 - (NSInteger)_numberOfReusedViewsForIdentifier:(NSString *)identifier {
-    return [_cellReuseQueues[identifier] count];
+    return (NSInteger)[_cellReuseQueues[identifier] count];
 }
 
 - (NSInteger)_maxNumberOfReusedViews {
-    return _purgingCellsThreshold;
+    CGSize frameSize = self.frame.size;
+    return (NSInteger)(ceil(frameSize.width * frameSize.height * 8.0 / fmax(_minReusedViewSize.width * _minReusedViewSize.height, 1.0)) + 1.0);
 }
 
 #pragma mark - Cell preparation pipeline
@@ -1860,14 +1896,24 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
 }
 
 - (void)_willStartScrolling:(id)sender {
+    // The pending _didEndScrolling: dispatched by clipViewBoundsDidChange: is
+    // cancelled here so a fresh scroll restarts the idle timer cleanly.
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(_didEndScrolling:) object:self];
     if (_scrolling) {
         return;
     }
-    _scrolling = YES;
-    id<UXCollectionViewDelegate> delegate = self.delegate;
-    if ([delegate respondsToSelector:@selector(collectionViewWillBeginScrolling:)]) {
-        [delegate collectionViewWillBeginScrolling:self];
+    _decelerating = NO;
+    _lastScrollingDistance = CGPointZero;
+    _lastScrollingTime = 0.0;
+    if (_collectionViewFlags.delegateWillBeginScrolling) {
+        [self.delegate collectionViewWillBeginScrolling:self];
     }
+    _scrolling = YES;
+}
+
+- (void)scrollWheel:(NSEvent *)event {
+    _involvesScrollWheel = YES;
+    [super scrollWheel:event];
 }
 
 - (void)_didEndScrolling:(id)sender {
