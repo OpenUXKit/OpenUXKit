@@ -1,5 +1,6 @@
 #import "UXCollectionViewFlowLayout.h"
 #import "UXCollectionViewFlowLayout+Internal.h"
+#import "UXCollectionViewLayout+Internal.h"
 #import "UXCollectionViewFlowLayoutInvalidationContext.h"
 #import "UXCollectionViewLayoutAttributes.h"
 #import "UXCollectionViewLayoutAttributes+Internal.h"
@@ -106,6 +107,11 @@ typedef NS_OPTIONS(uint16_t, UXFlowLayoutGridFlags) {
 }
 
 - (void)_commonInit {
+    // The base UXCollectionViewLayout owns the animation/section-update state
+    // (e.g. _insertedSectionsSet); since -[UXCollectionViewLayout init] dispatches
+    // -_commonInit dynamically, this override must chain to super or that state
+    // stays nil and the update pipeline spins on a nil index set.
+    [super _commonInit];
     _itemSize = CGSizeMake(10.0, 10.0);
     _headerReferenceSize = CGSizeMake(50.0, 50.0);
     _rowAlignmentsOptionsDictionary = @{
@@ -117,16 +123,12 @@ typedef NS_OPTIONS(uint16_t, UXFlowLayoutGridFlags) {
 
 - (instancetype)init {
     self = [super init];
-    if (self) {
-        [self _commonInit];
-    }
     return self;
 }
 
 - (instancetype)initWithCoder:(NSCoder *)coder {
     self = [super initWithCoder:coder];
     if (self) {
-        [self _commonInit];
         if ([coder containsValueForKey:@"UXFlowLayoutMinimumLineSpacing"]) {
             _lineSpacing = [coder decodeDoubleForKey:@"UXFlowLayoutMinimumLineSpacing"];
         }

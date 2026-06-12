@@ -99,6 +99,34 @@
     return _newGlobalItemMap[index];
 }
 
+- (NSInteger)_oldSectionMapValueAtIndex:(NSInteger)index {
+    return _oldSectionMap[index];
+}
+
+- (NSInteger)_newSectionMapValueAtIndex:(NSInteger)index {
+    return _newSectionMap[index];
+}
+
+- (NSDictionary<NSString *, NSIndexSet *> *)_deletedSupplementaryTopLevelIndexesDict {
+    return _deletedSupplementaryTopLevelIndexesDict;
+}
+
+- (NSDictionary<NSString *, NSIndexSet *> *)_insertedSupplementaryTopLevelIndexesDict {
+    return _insertedSupplementaryTopLevelIndexesDict;
+}
+
+- (NSIndexSet *)_deletedSections {
+    return _deletedSections;
+}
+
+- (CGRect)_newVisibleBounds {
+    return _newVisibleBounds;
+}
+
+- (void)_setNewVisibleBounds:(CGRect)newVisibleBounds {
+    _newVisibleBounds = newVisibleBounds;
+}
+
 - (NSArray<UXCollectionViewUpdateItem *> *)updateItemsSortedByIndexPaths {
     if (!_updateItemsSortedByIndexPaths) {
         _updateItemsSortedByIndexPaths = [_updateItems sortedArrayUsingSelector:@selector(compareIndexPaths:)];

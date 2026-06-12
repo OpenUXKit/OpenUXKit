@@ -3,7 +3,7 @@
 @interface UXCollectionViewAnimationContext () {
     NSArray<UXCollectionViewAnimation *> *_viewAnimations;
     NSInteger _animationCount;
-    void (^_completionHandler)(void);
+    void (^_completionHandler)(BOOL finished);
 }
 @end
 
@@ -13,7 +13,7 @@
 @synthesize animationCount = _animationCount;
 @synthesize completionHandler = _completionHandler;
 
-- (instancetype)initWithCompletionHandler:(void (^)(void))completionHandler {
+- (instancetype)initWithCompletionHandler:(void (^)(BOOL finished))completionHandler {
     self = [super init];
     if (self) {
         _completionHandler = [completionHandler copy];

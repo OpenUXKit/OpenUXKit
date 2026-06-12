@@ -10,9 +10,9 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 
 @property (nonatomic, strong, nullable) NSArray<UXCollectionViewAnimation *> *viewAnimations;
 @property (nonatomic) NSInteger animationCount;
-@property (nonatomic, copy, readonly, nullable) void (^completionHandler)(void);
+@property (nonatomic, copy, readonly, nullable) void (^completionHandler)(BOOL finished);
 
-- (instancetype)initWithCompletionHandler:(nullable void (^)(void))completionHandler;
+- (instancetype)initWithCompletionHandler:(nullable void (^)(BOOL finished))completionHandler;
 
 @end
 

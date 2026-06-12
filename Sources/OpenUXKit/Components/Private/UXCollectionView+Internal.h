@@ -1,6 +1,6 @@
 #import "UXCollectionView.h"
 
-@class UXCollectionViewData, UXCollectionViewUpdate, UXCollectionViewLayoutInvalidationContext, UXCollectionViewIndexPathsSet, UXCollectionViewMutableIndexPathsSet, _UXCollectionViewRearrangingCoordinator;
+@class UXCollectionViewData, UXCollectionViewUpdate, UXCollectionViewLayoutInvalidationContext, UXCollectionViewIndexPathsSet, UXCollectionViewMutableIndexPathsSet, UXCollectionViewAnimationContext, _UXCollectionViewRearrangingCoordinator;
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
@@ -129,7 +129,7 @@ NS_SWIFT_UI_ACTOR
 - (void)_endUpdates;
 - (void)_setupCellAnimations;
 - (NSArray *)_viewAnimationsForCurrentUpdate;
-- (void)_updateAnimationDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context;
+- (void)_updateAnimationDidStop:(nullable NSString *)animationID finished:(NSNumber *)finished context:(UXCollectionViewAnimationContext *)context;
 - (void)_endItemAnimations;
 - (void)_prepareLayoutForUpdates;
 - (NSMutableArray *)_arrayForUpdateAction:(NSInteger)updateAction;

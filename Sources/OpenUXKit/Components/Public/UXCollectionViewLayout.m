@@ -775,6 +775,10 @@
     return [self _animationForReusableView:reusableView toLayoutAttributes:layoutAttributes];
 }
 
+- (BOOL)shouldUpdateVisibleCellLayoutAttributes {
+    return NO;
+}
+
 - (id)snapshottedLayoutAttributeForItemAtIndexPath:(NSIndexPath *)indexPath {
     return nil;
 }

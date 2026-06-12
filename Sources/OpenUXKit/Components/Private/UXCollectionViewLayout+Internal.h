@@ -13,6 +13,8 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 @property (nonatomic, readonly, nullable) UXCollectionViewLayoutAccessibility *layoutAccessibility;
 @property (nonatomic, readonly, nullable) NSArray *accessibilityChildren;
 
+- (void)_commonInit NS_REQUIRES_SUPER;
+
 - (void)_setCollectionView:(nullable UXCollectionView *)collectionView;
 - (void)_setCollectionViewBoundsSize:(CGSize)boundsSize;
 
@@ -50,6 +52,10 @@ withCompletionHandler:(nullable void (^)(BOOL finished))completion;
 - (CGPoint)transitionContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset
                                           keyItemIndexPath:(nullable NSIndexPath *)keyItemIndexPath;
 - (CGPoint)updatesContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset;
+
+- (nullable id)_animationForReusableView:(id)reusableView toLayoutAttributes:(UXCollectionViewLayoutAttributes *)layoutAttributes;
+- (nullable id)_animationForReusableView:(id)reusableView toLayoutAttributes:(UXCollectionViewLayoutAttributes *)layoutAttributes type:(NSUInteger)type;
+- (BOOL)shouldUpdateVisibleCellLayoutAttributes;
 
 - (NSCollectionViewDropOperation)dropPositionForPoint:(CGPoint)point;
 - (nullable NSIndexPath *)proposedDropIndexPathForDraggingPoint:(CGPoint)point;

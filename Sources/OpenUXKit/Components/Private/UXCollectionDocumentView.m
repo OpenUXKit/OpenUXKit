@@ -39,20 +39,9 @@
 }
 
 - (void)layout {
-    [super layout];
-    UXCollectionView *collectionView = _collectionView;
-    if (!collectionView) {
-        return;
-    }
-    CGRect contentRect = [collectionView documentContentRect];
-    if (!CGSizeEqualToSize(contentRect.size, self.frame.size)) {
-        NSRect newFrame = self.frame;
-        newFrame.size = contentRect.size;
-        self.frame = newFrame;
-    }
-    if ([collectionView respondsToSelector:@selector(_updateVisibleCellsNow:)]) {
-        [collectionView _updateVisibleCellsNow:YES];
-    }
+    // Matches UXKit: the document view performs no layout of its own. Its frame
+    // is driven by -[UXCollectionView setContentSize:] and the cell refresh by
+    // -[UXCollectionView layoutSubviews].
 }
 
 - (void)_invalidateFocus {
@@ -64,10 +53,7 @@
 
 - (void)prepareContentInRect:(CGRect)rect {
     [super prepareContentInRect:rect];
-    UXCollectionView *collectionView = _collectionView;
-    if ([collectionView respondsToSelector:@selector(_prepareCellsForOverdraw:)]) {
-        [collectionView _prepareCellsForOverdraw:rect];
-    }
+    [(id)_collectionView _prepareCellsForOverdraw:rect];
 }
 
 - (id)accessibilityHitTest:(CGPoint)point {

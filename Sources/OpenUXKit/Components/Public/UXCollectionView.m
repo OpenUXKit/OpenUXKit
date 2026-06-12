@@ -21,9 +21,19 @@
 #import "UXCollectionViewUpdateItem.h"
 #import "UXCollectionViewUpdateItem+Internal.h"
 #import "UXCollectionViewAnimation.h"
+#import "UXCollectionViewAnimationContext.h"
+#import "UXCollectionViewLayoutInvalidationContext.h"
+#import "UXCollectionViewLayoutInvalidationContext+Internal.h"
+#import "UXCollectionViewData+Internal.h"
+#import "_UXCollectionSnapshotView.h"
+#import "NSObject+UXCollectionView.h"
 #import <QuartzCore/QuartzCore.h>
 
 NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
+
+@interface NSAnimationContext (UXCollectionViewSPI)
++ (BOOL)_hasActiveGrouping;
+@end
 
 @interface NSObject (UXCollectionViewLayoutSPI_Internal)
 - (void)_setCollectionView:(UXCollectionView *)collectionView;
@@ -38,6 +48,9 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
 - (void)_addUpdateAnimation;
 - (void)_clearUpdateAnimation;
 - (NSArray *)_visibleSupplementaryViewsOfKind:(NSString *)kind;
+- (BOOL)isFloatingPinned;
+- (void)setIsFloatingPinned:(BOOL)isFloatingPinned;
+- (CGPoint)_collectionView:(UXCollectionView *)collectionView targetContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset;
 @end
 
 @interface UXCollectionView () {
@@ -99,6 +112,53 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
     NSMutableDictionary *_doubleClickContext;
     _UXCollectionViewRearrangingCoordinator *_rearrangingCoordinator;
     NSInteger _suspendClipViewBoundsDidChange;
+    struct {
+        unsigned int delegateWillBeginScrolling : 1;
+        unsigned int delegateDidScroll : 1;
+        unsigned int delegateDidEndScrolling : 1;
+        unsigned int delegateDidEndScrollingAnimation : 1;
+        unsigned int delegateWillBeginDeceleratingTargetContentOffset : 1;
+        unsigned int delegateDidEndDecelerating : 1;
+        unsigned int delegateShouldSelectItemAtIndexPath : 1;
+        unsigned int delegateShouldDeselectItemAtIndexPath : 1;
+        unsigned int delegateDidSelectItemAtIndexPath : 1;
+        unsigned int delegateDidDeselectItemAtIndexPath : 1;
+        unsigned int delegateSelectionWillAddAndRemove : 1;
+        unsigned int delegateSelectionDidAddAndRemove : 1;
+        unsigned int delegateSectionsForSelectAllAction : 1;
+        unsigned int delegateMouseDownWithEvent : 1;
+        unsigned int delegateItemWasDoubleClickedAtIndexPathWithEvent : 1;
+        unsigned int delegateItemWasRightClickedAtIndexPathWithEvent : 1;
+        unsigned int delegateWillDisplayCell : 1;
+        unsigned int delegateDidEndDisplayingCellForItemAtIndexPath : 1;
+        unsigned int delegateDidEndDisplayingSupplementaryViewForElementOfKindAtIndexPath : 1;
+        unsigned int delegateDidPrepareForOverdraw : 1;
+        unsigned int delegateTargetContentOffsetForProposedContentOffset : 1;
+        unsigned int delegateTargetContentOffsetOnResizeForProposedContentOffset : 1;
+        unsigned int delegateAllowedDropPositionsForItemsAtIndexPathsMovedToIndexPath : 1;
+        unsigned int delegateDragOperationForItemsAtIndexPathsMovedOntoItemAtIndexPath : 1;
+        unsigned int dataSourceNumberOfSections : 1;
+        unsigned int dataSourceViewForSupplementaryElement : 1;
+        unsigned int reloadSkippedDuringSuspension : 1;
+        unsigned int scheduledUpdateVisibleCells : 1;
+        unsigned int scheduledUpdateVisibleCellLayoutAttributes : 1;
+        unsigned int allowsSelection : 1;
+        unsigned int allowsMultipleSelection : 1;
+        unsigned int fadeCellsForBoundsChange : 1;
+        unsigned int updatingLayout : 1;
+        unsigned int needsReload : 1;
+        unsigned int reloading : 1;
+        unsigned int skipLayoutDuringSnapshotting : 1;
+        unsigned int skipCellsUpdateDuringResizing : 1;
+        unsigned int layoutInvalidatedSinceLastCellUpdate : 1;
+        unsigned int doneFirstLayout : 1;
+        unsigned int loadingOffscreenViews : 1;
+        unsigned int updating : 1;
+        unsigned int accessibilityDelegateShouldPrepareAccessibilitySection : 1;
+        unsigned int accessibilityDelegateAXRoleDescription : 1;
+        unsigned int viewIsPrepared : 1;
+        unsigned int performingHitTest : 1;
+    } _collectionViewFlags;
     CGPoint _lastLayoutOffset;
     BOOL _rearrangingEnabled;
     BOOL _rearrangingAllowAutoscroll;
@@ -106,12 +166,8 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
     NSInteger _rearrangingInitiationMode;
     BOOL _rearrangingContinuouslyUpdateInsideCells;
     CGFloat _rearrangingPreviewDelay;
-    CGSize _explicitContentSize;
-    BOOL _hasExplicitContentSize;
+    CGSize _contentSize;
     BOOL _doneFirstLayout;
-    BOOL _needsReload;
-    BOOL _needsVisibleCellsUpdate;
-    BOOL _needsVisibleCellsLayoutAttributesUpdate;
 }
 @end
 
@@ -188,9 +244,6 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
     _allowsEmptySelection = YES;
     _purgingCellsThreshold = 30;
     _extraNumberOfCellsToPreloadWhenScrollingStopped = 10;
-    _lastPreparedOverdrawContentRect = CGRectNull;
-    _visibleBounds = CGRectNull;
-    _previousBounds = CGRectNull;
 
     [self _registerForLiveScrollNotifications];
 }
@@ -216,8 +269,53 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
 
 #pragma mark - Properties
 
+- (void)setDataSource:(id<UXCollectionViewDataSource>)dataSource {
+    if (dataSource && dataSource == self.dataSource) {
+        return;
+    }
+    _dataSource = dataSource;
+    _collectionViewFlags.dataSourceNumberOfSections = [dataSource respondsToSelector:@selector(numberOfSectionsInCollectionView:)];
+    _collectionViewFlags.dataSourceViewForSupplementaryElement = [dataSource respondsToSelector:@selector(collectionView:viewForSupplementaryElementOfKind:atIndexPath:)];
+    _collectionViewFlags.needsReload = YES;
+    [self _invalidateLayoutIfNecessary];
+}
+
+- (void)setDelegate:(id<UXCollectionViewDelegate>)delegate {
+    _delegate = delegate;
+    _collectionViewFlags.delegateWillBeginScrolling = [delegate respondsToSelector:@selector(collectionViewWillBeginScrolling:)];
+    _collectionViewFlags.delegateDidScroll = [delegate respondsToSelector:@selector(collectionViewDidScroll:)];
+    _collectionViewFlags.delegateDidEndScrolling = [delegate respondsToSelector:@selector(collectionViewDidEndScrolling:)];
+    _collectionViewFlags.delegateDidEndScrollingAnimation = [delegate respondsToSelector:@selector(collectionViewDidEndScrollingAnimation:)];
+    _collectionViewFlags.delegateWillBeginDeceleratingTargetContentOffset = [delegate respondsToSelector:@selector(collectionViewWillBeginDecelerating:targetContentOffset:)];
+    _collectionViewFlags.delegateDidEndDecelerating = [delegate respondsToSelector:@selector(collectionViewDidEndDecelerating:)];
+    _collectionViewFlags.delegateShouldSelectItemAtIndexPath = [delegate respondsToSelector:@selector(collectionView:shouldSelectItemAtIndexPath:)];
+    _collectionViewFlags.delegateShouldDeselectItemAtIndexPath = [delegate respondsToSelector:@selector(collectionView:shouldDeselectItemAtIndexPath:)];
+    _collectionViewFlags.delegateDidSelectItemAtIndexPath = [delegate respondsToSelector:@selector(collectionView:didSelectItemAtIndexPath:)];
+    _collectionViewFlags.delegateDidDeselectItemAtIndexPath = [delegate respondsToSelector:@selector(collectionView:didDeselectItemAtIndexPath:)];
+    _collectionViewFlags.delegateSelectionWillAddAndRemove = [delegate respondsToSelector:@selector(collectionView:indexPathsForSelectedItemsWillAdd:remove:animated:)];
+    _collectionViewFlags.delegateSelectionDidAddAndRemove = [delegate respondsToSelector:@selector(collectionView:indexPathsForSelectedItemsDidAdd:remove:animated:)];
+    _collectionViewFlags.delegateSectionsForSelectAllAction = [delegate respondsToSelector:NSSelectorFromString(@"sectionsForSelectAllActionInCollectionView:")];
+    _collectionViewFlags.delegateMouseDownWithEvent = [delegate respondsToSelector:@selector(collectionView:mouseDownWithEvent:)];
+    _collectionViewFlags.delegateItemWasDoubleClickedAtIndexPathWithEvent = [delegate respondsToSelector:@selector(collectionView:itemWasDoubleClickedAtIndexPath:withEvent:)];
+    _collectionViewFlags.delegateItemWasRightClickedAtIndexPathWithEvent = [delegate respondsToSelector:@selector(collectionView:itemWasRightClickedAtIndexPath:withEvent:)];
+    _collectionViewFlags.delegateWillDisplayCell = [delegate respondsToSelector:@selector(collectionView:willDisplayCell:forItemAtIndexPath:)];
+    _collectionViewFlags.delegateDidEndDisplayingCellForItemAtIndexPath = [delegate respondsToSelector:@selector(collectionView:didEndDisplayingCell:forItemAtIndexPath:)];
+    _collectionViewFlags.delegateDidEndDisplayingSupplementaryViewForElementOfKindAtIndexPath = [delegate respondsToSelector:@selector(collectionView:didEndDisplayingSupplementaryView:forElementOfKind:atIndexPath:)];
+    _collectionViewFlags.delegateDidPrepareForOverdraw = [delegate respondsToSelector:@selector(collectionView:didPrepareForOverdraw:)];
+    _collectionViewFlags.delegateTargetContentOffsetForProposedContentOffset = [delegate respondsToSelector:NSSelectorFromString(@"_collectionView:targetContentOffsetForProposedContentOffset:")];
+    _collectionViewFlags.delegateTargetContentOffsetOnResizeForProposedContentOffset = [delegate respondsToSelector:@selector(collectionView:targetContentOffsetOnResizeForProposedContentOffset:)];
+    _collectionViewFlags.delegateAllowedDropPositionsForItemsAtIndexPathsMovedToIndexPath = [delegate respondsToSelector:NSSelectorFromString(@"collectionView:allowedDropPositionsForItemsAtIndexPaths:movedToIndexPath:")];
+    _collectionViewFlags.delegateDragOperationForItemsAtIndexPathsMovedOntoItemAtIndexPath = [delegate respondsToSelector:NSSelectorFromString(@"collectionView:dragOperationForItemsAtIndexPaths:movedOntoItemAtIndexPath:")];
+}
+
+- (void)setAccessibilityDelegate:(id<UXCollectionViewAccessibilityDelegate>)accessibilityDelegate {
+    _accessibilityDelegate = accessibilityDelegate;
+    _collectionViewFlags.accessibilityDelegateShouldPrepareAccessibilitySection = [accessibilityDelegate respondsToSelector:@selector(collectionView:prepareAccessibilitySection:)];
+    _collectionViewFlags.accessibilityDelegateAXRoleDescription = [accessibilityDelegate respondsToSelector:@selector(accessibilityRoleDescriptionForCollectionView:)];
+}
+
 - (BOOL)_dataSourceImplementsNumberOfSections {
-    return [self.dataSource respondsToSelector:@selector(numberOfSectionsInCollectionView:)];
+    return _collectionViewFlags.dataSourceNumberOfSections;
 }
 
 - (UXCollectionViewData *)_collectionViewData {
@@ -293,28 +391,44 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
 }
 
 - (void)updateLayout {
-    [_collectionViewData invalidate:NO];
-    [self.documentView setNeedsLayout:YES];
-    [self _setNeedsVisibleCellsUpdate:YES withLayoutAttributes:YES];
+    @autoreleasepool {
+        [self _updateVisibleCellsNow:YES];
+    }
 }
 
 - (void)_invalidateLayoutWithContext:(UXCollectionViewLayoutInvalidationContext *)context {
-    [_collectionViewData invalidate:NO];
-    [self.documentView setNeedsLayout:YES];
+    _minReusedViewSize = CGSizeMake(1024.0, 1024.0);
+    if ([NSAnimationContext respondsToSelector:@selector(_hasActiveGrouping)]) {
+        _collectionViewFlags.fadeCellsForBoundsChange = [NSAnimationContext _hasActiveGrouping];
+    }
+    NSDictionary *invalidatedSupplementaryViews = [context _invalidatedSupplementaryViews];
+    if (invalidatedSupplementaryViews && !context.invalidateContentSize) {
+        [_collectionViewData invalidateSupplementaryViews:invalidatedSupplementaryViews];
+    } else {
+        [_collectionViewData invalidate:!context.invalidateEverything];
+    }
+    _collectionViewFlags.layoutInvalidatedSinceLastCellUpdate = YES;
     [self _setNeedsVisibleCellsUpdate:YES withLayoutAttributes:YES];
 }
 
 - (void)_invalidateLayoutIfNecessary {
-    if (_needsReload || _needsVisibleCellsUpdate) {
-        [self.documentView setNeedsLayout:YES];
+    if ([_collectionViewData layoutIsPrepared]) {
+        UXCollectionViewLayoutInvalidationContext *context = [[[[_layout class] invalidationContextClass] alloc] init];
+        [context _setInvalidateDataSourceCounts:YES];
+        [context _setInvalidateEverything:YES];
+        [_layout _invalidateLayoutUsingContext:context];
     }
 }
 
 - (void)_setNeedsVisibleCellsUpdate:(BOOL)needsUpdate withLayoutAttributes:(BOOL)withAttributes {
-    _needsVisibleCellsUpdate = needsUpdate || _needsVisibleCellsUpdate;
-    _needsVisibleCellsLayoutAttributesUpdate = withAttributes || _needsVisibleCellsLayoutAttributesUpdate;
-    if (_needsVisibleCellsUpdate) {
-        [self.documentView setNeedsLayout:YES];
+    if (needsUpdate) {
+        _collectionViewFlags.scheduledUpdateVisibleCells = YES;
+    }
+    if (withAttributes) {
+        _collectionViewFlags.scheduledUpdateVisibleCellLayoutAttributes = YES;
+    }
+    if (_collectionViewFlags.scheduledUpdateVisibleCells || _collectionViewFlags.scheduledUpdateVisibleCellLayoutAttributes) {
+        [self setNeedsLayout];
     }
 }
 
@@ -468,6 +582,7 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
     if (!cell) {
         return;
     }
+    [self _notifyDidEndDisplayingCellIfNeeded:cell forIndexPath:[[(id)cell _layoutAttributes] indexPath]];
     NSString *identifier = cell.reuseIdentifier;
     if (!identifier) {
         return;
@@ -533,6 +648,7 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
     } else {
         cell.selected = NO;
     }
+    [self _notifyWillDisplayCellIfNeeded:cell forIndexPath:indexPath];
     return cell;
 }
 
@@ -574,68 +690,267 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
 }
 
 - (void)_updateCellsInRect:(CGRect)rect createIfNecessary:(BOOL)createIfNecessary {
-    [_collectionViewData validateLayoutInRect:rect];
-    NSArray<UXCollectionViewLayoutAttributes *> *attributesList = [_collectionViewData layoutAttributesForElementsInRect:rect];
+    if (_reloadingSuspendedCount > 0 || _updateAnimationCount > 0) {
+        return;
+    }
+    if (_collectionViewFlags.updatingLayout || _collectionViewFlags.skipCellsUpdateDuringResizing) {
+        return;
+    }
 
-    NSMutableSet<_UXCollectionViewItemKey *> *visibleKeys = [NSMutableSet set];
+    if ([NSAnimationContext respondsToSelector:@selector(_hasActiveGrouping)] && [NSAnimationContext _hasActiveGrouping]) {
+        if (_collectionViewFlags.layoutInvalidatedSinceLastCellUpdate) {
+            _collectionViewFlags.fadeCellsForBoundsChange = YES;
+        }
+    }
+    [self _suspendReloads];
+
+    if (_collectionViewFlags.fadeCellsForBoundsChange) {
+        [_layout prepareForAnimatedBoundsChange:_previousBounds];
+        CGPoint targetContentOffset = [_layout targetContentOffsetForProposedContentOffset:[self contentOffset]];
+        if (_collectionViewFlags.delegateTargetContentOffsetForProposedContentOffset) {
+            targetContentOffset = [(id)self.delegate _collectionView:self targetContentOffsetForProposedContentOffset:targetContentOffset];
+        }
+        if (!CGPointEqualToPoint(_lastContentOffset, targetContentOffset)) {
+            _lastContentOffset = targetContentOffset;
+            [self.contentView setBoundsOrigin:targetContentOffset];
+            rect = [self _visibleBounds];
+        }
+    }
+
+    NSArray<UXCollectionViewLayoutAttributes *> *attributesList = [_collectionViewData layoutAttributesForElementsInRect:rect];
+    if (![self inLiveResize] && !_scrolling
+        && [self extraNumberOfCellsToPreloadWhenScrollingStopped] > 0 && attributesList.count > 0) {
+        CGFloat preloadRatio = (CGFloat)[self extraNumberOfCellsToPreloadWhenScrollingStopped] / (CGFloat)attributesList.count;
+        rect = CGRectInset(rect, -(rect.size.width * preloadRatio), -(rect.size.height * preloadRatio));
+        attributesList = [_collectionViewData layoutAttributesForElementsInRect:rect];
+    }
+
+    BOOL fadeCells = _collectionViewFlags.fadeCellsForBoundsChange;
+    if (createIfNecessary) {
+        _collectionViewFlags.scheduledUpdateVisibleCells = NO;
+        _collectionViewFlags.fadeCellsForBoundsChange = NO;
+    }
+    [self setContentSize:[_collectionViewData collectionViewContentRect].size];
+
+    if (fadeCells) {
+        NSMutableArray<UXCollectionViewLayoutAttributes *> *previousAttributesList = [[NSMutableArray alloc] init];
+        for (UXCollectionReusableView *view in _allVisibleViewsDict.allValues) {
+            UXCollectionViewLayoutAttributes *attributesCopy = [[(id)view _layoutAttributes] copy];
+            if (attributesCopy) {
+                [previousAttributesList addObject:attributesCopy];
+            }
+        }
+        [previousAttributesList sortUsingComparator:^NSComparisonResult(UXCollectionViewLayoutAttributes *first, UXCollectionViewLayoutAttributes *second) {
+            if (first.zIndex < second.zIndex) {
+                return NSOrderedAscending;
+            }
+            if (first.zIndex > second.zIndex) {
+                return NSOrderedDescending;
+            }
+            return NSOrderedSame;
+        }];
+        NSArray *upcomingAttributesList = [[NSArray alloc] initWithArray:attributesList copyItems:YES];
+        [_layout _prepareToAnimateFromCollectionViewItems:previousAttributesList
+                                          atContentOffset:_lastContentOffset
+                                                  toItems:upcomingAttributesList
+                                          atContentOffset:[self contentOffset]];
+    }
+
+    void (^resizeAnimationSetup)(void) = ^{
+        self->_resizeAnimationCount++;
+    };
+    void (^resizeAnimationCompletion)(BOOL) = ^(BOOL finished) {
+        self->_resizeAnimationCount--;
+        if (self->_resizeAnimationCount == 0) {
+            self->_resizeBoundsOffset = CGPointZero;
+            [self _setNeedsVisibleCellsUpdate:YES withLayoutAttributes:YES];
+            self->_lastLayoutOffset = [self contentOffset];
+        }
+    };
+
+    NSMutableDictionary *leftoverViewsDict = [_allVisibleViewsDict mutableCopy];
+    NSMutableArray<UXCollectionViewLayoutAttributes *> *missingAttributesList = [[NSMutableArray alloc] init];
+    NSMutableArray<UXCollectionReusableView *> *existingViews = [[NSMutableArray alloc] init];
     for (UXCollectionViewLayoutAttributes *attributes in attributesList) {
         _UXCollectionViewItemKey *key = [_UXCollectionViewItemKey collectionItemKeyForLayoutAttributes:attributes];
-        [visibleKeys addObject:key];
+        UXCollectionReusableView *view = _allVisibleViewsDict[key];
+        if (view) {
+            [existingViews addObject:view];
+            [leftoverViewsDict removeObjectForKey:key];
+        } else {
+            [missingAttributesList addObject:attributes];
+        }
+    }
 
-        UXCollectionReusableView *existing = _allVisibleViewsDict[key];
-        if (existing) {
-            [(id)existing _setLayoutAttributes:attributes];
-            if (existing.superview != _collectionDocumentView) {
-                [_collectionDocumentView addSubview:existing];
+    if (![self inLiveResize]) {
+        NSUInteger totalViewCount = existingViews.count + leftoverViewsDict.count + missingAttributesList.count;
+        if (totalViewCount < [self purgingCellsThreshold]) {
+            [existingViews addObjectsFromArray:leftoverViewsDict.allValues];
+            leftoverViewsDict = nil;
+        }
+    }
+
+    [leftoverViewsDict enumerateKeysAndObjectsUsingBlock:^(_UXCollectionViewItemKey *key, UXCollectionReusableView *view, BOOL *stop) {
+        if ([view _isInUpdateAnimation]) {
+            return;
+        }
+        [self->_allVisibleViewsDict removeObjectForKey:key];
+        void (^recycleView)(void) = ^{
+            if (key.type == UXCollectionViewItemTypeCell) {
+                [self _reuseCell:(UXCollectionViewCell *)view];
+            } else {
+                [self _reuseSupplementaryView:view];
             }
-        } else if (createIfNecessary) {
-            UXCollectionReusableView *view = nil;
-            if ([attributes _isCell]) {
-                view = [self _createPreparedCellForItemAtIndexPath:attributes.indexPath withLayoutAttributes:attributes applyAttributes:YES];
-            } else if ([attributes _isSupplementaryView]) {
-                view = [self _createPreparedSupplementaryViewForElementOfKind:[attributes _elementKind]
-                                                                  atIndexPath:attributes.indexPath
-                                                          withLayoutAttributes:attributes
-                                                              applyAttributes:YES];
-            }
-            if (view) {
-                [_collectionDocumentView addSubview:view];
+        };
+        if (!fadeCells) {
+            recycleView();
+            return;
+        }
+        UXCollectionViewLayoutAttributes *finalAttributes = nil;
+        switch (key.type) {
+            case UXCollectionViewItemTypeCell:
+                finalAttributes = [self->_layout finalLayoutAttributesForDisappearingItemAtIndexPath:key.indexPath];
+                break;
+            case UXCollectionViewItemTypeSupplementaryView:
+                finalAttributes = [self->_layout finalLayoutAttributesForDisappearingSupplementaryElementOfKind:key.identifier atIndexPath:key.indexPath];
+                break;
+            case UXCollectionViewItemTypeDecorationView:
+                finalAttributes = [self->_layout finalLayoutAttributesForDisappearingDecorationElementOfKind:key.identifier atIndexPath:key.indexPath];
+                break;
+        }
+        if (!finalAttributes) {
+            finalAttributes = [[(id)view _layoutAttributes] copy];
+            finalAttributes.alpha = 0.0;
+        }
+        resizeAnimationSetup();
+        [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+            [(id)view _setLayoutAttributes:finalAttributes];
+        } completionHandler:^{
+            recycleView();
+            resizeAnimationCompletion(YES);
+        }];
+    }];
+
+    if (createIfNecessary) {
+        for (UXCollectionViewLayoutAttributes *attributes in missingAttributesList) {
+            _UXCollectionViewItemKey *key = [_UXCollectionViewItemKey collectionItemKeyForLayoutAttributes:attributes];
+            if (fadeCells) {
+                UXCollectionViewLayoutAttributes *initialAttributes = nil;
+                if ([attributes _isCell]) {
+                    initialAttributes = [_layout initialLayoutAttributesForAppearingItemAtIndexPath:key.indexPath];
+                } else if ([attributes _isDecorationView]) {
+                    initialAttributes = [_layout initialLayoutAttributesForAppearingDecorationElementOfKind:key.identifier atIndexPath:key.indexPath];
+                } else {
+                    initialAttributes = [_layout initialLayoutAttributesForAppearingSupplementaryElementOfKind:key.identifier atIndexPath:key.indexPath];
+                }
+                if (!initialAttributes) {
+                    initialAttributes = [attributes copy];
+                    initialAttributes.alpha = 0.0;
+                }
+                if (initialAttributes.isHidden && attributes.isHidden) {
+                    continue;
+                }
+                UXCollectionReusableView *view = [attributes _isCell]
+                    ? [self _createPreparedCellForItemAtIndexPath:key.indexPath withLayoutAttributes:initialAttributes applyAttributes:YES]
+                    : [self _createPreparedSupplementaryViewForElementOfKind:key.identifier atIndexPath:key.indexPath withLayoutAttributes:initialAttributes applyAttributes:YES];
+                if (!view) {
+                    continue;
+                }
+                resizeAnimationSetup();
+                [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+                    [(id)view _setLayoutAttributes:attributes];
+                } completionHandler:^{
+                    resizeAnimationCompletion(YES);
+                }];
                 _allVisibleViewsDict[key] = view;
-                if ([view isKindOfClass:[UXCollectionViewCell class]]) {
-                    [self _notifyWillDisplayCellIfNeeded:(UXCollectionViewCell *)view forIndexPath:attributes.indexPath];
+            } else {
+                if (attributes.isHidden) {
+                    continue;
+                }
+                UXCollectionReusableView *view = [attributes _isCell]
+                    ? [self _createPreparedCellForItemAtIndexPath:key.indexPath withLayoutAttributes:attributes applyAttributes:NO]
+                    : [self _createPreparedSupplementaryViewForElementOfKind:key.identifier atIndexPath:key.indexPath withLayoutAttributes:attributes applyAttributes:NO];
+                if (!view) {
+                    continue;
+                }
+                [self performWithoutAnimation:^{
+                    [(id)view _setLayoutAttributes:attributes];
+                    [self _addControlled:!attributes.isFloating subview:view atZIndex:[(id)view _layoutAttributes].zIndex];
+                }];
+                _allVisibleViewsDict[key] = view;
+            }
+        }
+    }
+
+    if (!_collectionViewFlags.reloadSkippedDuringSuspension) {
+        _visibleBounds = [self documentVisibleRect];
+        if (_collectionViewFlags.scheduledUpdateVisibleCellLayoutAttributes) {
+            for (UXCollectionReusableView *view in existingViews) {
+                _UXCollectionViewItemKey *key = [_UXCollectionViewItemKey collectionItemKeyForLayoutAttributes:[(id)view _layoutAttributes]];
+                UXCollectionViewLayoutAttributes *currentAttributes = [(id)_allVisibleViewsDict[key] _layoutAttributes];
+                UXCollectionViewLayoutAttributes *newAttributes = nil;
+                switch (key.type) {
+                    case UXCollectionViewItemTypeCell:
+                        newAttributes = [_collectionViewData layoutAttributesForItemAtIndexPath:key.indexPath];
+                        break;
+                    case UXCollectionViewItemTypeSupplementaryView:
+                        newAttributes = [_collectionViewData layoutAttributesForSupplementaryElementOfKind:key.identifier atIndexPath:key.indexPath];
+                        break;
+                    case UXCollectionViewItemTypeDecorationView:
+                        newAttributes = [_collectionViewData layoutAttributesForDecorationViewOfKind:key.identifier atIndexPath:key.indexPath];
+                        break;
+                }
+                if (!fadeCells || currentAttributes.isFloating || newAttributes.isFloating) {
+                    if (newAttributes.isHidden) {
+                        [_allVisibleViewsDict removeObjectForKey:key];
+                        if ([view _isInUpdateAnimation]) {
+                            _allVisibleViewsDict[key] = view;
+                        } else if ([newAttributes _isCell]) {
+                            [self _reuseCell:(UXCollectionViewCell *)view];
+                        } else {
+                            [self _reuseSupplementaryView:view];
+                        }
+                    } else {
+                        [self performWithoutAnimation:^{
+                            [(id)view _setLayoutAttributes:newAttributes];
+                            [self _addControlled:!newAttributes.isFloating subview:view atZIndex:newAttributes.zIndex];
+                        }];
+                    }
+                } else {
+                    if (newAttributes.isFloating != [(id)view isFloatingPinned]
+                        || (![(id)view isFloatingPinned] && newAttributes.zIndex != [(id)view _layoutAttributes].zIndex)) {
+                        [(id)view _setLayoutAttributes:[currentAttributes copy]];
+                        [self _addControlled:YES subview:view atZIndex:newAttributes.zIndex];
+                    }
+                    NSArray *resizeAnimations = [self _doubleSidedAnimationsForView:view
+                                                       withStartingLayoutAttributes:currentAttributes
+                                                                     startingLayout:_layout
+                                                             endingLayoutAttributes:newAttributes
+                                                                       endingLayout:_layout
+                                                                 withAnimationSetup:resizeAnimationSetup
+                                                                animationCompletion:resizeAnimationCompletion
+                                                             enableCustomAnimations:NO
+                                                               customAnimationsType:0];
+                    for (UXCollectionViewAnimation *animation in resizeAnimations) {
+                        [animation start];
+                    }
                 }
             }
         }
+        if (fadeCells) {
+            [_layout _finalizeCollectionViewItemAnimations];
+            [_layout finalizeAnimatedBoundsChange];
+        }
+        _collectionViewFlags.scheduledUpdateVisibleCellLayoutAttributes = NO;
     }
 
-    NSArray<_UXCollectionViewItemKey *> *existingKeys = [_allVisibleViewsDict.allKeys copy];
-    for (_UXCollectionViewItemKey *key in existingKeys) {
-        if ([visibleKeys containsObject:key]) {
-            continue;
-        }
-        UXCollectionReusableView *view = _allVisibleViewsDict[key];
-        if ([view respondsToSelector:@selector(_isInUpdateAnimation)] && [view _isInUpdateAnimation]) {
-            continue;
-        }
-        [_allVisibleViewsDict removeObjectForKey:key];
-        if ([view isKindOfClass:[UXCollectionViewCell class]]) {
-            UXCollectionViewCell *cell = (UXCollectionViewCell *)view;
-            [self _notifyDidEndDisplayingCellIfNeeded:cell forIndexPath:[key indexPath]];
-            [self _reuseCell:cell];
-        } else {
-            id<UXCollectionViewDelegate> delegate = self.delegate;
-            UXCollectionViewLayoutAttributes *viewAttributes = [(id)view _layoutAttributes];
-            NSString *elementKind = [viewAttributes _elementKind];
-            if (elementKind && [delegate respondsToSelector:@selector(collectionView:didEndDisplayingSupplementaryView:forElementOfKind:atIndexPath:)]) {
-                [delegate collectionView:self didEndDisplayingSupplementaryView:view forElementOfKind:elementKind atIndexPath:[key indexPath]];
-            }
-            [self _reuseSupplementaryView:view];
-        }
-    }
+    _lastLayoutOffset = [self contentOffset];
+    _collectionViewFlags.layoutInvalidatedSinceLastCellUpdate = NO;
+    [self _resumeReloads];
 }
 
 - (void)_updateVisibleCellsNow:(BOOL)now {
-    [self _updateCellsInRect:[self documentVisibleRect] createIfNecessary:YES];
+    [self _updateCellsInRect:[self documentVisibleRect] createIfNecessary:now];
 }
 
 #pragma mark - Visible cells
@@ -1184,7 +1499,14 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
 #pragma mark - Geometry
 
 - (CGRect)documentContentRect {
-    return [_collectionViewData collectionViewContentRect];
+    CGRect preparedRect = [self.documentView preparedContentRect];
+    CGRect visibleRect = [self documentVisibleRect];
+    if (CGRectIntersectsRect(preparedRect, visibleRect)
+        && preparedRect.size.width >= visibleRect.size.width
+        && preparedRect.size.height >= visibleRect.size.height) {
+        return CGRectUnion(preparedRect, visibleRect);
+    }
+    return visibleRect;
 }
 
 - (CGSize)documentSize {
@@ -1200,18 +1522,19 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
 }
 
 - (CGSize)contentSize {
-    if (_hasExplicitContentSize) {
-        return _explicitContentSize;
+    if (CGSizeEqualToSize(_contentSize, CGSizeZero)) {
+        return [self documentSize];
     }
-    return [self documentSize];
+    return _contentSize;
 }
 
 - (void)setContentSize:(CGSize)contentSize {
-    _explicitContentSize = contentSize;
-    _hasExplicitContentSize = !CGSizeEqualToSize(contentSize, CGSizeZero);
-    NSRect frame = _collectionDocumentView.frame;
-    frame.size = contentSize;
-    _collectionDocumentView.frame = frame;
+    CGSize roundedSize = CGSizeMake(round(contentSize.width), round(contentSize.height));
+    if (CGSizeEqualToSize(roundedSize, _contentSize) && CGSizeEqualToSize(roundedSize, [self documentSize])) {
+        return;
+    }
+    _contentSize = roundedSize;
+    [self.documentView setFrameSize:roundedSize];
 }
 
 - (CGPoint)contentOffset {
@@ -1249,10 +1572,14 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
 }
 
 - (CGRect)_visibleBounds {
-    if (CGRectIsNull(_visibleBounds)) {
-        return [self documentVisibleRect];
+    CGRect rect = [self documentContentRect];
+    BOOL hasActiveGrouping = [NSAnimationContext respondsToSelector:@selector(_hasActiveGrouping)] && [NSAnimationContext _hasActiveGrouping];
+    if (_collectionViewFlags.loadingOffscreenViews || hasActiveGrouping) {
+        if (CGRectIntersectsRect(rect, _visibleBounds)) {
+            rect = CGRectUnion(rect, _visibleBounds);
+        }
     }
-    return _visibleBounds;
+    return rect;
 }
 
 - (void)_setVisibleBounds:(CGRect)visibleBounds {
@@ -1421,14 +1748,67 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
 }
 
 - (void)clipViewBoundsDidChange:(NSNotification *)notification {
-    if (_suspendClipViewBoundsDidChange > 0) {
+    CFAbsoluteTime currentTime = CFAbsoluteTimeGetCurrent();
+    CGRect newBounds;
+    if (_currentUpdate) {
+        newBounds = [_currentUpdate _newVisibleBounds];
+    } else {
+        newBounds = self.contentView.bounds;
+    }
+    if (CGPointEqualToPoint(newBounds.origin, _lastContentOffset)) {
         return;
     }
+
+    if (!_scrolling && !_liveScrolling && _involvesScrollWheel && _suspendClipViewBoundsDidChange == 0) {
+        [self _willStartScrolling:self];
+    }
+
     id<UXCollectionViewDelegate> delegate = self.delegate;
-    if ([delegate respondsToSelector:@selector(collectionViewDidScroll:)]) {
+    CGPoint scrollingDistance = CGPointMake(newBounds.origin.x - _lastContentOffset.x,
+                                            newBounds.origin.y - _lastContentOffset.y);
+    if (!CGPointEqualToPoint(_lastScrollingDistance, CGPointZero) && _lastScrollingTime != 0.0) {
+        double distance = sqrt(scrollingDistance.x * scrollingDistance.x + scrollingDistance.y * scrollingDistance.y);
+        _scrollingVelocity = (float)(distance * 0.001 / (currentTime - _lastScrollingTime));
+    }
+
+    if (_scrolling && _canDetectDeceleration && _involvesScrollWheel) {
+        if (!_decelerating) {
+            _decelerating = YES;
+            if (_collectionViewFlags.delegateWillBeginDeceleratingTargetContentOffset && _suspendClipViewBoundsDidChange == 0) {
+                [delegate collectionViewWillBeginDecelerating:self targetContentOffset:newBounds.origin];
+            }
+        }
+    } else if (!_scrollingFromExternalControl && _decelerating) {
+        _decelerating = NO;
+        if (_collectionViewFlags.delegateDidEndDecelerating && _suspendClipViewBoundsDidChange == 0) {
+            [delegate collectionViewDidEndDecelerating:self];
+        }
+    }
+
+    _lastScrollingDistance = scrollingDistance;
+    _lastContentOffset = newBounds.origin;
+    _lastScrollingTime = currentTime;
+
+    if ([_layout shouldUpdateVisibleCellLayoutAttributes]) {
+        _collectionViewFlags.scheduledUpdateVisibleCellLayoutAttributes = YES;
+    }
+    if ([_layout shouldInvalidateLayoutForBoundsChange:newBounds]) {
+        [_layout _invalidateLayoutUsingContext:[_layout invalidationContextForBoundsChange:newBounds]];
+    } else {
+        [self updateLayout];
+    }
+
+    if (_collectionViewFlags.delegateDidScroll && _suspendClipViewBoundsDidChange == 0) {
         [delegate collectionViewDidScroll:self];
     }
-    [self _setNeedsVisibleCellsUpdate:YES withLayoutAttributes:NO];
+
+    if (_scrolling && !_liveScrolling && _involvesScrollWheel) {
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(_didEndScrolling:) object:self];
+        [self performSelector:@selector(_didEndScrolling:)
+                   withObject:self
+                   afterDelay:0.25
+                      inModes:@[(__bridge NSRunLoopMode)kCFRunLoopCommonModes, NSModalPanelRunLoopMode]];
+    }
 }
 
 - (void)reflectScrolledClipView:(NSClipView *)clipView {
@@ -1439,47 +1819,66 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
 #pragma mark - Reload / batch updates
 
 - (void)reloadData {
-    if (_updateAnimationCount > 0) {
-        _needsReload = YES;
-        return;
-    }
     if (_reloadingSuspendedCount > 0) {
-        _needsReload = YES;
+        _collectionViewFlags.reloadSkippedDuringSuspension = YES;
         return;
     }
+    _collectionViewFlags.reloading = YES;
+    [self _suspendReloads];
 
-    // Recycle visible views (skip ones in animation)
-    NSMutableDictionary *animating = [NSMutableDictionary dictionary];
+    NSMutableDictionary *animatingViews = [NSMutableDictionary dictionary];
     for (_UXCollectionViewItemKey *key in _allVisibleViewsDict.copy) {
-        id view = _allVisibleViewsDict[key];
-        if ([view respondsToSelector:@selector(_isInUpdateAnimation)] && [view _isInUpdateAnimation]) {
-            animating[key] = view;
-        } else if ([view isKindOfClass:[UXCollectionViewCell class]]) {
-            UXCollectionViewCell *cell = (UXCollectionViewCell *)view;
-            [self _notifyDidEndDisplayingCellIfNeeded:cell forIndexPath:[key indexPath]];
-            [self _reuseCell:cell];
+        UXCollectionReusableView *view = _allVisibleViewsDict[key];
+        if ([view _isInUpdateAnimation]) {
+            animatingViews[key] = view;
+        } else if ([[(id)view _layoutAttributes] _isCell]) {
+            [self _reuseCell:(UXCollectionViewCell *)view];
         } else {
             [self _reuseSupplementaryView:view];
         }
     }
+    [_supplementaryElementKinds removeAllObjects];
     [_allVisibleViewsDict removeAllObjects];
-    [_allVisibleViewsDict addEntriesFromDictionary:animating];
+    [_allVisibleViewsDict addEntriesFromDictionary:animatingViews];
     [_indexPathsForSelectedItems removeAllIndexPaths];
+    _pendingSelectionIndexPath = nil;
+    _pendingDeselectionIndexPaths = nil;
     _lastSelectionAnchorIndexPath = nil;
+    _keyboardRangeSelectionPreviouslySelectedItems = nil;
+    _keyboardRangeSelectionFirstSelectedItem = nil;
+    _keyboardRangeSelectionLastSelectedItem = nil;
+
+    [self _setNeedsVisibleCellsUpdate:YES withLayoutAttributes:YES];
+    [self _invalidateLayoutIfNecessary];
     [_collectionViewData invalidate:NO];
+    _collectionViewFlags.needsReload = NO;
+    _collectionViewFlags.reloading = NO;
 
-    // Update document view size from layout.
-    CGSize contentSize = [_collectionViewData collectionViewContentRect].size;
-    NSRect documentFrame = _collectionDocumentView.frame;
-    documentFrame.size = contentSize;
-    _collectionDocumentView.frame = documentFrame;
-
-    [self.documentView setNeedsLayout:YES];
-    _needsReload = NO;
+    if (![self allowsEmptySelection]) {
+        NSIndexPath *firstSelectableIndexPath = [self _firstSelectableItemIndexPath];
+        if (firstSelectableIndexPath) {
+            UXCollectionViewIndexPathsSet *selectionSet = [UXCollectionViewIndexPathsSet indexPathsSetWithIndexPath:firstSelectableIndexPath];
+            // The scroll position literal 64 matches the UXKit binary (a position
+            // bit above the public mask); it falls through every position check
+            // and therefore scrolls nowhere while still passing a key item.
+            if ([self _selectItemsInIndexPathsSet:selectionSet
+                             byExtendingSelection:NO
+                                         animated:NO
+                                 scrollingKeyItem:firstSelectableIndexPath
+                                       toPosition:(UXCollectionViewScrollPosition)64
+                                   notifyDelegate:YES]) {
+                _lastSelectionAnchorIndexPath = firstSelectableIndexPath;
+                _keyboardRangeSelectionPreviouslySelectedItems = selectionSet;
+                _keyboardRangeSelectionFirstSelectedItem = firstSelectableIndexPath;
+                _keyboardRangeSelectionLastSelectedItem = firstSelectableIndexPath;
+            }
+        }
+    }
+    [self _resumeReloads];
 }
 
 - (void)_reloadDataIfNeeded {
-    if (_needsReload) {
+    if (_collectionViewFlags.needsReload && _reloadingSuspendedCount == 0 && !_collectionViewFlags.reloading) {
         [self reloadData];
     }
 }
@@ -1489,237 +1888,500 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
 }
 
 - (void)_resumeReloads {
-    if (_reloadingSuspendedCount > 0) {
-        _reloadingSuspendedCount--;
-    }
+    _reloadingSuspendedCount--;
     if (_reloadingSuspendedCount == 0) {
-        [self _reloadDataIfNeeded];
+        if (_collectionViewFlags.reloadSkippedDuringSuspension) {
+            _collectionViewFlags.reloadSkippedDuringSuspension = NO;
+            [self reloadData];
+        } else if (_collectionViewFlags.scheduledUpdateVisibleCells) {
+            [self setNeedsLayout];
+        }
     }
 }
 
 - (void)performBatchUpdates:(void (^)(void))updates completion:(void (^)(BOOL))completion {
-    if (!_doneFirstLayout) {
-        [self reloadData];
-        _doneFirstLayout = YES;
+    if (![self _visible]) {
+        _collectionViewFlags.needsReload = YES;
+        if (updates) {
+            updates();
+        }
+        if (completion) {
+            completion(YES);
+        }
+        return;
     }
 
-    [self _suspendReloads];
-    _updateAnimationCount++;
-
-    UXCollectionViewData *oldModel = _collectionViewData;
-    CGRect oldVisibleBounds = [self documentVisibleRect];
+    void (^previousCompletionHandler)(BOOL) = _updateCompletionHandler;
+    _updateCompletionHandler = [^(BOOL finished) {
+        if (previousCompletionHandler) {
+            previousCompletionHandler(finished);
+        }
+        if (completion) {
+            completion(finished);
+        }
+    } copy];
 
     [self _beginUpdates];
     if (updates) {
         updates();
+        if (![_collectionViewData layoutIsPrepared]) {
+            [_collectionViewData validateLayoutInRect:[self _visibleBounds]];
+            [_collectionViewData _prepareToLoadData];
+        }
     }
-
-    NSArray<UXCollectionViewUpdateItem *> *updateItems = [self _allUpdateItems];
-
-    UXCollectionViewData *newModel = [[UXCollectionViewData alloc] initWithCollectionView:self layout:_layout];
-    [newModel invalidate:NO];
-
-    _currentUpdate = [[UXCollectionViewUpdate alloc] initWithCollectionView:self
-                                                                 updateItems:updateItems
-                                                                    oldModel:oldModel
-                                                                    newModel:newModel
-                                                            oldVisibleBounds:oldVisibleBounds
-                                                            newVisibleBounds:oldVisibleBounds];
-
-    [_layout prepareForCollectionViewUpdates:updateItems];
-
-    _collectionViewData = newModel;
-
-    CGSize contentSize = [newModel collectionViewContentRect].size;
-    NSRect documentFrame = _collectionDocumentView.frame;
-    documentFrame.size = contentSize;
-    _collectionDocumentView.frame = documentFrame;
-
-    _updateCompletionHandler = [completion copy];
-    [self _setupCellAnimations];
     [self _endUpdates];
-    [self _resumeReloads];
-
-    NSArray<UXCollectionViewAnimation *> *animations = [self _viewAnimationsForCurrentUpdate];
-    if (animations.count == 0) {
-        [self _finalizeBatchUpdatesWithFinished:YES];
-        return;
-    }
-
-    __block NSInteger pending = (NSInteger)animations.count;
-    for (UXCollectionViewAnimation *animation in animations) {
-        [animation addCompletionHandler:^{
-            pending--;
-            if (pending <= 0) {
-                [self _finalizeBatchUpdatesWithFinished:YES];
-            }
-        }];
-        [animation start];
-    }
-}
-
-- (NSArray<UXCollectionViewUpdateItem *> *)_allUpdateItems {
-    NSMutableArray<UXCollectionViewUpdateItem *> *all = [NSMutableArray array];
-    if (_insertItems) [all addObjectsFromArray:_insertItems];
-    if (_deleteItems) [all addObjectsFromArray:_deleteItems];
-    if (_reloadItems) [all addObjectsFromArray:_reloadItems];
-    if (_moveItems) [all addObjectsFromArray:_moveItems];
-    return all;
-}
-
-- (void)_finalizeBatchUpdatesWithFinished:(BOOL)finished {
-    [self _endItemAnimations];
-    [_layout finalizeCollectionViewUpdates];
-
-    NSMutableDictionary *survivingViews = [NSMutableDictionary dictionary];
-    for (_UXCollectionViewItemKey *key in [_allVisibleViewsDict.allKeys copy]) {
-        UXCollectionReusableView *view = _allVisibleViewsDict[key];
-        if ([view respondsToSelector:@selector(_isInUpdateAnimation)] && [view _isInUpdateAnimation]) {
-            continue;
-        }
-        if ([view isKindOfClass:[UXCollectionViewCell class]]) {
-            UXCollectionViewCell *cell = (UXCollectionViewCell *)view;
-            [self _notifyDidEndDisplayingCellIfNeeded:cell forIndexPath:[key indexPath]];
-            [self _reuseCell:cell];
-        } else {
-            [self _reuseSupplementaryView:view];
-        }
-        [_allVisibleViewsDict removeObjectForKey:key];
-    }
-    [_allVisibleViewsDict addEntriesFromDictionary:survivingViews];
-
-    _currentUpdate = nil;
-    [self.documentView setNeedsLayout:YES];
-
-    void (^handler)(BOOL) = _updateCompletionHandler;
-    _updateCompletionHandler = nil;
-    if (_updateAnimationCount > 0) {
-        _updateAnimationCount--;
-    }
-    if (handler) {
-        handler(finished);
-    }
 }
 
 - (void)_beginUpdates {
     if (_updateCount == 0) {
-        _insertItems = [NSMutableArray array];
-        _deleteItems = [NSMutableArray array];
-        _reloadItems = [NSMutableArray array];
-        _moveItems = [NSMutableArray array];
+        [self _setupCellAnimations];
     }
     _updateCount++;
 }
 
 - (void)_endUpdates {
-    if (_updateCount > 0) {
-        _updateCount--;
-    }
+    _updateCount--;
     if (_updateCount == 0) {
-        _originalInsertItems = [_insertItems copy];
-        _originalDeleteItems = [_deleteItems copy];
-        _insertItems = nil;
-        _deleteItems = nil;
-        _reloadItems = nil;
-        _moveItems = nil;
+        [self _endItemAnimations];
     }
 }
 
 - (void)_setupCellAnimations {
-    if (!_currentUpdate) {
-        return;
-    }
-
-    UXCollectionViewData *newModel = [_currentUpdate _newModel];
-    CGRect visibleRect = CGRectUnion([self documentVisibleRect], [self _visibleBounds]);
-    NSArray<UXCollectionViewLayoutAttributes *> *upcoming = [newModel layoutAttributesForElementsInRect:visibleRect];
-
-    for (UXCollectionViewLayoutAttributes *attributes in upcoming) {
-        _UXCollectionViewItemKey *key = [_UXCollectionViewItemKey collectionItemKeyForLayoutAttributes:attributes];
-        if (_allVisibleViewsDict[key]) {
-            continue;
-        }
-        UXCollectionReusableView *view = nil;
-        UXCollectionViewLayoutAttributes *initialAttributes = nil;
-        if ([attributes _isCell]) {
-            initialAttributes = [_layout initialLayoutAttributesForAppearingItemAtIndexPath:attributes.indexPath];
-            view = [self _createPreparedCellForItemAtIndexPath:attributes.indexPath withLayoutAttributes:initialAttributes ?: attributes applyAttributes:YES];
-        } else if ([attributes _isSupplementaryView]) {
-            initialAttributes = [_layout initialLayoutAttributesForAppearingSupplementaryElementOfKind:[attributes _elementKind] atIndexPath:attributes.indexPath];
-            view = [self _createPreparedSupplementaryViewForElementOfKind:[attributes _elementKind] atIndexPath:attributes.indexPath withLayoutAttributes:initialAttributes ?: attributes applyAttributes:YES];
-        }
-        if (view) {
-            [_collectionDocumentView addSubview:view];
-            _allVisibleViewsDict[key] = view;
-            if ([view isKindOfClass:[UXCollectionViewCell class]]) {
-                [self _notifyWillDisplayCellIfNeeded:(UXCollectionViewCell *)view forIndexPath:attributes.indexPath];
-            }
-        }
-    }
+    [self _updateVisibleCellsNow:NO];
+    [_collectionViewData _prepareToLoadData];
+    _collectionViewFlags.updating = YES;
+    [self _suspendReloads];
 }
 
 - (NSArray *)_viewAnimationsForCurrentUpdate {
-    if (!_currentUpdate) {
-        return @[];
+    UXCollectionViewUpdate *update = _currentUpdate;
+    UXCollectionViewData *oldModel = [update _oldModel];
+    UXCollectionViewData *newModel = [update _newModel];
+    NSArray *previouslyVisibleViews = [_allVisibleViewsDict allValues];
+    NSMutableDictionary *newVisibleViewsDict = [[NSMutableDictionary alloc] init];
+
+    // Stage 0: migrate the surviving entries of _allVisibleViewsDict to their
+    // post-update keys (cells through the global item map, supplementary views
+    // through the section map; one-index keys move unchanged).
+    [_allVisibleViewsDict enumerateKeysAndObjectsUsingBlock:^(_UXCollectionViewItemKey *key, UXCollectionReusableView *view, BOOL *stop) {
+        if (key.type == UXCollectionViewItemTypeCell) {
+            NSInteger oldGlobalIndex = [oldModel globalIndexForItemAtIndexPath:key.indexPath];
+            if (oldGlobalIndex == NSNotFound) {
+                return;
+            }
+            NSInteger newGlobalIndex = [update _oldGlobalItemMapValueAtIndex:oldGlobalIndex];
+            if (newGlobalIndex == NSNotFound) {
+                return;
+            }
+            NSIndexPath *newIndexPath = [newModel indexPathForItemAtGlobalIndex:newGlobalIndex];
+            _UXCollectionViewItemKey *newKey = [[_UXCollectionViewItemKey alloc] initWithType:UXCollectionViewItemTypeCell
+                                                                                    indexPath:newIndexPath
+                                                                                   identifier:key.identifier
+                                                                                        clone:key.isClone];
+            newVisibleViewsDict[newKey] = view;
+        } else if (key.indexPath.length == 1) {
+            newVisibleViewsDict[key] = view;
+        } else {
+            NSInteger newSection = [update _oldSectionMapValueAtIndex:key.indexPath.section];
+            if (newSection == NSNotFound) {
+                return;
+            }
+            NSIndexPath *newIndexPath = [NSIndexPath indexPathForItem:key.indexPath.item inSection:newSection];
+            _UXCollectionViewItemKey *newKey = [[_UXCollectionViewItemKey alloc] initWithType:key.type
+                                                                                    indexPath:newIndexPath
+                                                                                   identifier:key.identifier
+                                                                                        clone:key.isClone];
+            newVisibleViewsDict[newKey] = view;
+        }
+    }];
+
+    NSMutableArray<UXCollectionViewAnimation *> *animations = [[NSMutableArray alloc] init];
+    NSMutableIndexSet *processedOldGlobalIndexes = [[NSMutableIndexSet alloc] init];
+    NSMutableIndexSet *animatedNewGlobalIndexes = [[NSMutableIndexSet alloc] init];
+    CGRect animationRect = [update _newVisibleBounds];
+    animationRect.size = [self _visibleBounds].size;
+
+    void (^deleteCellAnimation)(NSInteger) = ^(NSInteger oldGlobalIndex) {
+        if (oldGlobalIndex == NSNotFound) {
+            return;
+        }
+        NSIndexPath *oldIndexPath = [oldModel indexPathForItemAtGlobalIndex:oldGlobalIndex];
+        _UXCollectionViewItemKey *oldKey = [_UXCollectionViewItemKey collectionItemKeyForCellWithIndexPath:oldIndexPath];
+        UXCollectionReusableView *view = self->_allVisibleViewsDict[oldKey];
+        if (!view) {
+            return;
+        }
+        UXCollectionViewLayoutAttributes *finalAttributes = [self->_layout finalLayoutAttributesForDisappearingItemAtIndexPath:oldIndexPath];
+        if (!finalAttributes) {
+            finalAttributes = [[(id)view _layoutAttributes] copy];
+            finalAttributes.alpha = 0.0;
+        }
+        UXCollectionViewAnimation *animation = [[UXCollectionViewAnimation alloc] initWithView:view
+                                                                                      viewType:UXCollectionViewItemTypeCell
+                                                                         finalLayoutAttributes:finalAttributes
+                                                                                 startFraction:0.0
+                                                                                   endFraction:1.0
+                                                                    animateFromCurrentPosition:YES
+                                                                          deleteAfterAnimation:YES
+                                                                              customAnimations:[self->_layout _animationForReusableView:view toLayoutAttributes:finalAttributes type:2]];
+        [self->_allVisibleViewsDict removeObjectForKey:oldKey];
+        [animations addObject:animation];
+    };
+
+    // Stage 1: deletions (cells through the old model; whole sections also pull
+    // their supplementary views out of the visible dictionary).
+    for (UXCollectionViewUpdateItem *deleteItem in _deleteItems) {
+        if ([deleteItem _isSectionOperation]) {
+            NSInteger section = [[deleteItem _indexPath] section];
+            NSInteger itemCount = [oldModel numberOfItemsInSection:section];
+            if (itemCount >= 1) {
+                NSInteger firstGlobalIndex = [oldModel globalIndexForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:section]];
+                NSAssert(firstGlobalIndex != NSNotFound, @"unexpected global item index for the first item in section %ld", (long)section);
+                for (NSInteger itemOffset = 0; itemOffset < itemCount; itemOffset++) {
+                    deleteCellAnimation(firstGlobalIndex + itemOffset);
+                }
+            }
+            for (UXCollectionViewLayoutAttributes *attributes in [oldModel existingSupplementaryLayoutAttributesInSection:section]) {
+                _UXCollectionViewItemKey *key = [_UXCollectionViewItemKey collectionItemKeyForLayoutAttributes:attributes];
+                UXCollectionReusableView *view = _allVisibleViewsDict[key];
+                if (!view) {
+                    continue;
+                }
+                UXCollectionViewLayoutAttributes *finalAttributes = [attributes _isDecorationView]
+                    ? [_layout finalLayoutAttributesForDisappearingDecorationElementOfKind:[attributes _elementKind] atIndexPath:attributes.indexPath]
+                    : [_layout finalLayoutAttributesForDisappearingSupplementaryElementOfKind:[attributes _elementKind] atIndexPath:attributes.indexPath];
+                if (!finalAttributes) {
+                    finalAttributes = [attributes copy];
+                    finalAttributes.alpha = 0.0;
+                }
+                UXCollectionViewAnimation *animation = [[UXCollectionViewAnimation alloc] initWithView:view
+                                                                                              viewType:UXCollectionViewItemTypeSupplementaryView
+                                                                                 finalLayoutAttributes:finalAttributes
+                                                                                         startFraction:0.0
+                                                                                           endFraction:1.0
+                                                                            animateFromCurrentPosition:YES
+                                                                                  deleteAfterAnimation:YES
+                                                                                      customAnimations:[_layout _animationForReusableView:view toLayoutAttributes:finalAttributes type:2]];
+                [_allVisibleViewsDict removeObjectForKey:key];
+                [animations addObject:animation];
+            }
+        } else {
+            deleteCellAnimation([oldModel globalIndexForItemAtIndexPath:[deleteItem _indexPath]]);
+        }
     }
 
-    NSMutableArray<UXCollectionViewAnimation *> *animations = [NSMutableArray array];
-    UXCollectionViewData *newModel = [_currentUpdate _newModel];
-
-    for (_UXCollectionViewItemKey *key in [_allVisibleViewsDict.allKeys copy]) {
-        UXCollectionReusableView *view = _allVisibleViewsDict[key];
-        UXCollectionViewLayoutAttributes *currentAttributes = [(id)view _layoutAttributes];
-        NSIndexPath *indexPath = [key indexPath];
-        UXCollectionViewLayoutAttributes *targetAttributes = nil;
-
-        if ([key type] == UXCollectionViewItemTypeCell) {
-            targetAttributes = [newModel layoutAttributesForItemAtIndexPath:indexPath];
-        } else if ([key type] == UXCollectionViewItemTypeSupplementaryView) {
-            targetAttributes = [newModel layoutAttributesForSupplementaryElementOfKind:[key identifier] atIndexPath:indexPath];
+    UXCollectionViewAnimation *(^appearSupplementaryAnimation)(UXCollectionViewLayoutAttributes *) = ^UXCollectionViewAnimation *(UXCollectionViewLayoutAttributes *attributes) {
+        BOOL isDecorationView = [attributes _isDecorationView];
+        NSString *elementKind = [attributes _elementKind];
+        NSIndexPath *indexPath = attributes.indexPath;
+        UXCollectionViewLayoutAttributes *initialAttributes = isDecorationView
+            ? [self->_layout initialLayoutAttributesForAppearingDecorationElementOfKind:elementKind atIndexPath:indexPath]
+            : [self->_layout initialLayoutAttributesForAppearingSupplementaryElementOfKind:elementKind atIndexPath:indexPath];
+        if (!CGRectIntersectsRect(animationRect, CGRectUnion(initialAttributes.frame, attributes.frame))) {
+            return nil;
         }
+        UXCollectionReusableView *view = [self _createPreparedSupplementaryViewForElementOfKind:elementKind
+                                                                                    atIndexPath:indexPath
+                                                                           withLayoutAttributes:initialAttributes
+                                                                                applyAttributes:YES];
+        if (!view) {
+            return nil;
+        }
+        _UXCollectionViewItemKey *key = isDecorationView
+            ? [_UXCollectionViewItemKey collectionItemKeyForDecorationViewOfKind:elementKind andIndexPath:indexPath]
+            : [_UXCollectionViewItemKey collectionItemKeyForSupplementaryViewOfKind:elementKind andIndexPath:indexPath];
+        newVisibleViewsDict[key] = view;
+        [self _addControlled:YES subview:view atZIndex:attributes.zIndex];
+        return [[UXCollectionViewAnimation alloc] initWithView:view
+                                                      viewType:UXCollectionViewItemTypeSupplementaryView
+                                         finalLayoutAttributes:attributes
+                                                 startFraction:0.0
+                                                   endFraction:1.0
+                                    animateFromCurrentPosition:NO
+                                          deleteAfterAnimation:NO
+                                              customAnimations:[self->_layout _animationForReusableView:view toLayoutAttributes:attributes type:2]];
+    };
 
-        if (!targetAttributes) {
-            UXCollectionViewLayoutAttributes *finalAttributes = nil;
-            if ([key type] == UXCollectionViewItemTypeCell) {
-                finalAttributes = [_layout finalLayoutAttributesForDisappearingItemAtIndexPath:indexPath];
-            } else if ([key type] == UXCollectionViewItemTypeSupplementaryView) {
-                finalAttributes = [_layout finalLayoutAttributesForDisappearingSupplementaryElementOfKind:[key identifier] atIndexPath:indexPath];
+    void (^insertCellAnimation)(NSInteger) = ^(NSInteger newGlobalIndex) {
+        NSIndexPath *newIndexPath = [newModel indexPathForItemAtGlobalIndex:newGlobalIndex];
+        UXCollectionViewLayoutAttributes *initialAttributes = [self->_layout initialLayoutAttributesForAppearingItemAtIndexPath:newIndexPath];
+        UXCollectionViewLayoutAttributes *targetAttributes = [newModel layoutAttributesForItemAtIndexPath:newIndexPath];
+        if (!initialAttributes) {
+            initialAttributes = [targetAttributes copy];
+            initialAttributes.alpha = 0.0;
+        }
+        if (!CGRectIntersectsRect(animationRect, CGRectUnion(initialAttributes.frame, targetAttributes.frame))) {
+            return;
+        }
+        if (initialAttributes.isHidden && targetAttributes.isHidden) {
+            return;
+        }
+        UXCollectionViewCell *cell = [self _createPreparedCellForItemAtIndexPath:newIndexPath
+                                                            withLayoutAttributes:initialAttributes
+                                                                 applyAttributes:YES];
+        if (!cell) {
+            return;
+        }
+        UXCollectionViewAnimation *animation = [[UXCollectionViewAnimation alloc] initWithView:cell
+                                                                                      viewType:UXCollectionViewItemTypeCell
+                                                                         finalLayoutAttributes:targetAttributes
+                                                                                 startFraction:0.0
+                                                                                   endFraction:1.0
+                                                                    animateFromCurrentPosition:NO
+                                                                          deleteAfterAnimation:NO
+                                                                              customAnimations:[self->_layout _animationForReusableView:cell toLayoutAttributes:targetAttributes type:2]];
+        [animations addObject:animation];
+        newVisibleViewsDict[[_UXCollectionViewItemKey collectionItemKeyForCellWithIndexPath:newIndexPath]] = cell;
+    };
+
+    // Stage 2: insertions (cells through the new model; whole sections also
+    // bring their supplementary views in).
+    for (UXCollectionViewUpdateItem *insertItem in _insertItems) {
+        if ([insertItem _isSectionOperation]) {
+            NSInteger section = [[insertItem _indexPath] section];
+            NSInteger itemCount = [newModel numberOfItemsInSection:section];
+            if (itemCount >= 1) {
+                NSInteger firstGlobalIndex = [newModel globalIndexForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:section]];
+                NSAssert(firstGlobalIndex != NSNotFound, @"unexpected global item index for the first item in section %ld", (long)section);
+                for (NSInteger itemOffset = 0; itemOffset < itemCount; itemOffset++) {
+                    insertCellAnimation(firstGlobalIndex + itemOffset);
+                }
             }
-            if (!finalAttributes) {
-                finalAttributes = [currentAttributes copy];
-                [finalAttributes setAlpha:0.0];
+            for (UXCollectionViewLayoutAttributes *attributes in [newModel existingSupplementaryLayoutAttributesInSection:section]) {
+                UXCollectionViewAnimation *animation = appearSupplementaryAnimation(attributes);
+                if (animation) {
+                    [animations addObject:animation];
+                }
+            }
+        } else {
+            insertCellAnimation([newModel globalIndexForItemAtIndexPath:[insertItem _indexPath]]);
+        }
+    }
+
+    // Stage 3: collect target attributes for the cells that survive the update
+    // (still visible) or scroll into the new visible bounds.
+    NSMutableArray<UXCollectionViewLayoutAttributes *> *movedAttributesList = [[NSMutableArray alloc] init];
+    for (UXCollectionReusableView *view in _allVisibleViewsDict.objectEnumerator) {
+        if (![previouslyVisibleViews containsObject:view]) {
+            continue;
+        }
+        UXCollectionViewLayoutAttributes *attributes = [(id)view _layoutAttributes];
+        if (![attributes _isCell]) {
+            continue;
+        }
+        NSInteger oldGlobalIndex = [oldModel globalIndexForItemAtIndexPath:attributes.indexPath];
+        if (oldGlobalIndex == NSNotFound) {
+            continue;
+        }
+        NSInteger newGlobalIndex = [update _oldGlobalItemMapValueAtIndex:oldGlobalIndex];
+        if (newGlobalIndex != NSNotFound) {
+            UXCollectionViewLayoutAttributes *newAttributes = [newModel layoutAttributesForGlobalItemIndex:newGlobalIndex];
+            if (newAttributes) {
+                [movedAttributesList addObject:newAttributes];
+            }
+        }
+        [processedOldGlobalIndexes addIndex:(NSUInteger)oldGlobalIndex];
+    }
+    for (UXCollectionViewLayoutAttributes *attributes in [newModel layoutAttributesForElementsInRect:animationRect]) {
+        if (![attributes _isCell]) {
+            continue;
+        }
+        NSInteger newGlobalIndex = [newModel globalIndexForItemAtIndexPath:attributes.indexPath];
+        if (newGlobalIndex == NSNotFound) {
+            continue;
+        }
+        NSInteger oldGlobalIndex = [update _newGlobalItemMapValueAtIndex:newGlobalIndex];
+        if (oldGlobalIndex == NSNotFound || [processedOldGlobalIndexes containsIndex:(NSUInteger)oldGlobalIndex]) {
+            continue;
+        }
+        [movedAttributesList addObject:attributes];
+    }
+
+    // Stage 4: double-sided animations for every surviving cell.
+    for (UXCollectionViewLayoutAttributes *targetAttributes in movedAttributesList) {
+        if (![targetAttributes _isCell]) {
+            continue;
+        }
+        NSIndexPath *newIndexPath = targetAttributes.indexPath;
+        NSInteger newGlobalIndex = [newModel globalIndexForItemAtIndexPath:newIndexPath];
+        if (newGlobalIndex == NSNotFound) {
+            continue;
+        }
+        NSInteger oldGlobalIndex = [update _newGlobalItemMapValueAtIndex:newGlobalIndex];
+        UXCollectionViewLayoutAttributes *startingAttributes = [oldModel layoutAttributesForGlobalItemIndex:oldGlobalIndex];
+        _UXCollectionViewItemKey *oldKey = [_UXCollectionViewItemKey collectionItemKeyForCellWithIndexPath:[oldModel indexPathForItemAtGlobalIndex:oldGlobalIndex]];
+        if (!startingAttributes) {
+            startingAttributes = [(id)_allVisibleViewsDict[oldKey] _layoutAttributes];
+            if (!startingAttributes) {
+                startingAttributes = [_layout initialLayoutAttributesForAppearingItemAtIndexPath:[newModel indexPathForItemAtGlobalIndex:newGlobalIndex]];
+                if (!startingAttributes) {
+                    startingAttributes = [targetAttributes copy];
+                    startingAttributes.alpha = 0.0;
+                }
+            }
+        }
+        if (!CGRectIntersectsRect(animationRect, CGRectUnion(startingAttributes.frame, targetAttributes.frame))) {
+            continue;
+        }
+        UXCollectionReusableView *view = _allVisibleViewsDict[oldKey];
+        if (!view) {
+            if (startingAttributes.isHidden && targetAttributes.isHidden) {
+                continue;
+            }
+            view = [self _createPreparedCellForItemAtIndexPath:newIndexPath withLayoutAttributes:startingAttributes applyAttributes:YES];
+            if (!view) {
+                continue;
+            }
+            newVisibleViewsDict[[_UXCollectionViewItemKey collectionItemKeyForCellWithIndexPath:newIndexPath]] = view;
+        }
+        if (targetAttributes.zIndex != [(id)view _layoutAttributes].zIndex) {
+            [self _addControlled:YES subview:view atZIndex:targetAttributes.zIndex];
+        }
+        [animations addObjectsFromArray:[self _doubleSidedAnimationsForView:view
+                                               withStartingLayoutAttributes:startingAttributes
+                                                             startingLayout:_layout
+                                                     endingLayoutAttributes:targetAttributes
+                                                               endingLayout:_layout
+                                                         withAnimationSetup:nil
+                                                        animationCompletion:nil
+                                                     enableCustomAnimations:YES
+                                                       customAnimationsType:2]];
+        NSAssert(![animatedNewGlobalIndexes containsIndex:(NSUInteger)newGlobalIndex],
+                 @"attempt to create two animations for new global item index %ld", (long)newGlobalIndex);
+        [animatedNewGlobalIndexes addIndex:(NSUInteger)newGlobalIndex];
+    }
+
+    // Stage 5: surviving and deleted supplementary views from the old model.
+    for (UXCollectionViewLayoutAttributes *oldAttributes in [oldModel existingSupplementaryLayoutAttributes]) {
+        NSIndexPath *oldIndexPath = oldAttributes.indexPath;
+        NSInteger oldSection = (oldIndexPath.length < 2) ? NSNotFound : oldIndexPath.section;
+        if ([[update _deletedSections] containsIndex:(NSUInteger)oldSection]) {
+            continue;
+        }
+        NSString *elementKind = [oldAttributes _elementKind];
+        BOOL isDecorationView = [oldAttributes _isDecorationView];
+        BOOL deleted;
+        if (oldSection == NSNotFound) {
+            deleted = [[update _deletedSupplementaryTopLevelIndexesDict][elementKind] containsIndex:[oldIndexPath indexAtPosition:0]];
+        } else {
+            deleted = [[[update _deletedSupplementaryIndexesSectionArray][oldSection] valueForKey:elementKind] containsIndex:(NSUInteger)oldIndexPath.item];
+        }
+        if (!deleted) {
+            NSIndexPath *newIndexPath = [update newIndexPathForSupplementaryElementOfKind:elementKind oldIndexPath:oldIndexPath];
+            if (!newIndexPath) {
+                continue;
+            }
+            CGRect newRect = isDecorationView
+                ? [newModel rectForDecorationElementOfKind:elementKind atIndexPath:newIndexPath]
+                : [newModel rectForSupplementaryElementOfKind:elementKind atIndexPath:newIndexPath];
+            if (!CGRectIntersectsRect(animationRect, CGRectUnion(oldAttributes.frame, newRect))) {
+                continue;
+            }
+            UXCollectionReusableView *view = [self _visibleSupplementaryViewOfKind:elementKind atIndexPath:oldIndexPath isDecorationView:isDecorationView];
+            UXCollectionViewLayoutAttributes *newAttributes = isDecorationView
+                ? [newModel layoutAttributesForDecorationViewOfKind:elementKind atIndexPath:newIndexPath]
+                : [newModel layoutAttributesForSupplementaryElementOfKind:elementKind atIndexPath:newIndexPath];
+            if (!view) {
+                if (oldAttributes.isHidden && newAttributes.isHidden) {
+                    continue;
+                }
+                view = [self _createPreparedSupplementaryViewForElementOfKind:elementKind
+                                                                  atIndexPath:newIndexPath
+                                                         withLayoutAttributes:oldAttributes
+                                                              applyAttributes:YES];
+                if (!view) {
+                    continue;
+                }
+                _UXCollectionViewItemKey *newKey = isDecorationView
+                    ? [_UXCollectionViewItemKey collectionItemKeyForDecorationViewOfKind:elementKind andIndexPath:newIndexPath]
+                    : [_UXCollectionViewItemKey collectionItemKeyForSupplementaryViewOfKind:elementKind andIndexPath:newIndexPath];
+                newVisibleViewsDict[newKey] = view;
+            }
+            if (newAttributes.isFloating != [(id)view isFloatingPinned]
+                || (![(id)view isFloatingPinned] && newAttributes.zIndex != [(id)view _layoutAttributes].zIndex)) {
+                [self _addControlled:YES subview:view atZIndex:newAttributes.zIndex];
+            }
+            if (newAttributes) {
+                [animations addObjectsFromArray:[self _doubleSidedAnimationsForView:view
+                                                       withStartingLayoutAttributes:oldAttributes
+                                                                     startingLayout:_layout
+                                                             endingLayoutAttributes:newAttributes
+                                                                       endingLayout:_layout
+                                                                 withAnimationSetup:nil
+                                                                animationCompletion:nil
+                                                             enableCustomAnimations:YES
+                                                               customAnimationsType:2]];
+            } else {
+                UXCollectionViewLayoutAttributes *finalAttributes = isDecorationView
+                    ? [_layout finalLayoutAttributesForDisappearingDecorationElementOfKind:elementKind atIndexPath:oldIndexPath]
+                    : [_layout finalLayoutAttributesForDisappearingSupplementaryElementOfKind:elementKind atIndexPath:oldIndexPath];
+                UXCollectionViewAnimation *animation = [[UXCollectionViewAnimation alloc] initWithView:view
+                                                                                              viewType:UXCollectionViewItemTypeSupplementaryView
+                                                                                 finalLayoutAttributes:finalAttributes
+                                                                                         startFraction:0.0
+                                                                                           endFraction:1.0
+                                                                            animateFromCurrentPosition:YES
+                                                                                  deleteAfterAnimation:YES
+                                                                                      customAnimations:[_layout _animationForReusableView:view toLayoutAttributes:finalAttributes type:2]];
+                [animations addObject:animation];
+                [_allVisibleViewsDict removeObjectForKey:[_UXCollectionViewItemKey collectionItemKeyForLayoutAttributes:oldAttributes]];
+            }
+        } else {
+            UXCollectionViewLayoutAttributes *finalAttributes = isDecorationView
+                ? [_layout finalLayoutAttributesForDisappearingDecorationElementOfKind:elementKind atIndexPath:oldIndexPath]
+                : [_layout finalLayoutAttributesForDisappearingSupplementaryElementOfKind:elementKind atIndexPath:oldIndexPath];
+            if (!CGRectIntersectsRect(animationRect, CGRectUnion(oldAttributes.frame, finalAttributes.frame))) {
+                continue;
+            }
+            UXCollectionReusableView *view = [self _visibleSupplementaryViewOfKind:elementKind atIndexPath:oldIndexPath isDecorationView:isDecorationView];
+            if (!view) {
+                continue;
             }
             UXCollectionViewAnimation *animation = [[UXCollectionViewAnimation alloc] initWithView:view
-                                                                                          viewType:[key type]
+                                                                                          viewType:UXCollectionViewItemTypeSupplementaryView
                                                                              finalLayoutAttributes:finalAttributes
                                                                                      startFraction:0.0
                                                                                        endFraction:1.0
                                                                         animateFromCurrentPosition:YES
                                                                               deleteAfterAnimation:YES
-                                                                                  customAnimations:nil];
-            [view _addUpdateAnimation];
-            [animation addCompletionHandler:^{
-                [view _clearUpdateAnimation];
-                [view removeFromSuperview];
-            }];
+                                                                                  customAnimations:[_layout _animationForReusableView:view toLayoutAttributes:finalAttributes type:2]];
             [animations addObject:animation];
-        } else if (![currentAttributes isEqual:targetAttributes]) {
-            UXCollectionViewAnimation *animation = [[UXCollectionViewAnimation alloc] initWithView:view
-                                                                                          viewType:[key type]
-                                                                             finalLayoutAttributes:targetAttributes
-                                                                                     startFraction:0.0
-                                                                                       endFraction:1.0
-                                                                        animateFromCurrentPosition:YES
-                                                                              deleteAfterAnimation:NO
-                                                                                  customAnimations:nil];
-            [view _addUpdateAnimation];
-            [animation addCompletionHandler:^{
-                [view _clearUpdateAnimation];
-            }];
-            [animations addObject:animation];
+            [_allVisibleViewsDict removeObjectForKey:[_UXCollectionViewItemKey collectionItemKeyForLayoutAttributes:oldAttributes]];
         }
     }
 
+    // Stage 6: supplementary views inserted by the update (per-section table,
+    // then the top-level one-index table).
+    NSInteger newSectionCount = [newModel numberOfSections];
+    NSArray *insertedSectionArray = [update _insertedSupplementaryIndexesSectionArray];
+    for (UXCollectionViewLayoutAttributes *attributes in [newModel existingSupplementaryLayoutAttributesWithMinimalIndexPathLength:2]) {
+        NSIndexPath *indexPath = attributes.indexPath;
+        if (indexPath.section >= newSectionCount) {
+            continue;
+        }
+        if (![[insertedSectionArray[indexPath.section] valueForKey:[attributes _elementKind]] containsIndex:(NSUInteger)indexPath.item]) {
+            continue;
+        }
+        UXCollectionViewAnimation *animation = appearSupplementaryAnimation(attributes);
+        if (animation) {
+            [animations addObject:animation];
+        }
+    }
+    [[update _insertedSupplementaryTopLevelIndexesDict] enumerateKeysAndObjectsUsingBlock:^(NSString *elementKind, NSIndexSet *indexes, BOOL *stop) {
+        BOOL isDecorationView = [[newModel knownDecorationElementKinds] containsObject:elementKind];
+        [indexes enumerateIndexesUsingBlock:^(NSUInteger index, BOOL *innerStop) {
+            NSIndexPath *indexPath = [NSIndexPath indexPathWithIndex:index];
+            UXCollectionViewLayoutAttributes *attributes = isDecorationView
+                ? [newModel layoutAttributesForDecorationViewOfKind:elementKind atIndexPath:indexPath]
+                : [newModel layoutAttributesForSupplementaryElementOfKind:elementKind atIndexPath:indexPath];
+            UXCollectionViewAnimation *animation = appearSupplementaryAnimation(attributes);
+            if (animation) {
+                [animations addObject:animation];
+            }
+        }];
+    }];
+
+    _allVisibleViewsDict = newVisibleViewsDict;
     return animations;
 }
 
@@ -1732,147 +2394,672 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
                           animationCompletion:(void (^)(BOOL))animationCompletion
                         enableCustomAnimations:(BOOL)enableCustomAnimations
                           customAnimationsType:(NSUInteger)customAnimationsType {
-    NSMutableArray<UXCollectionViewAnimation *> *animations = [NSMutableArray array];
+    UXCollectionViewLayoutAttributes *finalAttributes = nil;
+    UXCollectionViewLayoutAttributes *initialAttributes = nil;
+    if ([startAttributes _isCell]) {
+        finalAttributes = [startLayout finalLayoutAttributesForDisappearingItemAtIndexPath:startAttributes.indexPath];
+        initialAttributes = [endLayout initialLayoutAttributesForAppearingItemAtIndexPath:endAttributes.indexPath];
+    } else if ([startAttributes _isDecorationView]) {
+        finalAttributes = [[startLayout finalLayoutAttributesForDisappearingDecorationElementOfKind:[startAttributes _elementKind] atIndexPath:startAttributes.indexPath] copy];
+        initialAttributes = [endLayout initialLayoutAttributesForAppearingDecorationElementOfKind:[startAttributes _elementKind] atIndexPath:endAttributes.indexPath];
+    } else {
+        finalAttributes = [startLayout finalLayoutAttributesForDisappearingSupplementaryElementOfKind:[startAttributes _elementKind] atIndexPath:startAttributes.indexPath];
+        initialAttributes = [endLayout initialLayoutAttributesForAppearingSupplementaryElementOfKind:[startAttributes _elementKind] atIndexPath:endAttributes.indexPath];
+    }
+    if (!finalAttributes) {
+        if (endAttributes && [initialAttributes _isEquivalentTo:startAttributes]) {
+            finalAttributes = endAttributes;
+        } else {
+            finalAttributes = [startAttributes copy];
+            finalAttributes.alpha = 0.0;
+        }
+    }
 
-    UXCollectionViewAnimation *appearAnimation = [[UXCollectionViewAnimation alloc] initWithView:view
-                                                                                        viewType:0
-                                                                           finalLayoutAttributes:endAttributes
-                                                                                   startFraction:0.0
-                                                                                     endFraction:1.0
-                                                                      animateFromCurrentPosition:NO
-                                                                            deleteAfterAnimation:NO
-                                                                                customAnimations:nil];
+    NSUInteger viewType = [endAttributes _isCell] ? UXCollectionViewItemTypeCell : UXCollectionViewItemTypeSupplementaryView;
+    id customAnimations = nil;
+    if (enableCustomAnimations) {
+        customAnimations = [endLayout _animationForReusableView:view toLayoutAttributes:endAttributes type:customAnimationsType];
+    }
+    UXCollectionViewAnimation *animation = [[UXCollectionViewAnimation alloc] initWithView:view
+                                                                                  viewType:viewType
+                                                                     finalLayoutAttributes:endAttributes
+                                                                             startFraction:0.0
+                                                                               endFraction:1.0
+                                                                animateFromCurrentPosition:NO
+                                                                      deleteAfterAnimation:NO
+                                                                          customAnimations:customAnimations];
     if (animationSetup) {
-        [appearAnimation addStartupHandler:animationSetup];
+        [animation addStartupHandler:animationSetup];
     }
     if (animationCompletion) {
-        [appearAnimation addCompletionHandler:^{
+        [animation addCompletionHandler:^{
             animationCompletion(YES);
         }];
     }
-    [animations addObject:appearAnimation];
-
-    return animations;
+    return @[animation];
 }
 
-- (void)_updateAnimationDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context {
-    [self _finalizeBatchUpdatesWithFinished:[finished boolValue]];
+- (void)_updateAnimationDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(UXCollectionViewAnimationContext *)context {
+    context.animationCount--;
+    _updateAnimationCount--;
+    if (context.animationCount != 0) {
+        return;
+    }
+    for (UXCollectionViewAnimation *animation in context.viewAnimations) {
+        NSView *animationView = animation.view;
+        if ([animationView isKindOfClass:[_UXCollectionSnapshotView class]]) {
+            continue;
+        }
+        [(id)animationView _clearUpdateAnimation];
+        if (animation.resetRasterizationAfterAnimation) {
+            animationView.layer.shouldRasterize = animation.rasterizeAfterAnimation;
+        }
+        if (![(id)animationView _isInUpdateAnimation] && !animation.deleteAfterAnimation) {
+            if (!CGRectIntersectsRect(animationView.frame, [self _visibleBounds])) {
+                [_allVisibleViewsDict removeObjectForKey:[_UXCollectionViewItemKey collectionItemKeyForLayoutAttributes:[(id)animationView _layoutAttributes]]];
+            }
+        }
+        if (![_allVisibleViewsDict.allValues containsObject:animationView] && ![(id)animationView _isInUpdateAnimation]) {
+            if (animation.viewType == UXCollectionViewItemTypeCell) {
+                [self _reuseCell:(UXCollectionViewCell *)animationView];
+            } else if (animation.viewType == UXCollectionViewItemTypeSupplementaryView) {
+                [self _reuseSupplementaryView:(UXCollectionReusableView *)animationView];
+            } else {
+                NSAssert(NO, @"UICollectionView finished animating a view of unknown type: %@", animationView);
+            }
+        }
+    }
+    [self performWithoutAnimation:^{
+        [self _setNeedsVisibleCellsUpdate:YES withLayoutAttributes:NO];
+    }];
+    void (^completionHandler)(BOOL) = context.completionHandler;
+    if (completionHandler) {
+        completionHandler([finished boolValue]);
+    }
 }
 
 - (void)_endItemAnimations {
-    [_layout _finalizeCollectionViewItemAnimations];
+    _updateCount++;
+    [_doubleClickContext removeAllObjects];
+    if (_collectionViewData) {
+        // Step 1: retire the old model and build the new one.
+        UXCollectionViewData *oldModel = _collectionViewData;
+        [oldModel setLayoutLocked:YES];
+        _collectionViewData = [[UXCollectionViewData alloc] initWithCollectionView:self layout:_layout];
+
+        // Step 2: sort the four families (deletes descending, the rest ascending).
+        NSArray *sortedDeletes = [[self _arrayForUpdateAction:UXCollectionUpdateActionDelete] sortedArrayUsingSelector:@selector(inverseCompareIndexPaths:)];
+        NSArray *sortedInserts = [[self _arrayForUpdateAction:UXCollectionUpdateActionInsert] sortedArrayUsingSelector:@selector(compareIndexPaths:)];
+        NSMutableArray *reloadItems = [[_reloadItems sortedArrayUsingSelector:@selector(compareIndexPaths:)] mutableCopy];
+        NSMutableArray *moveItems = [[_moveItems sortedArrayUsingSelector:@selector(compareIndexPaths:)] mutableCopy];
+        _originalDeleteItems = [sortedDeletes copy];
+        _originalInsertItems = [sortedInserts copy];
+
+        // Step 3: decompose every reload into a delete at the old position and
+        // an insert at the position adjusted by the other pending operations.
+        for (UXCollectionViewUpdateItem *reloadItem in reloadItems) {
+            NSIndexPath *reloadIndexPath = [reloadItem _indexPath];
+            NSInteger adjustedSection = reloadIndexPath.section;
+            NSInteger adjustedItem = reloadIndexPath.item;
+            for (UXCollectionViewUpdateItem *deleteItem in sortedDeletes) {
+                NSIndexPath *deleteIndexPath = [deleteItem _indexPath];
+                NSAssert(![deleteIndexPath isEqual:reloadIndexPath],
+                         @"attempt to delete and reload the same index path (%@)", deleteIndexPath);
+                if ([deleteItem _isSectionOperation] && deleteIndexPath.section == reloadIndexPath.section) {
+                    continue;
+                }
+                if ([deleteItem _isSectionOperation]) {
+                    adjustedSection -= (deleteIndexPath.section <= adjustedSection);
+                }
+                if (![reloadItem _isSectionOperation] && ![deleteItem _isSectionOperation]
+                    && deleteIndexPath.section == adjustedSection) {
+                    adjustedItem -= (deleteIndexPath.item <= adjustedItem);
+                }
+            }
+            for (UXCollectionViewUpdateItem *insertItem in sortedInserts) {
+                NSIndexPath *insertIndexPath = [insertItem _indexPath];
+                if ([insertItem _isSectionOperation] && insertIndexPath.section <= adjustedSection) {
+                    adjustedSection++;
+                }
+                if (![reloadItem _isSectionOperation] && ![insertItem _isSectionOperation]
+                    && insertIndexPath.section == adjustedSection && insertIndexPath.item <= adjustedItem) {
+                    adjustedItem++;
+                }
+            }
+            UXCollectionViewUpdateItem *decomposedDelete = [[UXCollectionViewUpdateItem alloc] initWithAction:UXCollectionUpdateActionDelete
+                                                                                                 forIndexPath:[NSIndexPath indexPathForItem:reloadIndexPath.item inSection:reloadIndexPath.section]];
+            [_deleteItems addObject:decomposedDelete];
+            UXCollectionViewUpdateItem *decomposedInsert = [[UXCollectionViewUpdateItem alloc] initWithAction:UXCollectionUpdateActionInsert
+                                                                                                 forIndexPath:[NSIndexPath indexPathForItem:adjustedItem inSection:adjustedSection]];
+            [reloadItem _setNewIndexPath:[decomposedInsert _indexPath]];
+            [_insertItems addObject:decomposedInsert];
+        }
+
+        // Step 4: re-sort the merged families.
+        NSMutableArray *allDeletes = [[_deleteItems sortedArrayUsingSelector:@selector(inverseCompareIndexPaths:)] mutableCopy];
+        NSMutableArray *allInserts = [[_insertItems sortedArrayUsingSelector:@selector(compareIndexPaths:)] mutableCopy];
+
+        // Step 5a: validate deletes against the old model.
+        for (NSUInteger deleteIndex = 0; deleteIndex < allDeletes.count; deleteIndex++) {
+            UXCollectionViewUpdateItem *deleteItem = allDeletes[deleteIndex];
+            NSIndexPath *deleteIndexPath = [deleteItem _indexPath];
+            if ([deleteItem _isSectionOperation]) {
+                NSAssert(deleteIndexPath.section < [oldModel numberOfSections],
+                         @"attempt to delete section %ld, but there are only %ld sections before the update",
+                         (long)deleteIndexPath.section, (long)[oldModel numberOfSections]);
+                for (NSUInteger scanIndex = 0; scanIndex < allDeletes.count;) {
+                    UXCollectionViewUpdateItem *scanItem = allDeletes[scanIndex];
+                    if (![scanItem _isSectionOperation]
+                        && [[scanItem _indexPath] section] == deleteIndexPath.section) {
+                        [allDeletes removeObjectAtIndex:scanIndex];
+                        if (scanIndex < deleteIndex) {
+                            deleteIndex--;
+                        }
+                    } else {
+                        scanIndex++;
+                    }
+                }
+                for (UXCollectionViewUpdateItem *moveItem in moveItems) {
+                    NSIndexPath *moveIndexPath = [moveItem _indexPath];
+                    if ([moveIndexPath isEqual:deleteIndexPath]) {
+                        if ([moveItem _isSectionOperation]) {
+                            NSAssert(NO, @"attempt to perform a delete and a move from the same section (%ld)", (long)deleteIndexPath.section);
+                        } else {
+                            NSAssert(NO, @"attempt to perform a delete and a move from the same index path (%@)", deleteIndexPath);
+                        }
+                    } else if ([deleteItem _isSectionOperation]
+                               && deleteIndexPath.section == moveIndexPath.section) {
+                        NSAssert(NO, @"cannot move an item from a deleted section (%ld)", (long)deleteIndexPath.section);
+                    }
+                }
+            } else {
+                NSAssert(deleteIndexPath.section < [oldModel numberOfSections],
+                         @"attempt to delete item %ld from section %ld, but there are only %ld sections before the update",
+                         (long)deleteIndexPath.item, (long)deleteIndexPath.section, (long)[oldModel numberOfSections]);
+                NSAssert(deleteIndexPath.item < [oldModel numberOfItemsInSection:deleteIndexPath.section],
+                         @"attempt to delete item %ld from section %ld which only contains %ld items before the update",
+                         (long)deleteIndexPath.item, (long)deleteIndexPath.section,
+                         (long)[oldModel numberOfItemsInSection:deleteIndexPath.section]);
+            }
+        }
+
+        // Step 5b: validate inserts against the new model.
+        for (NSUInteger insertIndex = 0; insertIndex < allInserts.count; insertIndex++) {
+            UXCollectionViewUpdateItem *insertItem = allInserts[insertIndex];
+            NSIndexPath *insertIndexPath = [insertItem _indexPath];
+            if ([insertItem _isSectionOperation]) {
+                NSAssert(insertIndexPath.section < [_collectionViewData numberOfSections],
+                         @"attempt to insert section %ld but there are only %ld sections after the update",
+                         (long)insertIndexPath.section, (long)[_collectionViewData numberOfSections]);
+                for (NSUInteger scanIndex = 0; scanIndex < allInserts.count;) {
+                    UXCollectionViewUpdateItem *scanItem = allInserts[scanIndex];
+                    if (![scanItem _isSectionOperation]
+                        && [[scanItem _indexPath] section] == insertIndexPath.section) {
+                        [allInserts removeObjectAtIndex:scanIndex];
+                        if (scanIndex < insertIndex) {
+                            insertIndex--;
+                        }
+                    } else {
+                        scanIndex++;
+                    }
+                }
+                for (UXCollectionViewUpdateItem *moveItem in moveItems) {
+                    if ([[moveItem _newIndexPath] isEqual:insertIndexPath]) {
+                        if ([moveItem _isSectionOperation]) {
+                            NSAssert(NO, @"attempt to perform an insert and a move to the same section (%ld)", (long)insertIndexPath.section);
+                        } else {
+                            NSAssert(NO, @"attempt to perform an insert and a move to the same index path (%@)", insertIndexPath);
+                        }
+                    } else if ([insertItem _isSectionOperation]
+                               && insertIndexPath.section == [[moveItem _newIndexPath] section]) {
+                        NSAssert(NO, @"cannot move an item into a newly inserted section (%ld)", (long)insertIndexPath.section);
+                    }
+                }
+            } else {
+                NSAssert(insertIndexPath.section < [_collectionViewData numberOfSections],
+                         @"attempt to insert item %ld into section %ld, but there are only %ld sections after the update",
+                         (long)insertIndexPath.item, (long)insertIndexPath.section, (long)[_collectionViewData numberOfSections]);
+                NSAssert(insertIndexPath.item < [_collectionViewData numberOfItemsInSection:insertIndexPath.section],
+                         @"attempt to insert item %ld into section %ld, but there are only %ld items in section %ld after the update",
+                         (long)insertIndexPath.item, (long)insertIndexPath.section,
+                         (long)[_collectionViewData numberOfItemsInSection:insertIndexPath.section], (long)insertIndexPath.section);
+            }
+        }
+
+        // Step 5c: validate moves on both sides and drop exact duplicates.
+        for (NSUInteger moveIndex = 0; moveIndex < moveItems.count; moveIndex++) {
+            UXCollectionViewUpdateItem *moveItem = moveItems[moveIndex];
+            NSIndexPath *fromIndexPath = [moveItem _indexPath];
+            NSIndexPath *toIndexPath = [moveItem _newIndexPath];
+            if ([moveItem _isSectionOperation]) {
+                NSAssert(fromIndexPath.section < [oldModel numberOfSections],
+                         @"attempt to move section %ld, but there are only %ld sections before the update",
+                         (long)fromIndexPath.section, (long)[oldModel numberOfSections]);
+                NSAssert(toIndexPath.section < [_collectionViewData numberOfSections],
+                         @"attempt to to move section %ld to section %ld, but there are only %ld sections after the update",
+                         (long)fromIndexPath.section, (long)toIndexPath.section, (long)[_collectionViewData numberOfSections]);
+            } else {
+                NSAssert(fromIndexPath.section < [oldModel numberOfSections],
+                         @"attempt to move index path (%@) from a section that does not exist - there are only %ld sections before the update",
+                         fromIndexPath, (long)[oldModel numberOfSections]);
+                NSAssert(fromIndexPath.item < [oldModel numberOfItemsInSection:fromIndexPath.section],
+                         @"attempt to move index path (%@) that does not exist - there are only %ld items in section %ld before the update",
+                         fromIndexPath, (long)[oldModel numberOfItemsInSection:fromIndexPath.section], (long)fromIndexPath.section);
+                NSAssert(toIndexPath.section < [_collectionViewData numberOfSections],
+                         @"attempt to move index path (%@) to index path (%@) in section that does not exist - there are only %ld sections after the update",
+                         fromIndexPath, toIndexPath, (long)[_collectionViewData numberOfSections]);
+                NSAssert(toIndexPath.item < [_collectionViewData numberOfItemsInSection:toIndexPath.section],
+                         @"attempt to move index path (%@) to index path (%@) that does not exist - there are only %ld items in section %ld after the update",
+                         fromIndexPath, toIndexPath, (long)[_collectionViewData numberOfItemsInSection:toIndexPath.section], (long)toIndexPath.section);
+            }
+            for (NSUInteger scanIndex = moveIndex + 1; scanIndex < moveItems.count;) {
+                UXCollectionViewUpdateItem *scanItem = moveItems[scanIndex];
+                BOOL sameSource = [fromIndexPath isEqual:[scanItem _indexPath]];
+                BOOL sameDestination = [toIndexPath isEqual:[scanItem _newIndexPath]];
+                if (sameSource && sameDestination) {
+                    [moveItems removeObjectAtIndex:scanIndex];
+                    continue;
+                }
+                if (sameSource) {
+                    if ([moveItem _isSectionOperation]) {
+                        NSAssert(NO, @"attempt to move section %ld to both section %ld and section %ld",
+                                 (long)fromIndexPath.section, (long)toIndexPath.section, (long)[[scanItem _newIndexPath] section]);
+                    } else {
+                        NSAssert(NO, @"attempt to move item at index path %@ to both %@ and %@",
+                                 fromIndexPath, toIndexPath, [scanItem _newIndexPath]);
+                    }
+                } else if (sameDestination) {
+                    if ([moveItem _isSectionOperation]) {
+                        NSAssert(NO, @"attempt to move both section %ld and section %ld to section %ld",
+                                 (long)fromIndexPath.section, (long)[[scanItem _indexPath] section], (long)toIndexPath.section);
+                    } else {
+                        NSAssert(NO, @"attempt to move both item at index path %@ and %@ to %@",
+                                 fromIndexPath, [scanItem _indexPath], toIndexPath);
+                    }
+                }
+                scanIndex++;
+            }
+        }
+
+        // Step 6: assemble the final update vector — descending deletes, moves,
+        // ascending inserts. This ordering is what _computeGaps expects.
+        NSMutableArray *allUpdateItems = [[NSMutableArray alloc] init];
+        [allUpdateItems addObjectsFromArray:[allDeletes sortedArrayUsingSelector:@selector(inverseCompareIndexPaths:)]];
+        [allUpdateItems addObjectsFromArray:moveItems];
+        [allUpdateItems addObjectsFromArray:[allInserts sortedArrayUsingSelector:@selector(compareIndexPaths:)]];
+
+        // Step 7: invalidate the layout with the update items and load the new model.
+        UXCollectionViewLayoutInvalidationContext *invalidationContext = [[[[_layout class] invalidationContextClass] alloc] init];
+        [invalidationContext _setInvalidateDataSourceCounts:YES];
+        [invalidationContext _setUpdateItems:allUpdateItems];
+        [_layout _invalidateLayoutUsingContext:invalidationContext];
+        [_collectionViewData _prepareToLoadData];
+        [_collectionViewData validateLayoutInRect:[self _visibleBounds]];
+
+        // Step 8: compute the new visible bounds, pulling the viewport back in
+        // when it now hangs past the shrunken content rect.
+        CGRect oldVisibleBounds = [self documentVisibleRect];
+        CGRect contentRect = [_collectionViewData collectionViewContentRect];
+        NSEdgeInsets contentInsets = [self contentInsets];
+        contentRect.size.width += contentInsets.left + contentInsets.right;
+        contentRect.size.height += contentInsets.top + contentInsets.bottom;
+        CGPoint newVisibleOrigin = oldVisibleBounds.origin;
+        if (!CGRectContainsRect(contentRect, oldVisibleBounds)) {
+            if (CGRectGetMaxY(oldVisibleBounds) > CGRectGetMaxY(contentRect)
+                && CGRectGetHeight(contentRect) > CGRectGetHeight(oldVisibleBounds)) {
+                newVisibleOrigin.y -= CGRectGetMaxY(oldVisibleBounds) - CGRectGetMaxY(contentRect);
+            }
+            if (CGRectGetMaxX(oldVisibleBounds) > CGRectGetMaxX(contentRect)
+                && CGRectGetWidth(contentRect) > CGRectGetWidth(oldVisibleBounds)) {
+                newVisibleOrigin.x -= CGRectGetMaxX(oldVisibleBounds) - CGRectGetMaxX(contentRect);
+            }
+        }
+
+        // Step 9: build the update object, run the count consistency checks and
+        // hand over to _updateWithItems:.
+        _currentUpdate = [[UXCollectionViewUpdate alloc] initWithCollectionView:self
+                                                                    updateItems:allUpdateItems
+                                                                       oldModel:oldModel
+                                                                       newModel:_collectionViewData
+                                                               oldVisibleBounds:oldVisibleBounds
+                                                               newVisibleBounds:CGRectMake(newVisibleOrigin.x, newVisibleOrigin.y,
+                                                                                           oldVisibleBounds.size.width, oldVisibleBounds.size.height)];
+
+        NSInteger oldSectionCount = [oldModel numberOfSections];
+        NSInteger newSectionCount = [_collectionViewData numberOfSections];
+        NSInteger *oldItemCounts = calloc((size_t)MAX(oldSectionCount, 1), sizeof(NSInteger));
+        NSInteger *insertedCounts = calloc((size_t)MAX(newSectionCount, 1), sizeof(NSInteger));
+        NSInteger *deletedCounts = calloc((size_t)MAX(oldSectionCount, 1), sizeof(NSInteger));
+        NSInteger *movedInCounts = calloc((size_t)MAX(newSectionCount, 1), sizeof(NSInteger));
+        NSInteger *movedOutCounts = calloc((size_t)MAX(oldSectionCount, 1), sizeof(NSInteger));
+        for (NSInteger section = 0; section < oldSectionCount; section++) {
+            oldItemCounts[section] = [oldModel numberOfItemsInSection:section];
+        }
+        NSInteger insertedSectionCount = 0;
+        NSInteger deletedSectionCount = 0;
+        NSInteger expectedSectionCount = oldSectionCount;
+        for (UXCollectionViewUpdateItem *updateItem in allUpdateItems) {
+            NSInteger section = [[updateItem _indexPath] section];
+            if ([updateItem _isSectionOperation]) {
+                if ([updateItem _action] == UXCollectionUpdateActionInsert) {
+                    insertedSectionCount++;
+                    expectedSectionCount++;
+                } else if ([updateItem _action] == UXCollectionUpdateActionDelete) {
+                    deletedSectionCount++;
+                    expectedSectionCount--;
+                }
+            } else if ([updateItem _action] == UXCollectionUpdateActionInsert) {
+                insertedCounts[section]++;
+            } else if ([updateItem _action] == UXCollectionUpdateActionDelete) {
+                deletedCounts[section]++;
+            } else if ([updateItem _action] == UXCollectionUpdateActionMove) {
+                NSInteger destinationSection = [[updateItem _newIndexPath] section];
+                if (section != destinationSection) {
+                    movedOutCounts[section]++;
+                    movedInCounts[destinationSection]++;
+                }
+            }
+        }
+        BOOL updateIsValid = YES;
+        if (expectedSectionCount != newSectionCount) {
+            NSAssert(NO, @"Invalid update: invalid number of sections.  The number of sections contained in the collection view after the update (%ld) must be equal to the number of sections contained in the collection view before the update (%ld), plus or minus the number of sections inserted or deleted (%ld inserted, %ld deleted).",
+                     (long)newSectionCount, (long)oldSectionCount, (long)insertedSectionCount, (long)deletedSectionCount);
+        }
+        for (NSInteger newSection = 0; newSection < newSectionCount; newSection++) {
+            NSInteger oldSection = [_currentUpdate _newSectionMapValueAtIndex:newSection];
+            if (oldSection == NSNotFound) {
+                continue;
+            }
+            NSInteger newItemCount = [_collectionViewData numberOfItemsInSection:newSection];
+            if (newItemCount < 0) {
+                NSAssert(NO, @"Invalid update: invalid number of items in section %ld.  Attempt to delete more items than exist in section.", (long)oldSection);
+                updateIsValid = NO;
+            }
+            NSInteger expectedItemCount = oldItemCounts[oldSection] + insertedCounts[newSection] + movedInCounts[newSection]
+                                        - (deletedCounts[oldSection] + movedOutCounts[oldSection]);
+            if (newItemCount != expectedItemCount) {
+                NSAssert(NO, @"Invalid update: invalid number of items in section %ld.  The number of items contained in an existing section after the update (%ld) must be equal to the number of items contained in that section before the update (%ld), plus or minus the number of items inserted or deleted from that section (%ld inserted, %ld deleted) and plus or minus the number of items moved into or out of that section (%ld moved in, %ld moved out).",
+                         (long)newSection, (long)newItemCount, (long)oldItemCounts[oldSection],
+                         (long)insertedCounts[newSection], (long)deletedCounts[oldSection],
+                         (long)movedInCounts[newSection], (long)movedOutCounts[oldSection]);
+                updateIsValid = NO;
+            }
+        }
+        free(oldItemCounts);
+        free(insertedCounts);
+        free(deletedCounts);
+        free(movedInCounts);
+        free(movedOutCounts);
+
+        if (updateIsValid) {
+            [self _updateWithItems:allUpdateItems];
+        }
+    }
+    _updateCount--;
+    _insertItems = nil;
+    _deleteItems = nil;
+    _reloadItems = nil;
+    _moveItems = nil;
+    _originalDeleteItems = nil;
+    _originalInsertItems = nil;
+    _collectionViewFlags.updating = NO;
+    [self _resumeReloads];
 }
 
 - (void)_prepareLayoutForUpdates {
-    NSArray *updateItems = [self _allUpdateItems];
-    [_layout prepareForCollectionViewUpdates:updateItems ?: @[]];
+    NSMutableArray *sortedUpdateItems = [[NSMutableArray alloc] init];
+    [sortedUpdateItems addObjectsFromArray:[_originalDeleteItems sortedArrayUsingSelector:@selector(compareIndexPaths:)]];
+    [sortedUpdateItems addObjectsFromArray:[_originalInsertItems sortedArrayUsingSelector:@selector(compareIndexPaths:)]];
+    [sortedUpdateItems addObjectsFromArray:[_reloadItems sortedArrayUsingSelector:@selector(compareIndexPaths:)]];
+    [sortedUpdateItems addObjectsFromArray:[_moveItems sortedArrayUsingSelector:@selector(compareIndexPaths:)]];
+    [_layout prepareForCollectionViewUpdates:sortedUpdateItems];
 }
 
 - (NSMutableArray *)_arrayForUpdateAction:(NSInteger)updateAction {
     switch (updateAction) {
         case UXCollectionUpdateActionInsert:
+            if (!_insertItems) {
+                _insertItems = [[NSMutableArray alloc] init];
+            }
             return _insertItems;
         case UXCollectionUpdateActionDelete:
+            if (!_deleteItems) {
+                _deleteItems = [[NSMutableArray alloc] init];
+            }
             return _deleteItems;
         case UXCollectionUpdateActionReload:
+            if (!_reloadItems) {
+                _reloadItems = [[NSMutableArray alloc] init];
+            }
             return _reloadItems;
         case UXCollectionUpdateActionMove:
+            if (!_moveItems) {
+                _moveItems = [[NSMutableArray alloc] init];
+            }
             return _moveItems;
+        default:
+            NSAssert(NO, @"Invalid update action encountered %ld", (long)updateAction);
+            return nil;
     }
-    return nil;
 }
 
 - (void)_updateRowsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths updateAction:(NSInteger)updateAction {
-    [self _beginUpdates];
+    if (![self _visible]) {
+        _collectionViewFlags.needsReload = YES;
+        return;
+    }
+    [self _reloadDataIfNeeded];
+    BOOL wasUpdating = _collectionViewFlags.updating;
+    if (!wasUpdating) {
+        [self _setupCellAnimations];
+    }
     NSMutableArray *target = [self _arrayForUpdateAction:updateAction];
     for (NSIndexPath *indexPath in indexPaths) {
         UXCollectionViewUpdateItem *item = [[UXCollectionViewUpdateItem alloc] initWithAction:updateAction forIndexPath:indexPath];
         [target addObject:item];
     }
-    [self _endUpdates];
+    if (!wasUpdating) {
+        [self _endItemAnimations];
+    }
 }
 
 - (void)_updateSections:(NSIndexSet *)sections updateAction:(NSInteger)updateAction {
-    [self _beginUpdates];
+    if (![self _visible]) {
+        _collectionViewFlags.needsReload = YES;
+        return;
+    }
+    [self _reloadDataIfNeeded];
+    BOOL wasUpdating = _collectionViewFlags.updating;
+    if (!wasUpdating) {
+        [self _setupCellAnimations];
+    }
     NSMutableArray *target = [self _arrayForUpdateAction:updateAction];
     [sections enumerateIndexesUsingBlock:^(NSUInteger section, BOOL *stop) {
-        UXCollectionViewUpdateItem *item = [[UXCollectionViewUpdateItem alloc] initWithAction:updateAction forIndexPath:[NSIndexPath indexPathWithIndex:section]];
+        UXCollectionViewUpdateItem *item = [[UXCollectionViewUpdateItem alloc] initWithAction:updateAction
+                                                                                 forIndexPath:[NSIndexPath indexPathForItem:NSNotFound inSection:(NSInteger)section]];
         [target addObject:item];
     }];
-    [self _endUpdates];
+    if (!wasUpdating) {
+        [self _endItemAnimations];
+    }
 }
 
 - (void)_updateWithItems:(NSArray *)items {
-    // Apply the unified update vector. The full animated path requires UXCollectionViewUpdate
-    // to walk old/new models; we treat the request as a reload until that pipeline arrives.
-    [self reloadData];
+    UXCollectionViewUpdate *update = _currentUpdate;
+    UXCollectionViewData *oldModel = [update _oldModel];
+
+    // Remap every selection-related index path container from the old model to
+    // the new one through the update's global item map.
+    NSIndexPath *(^adjustedIndexPath)(NSIndexPath *) = ^NSIndexPath *(NSIndexPath *indexPath) {
+        if (!indexPath) {
+            return nil;
+        }
+        NSInteger oldGlobalIndex = [oldModel globalIndexForItemAtIndexPath:indexPath];
+        if (oldGlobalIndex == NSNotFound) {
+            return nil;
+        }
+        NSInteger newGlobalIndex = [update _oldGlobalItemMapValueAtIndex:oldGlobalIndex];
+        if (newGlobalIndex == NSNotFound) {
+            return nil;
+        }
+        return [self->_collectionViewData indexPathForItemAtGlobalIndex:newGlobalIndex];
+    };
+    UXCollectionViewMutableIndexPathsSet *(^adjustedIndexPathsSet)(UXCollectionViewIndexPathsSet *) = ^(UXCollectionViewIndexPathsSet *indexPathsSet) {
+        UXCollectionViewMutableIndexPathsSet *adjustedSet = [[UXCollectionViewMutableIndexPathsSet alloc] init];
+        [indexPathsSet enumerateIndexPathsUsingBlock:^(NSIndexPath *indexPath, BOOL *stop) {
+            NSIndexPath *adjusted = adjustedIndexPath(indexPath);
+            if (adjusted) {
+                [adjustedSet addIndexPath:adjusted];
+            }
+        }];
+        return adjustedSet;
+    };
+    _indexPathsForSelectedItems = adjustedIndexPathsSet(_indexPathsForSelectedItems);
+    _pendingDeselectionIndexPaths = adjustedIndexPathsSet(_pendingDeselectionIndexPaths);
+    _lassoInitiallySelectedItems = adjustedIndexPathsSet(_lassoInitiallySelectedItems);
+    _keyboardRangeSelectionPreviouslySelectedItems = adjustedIndexPathsSet(_keyboardRangeSelectionPreviouslySelectedItems);
+    _pendingSelectionIndexPath = adjustedIndexPath(_pendingSelectionIndexPath);
+    _lastSelectionAnchorIndexPath = adjustedIndexPath(_lastSelectionAnchorIndexPath);
+    _keyboardRangeSelectionFirstSelectedItem = adjustedIndexPath(_keyboardRangeSelectionFirstSelectedItem);
+    _keyboardRangeSelectionLastSelectedItem = adjustedIndexPath(_keyboardRangeSelectionLastSelectedItem);
+
+    [self _prepareLayoutForUpdates];
+    [update _computeSupplementaryUpdates];
+
+    CGPoint proposedContentOffset = [update _newVisibleBounds].origin;
+    proposedContentOffset = [_layout updatesContentOffsetForProposedContentOffset:proposedContentOffset];
+    proposedContentOffset = [_layout targetContentOffsetForProposedContentOffset:proposedContentOffset];
+    if (_collectionViewFlags.delegateTargetContentOffsetForProposedContentOffset) {
+        proposedContentOffset = [(id)self.delegate _collectionView:self targetContentOffsetForProposedContentOffset:proposedContentOffset];
+    }
+    CGRect newVisibleBounds = [update _newVisibleBounds];
+    newVisibleBounds.origin = proposedContentOffset;
+    [update _setNewVisibleBounds:newVisibleBounds];
+
+    UXCollectionViewAnimationContext *animationContext = [[UXCollectionViewAnimationContext alloc] initWithCompletionHandler:_updateCompletionHandler];
+    _updateCompletionHandler = nil;
+    _suspendClipViewBoundsDidChange++;
+    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *animationGroupContext) {
+        if (![CATransaction disableActions]) {
+            animationGroupContext.allowsImplicitAnimation = YES;
+            animationGroupContext.duration = 0.25;
+        }
+        if (!animationGroupContext.timingFunction) {
+            animationGroupContext.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+        }
+        self->_updateAnimationCount++;
+        animationContext.animationCount++;
+        [self setContentSize:[self->_layout collectionViewContentSize]];
+        [self.contentView setBoundsOrigin:[self->_currentUpdate _newVisibleBounds].origin];
+
+        [NSAnimationContext runAnimationGroup:^(NSAnimationContext *innerContext) {
+            innerContext.allowsImplicitAnimation = NO;
+            innerContext.duration = 0.0;
+            animationContext.viewAnimations = [self _viewAnimationsForCurrentUpdate];
+        } completionHandler:nil];
+
+        NSMutableSet *remainingViews = [[NSMutableSet alloc] initWithArray:self->_allVisibleViewsDict.allValues];
+        [self->_allVisibleViewsDict removeAllObjects];
+        for (UXCollectionViewAnimation *animation in animationContext.viewAnimations) {
+            NSView *animationView = animation.view;
+            if (![animationView isKindOfClass:[_UXCollectionSnapshotView class]]) {
+                [(id)animationView _addUpdateAnimation];
+                [remainingViews removeObject:animationView];
+                if (!animation.deleteAfterAnimation) {
+                    self->_allVisibleViewsDict[[_UXCollectionViewItemKey collectionItemKeyForLayoutAttributes:animation.finalLayoutAttributes]] = animationView;
+                }
+            }
+            animationContext.animationCount++;
+            self->_updateAnimationCount++;
+            [animation addCompletionHandler:^{
+                [self _updateAnimationDidStop:nil finished:@YES context:animationContext];
+            }];
+            [animation start];
+        }
+        for (UXCollectionReusableView *remainingView in remainingViews) {
+            if ([remainingView _isInUpdateAnimation]) {
+                self->_allVisibleViewsDict[[_UXCollectionViewItemKey collectionItemKeyForLayoutAttributes:[(id)remainingView _layoutAttributes]]] = remainingView;
+            } else if ([[(id)remainingView _layoutAttributes] _isCell]) {
+                [self _reuseCell:(UXCollectionViewCell *)remainingView];
+            } else {
+                [self _reuseSupplementaryView:remainingView];
+            }
+        }
+        [self->_layout finalizeCollectionViewUpdates];
+    } completionHandler:^{
+        self->_suspendClipViewBoundsDidChange--;
+        [self _updateAnimationDidStop:nil finished:@YES context:animationContext];
+    }];
+    _currentUpdate = nil;
+}
+
+- (void)_addMoveUpdateItemFromIndexPath:(NSIndexPath *)initialIndexPath toIndexPath:(NSIndexPath *)finalIndexPath {
+    if (![self _visible]) {
+        _collectionViewFlags.needsReload = YES;
+        return;
+    }
+    [self _reloadDataIfNeeded];
+    BOOL wasUpdating = _collectionViewFlags.updating;
+    if (!wasUpdating) {
+        [self _setupCellAnimations];
+    }
+    UXCollectionViewUpdateItem *item = [[UXCollectionViewUpdateItem alloc] initWithInitialIndexPath:initialIndexPath
+                                                                                     finalIndexPath:finalIndexPath
+                                                                                       updateAction:UXCollectionUpdateActionMove];
+    [[self _arrayForUpdateAction:UXCollectionUpdateActionMove] addObject:item];
+    if (!wasUpdating) {
+        [self _endItemAnimations];
+    }
 }
 
 - (void)insertSections:(NSIndexSet *)sections {
-    [self performBatchUpdates:^{
-        [self _updateSections:sections updateAction:UXCollectionUpdateActionInsert];
-    } completion:nil];
+    [self _updateSections:sections updateAction:UXCollectionUpdateActionInsert];
 }
 
 - (void)deleteSections:(NSIndexSet *)sections {
-    [self performBatchUpdates:^{
-        [self _updateSections:sections updateAction:UXCollectionUpdateActionDelete];
-    } completion:nil];
+    [self _updateSections:sections updateAction:UXCollectionUpdateActionDelete];
 }
 
 - (void)reloadSections:(NSIndexSet *)sections {
-    [self performBatchUpdates:^{
-        [self _updateSections:sections updateAction:UXCollectionUpdateActionReload];
-    } completion:nil];
+    [self _updateSections:sections updateAction:UXCollectionUpdateActionReload];
 }
 
 - (void)moveSection:(NSInteger)section toSection:(NSInteger)newSection {
-    [self performBatchUpdates:^{
-        [self _beginUpdates];
-        UXCollectionViewUpdateItem *item = [[UXCollectionViewUpdateItem alloc] initWithInitialIndexPath:[NSIndexPath indexPathWithIndex:section]
-                                                                                           finalIndexPath:[NSIndexPath indexPathWithIndex:newSection]
-                                                                                             updateAction:UXCollectionUpdateActionMove];
-        [_moveItems addObject:item];
-        [self _endUpdates];
-    } completion:nil];
+    [self _addMoveUpdateItemFromIndexPath:[NSIndexPath indexPathForItem:NSNotFound inSection:section]
+                              toIndexPath:[NSIndexPath indexPathForItem:NSNotFound inSection:newSection]];
 }
 
 - (void)insertItemsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths {
-    [self performBatchUpdates:^{
-        [self _updateRowsAtIndexPaths:indexPaths updateAction:UXCollectionUpdateActionInsert];
-    } completion:nil];
+    [self _updateRowsAtIndexPaths:indexPaths updateAction:UXCollectionUpdateActionInsert];
 }
 
 - (void)deleteItemsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths {
-    [self performBatchUpdates:^{
-        [self _updateRowsAtIndexPaths:indexPaths updateAction:UXCollectionUpdateActionDelete];
-    } completion:nil];
+    [self _updateRowsAtIndexPaths:indexPaths updateAction:UXCollectionUpdateActionDelete];
 }
 
 - (void)reloadItemsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths {
-    [self performBatchUpdates:^{
-        [self _updateRowsAtIndexPaths:indexPaths updateAction:UXCollectionUpdateActionReload];
-    } completion:nil];
+    [self _updateRowsAtIndexPaths:indexPaths updateAction:UXCollectionUpdateActionReload];
 }
 
 - (void)moveItemAtIndexPath:(NSIndexPath *)indexPath toIndexPath:(NSIndexPath *)newIndexPath {
-    [self performBatchUpdates:^{
-        [self _beginUpdates];
-        UXCollectionViewUpdateItem *item = [[UXCollectionViewUpdateItem alloc] initWithInitialIndexPath:indexPath
-                                                                                           finalIndexPath:newIndexPath
-                                                                                             updateAction:UXCollectionUpdateActionMove];
-        [_moveItems addObject:item];
-        [self _endUpdates];
-    } completion:nil];
+    [self _addMoveUpdateItemFromIndexPath:indexPath toIndexPath:newIndexPath];
 }
 
 #pragma mark - Layout
 
 - (void)layoutSubviews {
-    if (!_doneFirstLayout) {
-        [self reloadData];
-        _doneFirstLayout = YES;
+    if (_collectionViewFlags.updatingLayout || _collectionViewFlags.skipLayoutDuringSnapshotting) {
+        return;
     }
+    [self _reloadDataIfNeeded];
+    [_collectionViewData validateLayoutInRect:[self _visibleBounds]];
+    if (_collectionViewFlags.scheduledUpdateVisibleCells && _reloadingSuspendedCount == 0) {
+        @autoreleasepool {
+            [self _updateVisibleCellsNow:YES];
+        }
+    }
+    _collectionViewFlags.doneFirstLayout = YES;
+    _doneFirstLayout = YES;
 }
 
 - (void)setNeedsLayout {
@@ -1885,9 +3072,9 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
 
 - (void)layout {
     [super layout];
-    [self _updateVisibleCellsNow:YES];
-    _needsVisibleCellsUpdate = NO;
-    _needsVisibleCellsLayoutAttributesUpdate = NO;
+    // AppKit drives -layout; UXKit routes the work through -layoutSubviews so
+    // the scheduled-update flags decide whether visible cells refresh.
+    [self layoutSubviews];
 }
 
 #pragma mark - Drag & drop hooks
@@ -2494,28 +3681,47 @@ NSString *const UXCollectionElementKindCell = @"UXCollectionElementKindCell";
     if (CGRectEqualToRect(rect, _lastPreparedOverdrawContentRect)) {
         return;
     }
-
-    CGRect visibleRect = [self documentVisibleRect];
-    if (_extraNumberOfCellsToPreloadWhenScrollingStopped > 0 && !_scrolling) {
-        CGFloat insetY = -((CGFloat)_extraNumberOfCellsToPreloadWhenScrollingStopped * 0.5) * CGRectGetHeight(visibleRect);
-        rect = CGRectUnion(rect, CGRectInset(visibleRect, 0.0, insetY));
-    }
-
     _lastPreparedOverdrawContentRect = rect;
-    [self _updateCellsInRect:rect createIfNecessary:YES];
-    id<UXCollectionViewDelegate> delegate = self.delegate;
-    if ([delegate respondsToSelector:@selector(collectionView:didPrepareForOverdraw:)]) {
-        [delegate collectionView:self didPrepareForOverdraw:rect];
+    if (_collectionViewFlags.delegateDidPrepareForOverdraw) {
+        [self.delegate collectionView:self didPrepareForOverdraw:rect];
     }
 }
 
 #pragma mark - Controlled subviews + z-order
 
 - (void)_addControlled:(BOOL)controlled subview:(NSView *)subview atZIndex:(NSInteger)zIndex {
-    if (!subview) {
-        return;
+    if (controlled) {
+        [(id)subview setIsFloatingPinned:NO];
+        [subview setHidden:NO];
+        if (subview.superview == _collectionDocumentView) {
+            return;
+        }
+        NSArray<NSView *> *siblings = _collectionDocumentView.subviews;
+        if (siblings.count == 0) {
+            [_collectionDocumentView addSubview:subview positioned:NSWindowBelow relativeTo:nil];
+            return;
+        }
+        NSView *topSibling = siblings.lastObject;
+        if ([topSibling isKindOfClass:[UXCollectionReusableView class]]
+            && [(id)topSibling _layoutAttributes].zIndex <= zIndex
+            && !topSibling.isHidden) {
+            [_collectionDocumentView addSubview:subview];
+            return;
+        }
+        for (NSView *sibling in siblings.reverseObjectEnumerator) {
+            if ([sibling isKindOfClass:[UXCollectionReusableView class]]
+                && !sibling.isHidden
+                && [(id)sibling _layoutAttributes].zIndex <= zIndex) {
+                [_collectionDocumentView addSubview:subview positioned:NSWindowAbove relativeTo:sibling];
+                return;
+            }
+        }
+        [_collectionDocumentView addSubview:subview positioned:NSWindowBelow relativeTo:nil];
+    } else if (![(id)subview isFloatingPinned]) {
+        [(id)subview setIsFloatingPinned:YES];
+        [subview setHidden:NO];
+        [self addFloatingSubview:subview forAxis:NSEventGestureAxisVertical];
     }
-    [_collectionDocumentView addSubview:subview];
 }
 
 #pragma mark - Double click + busy state
