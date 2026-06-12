@@ -16,7 +16,7 @@
 
 | 总计 | ✅ 已对齐 | 🟢 形式对齐 | 🟡 部分对齐 | 🔴 缺失 | ⚪ 桥接 |
 |---|---|---|---|---|---|
-| **37** | 10 | 22 | 5 | 0 | 0 |
+| **37** | 12 | 20 | 5 | 0 | 0 |
 
 > 注：另有 4 个未导出头的 FlowLayout 隐藏内部类（`_UXFlowLayout*`，见下文专节）不计入 37，当前均为 🟡（P4 已算法对齐，保留 2 处 OpenUXKit-only 简化待 P9 评估）。
 
@@ -117,8 +117,8 @@
 
 | UXKit 类 | OpenUXKit 文件 | 状态 | 备注 |
 |---|---|---|---|
-| `UXCollectionViewLayoutAccessibility` | `Components/Private/UXCollectionViewLayoutAccessibility.{h,m}` | 🟢 | P11 verify `_sectionCache` 滑动窗口 + `_trimSectionCacheToVisibleSections:`。 |
-| `UXCollectionViewLayoutSectionAccessibility` | `Components/Private/UXCollectionViewLayoutSectionAccessibility.{h,m}` | 🟢 | P11 verify 5 个 sibling navigation 方法 + accessibilityArrayAttribute*。 |
+| `UXCollectionViewLayoutAccessibility` | `Components/Private/UXCollectionViewLayoutAccessibility.{h,m}` | ✅ | **P11 已对齐**（见 `IDA-Notes/P11-Accessibility.md`）：28 方法全部反编译比对。`_dequeueSectionWithIndex:`/`_trimSectionCacheToVisibleSections:`（滑动窗口三分支）/`_visibleSections`/`accessibilityVisibleChildren` 原已一致；修正 children 模型为「rowCount 驱动 + 懒 dequeue」（array attr count/values 仅 Children、`accessibilityRowCount`、index 恒定 dequeue 循环）、role→ListRole、`accessibilityIndexOfChild:`→`[child accessibilityIndex]`、hitTest 加 NSPointInRect、next/previous section 改 sectionIndex+rowCount+回绕+dequeue、parentForCell/ReusableView 经 indexPath→section、frameInParentSpace 阈值→FLT_EPSILON、postNotification nil 守卫、生命周期加 `AXCollectionViewEnumerateSections` 转发。 |
+| `UXCollectionViewLayoutSectionAccessibility` | `Components/Private/UXCollectionViewLayoutSectionAccessibility.{h,m}` | ✅ | **P11 已对齐**：24 方法全部反编译比对。`compare:`/`accessibilityActionDescription:`/`accessibilityPerformAction:` 原已一致；修正 role→ListRole、frame→子元素 `NSUnionRect` 并集、visibleChildren 加 frame 中点（10pt 桶）`sortUsingComparator:`、visibleCells 改 `indexPathsForVisibleItemsInSections:`+isAccessibilityElement、visibleSupplementary 加 `NSAccessibilityUnignoredChildren`+isAccessibilityElement+非零 bounds、array attr count/values 仅 Children（`numberOfItemsInSection:`/单 cell）、`accessibilityIndexOfChild:`→indexPathForCell.item、hitTest 迭代 accessibilityChildren+NSPointInRect、actionNames→`@[@"AXScrollToVisible"]`、`_siblingInDirection:` 改 layout 几何导航（above/below 修正为方向 2/3）、scrollToVisible 优先首个 visible item+position 64。 |
 
 ---
 
@@ -196,6 +196,6 @@
 | **P8** | 0.5 周 | Animation handlers + 验证 2 个 contiguous block |
 | **P9** | **2 周（最大块）** | UXCollectionView 主类 2571 行 + 5 视图层次类 + Selection 4 路 + flag 矩阵 |
 | **P10** | 1 周 | Rearranging Coordinator 80 方法 |
-| **P11** | 0.5 周 | Accessibility 2 类 |
+| **P11** | ✅ 完成 | Accessibility 2 类已对齐（见 `IDA-Notes/P11-Accessibility.md`，~20 处分歧修正） |
 
 **总计修订**：约 **7-8 周**（原估 12 周），主要因为接口形式已对齐，工作集中在算法对齐而非新建。
