@@ -107,7 +107,7 @@
 
 | UXKit 类 | OpenUXKit 文件 | 状态 | 备注 |
 |---|---|---|---|
-| `_UXCollectionViewRearrangingCoordinator` | `Components/Private/_UXCollectionViewRearrangingCoordinator.{h,m}` (668 行) | 🟡 | **P10 痛点**：~80 方法需对齐 NSGestureRecognizerDelegate + NSDraggingSource + NSDraggingDestination 实现。3 种 `initiationMode` 状态机需 verify。 |
+| `_UXCollectionViewRearrangingCoordinator` | `Components/Private/_UXCollectionViewRearrangingCoordinator.{h,m}` (668 行) | 🟡 | **P10a 已反编译核心状态机**（见 `IDA-Notes/P10-Rearranging.md`）：`_gestureRecognized:`/`_beginRearrangingItemsWithIndexPaths:`/`_updateRearrangingStateForLocation:`/`_finishRearrangingForLocation:shouldComplete:`/`_moveItemsAtIndexPaths:toIndexPaths:`/`_indexPathsFromRange`/draggingEntered/Updated/performDrag 全部反编译;ivar 矩阵已对齐;`_moveItemsAtIndexPaths:toIndexPaths:` 空 stub 转正。**架构差异**：UXKit 走真实 NSDraggingSession,OpenUXKit 现为手势直驱近似版。**P10b 余量**：按 §2/§4 完整重写 NSDragging 流(需交互拖放验证,含 finish 的 exchange 死分支核实)。 |
 | `UXCollectionViewPanGestureRecognizer` | `Components/Private/UXCollectionViewPanGestureRecognizer.{h,m}` | 🟢 | P10 verify `mouseDownEvent` / `uxCancel`。 |
 | `UXCollectionViewFilePromiseProvider` | `Components/Private/UXCollectionViewFilePromiseProvider.{h,m}` | 🟢 | P10 verify `auxiliaryFilePromiseProviders` 注入。 |
 

@@ -663,6 +663,12 @@ typedef NS_ENUM(NSInteger, UXRearrangingInitiationMode) {
 }
 
 - (void)_moveItemsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths toIndexPaths:(NSArray<NSIndexPath *> *)toIndexPaths {
+    NSAssert(indexPaths.count == toIndexPaths.count, @"source and destination index paths need to have the same count");
+    [_collectionView performBatchUpdates:^{
+        for (NSUInteger index = 0; index < indexPaths.count; index++) {
+            [self->_collectionView moveItemAtIndexPath:indexPaths[index] toIndexPath:toIndexPaths[index]];
+        }
+    } completion:nil];
 }
 
 @end
