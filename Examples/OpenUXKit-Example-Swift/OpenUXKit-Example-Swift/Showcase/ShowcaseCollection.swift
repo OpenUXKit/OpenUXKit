@@ -547,7 +547,9 @@ final class UXCollectionViewRearrangingShowcaseViewController: UXViewController,
         let collectionView = UXCollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.dataSource = self
         collectionView.delegate = self
-        collectionView.allowsMultipleSelection = false
+        // Drag the clicked item directly (the coordinator drags the selection
+        // when selection is enabled, so disable it here for a clearer demo).
+        collectionView.allowsSelection = false
         collectionView.register(SwatchCell.self, forCellWithReuseIdentifier: demoCellIdentifier)
         // Installs the internal _UXCollectionViewRearrangingCoordinator.
         collectionView.rearrangingEnabled_ = true
@@ -580,8 +582,15 @@ final class UXCollectionViewRearrangingShowcaseViewController: UXViewController,
         true
     }
 
-    @objc(collectionView:moveItemsAtIndexPaths:toIndexPath:)
-    func collectionView(_ collectionView: UXCollectionView, moveItemsAtIndexPaths indexPaths: [IndexPath], toIndexPath destinationIndexPath: IndexPath) -> Bool {
+    // The coordinator only commits a move when the allowed drop positions include
+    // UXKit's "on" bit (0x4); return it so any drop target accepts the reorder.
+    @objc(collectionView:allowedDropPositionsForItemsAtIndexPaths:movedToIndexPath:)
+    func collectionView(_ collectionView: UXCollectionView, allowedDropPositionsForItemsAtIndexPaths indexPaths: [IndexPath], movedToIndexPath indexPath: IndexPath) -> Int {
+        4
+    }
+
+    @objc(collectionView:moveItemsAtIndexPaths:toIndexPath:dropPosition:)
+    func collectionView(_ collectionView: UXCollectionView, moveItemsAtIndexPaths indexPaths: [IndexPath], toIndexPath destinationIndexPath: IndexPath, dropPosition: Int) -> Bool {
         let sourceItemIndexes = indexPaths.map { $0.item }.sorted()
         guard !sourceItemIndexes.isEmpty else { return false }
         let movedItems = sourceItemIndexes.map { items[$0] }
@@ -594,6 +603,9 @@ final class UXCollectionViewRearrangingShowcaseViewController: UXViewController,
         reordered.insert(contentsOf: movedItems, at: insertionIndex)
         items = reordered
         navigationItem?.prompt = "Moved \(indexPaths.count) item(s) → \(destinationIndexPath.item)"
+        // The coordinator commits the model here; refresh the cells in the new
+        // order (the live-drag gap layout proxy is not yet ported).
+        collectionView.reloadData()
         return true
     }
 
