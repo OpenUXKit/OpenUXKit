@@ -794,19 +794,19 @@ UXKit 行为：
 
 OpenUXKit 原状偏差：用 `_indexPathByMovingFromIndexPath:delta:`（item±1 而非几何导航）；无 anchor 时双向 fallback firstSelectable（非 Up→last/Down→first）；`toPosition:None`（非 64）；处理 Home/End（实为死代码——`keyDown:` 先调 `_performScrollingForKey:` 消费 Home/End）。已修正并删除死方法 `_indexPathByMovingFromIndexPath:delta:fallback:`。
 
-### 7.3 动画跨布局 transition `_setCollectionViewLayout:animated:isInteractive:completion:`（0x1dbbdac28，0x930）— 已反编译，待移植
+### 7.3 动画跨布局 transition `_setCollectionViewLayout:animated:isInteractive:completion:`（0x1dbbdac28，0x930）— ✅ 已移植（见 `P9d-LayoutTransition.md`）
 
-**关键发现**：OpenUXKit 现有 fast path 正好等于 UXKit 的「`!_visible || !(flags & doneFirstLayout)`」非动画分支（逐行一致：invalidate everything → `_setCollectionView:` 换层 → 新建 `UXCollectionViewData` → `_setNeedsVisibleCellsUpdate:` → completion(YES)）。但 OpenUXKit **无条件**走它,缺 visible+doneFirstLayout 时的动画分支。
+**关键发现**：OpenUXKit 现有 fast path 正好等于 UXKit 的「`!_visible || !(flags & doneFirstLayout)`」非动画分支（逐行一致：invalidate everything → `_setCollectionView:` 换层 → 新建 `UXCollectionViewData` → `_setNeedsVisibleCellsUpdate:` → completion(YES)）。此前 OpenUXKit **无条件**走它,缺 visible+doneFirstLayout 时的动画分支。
 
-UXKit 动画分支(visible && doneFirstLayout)的完整链(待移植,**无 showcase 触发点,需自建触发用例方可可视化验证**):
+**P9d 已移植**动画分支(visible && doneFirstLayout)的完整链到 `UXCollectionView+Layout.m` 的 `_performLayoutTransitionToLayout:animated:fromBounds:completion:`,并把 `-[UXCollectionViewLayout _animateView:withAction:…]`(0x1dbbe9a20)重写为 UXKit 的显式 CABasicAnimation 版本。逐步算法、ivar 偏移、OpenUXKit 适配差异见 **`IDA-Notes/P9d-LayoutTransition.md`**;新增 `Tests/.../LayoutTransitionTests.swift`(5 用例 end-state 验证)。要点:
 
-1. 早退:`layout == _layout` 直接 return(**不调 completion**——OpenUXKit 现调 completion(YES),细微偏差)。
+1. 早退:`layout == _layout` 直接 return(**不调 completion**——已改为对齐 UXKit)。
 2. 捕获 `contentView.bounds`;在新 layout 上 invalidate everything。
-3. 新建 `data2 = UXCollectionViewData(self, newLayout)` + `_prepareToLoadData`(**不立即赋给 `_collectionViewData`**)。
-4. `[oldLayout _prepareForTransitionToLayout:newLayout]` + `[newLayout _prepareForTransitionFromLayout:oldLayout]`;置 transition 位(@1760 bit32)。
-5. **anchor 选取**:用选中项 itemKey 集与可见项集求交;`count==1` 取 anyObject,否则取「新数据布局中心距视口中心(MidX,MidY)最近」者(欧氏距离)。
-6. **目标偏移**:用 anchor 在新数据的 layoutAttributes 算 `offset =(newCenter - viewportHalf)`;经 `CGRectContainsRect`/`CGRectIntersection` clamp 到新 contentSize;再过 `transitionContentOffsetForProposedContentOffset:keyItemIndexPath:` + `targetContentOffsetForProposedContentOffset:` + delegate `_collectionView:targetContentOffsetForProposedContentOffset:`(若 bit @1762&0x10)。
-7. 6 个 block(_435 旧视图、_439、_2、_440 动画体含 `_animateView:` 驱动、_461 setup、_465 completion);`_reloadingSuspendedCount`(@1544)++。
-8. `animated` → `[NSAnimationContext runAnimationGroup:_461 completionHandler:_465]`;否则直接 `_440(v89,0)` + `v91(v90)` 同步收尾,清 transition 位。
+3. 新建 `newData = UXCollectionViewData(self, newLayout)` + `_prepareToLoadData`(**不立即赋给 `_collectionViewData`**)。OpenUXKit 适配:在此前 `[newLayout _setCollectionView:self]`(FlowLayout 几何依赖 collectionView.bounds,详见 P9d 笔记 §4)。
+4. `[oldLayout _prepareForTransitionToLayout:newLayout]` + `[newLayout _prepareForTransitionFromLayout:oldLayout]`;置 `updatingLayout` 位(@1760 bit32)。
+5. **anchor 选取**:选中项 itemKey 集 ∩ 可见项集;`count==1` 取 anyObject,否则取「**旧** data 布局中心距视口中心(MidX,MidY)最近」者(欧氏距离)。
+6. **目标偏移**:用 anchor 在**新** data 的 layoutAttributes 算 `offset =(newCenter - viewportHalf)`;经 `CGRectContainsRect`/`CGRectIntersection` clamp 到新 contentSize(候选为空则归零);再过 `transitionContentOffsetForProposedContentOffset:keyItemIndexPath:` + `targetContentOffsetForProposedContentOffset:` + delegate(若 bit @1762&0x10)。
+7. block_435 `willTransition` 广播 → 动画体 block_440(appearing/disappearing/persisting 三类 diff + `_animateView:` action 0/1/3)→ finalize block_invoke_2(归零才 swap `_layout`/`_collectionViewData` + `didTransition` + `completion(NO)`)。**finalize 计数器是 `_layoutTransitionAnimationCount`(@1544),非 `_reloadingSuspendedCount`(@1216)**——后者由 `updatingLayout` 位间接抑制,transition 不碰。
+8. `animated` → `[NSAnimationContext runAnimationGroup:_461(duration0.25/EaseInEaseOut/shift×10) completionHandler:_465]`;否则同步 `block_440(NO)` + finalize + 清 `updatingLayout` 位。
 
-移植工作量大且不可视化验证,作为 spec 留待后续(同 P10b 的「written-but-not-verified」处境)。
+**余量**:动画插值曲线与跨布局 appearing/disappearing 视觉效果不可在无头测试可视化验证(需交互式 layout 切换 showcase);end-state(swap/contentSize/选区/可见 cell/completion)已由 `LayoutTransitionTests` 覆盖。
