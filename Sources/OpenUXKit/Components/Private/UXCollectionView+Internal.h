@@ -112,13 +112,9 @@ NS_SWIFT_UI_ACTOR
 
 #pragma mark - Rearranging
 
-@property (nonatomic, readonly) BOOL isRearranging_;
-@property (nonatomic) BOOL rearrangingEnabled_;
-@property (nonatomic) BOOL rearrangingAllowAutoscroll_;
-@property (nonatomic) BOOL rearrangingExternalDropEnabled_;
-@property (nonatomic) NSInteger rearrangingInitiationMode_;
-@property (nonatomic) BOOL rearrangingContinuouslyUpdateInsideCells_;
-@property (nonatomic) CGFloat rearrangingPreviewDelay_;
+// The rearranging properties (rearrangingEnabled_ etc.) are part of the public
+// surface and now live in UXCollectionView.h's (Rearranging) category, matching
+// UXKit's exported header. Only the coordinator hooks remain internal here.
 
 - (void)rearrangingCoordinatorReloadLayout_;
 - (nullable _UXCollectionViewRearrangingCoordinator *)_rearrangingCoordinator;

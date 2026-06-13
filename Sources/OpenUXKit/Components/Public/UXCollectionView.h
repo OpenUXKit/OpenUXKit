@@ -177,6 +177,26 @@ UXKIT_EXTERN NS_SWIFT_UI_ACTOR
 
 @end
 
+#pragma mark - Rearranging
+
+// Drag-to-rearrange surface, matching UXKit's exported UXCollectionView header
+// (the trailing-underscore names are UXKit's own). Setting rearrangingEnabled_
+// to YES installs the internal _UXCollectionViewRearrangingCoordinator, which
+// drives an NSDraggingSession and calls the informal rearranging data
+// source/delegate methods (see UXCollectionViewDataSource_Rearranging /
+// UXCollectionViewDelegate_Rearranging).
+@interface UXCollectionView (Rearranging)
+
+@property (nonatomic, readonly) BOOL isRearranging_;
+@property (nonatomic) BOOL rearrangingEnabled_;
+@property (nonatomic) BOOL rearrangingAllowAutoscroll_;
+@property (nonatomic) BOOL rearrangingExternalDropEnabled_;
+@property (nonatomic) NSInteger rearrangingInitiationMode_;
+@property (nonatomic) BOOL rearrangingContinuouslyUpdateInsideCells_;
+@property (nonatomic) CGFloat rearrangingPreviewDelay_;
+
+@end
+
 #pragma mark - Accessibility delegate
 
 NS_SWIFT_UI_ACTOR
