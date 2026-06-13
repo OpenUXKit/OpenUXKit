@@ -11,6 +11,7 @@
 #import "_UXCollectionViewItemKey.h"
 #import "NSIndexPath+UXCollectionViewAdditions.h"
 #import "UXKitPrivateUtilites.h"
+#import <QuartzCore/QuartzCore.h>
 
 // SPI on UXCollectionView / UXCollectionViewData / UXCollectionReusableView owned by the view layer.
 @interface NSObject (UXCollectionViewLayoutSPI)
@@ -791,20 +792,43 @@ fromLayoutAttributes:(UXCollectionViewLayoutAttributes *)fromAttributes
   toLayoutAttributes:(UXCollectionViewLayoutAttributes *)toAttributes
           fromLayout:(UXCollectionViewLayout *)fromLayout
 withCompletionHandler:(void (^)(BOOL finished))completion {
-    if (!view) {
-        if (completion) {
-            completion(NO);
-        }
-        return;
-    }
-    if (fromAttributes) {
-        [(id)view _setLayoutAttributes:fromAttributes];
-    }
-    UXCollectionViewLayoutAttributes *target = toAttributes ?: fromAttributes;
+    // UXKit drives the per-view transition with three explicit CABasicAnimations
+    // registered on the view's -animations dictionary, then applies the target
+    // attributes; the enclosing NSAnimationContext group (set up by the caller)
+    // supplies the duration/timing. The action selects the disappear/appear/move
+    // alpha behaviour: 0 = appearing (custom alpha ease), 1 = disappearing (alpha
+    // fades over half the duration), 3 = persisting/move (animate bounds too).
     [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
-        context.duration = 0.25;
-        context.allowsImplicitAnimation = YES;
-        [(id)view _setLayoutAttributes:target];
+        CABasicAnimation *frameOriginAnimation = [CABasicAnimation animationWithKeyPath:@"frameOrigin"];
+        frameOriginAnimation.fromValue = [NSValue valueWithPoint:fromAttributes.frame.origin];
+        frameOriginAnimation.toValue = [NSValue valueWithPoint:toAttributes.frame.origin];
+        frameOriginAnimation.removedOnCompletion = YES;
+
+        CABasicAnimation *boundsAnimation = [CABasicAnimation animationWithKeyPath:@"bounds"];
+        if (action == 3) {
+            CGSize fromSize = fromAttributes.frame.size;
+            boundsAnimation.fromValue = [NSValue valueWithRect:CGRectMake(0.0, 0.0, fromSize.width, fromSize.height)];
+        }
+        CGSize toSize = toAttributes.frame.size;
+        boundsAnimation.toValue = [NSValue valueWithRect:CGRectMake(0.0, 0.0, toSize.width, toSize.height)];
+        boundsAnimation.removedOnCompletion = YES;
+
+        CABasicAnimation *alphaAnimation = [CABasicAnimation animationWithKeyPath:@"alphaValue"];
+        if (action == 0) {
+            alphaAnimation.timingFunction = [CAMediaTimingFunction functionWithControlPoints:0.5f:0.0f:0.5f:0.1f];
+        } else if (action == 1) {
+            alphaAnimation.duration = context.duration * 0.5;
+        }
+        alphaAnimation.fromValue = @((float)fromAttributes.alpha);
+        alphaAnimation.toValue = @((float)toAttributes.alpha);
+        alphaAnimation.removedOnCompletion = YES;
+
+        view.animations = @{
+            @"frameOrigin": frameOriginAnimation,
+            @"bounds": boundsAnimation,
+            @"alphaValue": alphaAnimation,
+        };
+        [(id)view _setLayoutAttributes:toAttributes];
     } completionHandler:^{
         if (completion) {
             completion(YES);

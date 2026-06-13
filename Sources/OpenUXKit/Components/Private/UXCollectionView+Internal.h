@@ -48,8 +48,8 @@ NS_SWIFT_UI_ACTOR
 
 #pragma mark - Cell preparation pipeline
 
-- (nullable __kindof UXCollectionViewCell *)_createPreparedCellForItemAtIndexPath:(NSIndexPath *)indexPath withLayoutAttributes:(UXCollectionViewLayoutAttributes *)layoutAttributes applyAttributes:(BOOL)applyAttributes;
-- (nullable __kindof UXCollectionReusableView *)_createPreparedSupplementaryViewForElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath withLayoutAttributes:(UXCollectionViewLayoutAttributes *)layoutAttributes applyAttributes:(BOOL)applyAttributes;
+- (nullable __kindof UXCollectionViewCell *)_createPreparedCellForItemAtIndexPath:(NSIndexPath *)indexPath withLayoutAttributes:(nullable UXCollectionViewLayoutAttributes *)layoutAttributes applyAttributes:(BOOL)applyAttributes;
+- (nullable __kindof UXCollectionReusableView *)_createPreparedSupplementaryViewForElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath withLayoutAttributes:(nullable UXCollectionViewLayoutAttributes *)layoutAttributes applyAttributes:(BOOL)applyAttributes;
 - (void)_updateCellsInRect:(CGRect)rect createIfNecessary:(BOOL)createIfNecessary;
 - (void)_updateVisibleCellsNow:(BOOL)now;
 - (void)_notifyWillDisplayCellIfNeeded:(UXCollectionViewCell *)cell forIndexPath:(NSIndexPath *)indexPath;
