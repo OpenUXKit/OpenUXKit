@@ -4,9 +4,9 @@
 >
 > **反编译来源**：`/Volumes/RE/Dyld-Shared-Cache/macOS/26.4/UXKit.i64`。本笔记是 `P10-Rearranging.md`（P10a 状态机）的 NSDragging 粘合层补全 + 待移植项落地依据。
 >
-> **状态：已完整反编译（spec），代码重写未应用。** 反编译后发现 faithful rearranging 不是"重写协调器一个类"，而是一个**多组件、dataSource 契约复杂、含多处死分支、且只能交互验证**的子系统（见 §3.1 契约 + §3.2 死分支）。盲改会用不可运行验证的代码替换当前**可工作**的近似实现（现版用 `moveItemsAtIndexPaths:toIndexPath:` 确实能 reorder）。因此本阶段先完成反编译 spec + `Drag-to-rearrange` showcase（基线手测入口），重写待用户在 showcase 中验证基线 + 确认契约变更后增量推进。
+> **状态：已完整反编译 + 重写已应用（用户选 A：增量忠实重写）。** 反编译发现 faithful rearranging 是一个**多组件、dataSource 契约复杂、含多处死分支、且只能交互验证**的子系统（§3.1 契约 + §3.2 死分支）。重写已落地：协调器 NSDragging 拓扑 + finish §2.4 + 契约层（协议 + CV 转发 + layout dropPosition）+ gating 方法修正（§3.2b）+ 接线修复（`setRearrangingEnabled_` 此前根本未接线，§3.4）。**重要发现**：旧 OpenUXKit 的 rearranging 因 `setRearrangingEnabled_:` 用 `init`（nil CV、不 setEnabled）而**从未安装手势识别器、根本不工作**——所以重写没有"可工作功能"会被破坏。
 >
-> **运行验证限制**：拖放为交互行为，无法在无头环境验证。可验证项：build / 35 既有测试 / `_indexPathsFromRange` + drop-index 调整纯函数单测 / 对抗式反编译审查；不可验证项：实际拖放重排、live-drag gap 视觉、autoscroll、跨 OS 拖放。
+> **运行验证限制**：拖放为交互行为，无法在无头环境验证。已验证：build 0/0 ｜ 35 既有测试 ｜ 对抗式反编译审查。**待用户在 `Drag-to-rearrange` showcase 手测**：拖动重排（需拖够 `_rearrangingInitialDelay`=0.5s）、autoscroll。未移植（降级）：live-drag gap 视觉（layout proxy，relayout 替代 → showcase 的 dataSource 在 move 后 `reloadData`）。
 
 ---
 
@@ -139,7 +139,7 @@ draggingSession:endedAtPoint:operation: (0x1dbbcc3d8)
 ### 2.7 NSDraggingDestination
 ```
 draggingEntered: (0x1dbbcc060)
-  _updateDragSourceIdentifier; setDraggingFormation:(flag bit9 ? [delegate preferredDraggingFormationForCollectionView:] : 2/*stack*/)
+  _updateDragSourceIdentifier; setDraggingFormation:(flag bit9 ? [delegate preferredDraggingFormationForCollectionView:] : 2/*Pile=2 in AppKit's NSDraggingFormation*/)
   validCount=0; enumerateDraggingItemsWithOptions:1 forView:documentView classes:@[NSPasteboardItem] usingBlock:{ validCount++ } (block 0x1dbbcc230)
   if (validCount) [sender setNumberOfValidItemsForDrop:validCount]
   _dragEnteredTime=now
@@ -182,10 +182,23 @@ else if (flag bit2 move) [dataSource collectionView:moveItemsAtIndexPaths:initia
 
 → 含义：faithful 提交路径实为 **`moveItemsAtIndexPaths:toIndexPath:dropPosition:`（模型）+ `invalidateLayout`（视觉 relayout）**；`_moveItemsAtIndexPaths:toIndexPaths:`（performBatchUpdates 动画 move）+ drop-index 调整在此 dataSource 契约下是死代码（仅当 `dropPositionForPoint:` 能返回 2/8 时活，而其被 `& 4` 钳制）。移植时保留结构 + 注释，避免误以为是活路径。
 
+### 3.2b gating 方法（旧 OpenUXKit 把它们误实现为"选区检查"）
+
+| 方法 | UXKit 真实实现 | 旧 OpenUXKit（错误） |
+|---|---|---|
+| `_allowRearranging` (0x1dbbcde74) | `now > _dragStartTime + _rearrangingInitialDelay`（**纯时间门控**：初始延迟过后才允许 live reorder） | 要求有选区 + canMove |
+| `gestureRecognizerShouldBegin:` (0x1dbbce094) | `![collectionView isBusy]`（仅在 CV 更新/动画中才拦截；逐项资格在 `_gestureRecognized:` 决定） | 要求有选区 |
+
+→ 这是 showcase 无选区拖动能工作的关键：`_gestureRecognized:` 用 `allowsSelection ? selected : @[ip]`，无选区时拖点击项；`gestureRecognizerShouldBegin:` 不再要求选区。注意 `_updateRearrangingStateForLocation:`（live preview）只在 `_allowRearranging`（即拖动超过 `_rearrangingInitialDelay`=0.5s）后才跑，故快速拖放需拖够 0.5s 才会重排（finish 用 `_targetIndexPaths`，未更新则 == initial → 取消）。
+
 ### 3.3 其它依赖
 - live-drag gap 视觉由 `_UXCollectionViewLayoutProxy.layoutAttributesForElementsInRect:withIndexPaths:movedToIndexPath:atPoint:` 承担（当前 OpenUXKit stub 返回 base）——重写为忠实 gap 需 P10c 级别工作；本阶段可降级为 `invalidateLayout` relayout（reorder 仍生效，仅无平滑 gap 动画）。
 - `_beginDraggingSessionForIndexPaths:` 必须写 `com.apple.UXCollectionView.draggingitem` plist（item/section），否则 willBegin 回调取不到 indexPath。
 - 合成 mouseUp（endedAt）必须，否则 `UXCollectionViewPanGestureRecognizer` 的同步 `nextEventMatchingMask` 事件循环不退出。
+
+### 3.4 接线修复（旧 OpenUXKit 的 rearranging 根本未启用）
+
+UXKit：`_rearrangingCoordinator` getter（0x1dbbe55c0）**懒创建** `initWithCollectionView:self` 并存到 @1744；`setRearrangingEnabled_:`（0x1dbbe5578）→ `[[self _rearrangingCoordinator] setEnabled:]`（安装/移除手势）。旧 OpenUXKit 的 `setRearrangingEnabled_:` 用 `[[... alloc] init]`（= `initWithCollectionView:nil`）且从不 `setEnabled:` → 协调器无 collectionView、无手势识别器 → 设 `rearrangingEnabled_=YES` 实际什么都没接。已修复为 UXKit 拓扑（懒 getter + setEnabled）。
 
 ---
 

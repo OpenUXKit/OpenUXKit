@@ -107,7 +107,7 @@
 
 | UXKit 类 | OpenUXKit 文件 | 状态 | 备注 |
 |---|---|---|---|
-| `_UXCollectionViewRearrangingCoordinator` | `Components/Private/_UXCollectionViewRearrangingCoordinator.{h,m}` (674 行) | 🟡 | **P10a 状态机 + P10b NSDragging 流已完整反编译为 spec**（见 `IDA-Notes/P10-Rearranging.md` + `P10b-Rearranging-NSDragging.md`）：协调器 14 方法 + NSDraggingSource/Destination 回调 + `_beginDraggingSession`(plist) + dropPosition/allowedDropPositions/dragOperation 几何 + dataSource 契约 + 多处死分支全部反编译。**架构差异**：UXKit 走真实 NSDraggingSession（gesture 仅 Began/Changed 启动→回调驱动状态机），OpenUXKit 现为手势直驱近似版（基本 reorder 可工作）。**已建 `Drag-to-rearrange` showcase**（手测基线入口）。**P10b 重写未应用**：faithful rearranging 是多组件、dataSource 契约复杂（需 `allowedDropPositionsForItemsAtIndexPaths:movedToIndexPath:` + `moveItemsAtIndexPaths:toIndexPath:dropPosition:`）、含多处死分支、且只能交互验证的子系统；需用户先手测 showcase 基线 + 确认契约变更后增量推进。 |
+| `_UXCollectionViewRearrangingCoordinator` | `Components/Private/_UXCollectionViewRearrangingCoordinator.{h,m}` (674 行) | 🟡 | **P10a 状态机 + P10b NSDragging 流已完整反编译为 spec**（见 `IDA-Notes/P10-Rearranging.md` + `P10b-Rearranging-NSDragging.md`）：协调器 14 方法 + NSDraggingSource/Destination 回调 + `_beginDraggingSession`(plist) + dropPosition/allowedDropPositions/dragOperation 几何 + dataSource 契约 + 多处死分支全部反编译。**架构差异**：UXKit 走真实 NSDraggingSession（gesture 仅 Began/Changed 启动→回调驱动状态机），OpenUXKit 现为手势直驱近似版（基本 reorder 可工作）。**已建 `Drag-to-rearrange` showcase**（手测入口）。**P10b 重写已应用**（见 `P10b-Rearranging-NSDragging.md`）：协调器重写为 NSDraggingSession 拓扑（gesture→session→source 回调驱动 begin/update/finish）、`_finishRearrangingForLocation:shouldComplete:` 落地 §2.4、契约层对齐（协议加 `allowedDropPositionsForItemsAtIndexPaths:movedToIndexPath:` + `moveItemsAtIndexPaths:toIndexPath:dropPosition:`、CV 转发全部 source/destination 回调、layout `dropPositionForPoint:withIndexPaths:movedToIndexPath:` = `allowedDropPositions & 4`）、gating 修正（`_allowRearranging` 时间门控、`gestureRecognizerShouldBegin:` = `!isBusy`）、**接线修复**（旧 `setRearrangingEnabled_:` 用 `init`(nil CV) 从未安装手势 → 改懒创建 `initWithCollectionView:self` + setEnabled:）。build 0/0、35 测试、对抗式审查（4 维度，1 nit formation 已修）。**余量**：拖放交互需用户手测；live-drag gap 视觉（layout proxy）降级为 relayout，留 P10c。 |
 | `UXCollectionViewPanGestureRecognizer` | `Components/Private/UXCollectionViewPanGestureRecognizer.{h,m}` | 🟢 | P10 verify `mouseDownEvent` / `uxCancel`。 |
 | `UXCollectionViewFilePromiseProvider` | `Components/Private/UXCollectionViewFilePromiseProvider.{h,m}` | 🟢 | P10 verify `auxiliaryFilePromiseProviders` 注入。 |
 
@@ -205,7 +205,7 @@
 ### 剩余工作（均需我无法自主提供的验证条件）
 
 1. ~~**P9d 动画跨布局 transition**~~ — ✅ **已移植并验证**（`P9d-LayoutTransition.md` + `LayoutTransitionTests.swift` 5 用例 end-state）；仅余动画插值曲线/跨布局 appearing-disappearing 视觉效果不可无头验证（需交互式 layout-swap showcase）。
-2. **P10b Rearranging NSDragging 重写** — 状态机 P10a 已备；需交互拖放手测。
+2. ~~**P10b Rearranging NSDragging 重写**~~ — ✅ **已应用**（`P10b-Rearranging-NSDragging.md`）：NSDraggingSession 拓扑 + finish §2.4 + 契约层 + gating/接线修复；build/35 测试/对抗式审查通过。**余量**：拖放交互需用户在 `Drag-to-rearrange` showcase 手测；live-drag gap 视觉（layout proxy）降级为 relayout，留 P10c。
 3. **reuse-pool 专项集成测试** — 池本身 P9c 已对齐；集成测试涉 scroll/timing 模拟，易 flaky。
 4. **P2/P3 逐方法 verify、P4 两处简化收口** — 形式已对齐，深度 verify 为可选加固。
 5. **T7 Showcase 视觉基线** — 需用户手动录屏/截图。
