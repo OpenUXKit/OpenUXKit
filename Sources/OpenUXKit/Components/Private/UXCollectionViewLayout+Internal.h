@@ -58,6 +58,7 @@ withCompletionHandler:(nullable void (^)(BOOL finished))completion;
 - (BOOL)shouldUpdateVisibleCellLayoutAttributes;
 
 - (NSCollectionViewDropOperation)dropPositionForPoint:(CGPoint)point;
+- (NSInteger)dropPositionForPoint:(CGPoint)point withIndexPaths:(NSArray<NSIndexPath *> *)indexPaths movedToIndexPath:(NSIndexPath *)indexPath;
 - (nullable NSIndexPath *)proposedDropIndexPathForDraggingPoint:(CGPoint)point;
 
 @end

@@ -932,7 +932,9 @@ withCompletionHandler:(void (^)(BOOL finished))completion {
 #pragma mark - Rearranging helpers
 
 - (NSInteger)dropPositionForPoint:(CGPoint)point withIndexPaths:(NSArray<NSIndexPath *> *)indexPaths movedToIndexPath:(NSIndexPath *)indexPath {
-    return 0;
+    // UXKit derives the drop position from the collection view's allowed drop
+    // positions, keeping only the "on" bit (0x4). 0x1dbbeaf88.
+    return [_collectionView allowedDropPositionsForItemsAtIndexPaths:indexPaths movedToIndexPath:indexPath] & 4;
 }
 
 - (NSArray<UXCollectionViewLayoutAttributes *> *)layoutAttributesForElementsInRect:(CGRect)rect withIndexPaths:(NSArray<NSIndexPath *> *)indexPaths exchangedWithIndexPaths:(NSArray<NSIndexPath *> *)exchangedIndexPaths {

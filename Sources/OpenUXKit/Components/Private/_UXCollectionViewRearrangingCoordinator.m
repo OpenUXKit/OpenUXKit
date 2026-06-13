@@ -3,16 +3,33 @@
 #import "UXCollectionView.h"
 #import "UXCollectionView+Internal.h"
 #import "UXCollectionViewCell.h"
+#import "UXCollectionReusableView.h"
 #import "UXCollectionViewLayout.h"
+#import "UXCollectionViewLayout+Internal.h"
 #import "UXCollectionViewLayoutAttributes.h"
 #import "UXCollectionViewPanGestureRecognizer.h"
 #import "UXCollectionViewDataSource_Rearranging.h"
 #import "UXCollectionViewDelegate_Rearranging.h"
+#import "NSPasteboard+UXKit.h"
 
 typedef NS_ENUM(NSInteger, UXRearrangingInitiationMode) {
     UXRearrangingInitiationModeImmediate = 0,
     UXRearrangingInitiationModeDelayed = 1,
 };
+
+// UXKit's UXCollectionView pasteboard type carrying the dragged item's
+// {item, section}; the willBegin source callback reads it back to rebuild the
+// dragged index paths.
+static NSString *const UXCollectionViewRearrangingPasteboardType = @"com.apple.UXCollectionView.draggingitem";
+
+// _indexPathsFromRange (static, 0x1dbbcd9fc): [from, from+count) in `section`.
+static NSArray<NSIndexPath *> *UXIndexPathsFromRange(NSUInteger fromItem, NSUInteger count, NSInteger section) {
+    NSMutableArray<NSIndexPath *> *result = [NSMutableArray array];
+    for (NSUInteger item = fromItem; item < fromItem + count; item++) {
+        [result addObject:[NSIndexPath indexPathForItem:(NSInteger)item inSection:section]];
+    }
+    return result;
+}
 
 @interface _UXCollectionViewRearrangingCoordinator () <NSGestureRecognizerDelegate> {
     __weak UXCollectionView *_collectionView;
@@ -137,7 +154,7 @@ typedef NS_ENUM(NSInteger, UXRearrangingInitiationMode) {
     _collectionViewFlags.dataSourceImplementsShouldExchangeItemsAtIndexPathsWithProposedIndexPaths =
         [dataSource respondsToSelector:@selector(collectionView:shouldExchangeItemsAtIndexPaths:withProposedIndexPaths:)];
     _collectionViewFlags.dataSourceImplementsMoveItemsAtIndexPathsToIndexPath =
-        [dataSource respondsToSelector:@selector(collectionView:moveItemsAtIndexPaths:toIndexPath:)];
+        [dataSource respondsToSelector:@selector(collectionView:moveItemsAtIndexPaths:toIndexPath:dropPosition:)];
     _collectionViewFlags.dataSourceImplementsExchangeItemsAtIndexPathsWithIndexPaths =
         [dataSource respondsToSelector:@selector(collectionView:exchangeItemsAtIndexPaths:withIndexPaths:)];
 }
@@ -244,181 +261,129 @@ typedef NS_ENUM(NSInteger, UXRearrangingInitiationMode) {
 }
 
 - (BOOL)gestureRecognizerShouldBegin:(NSGestureRecognizer *)gestureRecognizer {
-    if (!_enabled) {
-        return NO;
-    }
-    NSPoint locationInView = [gestureRecognizer locationInView:_collectionView];
-    NSPoint locationInDocument = [_collectionView.documentView convertPoint:locationInView fromView:_collectionView];
-    NSIndexPath *indexPath = [_collectionView indexPathForItemAtPoint:locationInDocument];
-    if (!indexPath) {
-        return NO;
-    }
-    if (_collectionViewFlags.delegateImplementsShouldBeginDraggingSessionWithClickedItemAtIndexPath) {
-        return [self.delegate collectionView:_collectionView shouldBeginDraggingSessionWithClickedItemAtIndexPath:indexPath];
-    }
-    return _enabled && [self _allowRearranging];
+    // UXKit only blocks the gesture while the collection view is mid-update
+    // (0x1dbbce094); the per-item eligibility is decided in _gestureRecognized:.
+    return ![_collectionView isBusy];
 }
 
 - (BOOL)_allowRearranging {
-    if (!_enabled || !_collectionView) {
-        return NO;
-    }
-    if (![[_collectionView indexPathsForSelectedItems] count] && !_usePileForSingleItem) {
-        return NO;
-    }
-    if (_collectionViewFlags.dataSourceImplementsCanMoveItemsAtIndexPaths) {
-        NSArray<NSIndexPath *> *selected = [_collectionView indexPathsForSelectedItems];
-        return [self.dataSource collectionView:_collectionView canMoveItemsAtIndexPaths:selected ?: @[]];
-    }
-    return _collectionViewFlags.dataSourceImplementsMoveItemsAtIndexPathsToIndexPath ||
-           _collectionViewFlags.dataSourceImplementsExchangeItemsAtIndexPathsWithIndexPaths;
+    // 0x1dbbcde74 — a time gate: the live reorder engages only after the initial
+    // delay elapses from the drag start (it is NOT a selection check).
+    return CFAbsoluteTimeGetCurrent() > _dragStartTime + _rearrangingInitialDelay;
 }
 
 - (void)_gestureRecognized:(NSGestureRecognizer *)recognizer {
-    NSPoint locationInView = [recognizer locationInView:_collectionView];
-    NSPoint locationInDocument = [_collectionView.documentView convertPoint:locationInView fromView:_collectionView];
-    switch (recognizer.state) {
-        case NSGestureRecognizerStateBegan: {
-            NSIndexPath *indexPath = [_collectionView indexPathForItemAtPoint:locationInDocument];
-            if (!indexPath) {
+    // UXKit only kicks off the drag on Began/Changed; the NSDraggingSession
+    // callbacks drive the rest of the state machine (0x1dbbcdeac).
+    NSGestureRecognizerState state = recognizer.state;
+    if (state != NSGestureRecognizerStateBegan && state != NSGestureRecognizerStateChanged) {
+        return;
+    }
+    UXCollectionView *collectionView = _collectionView;
+    NSPoint location = [recognizer locationInView:collectionView.contentView];
+    NSIndexPath *indexPath = [collectionView indexPathForItemAtPoint:location];
+    NSView *hitView = [collectionView.documentView hitTest:location];
+    if (!collectionView.rearrangingEnabled_) {
+        return;
+    }
+    BOOL hitReusableView = NO;
+    for (NSView *view = hitView; view != nil; view = view.superview) {
+        if ([view isKindOfClass:[UXCollectionReusableView class]]) {
+            hitReusableView = YES;
+            break;
+        }
+    }
+    if (!indexPath || !hitReusableView) {
+        return;
+    }
+    NSArray<NSIndexPath *> *indexPaths = collectionView.allowsSelection
+        ? [collectionView indexPathsForSelectedItems]
+        : @[indexPath];
+    BOOL shouldBegin;
+    if (indexPaths.count > 0) {
+        shouldBegin = _collectionViewFlags.delegateImplementsShouldBeginDraggingSessionWithClickedItemAtIndexPath
+            ? [self.delegate collectionView:collectionView shouldBeginDraggingSessionWithClickedItemAtIndexPath:indexPath]
+            : YES;
+    } else {
+        shouldBegin = NO;
+    }
+    if ([recognizer isKindOfClass:[NSPanGestureRecognizer class]]) {
+        NSPoint translation = [(NSPanGestureRecognizer *)recognizer translationInView:collectionView];
+        if (fabs(translation.x) >= 3.0) {
+            if (!shouldBegin) {
                 return;
             }
-            NSArray<NSIndexPath *> *selected = [_collectionView indexPathsForSelectedItems];
-            NSArray<NSIndexPath *> *indexPaths = ([selected containsObject:indexPath] && selected.count > 0) ? selected : @[indexPath];
-            [self _beginRearrangingItemsWithIndexPaths:indexPaths];
-            break;
+        } else if (!(fabs(translation.y) >= 3.0 && shouldBegin)) {
+            return;
         }
-        case NSGestureRecognizerStateChanged: {
-            [self _updateRearrangingStateForLocation:locationInDocument];
-            if (_allowAutoscroll) {
-                [self _autoscrollWithWindowLocation:[recognizer locationInView:nil]];
-            }
-            break;
+        if ([recognizer isKindOfClass:[UXCollectionViewPanGestureRecognizer class]]) {
+            _mouseDownEvent = [(UXCollectionViewPanGestureRecognizer *)recognizer mouseDownEvent];
+            [(UXCollectionViewPanGestureRecognizer *)recognizer uxCancel];
         }
-        case NSGestureRecognizerStateEnded:
-            [self _finishRearrangingForLocation:locationInDocument];
-            break;
-        case NSGestureRecognizerStateCancelled:
-        case NSGestureRecognizerStateFailed:
-            _isRearranging = NO;
-            _initialIndexPaths = nil;
-            _targetIndexPaths = nil;
-            _movedIndexPaths = nil;
-            _exchangedIndexPaths = nil;
-            break;
-        default:
-            break;
     }
+    [self _beginDraggingSessionForIndexPaths:indexPaths];
 }
 
 #pragma mark - Rearranging lifecycle
 
 - (void)_beginRearrangingItemsWithIndexPaths:(NSArray<NSIndexPath *> *)indexPaths {
-    if (indexPaths.count == 0) {
-        return;
-    }
+    // Called by the NSDraggingSource willBegin callback (0x1dbbcddec); the
+    // session is already running, so this only seeds the rearranging state.
     _isRearranging = YES;
-    _initialIndexPaths = [indexPaths copy];
-    _targetIndexPaths = [indexPaths copy];
-    _movedIndexPaths = nil;
-    _exchangedIndexPaths = nil;
     _dragStartTime = CFAbsoluteTimeGetCurrent();
-    _initialIndexPathsAreContiguous = [self _indexPathsAreContiguous:indexPaths];
-    if (indexPaths.count > 0) {
-        _initialIndexRange = NSMakeRange([[indexPaths firstObject] item], indexPaths.count);
-    }
-    [self _beginDraggingSessionForIndexPaths:indexPaths];
+    _initialIndexPathsAreContiguous = YES;
+    _initialIndexPaths = [indexPaths sortedArrayUsingSelector:@selector(compare:)];
+    _movedIndexPaths = indexPaths;
+    _targetIndexPaths = indexPaths;
+    [self.collectionViewLayout invalidateLayout];
 }
 
-- (BOOL)_indexPathsAreContiguous:(NSArray<NSIndexPath *> *)indexPaths {
-    if (indexPaths.count <= 1) {
-        return YES;
-    }
-    NSArray<NSIndexPath *> *sorted = [indexPaths sortedArrayUsingSelector:@selector(compare:)];
-    NSInteger previousItem = NSNotFound;
-    NSInteger previousSection = NSNotFound;
-    for (NSIndexPath *indexPath in sorted) {
-        if (previousItem != NSNotFound) {
-            if (indexPath.section != previousSection || indexPath.item != previousItem + 1) {
-                return NO;
-            }
-        }
-        previousItem = indexPath.item;
-        previousSection = indexPath.section;
-    }
-    return YES;
-}
+- (void)_updateRearrangingStateForLocation:(NSValue *)value {
+    // 0x1dbbcdb40 — the argument is an NSValue boxing a document-space point so
+    // it can ride through performSelector:withObject:afterDelay: (preview delay).
+    NSPoint location = value.pointValue;
+    UXCollectionView *collectionView = _collectionView;
+    NSPoint locationInView = [collectionView convertPoint:location fromView:collectionView.documentView];
+    _isRearranging = CGRectContainsPoint(collectionView.bounds, locationInView);
 
-- (void)_updateRearrangingStateForLocation:(NSPoint)location {
-    NSIndexPath *indexPath = [_collectionView indexPathForItemAtPoint:location];
+    UXCollectionViewLayout *layout = self.collectionViewLayout;
+    NSIndexPath *indexPath = [[[layout layoutAttributesForElementsInRect:CGRectMake(location.x, location.y, 1.0, 1.0)] firstObject] indexPath];
     if (!indexPath) {
+        indexPath = [layout proposedDropIndexPathForDraggingPoint:location];
+    }
+    if (!indexPath || indexPath.item == NSNotFound) {
+        self.dropTargetCell = nil;
+        self.dropOperation = 0;
+        if (_updatesLayoutOnDrag && _continuouslyUpdateInsideCells) {
+            [self _reloadCollectionViewWithAnimation];
+        }
         return;
     }
 
-    BOOL exchangeMode = _shouldExchange;
-    if (_collectionViewFlags.dataSourceImplementsShouldExchangeItemsAtIndexPathsWithProposedIndexPaths) {
-        exchangeMode = [self.dataSource collectionView:_collectionView shouldExchangeItemsAtIndexPaths:_initialIndexPaths withProposedIndexPaths:@[indexPath]];
-    }
-
-    if (exchangeMode) {
-        _exchangedIndexPaths = @[indexPath];
-        _exchangedIndexRange = NSMakeRange(indexPath.item, 1);
+    NSArray<NSIndexPath *> *range = UXIndexPathsFromRange((NSUInteger)indexPath.item, _initialIndexPaths.count, indexPath.section);
+    _shouldExchange = NO;
+    NSArray<NSIndexPath *> *target;
+    if (_initialIndexPathsAreContiguous
+        && _collectionViewFlags.dataSourceImplementsShouldExchangeItemsAtIndexPathsWithProposedIndexPaths
+        && (_shouldExchange = [self.dataSource collectionView:collectionView shouldExchangeItemsAtIndexPaths:_initialIndexPaths withProposedIndexPaths:range])) {
+        target = range;
+        if ([_exchangedIndexPaths containsObject:indexPath] && (NSUInteger)indexPath.item == _initialIndexRange.location) {
+            indexPath = [NSIndexPath indexPathForItem:indexPath.item inSection:0];
+        }
     } else {
-        _targetIndexPaths = @[indexPath];
-        _targetIndexRange = NSMakeRange(indexPath.item, _initialIndexPaths.count);
-        UXCollectionViewCell *cell = [_collectionView cellForItemAtIndexPath:indexPath];
-        if (cell != _dropTargetCell) {
-            _dropTargetCell = cell;
+        target = @[indexPath];
+        if ([layout dropPositionForPoint:location withIndexPaths:_initialIndexPaths movedToIndexPath:indexPath] == 4) {
+            self.dropTargetCell = [collectionView cellForItemAtIndexPath:indexPath];
+            self.dropOperation = [collectionView dragOperationForItemsAtIndexPaths:_initialIndexPaths movedOntoItemAtIndexPath:indexPath];
+        } else {
+            self.dropTargetCell = nil;
+            self.dropOperation = 0;
         }
     }
 
-    if (_continuouslyUpdateInsideCells && _updatesLayoutOnDrag) {
-        [_collectionView updateLayout];
-    }
-}
-
-- (void)_finishRearrangingForLocation:(NSPoint)location {
-    NSIndexPath *targetIndexPath = [_collectionView indexPathForItemAtPoint:location];
-    NSArray<NSIndexPath *> *initial = _initialIndexPaths ?: @[];
-
-    BOOL didChange = NO;
-    if (targetIndexPath) {
-        if (_shouldExchange && _collectionViewFlags.dataSourceImplementsExchangeItemsAtIndexPathsWithIndexPaths) {
-            didChange = [self.dataSource collectionView:_collectionView
-                                exchangeItemsAtIndexPaths:initial
-                                          withIndexPaths:@[targetIndexPath]];
-        } else if (_collectionViewFlags.dataSourceImplementsMoveItemsAtIndexPathsToIndexPath) {
-            didChange = [self.dataSource collectionView:_collectionView
-                                  moveItemsAtIndexPaths:initial
-                                            toIndexPath:targetIndexPath];
-        }
-    }
-
-    if (didChange) {
-        _movedIndexPaths = targetIndexPath ? @[targetIndexPath] : nil;
+    if (_updatesLayoutOnDrag && (_continuouslyUpdateInsideCells || ![_targetIndexPaths containsObject:indexPath])) {
+        _targetIndexPaths = target;
         [self _reloadCollectionViewWithAnimation];
-    } else if (_continuouslyUpdateInsideCells) {
-        [_collectionView updateLayout];
-    }
-
-    _isRearranging = NO;
-    _dropTargetCell = nil;
-    _initialIndexPaths = nil;
-    _targetIndexPaths = nil;
-    _exchangedIndexPaths = nil;
-    _initialIndexRange = NSMakeRange(NSNotFound, 0);
-    _targetIndexRange = NSMakeRange(NSNotFound, 0);
-    _exchangedIndexRange = NSMakeRange(NSNotFound, 0);
-}
-
-- (void)_moveItemsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths {
-    if (_collectionViewFlags.dataSourceImplementsMoveItemsAtIndexPathsToIndexPath && _initialIndexPaths.count) {
-        NSIndexPath *target = [indexPaths firstObject] ?: [_initialIndexPaths firstObject];
-        if (target) {
-            [self.dataSource collectionView:_collectionView
-                      moveItemsAtIndexPaths:_initialIndexPaths
-                                toIndexPath:target];
-        }
     }
 }
 
@@ -471,52 +436,55 @@ typedef NS_ENUM(NSInteger, UXRearrangingInitiationMode) {
 #pragma mark - Dragging session
 
 - (void)_beginDraggingSessionForIndexPaths:(NSArray<NSIndexPath *> *)indexPaths {
-    if (!_mouseDownEvent) {
+    // 0x1dbbccfa8. The collection view is the NSDraggingSource; each dragging
+    // item carries the {item, section} plist the willBegin callback reads back.
+    if (indexPaths.count == 0) {
+        NSLog(@"Error attempting to begin a rearranging drag session with no index paths.");
         return;
     }
+    UXCollectionView *collectionView = _collectionView;
+    if (_collectionViewFlags.dataSourceImplementsCanMoveItemsAtIndexPaths
+        && ![self.dataSource collectionView:collectionView canMoveItemsAtIndexPaths:indexPaths]) {
+        return;
+    }
+    _updatesLayoutOnDrag = _collectionViewFlags.delegateImplementsUpdatesLayoutOnDrag
+        ? [self.delegate collectionViewUpdatesLayoutOnDrag:collectionView]
+        : YES;
+    NSEvent *event = _mouseDownEvent ?: collectionView.window.currentEvent;
     NSMutableArray<NSDraggingItem *> *draggingItems = [NSMutableArray array];
     for (NSIndexPath *indexPath in indexPaths) {
+        UXCollectionViewLayoutAttributes *attributes = [collectionView.collectionViewLayout layoutAttributesForItemAtIndexPath:indexPath];
+        NSImage *image = [self _imageForItemAtIndexPath:indexPath];
+        CGRect frame = attributes.frame;
+        CGFloat width = MAX(image.size.width, 1.0);
+        CGFloat height = MAX(image.size.height, 1.0);
+        NSDictionary *plist = @{ @"item": @(indexPath.item), @"section": @(indexPath.section) };
         id<NSPasteboardWriting> writer = nil;
         if (_collectionViewFlags.delegateImplementsPasteboardWriterForItemAtIndexPath) {
-            writer = [self.delegate collectionView:_collectionView pasteboardWriterForItemAtIndexPath:indexPath];
+            writer = [self.delegate collectionView:collectionView pasteboardWriterForItemAtIndexPath:indexPath];
         }
         if (!writer) {
-            writer = [[NSPasteboardItem alloc] init];
+            NSPasteboardItem *pasteboardItem = [[NSPasteboardItem alloc] init];
+            [pasteboardItem setPropertyList:plist forType:UXCollectionViewRearrangingPasteboardType];
+            writer = pasteboardItem;
         }
         NSDraggingItem *item = [[NSDraggingItem alloc] initWithPasteboardWriter:writer];
-        NSImage *image = [self _imageForItemAtIndexPath:indexPath];
-        UXCollectionViewLayoutAttributes *attributes = [_collectionView layoutAttributesForItemAtIndexPath:indexPath];
-        CGRect frame = attributes.frame;
-        if (image) {
-            [item setDraggingFrame:frame contents:image];
-        } else {
-            [item setDraggingFrame:frame contents:nil];
-        }
+        [item setDraggingFrame:CGRectMake(frame.origin.x, frame.origin.y, width, height) contents:image];
         if (_collectionViewFlags.delegateImplementsDraggingItemForIndexPathProposedDraggingItem) {
-            NSDraggingItem *override = [self.delegate collectionView:_collectionView draggingItemForIndexPath:indexPath proposedDraggingItem:item];
+            NSDraggingItem *override = [self.delegate collectionView:collectionView draggingItemForIndexPath:indexPath proposedDraggingItem:item];
             if (override) {
                 item = override;
             }
         }
-        [draggingItems addObject:item];
+        if (item) {
+            [draggingItems addObject:item];
+        }
     }
-    if (draggingItems.count == 0) {
-        return;
-    }
-    NSDraggingSession *session = [_collectionView beginDraggingSessionWithItems:draggingItems
-                                                                          event:_mouseDownEvent
-                                                                         source:self];
-    if (_collectionViewFlags.delegateImplementsPreferredDraggingFormation) {
-        session.draggingFormation = [self.delegate collectionView:_collectionView preferredDraggingFormationForIndexPaths:indexPaths];
-    }
-    [self _createdDraggingSession:session];
-    [self _updateDragSourceIdentifier];
-}
-
-- (void)_createdDraggingSession:(NSDraggingSession *)session {
-    if (_collectionViewFlags.delegateImplementsCreatedDraggingSessionForItemsAtIndexPaths) {
-        [self.delegate collectionView:_collectionView createdDraggingSession:session forItemsAtIndexPaths:_initialIndexPaths];
-    }
+    [collectionView registerForDraggedTypes:@[UXCollectionViewRearrangingPasteboardType]];
+    NSDraggingSession *session = [collectionView.documentView beginDraggingSessionWithItems:draggingItems
+                                                                                      event:event
+                                                                                     source:(id<NSDraggingSource>)collectionView];
+    [self _createdDraggingSession:session forItemsAtIndexPaths:indexPaths];
 }
 
 - (void)_updateDragSourceIdentifier {
@@ -576,40 +544,125 @@ typedef NS_ENUM(NSInteger, UXRearrangingInitiationMode) {
 }
 
 - (void)draggingSession:(NSDraggingSession *)session willBeginAtPoint:(NSPoint)screenPoint {
+    // 0x1dbbcc724 — rebuild the dragged index paths from the dragging-item plist
+    // and seed the rearranging state.
+    _autoscrolling = NO;
     _screenPoint = screenPoint;
+    UXCollectionView *collectionView = _collectionView;
+    NSMutableArray<NSIndexPath *> *indexPaths = [NSMutableArray array];
+    [session enumerateDraggingItemsWithOptions:0
+                                       forView:collectionView.documentView
+                                       classes:@[[NSPasteboardItem class]]
+                                 searchOptions:@{}
+                                    usingBlock:^(NSDraggingItem *draggingItem, NSInteger index, BOOL *stop) {
+        id propertyList = [draggingItem.item propertyListForType:UXCollectionViewRearrangingPasteboardType];
+        if ([propertyList isKindOfClass:[NSArray class]]) {
+            propertyList = [(NSArray *)propertyList firstObject];
+        }
+        if ([propertyList isKindOfClass:[NSDictionary class]]) {
+            NSUInteger item = [[(NSDictionary *)propertyList objectForKey:@"item"] unsignedIntegerValue];
+            if (item != NSNotFound) {
+                NSUInteger section = [[(NSDictionary *)propertyList objectForKey:@"section"] unsignedIntegerValue];
+                [indexPaths addObject:[NSIndexPath indexPathForItem:(NSInteger)item inSection:(NSInteger)section]];
+            }
+        }
+    }];
     if (_collectionViewFlags.delegateImplementsDraggingSessionWillBeginAtPoint) {
-        [self.delegate collectionView:_collectionView draggingSession:session willBeginAtPoint:screenPoint];
+        [self.delegate collectionView:collectionView draggingSession:session willBeginAtPoint:screenPoint];
     }
+    [self _beginRearrangingItemsWithIndexPaths:indexPaths];
 }
 
 - (void)draggingSession:(NSDraggingSession *)session movedToPoint:(NSPoint)screenPoint {
+    // 0x1dbbcc5b0
     _screenPoint = screenPoint;
+    UXCollectionView *collectionView = _collectionView;
     if (_collectionViewFlags.delegateImplementsDraggingSessionMovedToPoint) {
-        [self.delegate collectionView:_collectionView draggingSession:session movedToPoint:screenPoint];
+        [self.delegate collectionView:collectionView draggingSession:session movedToPoint:screenPoint];
+    }
+    if ([self _allowRearranging] && !_autoscrolling) {
+        NSPoint locationInWindow = [collectionView.window convertRectFromScreen:NSMakeRect(screenPoint.x, screenPoint.y, 0.0, 0.0)].origin;
+        NSPoint locationInDocument = [collectionView.documentView convertPoint:locationInWindow fromView:nil];
+        NSValue *value = [NSValue valueWithPoint:locationInDocument];
+        if (_rearrangingPreviewDelay <= 0.0) {
+            [self _updateRearrangingStateForLocation:value];
+        } else {
+            [NSObject cancelPreviousPerformRequestsWithTarget:self];
+            [self performSelector:@selector(_updateRearrangingStateForLocation:) withObject:value afterDelay:_rearrangingPreviewDelay];
+        }
     }
 }
 
 - (void)draggingSession:(NSDraggingSession *)session endedAtPoint:(NSPoint)screenPoint operation:(NSDragOperation)operation {
+    // 0x1dbbcc3d8 — finish, then synthesize the mouseUp that ends the pan
+    // gesture recognizer's synchronous event-tracking loop.
+    _autoscrolling = NO;
+    _screenPoint = screenPoint;
+    UXCollectionView *collectionView = _collectionView;
+    NSPoint locationInWindow = [collectionView.window convertRectFromScreen:NSMakeRect(screenPoint.x, screenPoint.y, 0.0, 0.0)].origin;
+    NSPoint locationInDocument = [collectionView.documentView convertPoint:locationInWindow fromView:nil];
+    NSPoint locationInView = [collectionView convertPoint:locationInDocument fromView:collectionView.documentView];
+    BOOL shouldComplete = (operation != 0) && NSPointInRect(locationInView, collectionView.bounds);
+    [self _finishRearrangingForLocation:locationInDocument shouldComplete:shouldComplete];
     if (_collectionViewFlags.delegateImplementsDraggingSessionEndedAtPointDragOperation) {
-        [self.delegate collectionView:_collectionView draggingSession:session endedAtPoint:screenPoint dragOperation:operation];
+        [self.delegate collectionView:collectionView draggingSession:session endedAtPoint:screenPoint dragOperation:operation];
     }
+    [collectionView mouseUp:[NSEvent mouseEventWithType:NSEventTypeLeftMouseUp
+                                               location:locationInWindow
+                                          modifierFlags:0
+                                              timestamp:[[NSProcessInfo processInfo] systemUptime]
+                                           windowNumber:0
+                                                context:nil
+                                            eventNumber:0
+                                             clickCount:1
+                                               pressure:1.0]];
+    [session.draggingPasteboard ux_setSourceIdentifier:nil];
+    _mouseDownEvent = nil;
 }
 
 #pragma mark - NSDraggingDestination
 
 - (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender {
-    _dragEnteredTime = CFAbsoluteTimeGetCurrent();
-    if (_collectionViewFlags.delegateImplementsDraggingEntered) {
-        return [self.delegate collectionView:_collectionView draggingEntered:sender];
+    // 0x1dbbcc060
+    [self _updateDragSourceIdentifier];
+    UXCollectionView *collectionView = _collectionView;
+    // UXKit asks the delegate for an entered-formation (a method not in the
+    // OpenUXKit informal protocol); otherwise it passes the raw value 2, which is
+    // NSDraggingFormationPile in AppKit's enum (0x1dbbcc060).
+    [sender setDraggingFormation:NSDraggingFormationPile];
+    __block NSInteger validItemCount = 0;
+    [sender enumerateDraggingItemsWithOptions:NSDraggingItemEnumerationConcurrent
+                                      forView:collectionView.documentView
+                                      classes:@[[NSPasteboardItem class]]
+                                searchOptions:@{}
+                                   usingBlock:^(NSDraggingItem *draggingItem, NSInteger index, BOOL *stop) {
+        validItemCount++;
+    }];
+    if (validItemCount > 0) {
+        [sender setNumberOfValidItemsForDrop:validItemCount];
     }
-    return NSDragOperationNone;
+    _dragEnteredTime = CFAbsoluteTimeGetCurrent();
+    if ([self _shouldHandleExternalDrop:sender] && _collectionViewFlags.delegateImplementsDraggingEntered) {
+        return [self.delegate collectionView:collectionView draggingEntered:sender];
+    }
+    return NSDragOperationMove;
 }
 
 - (NSDragOperation)draggingUpdated:(id<NSDraggingInfo>)sender {
-    if (_collectionViewFlags.delegateImplementsDraggingUpdated) {
+    // 0x1dbbcbf78
+    BOOL external = [self _shouldHandleExternalDrop:sender];
+    if ([self _allowAutoscrollForDraggingInfo:sender]) {
+        if (!(external && CFAbsoluteTimeGetCurrent() <= _dragEnteredTime + 0.33)) {
+            [self _autoscrollWithWindowLocation:sender.draggingLocation];
+        }
+    }
+    if (external && _collectionViewFlags.delegateImplementsDraggingUpdated) {
         return [self.delegate collectionView:_collectionView draggingUpdated:sender];
     }
-    return [self _isSourceOfDraggingInfo:sender] ? NSDragOperationMove : NSDragOperationNone;
+    if (!_isRearranging) {
+        return NSDragOperationMove;
+    }
+    return (self.dropOperation == NSDragOperationCopy) ? NSDragOperationCopy : NSDragOperationMove;
 }
 
 - (void)draggingExited:(nullable id<NSDraggingInfo>)sender {
@@ -626,10 +679,11 @@ typedef NS_ENUM(NSInteger, UXRearrangingInitiationMode) {
 }
 
 - (BOOL)performDragOperation:(id<NSDraggingInfo>)sender {
-    if (_collectionViewFlags.delegateImplementsPerformDragOperation) {
+    // 0x1dbbcbdf4
+    if ([self _shouldHandleExternalDrop:sender] && _collectionViewFlags.delegateImplementsPerformDragOperation) {
         return [self.delegate collectionView:_collectionView performDragOperation:sender];
     }
-    return NO;
+    return YES;
 }
 
 - (void)concludeDragOperation:(nullable id<NSDraggingInfo>)sender {
@@ -657,9 +711,81 @@ typedef NS_ENUM(NSInteger, UXRearrangingInitiationMode) {
 #pragma mark - SPI hooks
 
 - (void)_createdDraggingSession:(NSDraggingSession *)session forItemsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths {
+    if (_collectionViewFlags.delegateImplementsCreatedDraggingSessionForItemsAtIndexPaths) {
+        [self.delegate collectionView:_collectionView createdDraggingSession:session forItemsAtIndexPaths:indexPaths];
+    }
 }
 
 - (void)_finishRearrangingForLocation:(CGPoint)location shouldComplete:(BOOL)shouldComplete {
+    // 0x1dbbcd678. Structure kept faithful to the binary, including the branches
+    // that are unreachable under the current data-source contract (see
+    // IDA-Notes/P10b-Rearranging-NSDragging.md §3.2).
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    self.dropTargetCell = nil;
+    if (!_isRearranging) {
+        return;
+    }
+    UXCollectionView *collectionView = _collectionView;
+    if (!(shouldComplete || !_updatesLayoutOnDrag)) {
+        // !shouldComplete && updatesLayoutOnDrag: cancel but keep the live layout.
+        _isRearranging = NO;
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(_reloadCollectionViewWithAnimation) object:nil];
+        [collectionView performBatchUpdates:^{} completion:nil];
+        return;
+    }
+
+    NSInteger dropPosition = 0;
+    BOOL reachedCommit = NO;
+    // (A) UXKit bails to the cancel path whenever _shouldExchange is set, which
+    // makes the exchange-commit branch below unreachable.
+    if (!_shouldExchange) {
+        dropPosition = [self.collectionViewLayout dropPositionForPoint:location withIndexPaths:_initialIndexPaths movedToIndexPath:[_targetIndexPaths firstObject]];
+        if (dropPosition != 0 && ![_initialIndexPaths isEqualToArray:_targetIndexPaths]) {
+            if (_shouldExchange) {
+                // DEAD (A guarantees _shouldExchange == NO here): faithful to the binary.
+                if (_collectionViewFlags.dataSourceImplementsExchangeItemsAtIndexPathsWithIndexPaths) {
+                    [self.dataSource collectionView:collectionView exchangeItemsAtIndexPaths:_initialIndexPaths withIndexPaths:_targetIndexPaths];
+                }
+                reachedCommit = YES;
+            } else if (_collectionViewFlags.dataSourceImplementsMoveItemsAtIndexPathsToIndexPath) {
+                [self.dataSource collectionView:collectionView moveItemsAtIndexPaths:_initialIndexPaths toIndexPath:[_targetIndexPaths firstObject] dropPosition:dropPosition];
+                reachedCommit = YES;
+            }
+        }
+    }
+
+    _isRearranging = NO;
+    if (reachedCommit) {
+        if (_shouldExchange) {
+            // DEAD: faithful to the binary.
+            NSMutableArray<NSIndexPath *> *reloadPaths = [NSMutableArray arrayWithArray:_initialIndexPaths];
+            [reloadPaths addObjectsFromArray:_targetIndexPaths];
+            [collectionView reloadItemsAtIndexPaths:reloadPaths];
+        } else if (dropPosition == 8 || dropPosition == 2) {
+            // DEAD under the current contract (dropPosition is masked to {0,4} by
+            // -dropPositionForPoint:withIndexPaths:movedToIndexPath:), transcribed
+            // faithfully: shift the destination by the source items removed before
+            // it, then animate the move.
+            NSIndexPath *target = [_targetIndexPaths firstObject];
+            NSInteger base = target.item + (dropPosition == 8 ? 1 : 0);
+            NSInteger adjusted = base;
+            for (NSIndexPath *initialIndexPath in _initialIndexPaths) {
+                if (initialIndexPath.section == target.section && initialIndexPath.item < base) {
+                    adjusted -= 1;
+                }
+            }
+            [self _moveItemsAtIndexPaths:_initialIndexPaths toIndexPaths:UXIndexPathsFromRange((NSUInteger)adjusted, _initialIndexPaths.count, target.section)];
+        } else {
+            [self.collectionViewLayout invalidateLayout];
+        }
+    } else {
+        [self.collectionViewLayout invalidateLayout];
+    }
+
+    _initialIndexPaths = nil;
+    _targetIndexPaths = nil;
+    _movedIndexPaths = nil;
+    [_gestureRecognizer setState:NSGestureRecognizerStateCancelled];
 }
 
 - (void)_moveItemsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths toIndexPaths:(NSArray<NSIndexPath *> *)toIndexPaths {

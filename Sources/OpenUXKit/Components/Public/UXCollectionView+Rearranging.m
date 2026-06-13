@@ -1,54 +1,82 @@
 #import "UXCollectionView+Private.h"
+#import "UXCollectionViewDataSource_Rearranging.h"
 
 @implementation UXCollectionView (Rearranging)
 
 #pragma mark - Drag & drop hooks
 
 - (NSInteger)allowedDropPositionsForItemsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths movedToIndexPath:(NSIndexPath *)indexPath {
-    id<UXCollectionViewDelegate> delegate = self.delegate;
-    SEL selector = NSSelectorFromString(@"collectionView:allowedDropPositionsForItemsAtIndexPaths:movedToIndexPath:");
-    if ([delegate respondsToSelector:selector]) {
-        NSMethodSignature *signature = [(NSObject *)delegate methodSignatureForSelector:selector];
-        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
-        invocation.target = delegate;
-        invocation.selector = selector;
-        UXCollectionView *me = self;
-        [invocation setArgument:&me atIndex:2];
-        [invocation setArgument:&indexPaths atIndex:3];
-        [invocation setArgument:&indexPath atIndex:4];
-        [invocation invoke];
-        NSInteger value = 0;
-        [invocation getReturnValue:&value];
-        return value;
+    // UXKit forwards the drop-position query to the rearranging data source.
+    id<UXCollectionViewDataSource_Rearranging> dataSource = (id<UXCollectionViewDataSource_Rearranging>)self.dataSource;
+    if ([dataSource respondsToSelector:@selector(collectionView:allowedDropPositionsForItemsAtIndexPaths:movedToIndexPath:)]) {
+        return [dataSource collectionView:self allowedDropPositionsForItemsAtIndexPaths:indexPaths movedToIndexPath:indexPath];
     }
     return 0;
 }
 
 - (NSUInteger)dragOperationForItemsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths movedOntoItemAtIndexPath:(NSIndexPath *)indexPath {
+    id<UXCollectionViewDataSource_Rearranging> dataSource = (id<UXCollectionViewDataSource_Rearranging>)self.dataSource;
+    if ([dataSource respondsToSelector:@selector(collectionView:dragOperationForItemsAtIndexPaths:movedOntoItemAtIndexPath:)]) {
+        return [dataSource collectionView:self dragOperationForItemsAtIndexPaths:indexPaths movedOntoItemAtIndexPath:indexPath];
+    }
     return NSDragOperationNone;
 }
 
-- (void)draggingEnded:(id<NSDraggingInfo>)sender {
+// The collection view is itself the NSDraggingSource / NSDraggingDestination
+// (the session is started with `source:self` and the view is registered for the
+// dragged type); UXKit forwards every callback to the rearranging coordinator
+// (see -[UXCollectionView(Rearranging) draggingEntered:] etc. at 0x1dbbe51f8).
+
+- (NSDragOperation)draggingSession:(NSDraggingSession *)session sourceOperationMaskForDraggingContext:(NSDraggingContext)context {
+    return [[self _rearrangingCoordinator] draggingSession:session sourceOperationMaskForDraggingContext:context];
 }
 
 - (void)draggingSession:(NSDraggingSession *)session willBeginAtPoint:(NSPoint)point {
+    [[self _rearrangingCoordinator] draggingSession:session willBeginAtPoint:point];
 }
 
 - (void)draggingSession:(NSDraggingSession *)session movedToPoint:(NSPoint)point {
+    [[self _rearrangingCoordinator] draggingSession:session movedToPoint:point];
 }
 
 - (void)draggingSession:(NSDraggingSession *)session endedAtPoint:(NSPoint)point operation:(NSDragOperation)operation {
-}
-
-- (NSDragOperation)draggingSession:(NSDraggingSession *)session sourceOperationMaskForDraggingContext:(NSDraggingContext)context {
-    return NSDragOperationCopy | NSDragOperationMove;
+    [[self _rearrangingCoordinator] draggingSession:session endedAtPoint:point operation:operation];
 }
 
 - (BOOL)wantsPeriodicDraggingUpdates {
-    return YES;
+    return [[self _rearrangingCoordinator] wantsPeriodicDraggingUpdates];
 }
 
 - (void)updateDraggingItemsForDrag:(id<NSDraggingInfo>)draggingInfo {
+    [[self _rearrangingCoordinator] updateDraggingItemsForDrag:draggingInfo];
+}
+
+- (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender {
+    return [[self _rearrangingCoordinator] draggingEntered:sender];
+}
+
+- (NSDragOperation)draggingUpdated:(id<NSDraggingInfo>)sender {
+    return [[self _rearrangingCoordinator] draggingUpdated:sender];
+}
+
+- (void)draggingExited:(nullable id<NSDraggingInfo>)sender {
+    [[self _rearrangingCoordinator] draggingExited:sender];
+}
+
+- (BOOL)prepareForDragOperation:(id<NSDraggingInfo>)sender {
+    return [[self _rearrangingCoordinator] prepareForDragOperation:sender];
+}
+
+- (BOOL)performDragOperation:(id<NSDraggingInfo>)sender {
+    return [[self _rearrangingCoordinator] performDragOperation:sender];
+}
+
+- (void)concludeDragOperation:(nullable id<NSDraggingInfo>)sender {
+    [[self _rearrangingCoordinator] concludeDragOperation:sender];
+}
+
+- (void)draggingEnded:(id<NSDraggingInfo>)sender {
+    [[self _rearrangingCoordinator] draggingEnded:sender];
 }
 
 #pragma mark - Rearranging
@@ -62,10 +90,12 @@
 }
 
 - (void)setRearrangingEnabled_:(BOOL)rearrangingEnabled {
+    // UXKit routes this through the lazily-created coordinator's -setEnabled:,
+    // which installs/removes the gesture recognizer. The earlier OpenUXKit path
+    // created a coordinator with a nil collection view and never enabled it, so
+    // no gesture was ever installed.
     _rearrangingEnabled = rearrangingEnabled;
-    if (rearrangingEnabled && !_rearrangingCoordinator) {
-        _rearrangingCoordinator = [[_UXCollectionViewRearrangingCoordinator alloc] init];
-    }
+    [[self _rearrangingCoordinator] setEnabled:rearrangingEnabled];
 }
 
 - (BOOL)rearrangingAllowAutoscroll_ {
@@ -109,6 +139,11 @@
 }
 
 - (_UXCollectionViewRearrangingCoordinator *)_rearrangingCoordinator {
+    // Lazily create the coordinator bound to this collection view (matching
+    // UXKit's -_rearrangingCoordinator), so it always has a live collection view.
+    if (!_rearrangingCoordinator) {
+        _rearrangingCoordinator = [[_UXCollectionViewRearrangingCoordinator alloc] initWithCollectionView:self];
+    }
     return _rearrangingCoordinator;
 }
 

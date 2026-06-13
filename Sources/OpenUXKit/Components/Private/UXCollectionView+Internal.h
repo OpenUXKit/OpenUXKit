@@ -32,6 +32,7 @@ NS_SWIFT_UI_ACTOR
 - (CGRect)_visibleBounds;
 - (void)_setVisibleBounds:(CGRect)visibleBounds;
 - (BOOL)_visible;
+- (BOOL)isBusy;
 - (BOOL)_hasAnyItems;
 
 #pragma mark - Cell / supplementary reuse
