@@ -520,6 +520,89 @@ final class UXCollectionViewEdgeCasesShowcaseViewController: UXViewController, U
     }
 }
 
+// MARK: - Drag to rearrange
+
+final class UXCollectionViewRearrangingShowcaseViewController: UXViewController, UXCollectionViewDataSource, UXCollectionViewDelegateFlowLayout {
+    // Mutable model the rearranging coordinator reorders through the data source.
+    private var items: [(color: NSColor, label: String)] = {
+        let palette: [NSColor] = [
+            .systemRed, .systemOrange, .systemYellow, .systemGreen, .systemMint,
+            .systemTeal, .systemCyan, .systemBlue, .systemIndigo, .systemPurple,
+            .systemPink, .systemBrown,
+        ]
+        return palette.enumerated().map { ($0.element, "\($0.offset)") }
+    }()
+
+    private lazy var layout: UXCollectionViewFlowLayout = {
+        let layout = UXCollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.minimumLineSpacing = 12
+        layout.minimumInteritemSpacing = 12
+        layout.sectionInset = NSEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
+        layout.itemSize = NSSize(width: 96, height: 96)
+        return layout
+    }()
+
+    private lazy var collectionView: UXCollectionView = {
+        let collectionView = UXCollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        collectionView.allowsMultipleSelection = false
+        collectionView.register(SwatchCell.self, forCellWithReuseIdentifier: demoCellIdentifier)
+        // Installs the internal _UXCollectionViewRearrangingCoordinator.
+        collectionView.rearrangingEnabled_ = true
+        collectionView.rearrangingAllowAutoscroll_ = true
+        return collectionView
+    }()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        navigationItem?.title = "Drag to rearrange"
+        navigationItem?.prompt = "Drag a cell to reorder; the data source moveItemsAtIndexPaths:toIndexPath: commits the new order"
+        uxView.backgroundColor = ShowcasePalette.surface
+        pinFillingUXView(collectionView, in: self)
+    }
+
+    // MARK: UXCollectionViewDataSource
+    func collectionView(_ collectionView: UXCollectionView, numberOfItemsInSection section: Int) -> Int {
+        items.count
+    }
+    func collectionView(_ collectionView: UXCollectionView, cellForItemAt indexPath: IndexPath) -> UXCollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: demoCellIdentifier, for: indexPath) as! SwatchCell
+        let item = items[indexPath.item]
+        cell.configure(color: item.color, label: item.label)
+        return cell
+    }
+
+    // MARK: Rearranging data source (informal UXCollectionViewDataSource_Rearranging)
+    @objc(collectionView:canMoveItemsAtIndexPaths:)
+    func collectionView(_ collectionView: UXCollectionView, canMoveItemsAtIndexPaths indexPaths: [IndexPath]) -> Bool {
+        true
+    }
+
+    @objc(collectionView:moveItemsAtIndexPaths:toIndexPath:)
+    func collectionView(_ collectionView: UXCollectionView, moveItemsAtIndexPaths indexPaths: [IndexPath], toIndexPath destinationIndexPath: IndexPath) -> Bool {
+        let sourceItemIndexes = indexPaths.map { $0.item }.sorted()
+        guard !sourceItemIndexes.isEmpty else { return false }
+        let movedItems = sourceItemIndexes.map { items[$0] }
+        var reordered = items
+        for sourceItemIndex in sourceItemIndexes.reversed() {
+            reordered.remove(at: sourceItemIndex)
+        }
+        let removedBeforeDestination = sourceItemIndexes.filter { $0 < destinationIndexPath.item }.count
+        let insertionIndex = min(max(0, destinationIndexPath.item - removedBeforeDestination), reordered.count)
+        reordered.insert(contentsOf: movedItems, at: insertionIndex)
+        items = reordered
+        navigationItem?.prompt = "Moved \(indexPaths.count) item(s) → \(destinationIndexPath.item)"
+        return true
+    }
+
+    // MARK: UXCollectionViewDelegateFlowLayout
+    func collectionView(_ collectionView: UXCollectionView, layout: UXCollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> NSSize {
+        NSSize(width: 96, height: 96)
+    }
+}
+
 // MARK: - Shared supplementary view
 
 private final class EdgeBadge: UXCollectionReusableView {
