@@ -121,8 +121,17 @@ static NSArray<NSIndexPath *> *UXIndexPathsFromRange(NSUInteger fromItem, NSUInt
     if (self) {
         _collectionView = collectionView;
         _initiationMode = UXRearrangingInitiationModeImmediate;
-        _rearrangingInitialDelay = 0.5;
-        _rearrangingPreviewDelay = 0.25;
+        // Defaults transcribed from -[_UXCollectionViewRearrangingCoordinator
+        // initWithCollectionView:] (0x1dbbce444): the OWORD written at ivar offset
+        // 0xa0 is {_rearrangingInitialDelay = 0.33, _rearrangingPreviewDelay = 0.1}.
+        // The preview delay is load-bearing: -draggingSession:movedToPoint: debounces
+        // -_updateRearrangingStateForLocation: by this interval, so it must be short
+        // enough to fire on the natural pause as the pointer settles over a drop
+        // target. A too-large value (the earlier 0.25) never elapses during a
+        // continuous drag, so _targetIndexPaths never advances past the initial
+        // selection and -_finishRearrangingForLocation:shouldComplete: cancels.
+        _rearrangingInitialDelay = 0.33;
+        _rearrangingPreviewDelay = 0.1;
         _initialIndexRange = NSMakeRange(NSNotFound, 0);
         _targetIndexRange = NSMakeRange(NSNotFound, 0);
         _movedIndexRange = NSMakeRange(NSNotFound, 0);

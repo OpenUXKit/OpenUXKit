@@ -6,7 +6,7 @@
 >
 > **状态：已完整反编译 + 重写已应用（用户选 A：增量忠实重写）。** 反编译发现 faithful rearranging 是一个**多组件、dataSource 契约复杂、含多处死分支、且只能交互验证**的子系统（§3.1 契约 + §3.2 死分支）。重写已落地：协调器 NSDragging 拓扑 + finish §2.4 + 契约层（协议 + CV 转发 + layout dropPosition）+ gating 方法修正（§3.2b）+ 接线修复（`setRearrangingEnabled_` 此前根本未接线，§3.4）。**重要发现**：旧 OpenUXKit 的 rearranging 因 `setRearrangingEnabled_:` 用 `init`（nil CV、不 setEnabled）而**从未安装手势识别器、根本不工作**——所以重写没有"可工作功能"会被破坏。
 >
-> **运行验证限制**：拖放为交互行为，无法在无头环境验证。已验证：build 0/0 ｜ 35 既有测试 ｜ 对抗式反编译审查。**待用户在 `Drag-to-rearrange` showcase 手测**：拖动重排（需拖够 `_rearrangingInitialDelay`=0.5s）、autoscroll。未移植（降级）：live-drag gap 视觉（layout proxy，relayout 替代 → showcase 的 dataSource 在 move 后 `reloadData`）。
+> **运行验证**：拖放为交互行为，无法在无头环境验证。已验证：build 0/0 ｜ 35 既有测试 ｜ 对抗式反编译审查 ｜ **用户在 `Drag-to-rearrange` showcase 手测确认拖动重排提交**（修正计时常量后，运行日志显示完整提交链 `update committed → finish dropPosition=4 initialEqTarget=0 implMove=1`，dataSource 的 `moveItemsAtIndexPaths:toIndexPath:dropPosition:` 被调用）。修复关键见 §3.2c：`_rearrangingInitialDelay`/`_rearrangingPreviewDelay` 初次移植误填 0.5/0.25，真实值 0.33/0.1，其中 0.25 的 preview-delay 防抖太长是"能拖不重排"的病根。未移植（降级）：live-drag gap 视觉（layout proxy，relayout 替代 → showcase 的 dataSource 在 move 后 `reloadData`）。
 
 ---
 
@@ -189,12 +189,23 @@ else if (flag bit2 move) [dataSource collectionView:moveItemsAtIndexPaths:initia
 | `_allowRearranging` (0x1dbbcde74) | `now > _dragStartTime + _rearrangingInitialDelay`（**纯时间门控**：初始延迟过后才允许 live reorder） | 要求有选区 + canMove |
 | `gestureRecognizerShouldBegin:` (0x1dbbce094) | `![collectionView isBusy]`（仅在 CV 更新/动画中才拦截；逐项资格在 `_gestureRecognized:` 决定） | 要求有选区 |
 
-→ 这是 showcase 无选区拖动能工作的关键：`_gestureRecognized:` 用 `allowsSelection ? selected : @[ip]`，无选区时拖点击项；`gestureRecognizerShouldBegin:` 不再要求选区。注意 `_updateRearrangingStateForLocation:`（live preview）只在 `_allowRearranging`（即拖动超过 `_rearrangingInitialDelay`=0.5s）后才跑，故快速拖放需拖够 0.5s 才会重排（finish 用 `_targetIndexPaths`，未更新则 == initial → 取消）。
+→ 这是 showcase 无选区拖动能工作的关键：`_gestureRecognized:` 用 `allowsSelection ? selected : @[ip]`，无选区时拖点击项；`gestureRecognizerShouldBegin:` 不再要求选区。注意 `_updateRearrangingStateForLocation:`（live preview）只在 `_allowRearranging`（即拖动超过 `_rearrangingInitialDelay`）后才跑，故快速拖放需拖够该延迟才会重排（finish 用 `_targetIndexPaths`，未更新则 == initial → 取消）。
+
+### 3.2c 计时常量与 preview-delay 防抖（init 0x1dbbce444 实测，**初次移植填错**）
+
+`initWithCollectionView:` 在 ivar 偏移 `0xa0` 写入一个 OWORD `{_rearrangingInitialDelay = 0.33, _rearrangingPreviewDelay = 0.1}`（`xmmword_1DBC16CD0` = `0x3FD51EB851EB851F`, `0x3FB999999999999A`）。**初次移植误填 0.5 / 0.25**，其中 `_rearrangingPreviewDelay = 0.25` 是 P10b 落地后"能拖动但不重排"的真正病根：
+
+- `draggingSession:movedToPoint:` 对 `_updateRearrangingStateForLocation:` 做 `cancelPreviousPerformRequestsWithTarget: + performSelector:withObject:afterDelay:_rearrangingPreviewDelay` 防抖。
+- 连续拖动时每个 move 事件（约 16–50ms 一个）都取消上一个挂起请求并重排到 +delay，**delay 内攒不满就永不触发**；松手时 `_finishRearrangingForLocation:` 开头的 `cancelPreviousPerformRequestsWithTarget:` 又把最后一个挂起请求取消。
+- delay=0.25 太长，接不住"减速松手前"的自然停顿 → `_updateRearrangingStateForLocation:` 全程不跑 → `_targetIndexPaths` 一直 == initial → finish `![initial isEqualToArray:target]` 为假 → 不提交。改回二进制的 **0.1** 后，落点处的自然停顿即可触发更新并提交（运行日志确认：`update committed target=[0,4]` → `finish dropPosition=4 initialEqTarget=0 implMove=1`）。
+- **拓扑确认**：`beginDraggingSessionWithItems:event:source:` 的返回值在 `_beginDraggingSessionForIndexPaths:` 末尾**立即**传给 `_createdDraggingSession:forItemsAtIndexPaths:` → begin 非阻塞、拖动在主 run loop 异步跟踪，故 default-mode 的 `performSelector:afterDelay:` 在 move 间隙能正常触发（无需 `inModes:`，与二进制一致）。
+
+**其它 init 默认值**（offset/语义，供后续对齐；与 reorder bug 无关但当前 OpenUXKit 未完全匹配）：`_enabled`(0x89)=YES、`_updatesLayoutOnDrag`(0x70)=YES、`_allowAutoscroll`(0x8d)=YES，且 init 内直接调 `reloadLayout` + `createGestureRecognizer`。OpenUXKit 改用 §3.4 的"懒 getter + setEnabled 装手势"拓扑（功能等价，手势确认可用），未照搬 init-内建手势 + enabled 默认 YES。
 
 ### 3.3 其它依赖
 - live-drag gap 视觉由 `_UXCollectionViewLayoutProxy.layoutAttributesForElementsInRect:withIndexPaths:movedToIndexPath:atPoint:` 承担（当前 OpenUXKit stub 返回 base）——重写为忠实 gap 需 P10c 级别工作；本阶段可降级为 `invalidateLayout` relayout（reorder 仍生效，仅无平滑 gap 动画）。
 - `_beginDraggingSessionForIndexPaths:` 必须写 `com.apple.UXCollectionView.draggingitem` plist（item/section），否则 willBegin 回调取不到 indexPath。
-- 合成 mouseUp（endedAt）必须，否则 `UXCollectionViewPanGestureRecognizer` 的同步 `nextEventMatchingMask` 事件循环不退出。
+- 合成 mouseUp（endedAt → `[collectionView mouseUp:]`）：`_gestureRecognized:` 里 `uxCancel` + `beginDraggingSession` 后，原始 mouseDown 已被吞、配对的 mouseUp 进了拖动机制而非 CV，CV/手势的事件状态失衡；endedAt 合成一个 mouseUp 回灌给 CV 以平衡。（注：`UXCollectionViewPanGestureRecognizer` 仅覆写 `mouseDown:`/`uxCancel`/`dealloc`，**无** `nextEventMatchingMask` 嵌套循环——早期笔记的"同步事件循环"说法已纠正。）
 
 ### 3.4 接线修复（旧 OpenUXKit 的 rearranging 根本未启用）
 
