@@ -12,9 +12,17 @@
 #import "UXCollectionViewDelegate_Rearranging.h"
 #import "NSPasteboard+UXKit.h"
 
+// UXKit stores the initiation mode as a raw NSInteger (no named enum survives in
+// the binary). These names mirror the dispatch in
+// -[_UXCollectionViewRearrangingCoordinator createGestureRecognizer] (0x1dbbce134):
+// mode 0 (the default) installs an NSPressGestureRecognizer, so the drag only
+// starts after a press-and-hold; any non-zero mode installs the
+// UXCollectionViewPanGestureRecognizer, so the drag starts on the first pointer
+// movement. (An earlier port had this mapping inverted, which is why OpenUXKit
+// dragged on movement while the system UXKit required a press-and-hold.)
 typedef NS_ENUM(NSInteger, UXRearrangingInitiationMode) {
-    UXRearrangingInitiationModeImmediate = 0,
-    UXRearrangingInitiationModeDelayed = 1,
+    UXRearrangingInitiationModePressAndHold = 0,
+    UXRearrangingInitiationModeDragImmediately = 1,
 };
 
 // UXKit's UXCollectionView pasteboard type carrying the dragged item's
@@ -120,7 +128,7 @@ static NSArray<NSIndexPath *> *UXIndexPathsFromRange(NSUInteger fromItem, NSUInt
     self = [super init];
     if (self) {
         _collectionView = collectionView;
-        _initiationMode = UXRearrangingInitiationModeImmediate;
+        _initiationMode = UXRearrangingInitiationModePressAndHold;
         // Defaults transcribed from -[_UXCollectionViewRearrangingCoordinator
         // initWithCollectionView:] (0x1dbbce444): the OWORD written at ivar offset
         // 0xa0 is {_rearrangingInitialDelay = 0.33, _rearrangingPreviewDelay = 0.1}.
@@ -245,21 +253,27 @@ static NSArray<NSIndexPath *> *UXIndexPathsFromRange(NSUInteger fromItem, NSUInt
 #pragma mark - Gesture recognizer lifecycle
 
 - (void)createGestureRecognizer {
-    if (_gestureRecognizer || !_collectionView) {
+    // 0x1dbbce134 — faithful: drop any existing recognizer, then pick the class by
+    // initiation mode and install it. Mode 0 (the default) uses an
+    // NSPressGestureRecognizer, so the drag starts only after a press-and-hold;
+    // any non-zero mode uses the pan recognizer, so the drag starts on the first
+    // movement. Both have primary/secondary mouse-button event delaying turned OFF
+    // (so the recognizer does not delay the click the cell needs). The binary does
+    // NOT override the press recognizer's minimumPressDuration/allowableMovement,
+    // so it keeps AppKit's defaults (~0.5s hold).
+    [self removeGestureRecognizer];
+    if (!_collectionView) {
         return;
     }
-    if (_initiationMode == UXRearrangingInitiationModeDelayed) {
-        NSPressGestureRecognizer *press = [[NSPressGestureRecognizer alloc] initWithTarget:self action:@selector(_gestureRecognized:)];
-        press.minimumPressDuration = _rearrangingInitialDelay;
-        press.allowableMovement = 5.0;
-        press.delegate = self;
-        _gestureRecognizer = press;
-    } else {
-        UXCollectionViewPanGestureRecognizer *pan = [[UXCollectionViewPanGestureRecognizer alloc] initWithTarget:self action:@selector(_gestureRecognized:)];
-        pan.delegate = self;
-        _gestureRecognizer = pan;
-    }
-    [_collectionView addGestureRecognizer:_gestureRecognizer];
+    Class recognizerClass = (_initiationMode == UXRearrangingInitiationModePressAndHold)
+        ? [NSPressGestureRecognizer class]
+        : [UXCollectionViewPanGestureRecognizer class];
+    NSGestureRecognizer *recognizer = [[recognizerClass alloc] initWithTarget:self action:@selector(_gestureRecognized:)];
+    recognizer.delaysPrimaryMouseButtonEvents = NO;
+    recognizer.delaysSecondaryMouseButtonEvents = NO;
+    recognizer.delegate = self;
+    _gestureRecognizer = recognizer;
+    [_collectionView addGestureRecognizer:recognizer];
 }
 
 - (void)removeGestureRecognizer {

@@ -523,6 +523,14 @@ final class UXCollectionViewEdgeCasesShowcaseViewController: UXViewController, U
 // MARK: - Drag to rearrange
 
 final class UXCollectionViewRearrangingShowcaseViewController: UXViewController, UXCollectionViewDataSource, UXCollectionViewDelegateFlowLayout {
+    // How the drag is initiated, matching UXKit's NSInteger rearrangingInitiationMode_:
+    // 0 = press-and-hold (UXKit's default, an NSPressGestureRecognizer) and 1 = drag
+    // immediately on movement (the UXCollectionViewPanGestureRecognizer). The catalog
+    // factory sets this before the view loads. Press-and-hold is the behavior the
+    // system UXKit framework exhibits; the immediate mode is the one that drags
+    // without a hold on both OpenUXKit and the system framework.
+    var rearrangingInitiationMode: Int = 0
+
     // Mutable model the rearranging coordinator reorders through the data source.
     private var items: [(color: NSColor, label: String)] = {
         let palette: [NSColor] = [
@@ -551,7 +559,10 @@ final class UXCollectionViewRearrangingShowcaseViewController: UXViewController,
         // when selection is enabled, so disable it here for a clearer demo).
         collectionView.allowsSelection = false
         collectionView.register(SwatchCell.self, forCellWithReuseIdentifier: demoCellIdentifier)
-        // Installs the internal _UXCollectionViewRearrangingCoordinator.
+        // Pick how the drag is initiated *before* enabling, then install the
+        // internal _UXCollectionViewRearrangingCoordinator. Mode 0 (press-and-hold)
+        // matches the system UXKit default; mode 1 drags on movement.
+        collectionView.rearrangingInitiationMode_ = rearrangingInitiationMode
         collectionView.rearrangingEnabled_ = true
         collectionView.rearrangingAllowAutoscroll_ = true
         return collectionView
@@ -559,8 +570,11 @@ final class UXCollectionViewRearrangingShowcaseViewController: UXViewController,
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationItem?.title = "Drag to rearrange"
-        navigationItem?.prompt = "Drag a cell to reorder; the data source moveItemsAtIndexPaths:toIndexPath: commits the new order"
+        let pressAndHold = (rearrangingInitiationMode == 0)
+        navigationItem?.title = pressAndHold ? "Drag to rearrange (press & hold)" : "Drag to rearrange (immediate)"
+        navigationItem?.prompt = pressAndHold
+            ? "Press and hold a cell (~0.5s), then drag to reorder — UXKit's default initiation mode"
+            : "Drag a cell to reorder — the drag starts on movement (pan initiation mode)"
         uxView.backgroundColor = ShowcasePalette.surface
         pinFillingUXView(collectionView, in: self)
     }

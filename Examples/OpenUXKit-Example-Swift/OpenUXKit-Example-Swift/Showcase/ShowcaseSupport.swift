@@ -52,7 +52,12 @@ enum ShowcaseCatalog {
             ShowcaseDemo(title: "Mixed sizes", subtitle: "Truly variable item widths and heights", make: UXCollectionViewMixedSizeShowcaseViewController.init),
             ShowcaseDemo(title: "Per-section metrics", subtitle: "Different insets, spacings, and footers per section", make: UXCollectionViewMultiMetricsShowcaseViewController.init),
             ShowcaseDemo(title: "Edge cases", subtitle: "Empty sections, single-item rows, default itemSize", make: UXCollectionViewEdgeCasesShowcaseViewController.init),
-            ShowcaseDemo(title: "Drag to rearrange", subtitle: "Rearranging coordinator: drag cells to reorder", make: UXCollectionViewRearrangingShowcaseViewController.init),
+            ShowcaseDemo(title: "Drag to rearrange (press & hold)", subtitle: "Rearranging coordinator, UXKit-default press-and-hold initiation", make: UXCollectionViewRearrangingShowcaseViewController.init),
+            ShowcaseDemo(title: "Drag to rearrange (immediate)", subtitle: "Rearranging coordinator, pan initiation — drags on movement, no hold", make: {
+                let viewController = UXCollectionViewRearrangingShowcaseViewController()
+                viewController.rearrangingInitiationMode = 1
+                return viewController
+            }),
         ]),
         ShowcaseSection(title: "Miscellaneous", demos: [
             ShowcaseDemo(title: "UXTabBarItemSegment", subtitle: "Segment model used by tab bars", make: UXTabBarItemSegmentShowcaseViewController.init),

@@ -99,11 +99,14 @@
 }
 
 - (BOOL)rearrangingAllowAutoscroll_ {
-    return _rearrangingAllowAutoscroll;
+    return [[self _rearrangingCoordinator] allowAutoscroll];
 }
 
 - (void)setRearrangingAllowAutoscroll_:(BOOL)allowAutoscroll {
-    _rearrangingAllowAutoscroll = allowAutoscroll;
+    // 0x1dbbe5530 — forwards to the coordinator; the value lives there, not on the
+    // collection view (the earlier port stored a dead collection-view ivar, so the
+    // setting never reached the coordinator).
+    [[self _rearrangingCoordinator] setAllowAutoscroll:allowAutoscroll];
 }
 
 - (BOOL)rearrangingExternalDropEnabled_ {
@@ -115,27 +118,31 @@
 }
 
 - (NSInteger)rearrangingInitiationMode_ {
-    return _rearrangingInitiationMode;
+    return [[self _rearrangingCoordinator] initiationMode];
 }
 
 - (void)setRearrangingInitiationMode_:(NSInteger)mode {
-    _rearrangingInitiationMode = mode;
+    // 0x1dbbe53d0 — forwards to the coordinator's -setInitiationMode:, which
+    // reinstalls the gesture recognizer (press-and-hold for 0, pan for non-zero).
+    [[self _rearrangingCoordinator] setInitiationMode:mode];
 }
 
 - (BOOL)rearrangingContinuouslyUpdateInsideCells_ {
-    return _rearrangingContinuouslyUpdateInsideCells;
+    return [[self _rearrangingCoordinator] continuouslyUpdateInsideCells];
 }
 
 - (void)setRearrangingContinuouslyUpdateInsideCells_:(BOOL)continuouslyUpdate {
-    _rearrangingContinuouslyUpdateInsideCells = continuouslyUpdate;
+    // 0x1dbbe5388 — forwards to the coordinator.
+    [[self _rearrangingCoordinator] setContinuouslyUpdateInsideCells:continuouslyUpdate];
 }
 
 - (CGFloat)rearrangingPreviewDelay_ {
-    return _rearrangingPreviewDelay;
+    return [[self _rearrangingCoordinator] rearrangingPreviewDelay];
 }
 
 - (void)setRearrangingPreviewDelay_:(CGFloat)delay {
-    _rearrangingPreviewDelay = delay;
+    // 0x1dbbe5340 — forwards to the coordinator.
+    [[self _rearrangingCoordinator] setRearrangingPreviewDelay:delay];
 }
 
 - (_UXCollectionViewRearrangingCoordinator *)_rearrangingCoordinator {

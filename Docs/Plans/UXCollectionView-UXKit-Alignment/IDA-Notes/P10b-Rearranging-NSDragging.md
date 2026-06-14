@@ -202,6 +202,21 @@ else if (flag bit2 move) [dataSource collectionView:moveItemsAtIndexPaths:initia
 
 **其它 init 默认值**（offset/语义，供后续对齐；与 reorder bug 无关但当前 OpenUXKit 未完全匹配）：`_enabled`(0x89)=YES、`_updatesLayoutOnDrag`(0x70)=YES、`_allowAutoscroll`(0x8d)=YES，且 init 内直接调 `reloadLayout` + `createGestureRecognizer`。OpenUXKit 改用 §3.4 的"懒 getter + setEnabled 装手势"拓扑（功能等价，手势确认可用），未照搬 init-内建手势 + enabled 默认 YES。
 
+### 3.2d initiation-mode 的手势类映射（**初次移植颠倒** → 系统"必须按住"的真因）
+
+`createGestureRecognizer`(0x1dbbce134) 反汇编：`LDR X9,[X19,#0x98]`(=`_initiationMode`)、`CMP X9,#0`、`CSEL X8, <0x1E553C3F8>, off_1E769EE78, EQ` —— 即
+
+| `_initiationMode` | 手势类 | 行为 |
+|---|---|---|
+| `0`（**默认**，init 不设） | `*0x1E553C3F8` = **NSPressGestureRecognizer**（外部 AppKit classref，静态 0x0；用户运行确认"按住一会儿才拖") | 按住 ~0.5s（NSPressGestureRecognizer 默认 `minimumPressDuration`）才开始拖 |
+| 非 0（如 `1`） | `off_1E769EE78` = `0x1ed758998` = **UXCollectionViewPanGestureRecognizer** | translation≥3 即开始拖（无需按住） |
+
+随后对所选手势统一 `setDelaysPrimaryMouseButtonEvents:NO` + `setDelaysSecondaryMouseButtonEvents:NO` + `setDelegate:`；**不**设 `minimumPressDuration`/`allowableMovement`（press 用 AppKit 默认）。
+
+**初次移植把映射写反了**（OpenUXKit：默认 0→pan、1→press），所以 OpenUXKit 一拖即动、系统 UXKit 默认要按住。已修正：`createGestureRecognizer` 改为 `0→NSPressGestureRecognizer、非0→UXCollectionViewPanGestureRecognizer`，加 `setDelays…:NO`，去掉 `minimumPressDuration` 覆写，开头 `removeGestureRecognizer`（支持 `setInitiationMode:` 重装）。枚举重命名 `UXRearrangingInitiationModePressAndHold=0 / DragImmediately=1`（UXKit 实际是裸 NSInteger，无命名枚举）。Showcase 拆成两个 case：默认（press-and-hold，匹配系统）+ `rearrangingInitiationMode_=1`（pan，移动即拖，两个框架都不需按住）。
+
+**CV 级 rearranging setter 全是纯转发**（实测）：`setRearrangingInitiationMode_:`(0x1dbbe53d0)→`[coordinator setInitiationMode:]`、`setRearrangingAllowAutoscroll_:`(0x1dbbe5530)→`setAllowAutoscroll:`、`setRearrangingPreviewDelay_:`(0x1dbbe5340)→`setRearrangingPreviewDelay:`、`setRearrangingContinuouslyUpdateInsideCells_:`(0x1dbbe5388)→`setContinuouslyUpdateInsideCells:`。旧 OpenUXKit 把这些存进 CV 自己的死 ivar、**不转发** → showcase 设 `rearrangingInitiationMode_`/`rearrangingAllowAutoscroll_` 对协调器无效（autoscroll 也因此没生效）。已改为纯转发并删除 4 个死 ivar。
+
 ### 3.3 其它依赖
 - live-drag gap 视觉由 `_UXCollectionViewLayoutProxy.layoutAttributesForElementsInRect:withIndexPaths:movedToIndexPath:atPoint:` 承担（当前 OpenUXKit stub 返回 base）——重写为忠实 gap 需 P10c 级别工作；本阶段可降级为 `invalidateLayout` relayout（reorder 仍生效，仅无平滑 gap 动画）。
 - `_beginDraggingSessionForIndexPaths:` 必须写 `com.apple.UXCollectionView.draggingitem` plist（item/section），否则 willBegin 回调取不到 indexPath。

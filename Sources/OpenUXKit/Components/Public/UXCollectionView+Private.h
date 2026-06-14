@@ -179,11 +179,10 @@ NS_ASSUME_NONNULL_BEGIN
     } _collectionViewFlags;
     CGPoint _lastLayoutOffset;
     BOOL _rearrangingEnabled;
-    BOOL _rearrangingAllowAutoscroll;
     BOOL _rearrangingExternalDropEnabled;
-    NSInteger _rearrangingInitiationMode;
-    BOOL _rearrangingContinuouslyUpdateInsideCells;
-    CGFloat _rearrangingPreviewDelay;
+    // initiationMode / allowAutoscroll / continuouslyUpdateInsideCells /
+    // previewDelay are stored on the rearranging coordinator (matching UXKit's
+    // pure-forwarding setters); the collection view keeps no backing ivar for them.
     CGSize _contentSize;
     BOOL _doneFirstLayout;
 
