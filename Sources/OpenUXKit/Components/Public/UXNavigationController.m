@@ -147,6 +147,7 @@ void *UXScopeBarItemsObservationContext = &UXScopeBarItemsObservationContext;
         _toolbar.accessibilityIdentifier = @"UXNavigationControllerToolbar";
         _toolbar.accessibilityRoleDescription = UXLocalizedString(@"UXNavigationControllerToolbarAXRoleDescription");
         _toolbar.accessibilityLabel = UXLocalizedString(@"UXNavigationControllerToolbarAXLabel");
+        _toolbar.translatesAutoresizingMaskIntoConstraints = NO;
     }
 
     return _toolbar;
