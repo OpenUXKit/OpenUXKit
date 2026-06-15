@@ -16,34 +16,10 @@ typedef NS_ENUM(NSInteger, UXViewAnimationCurve) {
 } NS_SWIFT_NAME(UXView.AnimationCurve);
 
 typedef NS_OPTIONS(NSUInteger, UXViewAnimationOptions) {
-    UXViewAnimationOptionLayoutSubviews                  = 1 <<  0,
-    UXViewAnimationOptionAllowUserInteraction            = 1 <<  1,// turn on user interaction while animating
-    UXViewAnimationOptionBeginFromCurrentState           = 1 <<  2,// start all views from current value, not initial value
-    UXViewAnimationOptionRepeat                          = 1 <<  3,// repeat animation indefinitely
-    UXViewAnimationOptionAutoreverse                     = 1 <<  4,// if repeat, run animation back and forth
-    UXViewAnimationOptionOverrideInheritedDuration       = 1 <<  5,// ignore nested duration
-    UXViewAnimationOptionOverrideInheritedCurve          = 1 <<  6,// ignore nested curve
-    UXViewAnimationOptionAllowAnimatedContent            = 1 <<  7,// animate contents (applies to transitions only)
-    UXViewAnimationOptionShowHideTransitionViews         = 1 <<  8,// flip to/from hidden state instead of adding/removing
-    UXViewAnimationOptionOverrideInheritedOptions        = 1 <<  9,// do not inherit any options or animation type
-
-    UXViewAnimationOptionCurveEaseInOut                  = 0 << 16, // default
-    UXViewAnimationOptionCurveEaseIn                     = 1 << 16,
-    UXViewAnimationOptionCurveEaseOut                    = 2 << 16,
-    UXViewAnimationOptionCurveLinear                     = 3 << 16,
-
-    UXViewAnimationOptionTransitionNone                  = 0 << 20, // default
-    UXViewAnimationOptionTransitionFlipFromLeft          = 1 << 20,
-    UXViewAnimationOptionTransitionFlipFromRight         = 2 << 20,
-    UXViewAnimationOptionTransitionCurlUp                = 3 << 20,
-    UXViewAnimationOptionTransitionCurlDown              = 4 << 20,
-    UXViewAnimationOptionTransitionCrossDissolve         = 5 << 20,
-    UXViewAnimationOptionTransitionFlipFromTop           = 6 << 20,
-    UXViewAnimationOptionTransitionFlipFromBottom        = 7 << 20,
-
-    UXViewAnimationOptionPreferredFramesPerSecondDefault = 0 << 24,
-    UXViewAnimationOptionPreferredFramesPerSecond60      = 3 << 24,
-    UXViewAnimationOptionPreferredFramesPerSecond30      = 7 << 24,
+    UXViewAnimationOptionCurveEaseInOut = 0 << 16, // default
+    UXViewAnimationOptionCurveEaseIn    = 1 << 16,
+    UXViewAnimationOptionCurveEaseOut   = 2 << 16,
+    UXViewAnimationOptionCurveLinear    = 3 << 16,
 } NS_SWIFT_NAME(UXView.AnimationOptions);
 
 typedef NS_ENUM(NSInteger, UXViewContentMode) {

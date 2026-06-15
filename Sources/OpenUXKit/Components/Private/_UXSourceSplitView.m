@@ -505,7 +505,7 @@
         CGFloat duration = animated ? 0.3 : 0.0;
         [UXView animateWithDuration:duration
                               delay:0.0
-                            options:(UXViewAnimationOptionTransitionNone)
+                            options:(UXViewAnimationOptionCurveEaseInOut)
                          animations:^{
             [self     _setCollapsed:transientlyUncollapsed == NO
                 shouldLayoutSubtree:YES];
