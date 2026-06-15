@@ -1,5 +1,6 @@
 #import "UXBase.h"
 #import "UXTabBarController.h"
+#import "UXNavigationController+Internal.h"
 
 @class NSLayoutConstraint, NSMapTable, NSPopUpButton, NSSegmentedControl, NSToolbarItemGroup;
 @class UXNavigationItem, UXTabBarItemSegment, _UXViewControllerOneToOneTransitionContext;
@@ -46,7 +47,7 @@ NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 - (void)_performTransitionIfNeeded;
 - (void)_transitionToTargetViewControllerWithCompletion:(nullable UXCompletionHandler)completion;
 - (void)_transitionToViewController:(nullable UXViewController *)viewController animated:(BOOL)animated completion:(nullable UXCompletionHandler)completion;
-- (_UXViewControllerOneToOneTransitionContext *)_contextForTransitionOperation:(NSInteger)operation fromViewController:(nullable UXViewController *)fromViewController toViewController:(nullable UXViewController *)toViewController transition:(NSUInteger)transition;
+- (_UXViewControllerOneToOneTransitionContext *)_contextForTransitionOperation:(NSInteger)operation fromViewController:(nullable UXViewController *)fromViewController toViewController:(nullable UXViewController *)toViewController transition:(UXNavigationControllerTransition)transition;
 - (void)_beginTransitionWithContext:(_UXViewControllerOneToOneTransitionContext *)context operation:(NSInteger)operation completion:(nullable UXCompletionHandler)completion;
 - (void)_prepareViewController:(nullable UXViewController *)viewController forTransitionInContext:(_UXViewControllerOneToOneTransitionContext *)context completion:(nullable UXCompletionHandler)completion;
 

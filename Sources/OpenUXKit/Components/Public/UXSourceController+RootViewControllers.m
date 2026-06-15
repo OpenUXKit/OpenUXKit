@@ -49,7 +49,7 @@
         if (_selectedViewController != selectedViewController) {
             _selectedViewController = selectedViewController;
             UXNavigationController *toNavigationController = self.selectedNavigationController;
-            NSUInteger transition = animated ? 103 : 102;
+            UXNavigationControllerTransition transition = animated ? UXNavigationControllerTransitionZoomingCrossfade : UXNavigationControllerTransitionNone;
             _transitionCtx = [self _contextForTransitionOperation:1 fromViewController:fromNavigationController toViewController:toNavigationController transition:transition];
             [self setObservedNavigationController:toNavigationController];
             [self _updateInspectorViewController];

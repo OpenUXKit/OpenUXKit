@@ -48,8 +48,8 @@ void *UXScopeBarItemsObservationContext = &UXScopeBarItemsObservationContext;
         _subtoolbarHidden = YES;
         _toolbarHidden = YES;
         _scopeBarHidden = YES;
-        __defaultPushTransition = 100;
-        __defaultPopTransition = 101;
+        __defaultPushTransition = UXNavigationControllerTransitionParallaxPush;
+        __defaultPopTransition = UXNavigationControllerTransitionParallaxPop;
         _interactivePopGestureRecognizer = [NSGestureRecognizer new];
         _backButtonMenuEnabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"UXBackButtonMenuEnabled"];
     }
@@ -403,21 +403,18 @@ NSArray * _accessoryBarItemsForViewController(UXViewController *viewController) 
 }
 
 
-Class _transitionControllerClassForTransition(NSUInteger transition) {
-    if (transition > 101) {
-        if (transition == 102) {
+Class _transitionControllerClassForTransition(UXNavigationControllerTransition transition) {
+    switch (transition) {
+        case UXNavigationControllerTransitionSlidePush:
+        case UXNavigationControllerTransitionSlidePop:
+            return [UXSlideTransitionController class];
+        case UXNavigationControllerTransitionParallaxPush:
+        case UXNavigationControllerTransitionParallaxPop:
+            return [UXParallaxTransitionController class];
+        case UXNavigationControllerTransitionNone:
             return [UXIdentityTransitionController class];
-        } else if (transition == 103) {
+        case UXNavigationControllerTransitionZoomingCrossfade:
             return [UXZoomingCrossfadeTransitionController class];
-        }
-    } else if (transition - 1 < 2) {
-        return [UXSlideTransitionController class];
-    } else {
-        if (transition - 100 >= 2) {
-            return nil;
-        }
-
-        return [UXParallaxTransitionController class];
     }
 
     return nil;

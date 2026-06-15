@@ -12,7 +12,25 @@ UXKIT_EXTERN void *UXScopeBarItemsObservationContext;
 @class UXNavigationBar, UXToolbar, UXTransitionController, UXView, UXViewController, _UXContainerView, _UXViewControllerOneToOneTransitionContext, _UXWindowState, _UXNavigationRequest, UXBarButtonItem;
 @protocol UXNavigationControllerDelegate, _UXAccessoryBarContainer, UXViewControllerAnimatedTransitioning;
 
-Class _transitionControllerClassForTransition(NSUInteger transition);
+/// Built-in navigation transition styles.
+///
+/// Restored from the private UXKit framework, where this parameter is a bare
+/// `unsigned long long`. Each value maps to a concrete transition controller via
+/// `_transitionControllerClassForTransition`. The push/pop suffixes mirror the
+/// default transition slots: `_defaultPushTransition` is Parallax push and
+/// `_defaultPopTransition` is Parallax pop. The two Slide values are equivalent
+/// aliases — `UXSlideTransitionController` derives its direction from the
+/// navigation operation rather than from this value.
+typedef NS_ENUM(NSUInteger, UXNavigationControllerTransition) {
+    UXNavigationControllerTransitionSlidePush        = 1,
+    UXNavigationControllerTransitionSlidePop         = 2,
+    UXNavigationControllerTransitionParallaxPush     = 100,
+    UXNavigationControllerTransitionParallaxPop      = 101,
+    UXNavigationControllerTransitionNone             = 102,
+    UXNavigationControllerTransitionZoomingCrossfade = 103,
+};
+
+Class _transitionControllerClassForTransition(UXNavigationControllerTransition transition);
 UXKIT_EXTERN NSArray *_toolbarItemsForViewController(UXViewController *viewController);
 UXKIT_EXTERN NSArray *_subtoolbarItemsForViewController(UXViewController *viewController);
 UXKIT_EXTERN NSArray *_scopeBarItemsForViewController(UXViewController *viewController);
@@ -59,8 +77,8 @@ typedef struct {
     BOOL __fullScreenMode;
     UXBarPosition __toolbarPosition;
     UXBarPosition __subtoolbarPosition;
-    NSUInteger __defaultPushTransition;
-    NSUInteger __defaultPopTransition;
+    UXNavigationControllerTransition __defaultPushTransition;
+    UXNavigationControllerTransition __defaultPopTransition;
     CGFloat __leadingContentInset;
     UXTransitionController *_defaultTransitionController;
     UXViewController *_observedViewController;
@@ -113,8 +131,8 @@ typedef struct {
 @property (nonatomic, readonly) NSGestureRecognizer *interactivePopEventTracker;
 @property (nonatomic, readonly) UXViewController *currentTopViewController;
 @property (nonatomic, setter = _setHidesBackTitles:) BOOL _hidesBackTitles;
-@property (nonatomic, setter = _setDefaultPopTransition:) NSUInteger _defaultPopTransition;
-@property (nonatomic, setter = _setDefaultPushTransition:) NSUInteger _defaultPushTransition;
+@property (nonatomic, setter = _setDefaultPopTransition:) UXNavigationControllerTransition _defaultPopTransition;
+@property (nonatomic, setter = _setDefaultPushTransition:) UXNavigationControllerTransition _defaultPushTransition;
 @property (nonatomic, readonly) UXBarPosition _subtoolbarPosition;
 @property (nonatomic, readonly) UXBarPosition _toolbarPosition;
 @property (nonatomic, readonly) CGFloat _leadingContentInset;
@@ -129,17 +147,17 @@ typedef struct {
 - (UXBarButtonItem *)_backItemWithTitle:(NSString *)title target:(nullable id)target action:(nullable SEL)action;
 - (void)_addBackBarItemFromNavigationItem:(UXNavigationItem *)fromNavigationItem toNavigationItem:(UXNavigationItem *)toNavigationItem;
 - (void)_setupLayoutGuidesForViewController:(UXViewController *)viewController;
-- (nullable id<UXViewControllerInteractiveTransitioning>)_customInteractionControllerForAnimationController:(id<UXViewControllerAnimatedTransitioning>)animationController transition:(NSUInteger)transition;
-- (nullable id<UXViewControllerAnimatedTransitioning>)_customAnimationControllerForOperation:(UXNavigationControllerOperation)operation fromViewController:(UXViewController *)fromViewController toViewController:(UXViewController *)toViewController transition:(NSUInteger)transition;
-- (_UXViewControllerOneToOneTransitionContext *)_contextForTransitionOperation:(UXNavigationControllerOperation)operation fromViewController:(nullable UXViewController *)fromViewController toViewController:(nullable UXViewController *)toViewController transition:(NSUInteger)transition;
+- (nullable id<UXViewControllerInteractiveTransitioning>)_customInteractionControllerForAnimationController:(id<UXViewControllerAnimatedTransitioning>)animationController transition:(UXNavigationControllerTransition)transition;
+- (nullable id<UXViewControllerAnimatedTransitioning>)_customAnimationControllerForOperation:(UXNavigationControllerOperation)operation fromViewController:(UXViewController *)fromViewController toViewController:(UXViewController *)toViewController transition:(UXNavigationControllerTransition)transition;
+- (_UXViewControllerOneToOneTransitionContext *)_contextForTransitionOperation:(UXNavigationControllerOperation)operation fromViewController:(nullable UXViewController *)fromViewController toViewController:(nullable UXViewController *)toViewController transition:(UXNavigationControllerTransition)transition;
 - (void)_handleInteractiveUpdateWithEvent:(NSEvent *)event;
 - (void)_beginTransitionWithContext:(_UXViewControllerOneToOneTransitionContext *)context operation:(UXNavigationControllerOperation)operation;
 - (void)_removeConstraintsForContainedView:(UXView *)containedView;
 - (void)_addConstraintsForContainedView:(UXView *)containedView leftInset:(CGFloat)leftInset;
 - (void)_prepareViewController:(nullable UXViewController *)viewController forAnimationInContext:(_UXViewControllerOneToOneTransitionContext *)context completion:(void (^)(void))completion;
 - (void)_setViewControllers:(NSArray<UXViewController *> *)viewControllers animated:(BOOL)animated;
-- (nullable NSArray<__kindof UXViewController *> *)_popToViewController:(UXViewController *)viewController transition:(NSUInteger)transition;
-- (void)_pushViewController:(UXViewController *)viewController transition:(NSUInteger)transition;
+- (nullable NSArray<__kindof UXViewController *> *)_popToViewController:(UXViewController *)viewController transition:(UXNavigationControllerTransition)transition;
+- (void)_pushViewController:(UXViewController *)viewController transition:(UXNavigationControllerTransition)transition;
 - (nullable NSArray<__kindof UXViewController *> *)_dequeueNavigationRequest;
 - (nullable NSArray<__kindof UXViewController *> *)_performOrEnqueueNavigationRequest:(_UXNavigationRequest *)navigationRequest;
 - (BOOL)_hasNoNavigationRequests;

@@ -110,12 +110,12 @@
     }
 }
 
-- (_UXViewControllerOneToOneTransitionContext *)_contextForTransitionOperation:(NSInteger)operation fromViewController:(UXViewController *)fromViewController toViewController:(UXViewController *)toViewController transition:(NSUInteger)transition {
-    NSUInteger effectiveTransition = transition;
+- (_UXViewControllerOneToOneTransitionContext *)_contextForTransitionOperation:(NSInteger)operation fromViewController:(UXViewController *)fromViewController toViewController:(UXViewController *)toViewController transition:(UXNavigationControllerTransition)transition {
+    UXNavigationControllerTransition effectiveTransition = transition;
 
     if (fromViewController && toViewController) {
         if (fromViewController.view == toViewController.view) {
-            effectiveTransition = 102;
+            effectiveTransition = UXNavigationControllerTransitionNone;
         }
     }
 
@@ -127,7 +127,7 @@
     UXView *detailView = self.detailViewController.uxView;
     _UXViewControllerOneToOneTransitionContext *transitionContext = [_UXViewControllerOneToOneTransitionContext new];
     transitionContext.containerView = detailView;
-    transitionContext.animated = transition != 102;
+    transitionContext.animated = transition != UXNavigationControllerTransitionNone;
     transitionContext.animator = _transitionController;
     transitionContext.interactor = nil;
     transitionContext.initiallyInteractive = NO;

@@ -32,7 +32,7 @@
 
 @implementation UXNavigationController (Transitioning)
 
-- (_UXViewControllerOneToOneTransitionContext *)_contextForTransitionOperation:(UXNavigationControllerOperation)operation fromViewController:(UXViewController *)fromViewController toViewController:(UXViewController *)toViewController transition:(NSUInteger)transition {
+- (_UXViewControllerOneToOneTransitionContext *)_contextForTransitionOperation:(UXNavigationControllerOperation)operation fromViewController:(UXViewController *)fromViewController toViewController:(UXViewController *)toViewController transition:(UXNavigationControllerTransition)transition {
     id<UXViewControllerInteractiveTransitioning> interactor = nil;
     id<UXViewControllerAnimatedTransitioning> animator = [self _customAnimationControllerForOperation:operation fromViewController:fromViewController toViewController:toViewController transition:transition];
 
@@ -55,7 +55,7 @@
 
     _UXViewControllerOneToOneTransitionContext *oneToOneTransitionContext = [_UXViewControllerOneToOneTransitionContext new];
     oneToOneTransitionContext.containerView = self.containerView;
-    oneToOneTransitionContext.animated = transition != 102;
+    oneToOneTransitionContext.animated = transition != UXNavigationControllerTransitionNone;
     oneToOneTransitionContext.animator = animator;
     oneToOneTransitionContext.interactor = interactor;
     oneToOneTransitionContext.initiallyInteractive = interactor != nil;
@@ -72,7 +72,7 @@
     return oneToOneTransitionContext;
 }
 
-- (id<UXViewControllerAnimatedTransitioning>)_customAnimationControllerForOperation:(UXNavigationControllerOperation)operation fromViewController:(UXViewController *)fromViewController toViewController:(UXViewController *)toViewController transition:(NSUInteger)transition {
+- (id<UXViewControllerAnimatedTransitioning>)_customAnimationControllerForOperation:(UXNavigationControllerOperation)operation fromViewController:(UXViewController *)fromViewController toViewController:(UXViewController *)toViewController transition:(UXNavigationControllerTransition)transition {
     id<UXViewControllerAnimatedTransitioning> animationController = nil;
 
     if ([self.delegate respondsToSelector:@selector(navigationController:animationControllerForOperation:fromViewController:toViewController:)]) {
@@ -80,11 +80,11 @@
     }
 
     if (!animationController) {
-        NSUInteger _transition = 102;
+        UXNavigationControllerTransition _transition = UXNavigationControllerTransitionNone;
 
         if (fromViewController && toViewController) {
             if (fromViewController.view == toViewController.view) {
-                _transition = 102;
+                _transition = UXNavigationControllerTransitionNone;
             } else {
                 _transition = transition;
             }
@@ -105,7 +105,7 @@
     return animationController;
 }
 
-- (id)_customInteractionControllerForAnimationController:(id<UXViewControllerAnimatedTransitioning>)animationController transition:(NSUInteger)transition {
+- (id)_customInteractionControllerForAnimationController:(id<UXViewControllerAnimatedTransitioning>)animationController transition:(UXNavigationControllerTransition)transition {
     if (_delegateFlags.interactionControllerForAnimationController) {
         return [self.delegate navigationController:self interactionControllerForAnimationController:animationController];
     } else {

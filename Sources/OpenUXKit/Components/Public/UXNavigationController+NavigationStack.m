@@ -156,12 +156,12 @@
     if (operation) {
         switch (operation) {
             case UXNavigationControllerOperationPop: {
-                NSUInteger defaultPopTransition = 0;
+                UXNavigationControllerTransition defaultPopTransition = UXNavigationControllerTransitionNone;
 
                 if (navigationRequest.animated) {
                     defaultPopTransition = __defaultPopTransition;
                 } else {
-                    defaultPopTransition = 102;
+                    defaultPopTransition = UXNavigationControllerTransitionNone;
                 }
 
                 result = [self _popToViewController:navigationRequest.viewController transition:defaultPopTransition];
@@ -169,12 +169,12 @@
             break;
 
             case UXNavigationControllerOperationPush: {
-                NSUInteger defaultPushTransition = 0;
+                UXNavigationControllerTransition defaultPushTransition = UXNavigationControllerTransitionNone;
 
                 if (navigationRequest.animated) {
                     defaultPushTransition = __defaultPushTransition;
                 } else {
-                    defaultPushTransition = 102;
+                    defaultPushTransition = UXNavigationControllerTransitionNone;
                 }
 
                 [self _pushViewController:navigationRequest.viewController transition:defaultPushTransition];
@@ -191,7 +191,7 @@
     return result;
 }
 
-- (void)_pushViewController:(UXViewController *)viewController transition:(NSUInteger)transition {
+- (void)_pushViewController:(UXViewController *)viewController transition:(UXNavigationControllerTransition)transition {
     UXViewController *currentTopViewController = self.currentTopViewController;
     UXNavigationItem *navigationItem = self.provisionalPreviousViewController.navigationItem;
     UXNavigationItem *targetNavigationItem = nil;
@@ -399,22 +399,22 @@
         }
 
         if ([_currentViewControllers containsObject:lastViewController]) {
-            NSUInteger defaultPopTransition = 0;
+            UXNavigationControllerTransition defaultPopTransition = UXNavigationControllerTransitionNone;
 
             if (animated) {
                 defaultPopTransition = __defaultPopTransition;
             } else {
-                defaultPopTransition = 102;
+                defaultPopTransition = UXNavigationControllerTransitionNone;
             }
 
             [self _popToViewController:lastViewController transition:defaultPopTransition];
         } else {
-            NSUInteger defaultPushTransition = 0;
+            UXNavigationControllerTransition defaultPushTransition = UXNavigationControllerTransitionNone;
 
             if (animated) {
                 defaultPushTransition = __defaultPushTransition;
             } else {
-                defaultPushTransition = 102;
+                defaultPushTransition = UXNavigationControllerTransitionNone;
             }
 
             [self _pushViewController:lastViewController transition:defaultPushTransition];
@@ -428,7 +428,7 @@
     }
 }
 
-- (NSArray<__kindof UXViewController *> *)_popToViewController:(UXViewController *)viewController transition:(NSUInteger)transition {
+- (NSArray<__kindof UXViewController *> *)_popToViewController:(UXViewController *)viewController transition:(UXNavigationControllerTransition)transition {
     if (_currentViewControllers.count == 1) {
         NSLog(@"Application tried to pop when there is only one view on the stack");
         return nil;

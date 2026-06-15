@@ -1,5 +1,6 @@
 #import <AppKit/AppKit.h>
 #import "UXSourceController.h"
+#import "UXNavigationController+Internal.h"
 
 NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
@@ -55,7 +56,7 @@ UXKIT_EXTERN BOOL UXSourceControllerShouldForceSelectionForNavigationDestination
 - (void)_removeDestination:(id<UXNavigationDestination>)destination animated:(BOOL)animated completion:(nullable UXParameterCompletionHandler)completion;
 - (void)_setSelectedViewController:(nullable UXViewController *)selectedViewController animated:(BOOL)animated sender:(nullable id)sender;
 - (void)_didChangeSelectedViewControllerFromSender:(nullable id)sender;
-- (_UXViewControllerOneToOneTransitionContext *)_contextForTransitionOperation:(NSInteger)operation fromViewController:(nullable UXViewController *)fromViewController toViewController:(nullable UXViewController *)toViewController transition:(NSUInteger)transition;
+- (_UXViewControllerOneToOneTransitionContext *)_contextForTransitionOperation:(NSInteger)operation fromViewController:(nullable UXViewController *)fromViewController toViewController:(nullable UXViewController *)toViewController transition:(UXNavigationControllerTransition)transition;
 - (void)_beginTransitionWithContext:(_UXViewControllerOneToOneTransitionContext *)context operation:(NSInteger)operation;
 - (void)_prepareViewController:(nullable UXViewController *)viewController forAnimationInContext:(_UXViewControllerOneToOneTransitionContext *)context completion:(nullable UXCompletionHandler)completion;
 - (void)_setupDelegateForNavigationController:(UXNavigationController *)navigationController operation:(UXNavigationControllerOperation)operation fromViewController:(nullable UXViewController *)fromViewController toViewController:(nullable UXViewController *)toViewController;

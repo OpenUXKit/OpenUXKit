@@ -427,7 +427,7 @@ static void *kToolbarPropertiesObservationContext = &kToolbarPropertiesObservati
                 innerCompletion();
             }];
         } else {
-            _transitionCtx = [self _contextForTransitionOperation:1 fromViewController:_installedViewController toViewController:viewController transition:(animated ? 103 : 102)];
+            _transitionCtx = [self _contextForTransitionOperation:1 fromViewController:_installedViewController toViewController:viewController transition:(animated ? UXNavigationControllerTransitionZoomingCrossfade : UXNavigationControllerTransitionNone)];
             _installedViewController = viewController;
             [self _invalidateIntrinsicLayoutInsetsForViewController:viewController];
             [self _beginTransitionWithContext:_transitionCtx operation:1 completion:innerCompletion];
@@ -442,12 +442,12 @@ static void *kToolbarPropertiesObservationContext = &kToolbarPropertiesObservati
     }
 }
 
-- (id)_contextForTransitionOperation:(NSInteger)operation fromViewController:(UXViewController *)fromViewController toViewController:(UXViewController *)toViewController transition:(NSUInteger)transition {
-    NSUInteger effectiveTransition = transition;
+- (id)_contextForTransitionOperation:(NSInteger)operation fromViewController:(UXViewController *)fromViewController toViewController:(UXViewController *)toViewController transition:(UXNavigationControllerTransition)transition {
+    UXNavigationControllerTransition effectiveTransition = transition;
 
     if (fromViewController && toViewController) {
         if (fromViewController.view == toViewController.view) {
-            effectiveTransition = 102;
+            effectiveTransition = UXNavigationControllerTransitionNone;
         }
     }
 
@@ -471,7 +471,7 @@ static void *kToolbarPropertiesObservationContext = &kToolbarPropertiesObservati
 
     _UXViewControllerOneToOneTransitionContext *transitionContext = [_UXViewControllerOneToOneTransitionContext new];
     transitionContext.containerView = self.uxView;
-    transitionContext.animated = transition != 102;
+    transitionContext.animated = transition != UXNavigationControllerTransitionNone;
     transitionContext.animator = _transitionController;
     transitionContext.interactor = nil;
     transitionContext.initiallyInteractive = NO;
